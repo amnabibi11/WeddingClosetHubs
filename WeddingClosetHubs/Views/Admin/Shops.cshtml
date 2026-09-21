@@ -1,0 +1,482 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Shop>
+
+@{
+    ViewData["Title"] = "Manage Shops";
+}
+
+<div class="container-fluid mt-5">
+
+    <!-- ===================================================== -->
+    <!-- PAGE HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                Manage Shops
+            </h2>
+
+            <p class="text-muted mb-0">
+                View and manage all registered shops.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Dashboard"
+           class="btn btn-secondary">
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- STATUS INFORMATION -->
+    <!-- ===================================================== -->
+
+    <div class="row mb-4">
+
+        <!-- Pending -->
+        <div class="col-md-4 mb-3">
+
+            <div class="card border-warning shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-warning fw-bold">
+                        Pending
+                    </h6>
+
+                    <p class="mb-0 text-muted">
+                        Shops waiting for Admin approval.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Active -->
+        <div class="col-md-4 mb-3">
+
+            <div class="card border-success shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-success fw-bold">
+                        Active
+                    </h6>
+
+                    <p class="mb-0 text-muted">
+                        Approved and enabled shops.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Disabled -->
+        <div class="col-md-4 mb-3">
+
+            <div class="card border-danger shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-danger fw-bold">
+                        Disabled
+                    </h6>
+
+                    <p class="mb-0 text-muted">
+                        Approved shops currently disabled.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SHOPS CARD -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                Registered Shops
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (Model != null && Model.Any())
+            {
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped table-hover align-middle">
+
+                        <!-- ================================================= -->
+                        <!-- TABLE HEADER -->
+                        <!-- ================================================= -->
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Logo
+                                </th>
+
+                                <th>
+                                    Shop Name
+                                </th>
+
+                                <th>
+                                    Shopkeeper
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Address
+                                </th>
+
+                                <th>
+                                    Approval
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Created Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <!-- ================================================= -->
+                        <!-- TABLE BODY -->
+                        <!-- ================================================= -->
+
+                        <tbody>
+
+                            @foreach (var shop in Model)
+                            {
+
+                                <tr>
+
+                                    <!-- ================================= -->
+                                    <!-- SHOP ID -->
+                                    <!-- ================================= -->
+
+                                    <td>
+                                        @shop.ShopId
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- SHOP LOGO -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(shop.Logo))
+                                        {
+                                            <img src="@shop.Logo"
+                                                 alt="@shop.ShopName Logo"
+                                                 width="70"
+                                                 height="70"
+                                                 style="object-fit:cover;
+                                                        border-radius:8px;
+                                                        border:1px solid #ddd;" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                No Logo
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- SHOP NAME -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        <strong>
+                                            @shop.ShopName
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- SHOPKEEPER -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (shop.Shopkeeper != null)
+                                        {
+                                            <span>
+                                                @shop.Shopkeeper.Name
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">
+                                                No Shopkeeper
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- EMAIL -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(shop.Email))
+                                        {
+                                            @shop.Email
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- PHONE -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(shop.ShopPhone))
+                                        {
+                                            @shop.ShopPhone
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- ADDRESS -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(shop.ShopAddress))
+                                        {
+                                            @shop.ShopAddress
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- APPROVAL -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (shop.IsApproved)
+                                        {
+                                            <span class="badge bg-success">
+                                                Approved
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- STATUS -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        @if (!shop.IsApproved)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (shop.Status)
+                                        {
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Disabled
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- CREATED DATE -->
+                                    <!-- ================================= -->
+
+                                    <td>
+                                        @shop.CreatedDate.ToString("dd-MM-yyyy")
+                                    </td>
+
+
+                                    <!-- ================================= -->
+                                    <!-- ACTION -->
+                                    <!-- ================================= -->
+
+                                    <td>
+
+                                        <a asp-controller="Admin"
+                                           asp-action="ShopDetails"
+                                           asp-route-id="@shop.ShopId"
+                                           class="btn btn-primary btn-sm">
+
+                                            View Details
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+            else
+            {
+
+                <!-- ================================================= -->
+                <!-- NO SHOPS -->
+                <!-- ================================================= -->
+
+                <div class="alert alert-info text-center">
+
+                    <h5>
+                        No Shops Registered
+                    </h5>
+
+                    <p class="mb-0">
+                        No shops have been registered in the system yet.
+                    </p>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>

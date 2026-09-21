@@ -1,0 +1,1165 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid mt-4 mb-5">
+
+   
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-speedometer2"></i>
+                Admin Dashboard
+            </h2>
+
+            <p class="text-muted mb-0">
+                Wedding Closet Hubs Administration
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center">
+
+            <a asp-controller="Admin"
+               asp-action="AdminProfile"
+               class="text-decoration-none">
+
+                <span class="badge bg-dark p-2"
+                      style="cursor:pointer;">
+
+                    <i class="bi bi-person-circle"></i>
+
+                    @Context.Session.GetString("UserName")
+
+                </span>
+
+            </a>
+
+            <a asp-controller="Admin"
+               asp-action="Logout"
+               class="btn btn-outline-danger ms-2">
+
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <h5 class="fw-bold mb-3">
+
+        <i class="bi bi-people"></i>
+        User Statistics
+
+    </h5>
+
+
+    <div class="row g-4 mb-4">
+
+
+        
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Total Users
+                            </h6>
+
+                            <h2 class="fw-bold">
+                                @ViewBag.TotalUsers
+                            </h2>
+
+                        </div>
+
+                        <div class="fs-1 text-primary">
+
+                            <i class="bi bi-people"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Shopkeepers
+                            </h6>
+
+                            <h2 class="fw-bold">
+                                @ViewBag.TotalShopkeepers
+                            </h2>
+
+                            <a asp-controller="Admin"
+                               asp-action="Shopkeepers"
+                               class="btn btn-sm btn-outline-primary">
+
+                                <i class="bi bi-shop"></i>
+                                Manage
+
+                            </a>
+
+                        </div>
+
+                        <div class="fs-1 text-success">
+
+                            <i class="bi bi-shop"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Customers
+                            </h6>
+
+                            <h2 class="fw-bold">
+                                @ViewBag.TotalCustomers
+                            </h2>
+
+                            <a asp-controller="Admin"
+                               asp-action="Customers"
+                               class="btn btn-sm btn-outline-info">
+
+                                <i class="bi bi-person"></i>
+                                Manage
+
+                            </a>
+
+                        </div>
+
+                        <div class="fs-1 text-info">
+
+                            <i class="bi bi-person"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Delivery Boys
+                            </h6>
+
+                            <h2 class="fw-bold">
+                                @ViewBag.TotalDeliveryBoys
+                            </h2>
+
+                            <a asp-controller="Admin"
+                               asp-action="DeliveryBoys"
+                               class="btn btn-sm btn-outline-warning">
+
+                                <i class="bi bi-bicycle"></i>
+                                Manage
+
+                            </a>
+
+                        </div>
+
+                        <div class="fs-1 text-warning">
+
+                            <i class="bi bi-bicycle"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <h5 class="fw-bold mb-3">
+
+        <i class="bi bi-building"></i>
+        Shop Management
+
+    </h5>
+
+
+    <div class="row g-4 mb-4">
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Shops
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        @ViewBag.TotalShops
+                    </h2>
+
+                    <a asp-controller="Admin"
+                       asp-action="Shops"
+                       class="btn btn-primary btn-sm">
+
+                        <i class="bi bi-shop-window"></i>
+                        Manage Shops
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Pending Shops
+                    </h6>
+
+                    <h2 class="fw-bold text-warning">
+                        @ViewBag.PendingShops
+                    </h2>
+
+                    <a asp-controller="Admin"
+                       asp-action="Shops"
+                       class="btn btn-warning btn-sm">
+
+                        <i class="bi bi-hourglass-split"></i>
+                        Review
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Active Shops
+                    </h6>
+
+                    <h2 class="fw-bold text-success">
+                        @ViewBag.ActiveShops
+                    </h2>
+
+                    <span class="text-success">
+
+                        <i class="bi bi-check-circle"></i>
+                        Approved & Active
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Disabled Shops
+                    </h6>
+
+                    <h2 class="fw-bold text-danger">
+                        @ViewBag.DisabledShops
+                    </h2>
+
+                    <span class="text-danger">
+
+                        <i class="bi bi-x-circle"></i>
+                        Inactive Shops
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-person-check"></i>
+                Account Status
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-success mb-0">
+
+                        <h6 class="fw-bold">
+
+                            <i class="bi bi-check-circle"></i>
+                            Active Users
+
+                        </h6>
+
+                        <h3 class="fw-bold mb-1">
+
+                            @ViewBag.ActiveUsers
+
+                        </h3>
+
+                        <small>
+                            Users currently allowed to use their accounts.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-danger mb-0">
+
+                        <h6 class="fw-bold">
+
+                            <i class="bi bi-x-circle"></i>
+                            Disabled Users
+
+                        </h6>
+
+                        <h3 class="fw-bold mb-1">
+
+                            @ViewBag.DisabledUsers
+
+                        </h3>
+
+                        <small>
+                            Users whose accounts are currently disabled.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-hourglass-split"></i>
+                Pending Approvals
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+
+               
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-primary
+                                d-flex
+                                justify-content-between
+                                align-items-center
+                                mb-0">
+
+                        <div>
+
+                            <strong>
+                                Shopkeeper Applications
+                            </strong>
+
+                            <br />
+
+                            <small>
+                                @ViewBag.PendingShopkeepers
+                                pending applications
+                            </small>
+
+                        </div>
+
+                        <a asp-controller="Admin"
+                           asp-action="Shopkeepers"
+                           class="btn btn-primary">
+
+                            Review
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-warning
+                                d-flex
+                                justify-content-between
+                                align-items-center
+                                mb-0">
+
+                        <div>
+
+                            <strong>
+                                Delivery Applications
+                            </strong>
+
+                            <br />
+
+                            <small>
+                                @ViewBag.PendingDeliveryBoys
+                                pending applications
+                            </small>
+
+                        </div>
+
+                        <a asp-controller="Admin"
+                           asp-action="DeliveryBoys"
+                           class="btn btn-warning">
+
+                            Review
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+               
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-success
+                                d-flex
+                                justify-content-between
+                                align-items-center
+                                mb-0">
+
+                        <div>
+
+                            <strong>
+                                Shop Verification
+                            </strong>
+
+                            <br />
+
+                            <small>
+                                @ViewBag.PendingShops
+                                shops waiting for approval
+                            </small>
+
+                        </div>
+
+                        <a asp-controller="Admin"
+                           asp-action="Shops"
+                           class="btn btn-success">
+
+                            Review
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+              
+
+                <div class="col-md-6">
+
+                    <div class="alert alert-info
+                                d-flex
+                                justify-content-between
+                                align-items-center
+                                mb-0">
+
+                        <div>
+
+                            <strong>
+                                Customer Accounts
+                            </strong>
+
+                            <br />
+
+                            <small>
+                                Manage registered customer accounts
+                            </small>
+
+                        </div>
+
+                        <a asp-controller="Admin"
+                           asp-action="Customers"
+                           class="btn btn-info">
+
+                            Manage
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-activity"></i>
+                Admin Activity
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+
+                <div class="col-md-4">
+
+                    <div class="card border-primary h-100 shadow-sm">
+
+                        <div class="card-body text-center">
+
+                            <div class="fs-1 text-primary mb-2">
+
+                                <i class="bi bi-chat-dots"></i>
+
+                            </div>
+
+                            <h5 class="fw-bold">
+                                Chat Messages
+                            </h5>
+
+                            <h2 class="fw-bold text-primary">
+
+                                @(ViewBag.UnreadChats ?? 0)
+
+                            </h2>
+
+                            <p class="text-muted mb-3">
+
+                                Unread messages
+
+                            </p>
+
+                            <a asp-controller="Admin"
+                               asp-action="Chat"
+                               class="btn btn-primary">
+
+                                <i class="bi bi-chat"></i>
+                                View Chats
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="card border-warning h-100 shadow-sm">
+
+                        <div class="card-body text-center">
+
+                            <div class="fs-1 text-warning mb-2">
+
+                                <i class="bi bi-bell"></i>
+
+                            </div>
+
+                            <h5 class="fw-bold">
+                                Notifications
+                            </h5>
+
+                            <h2 class="fw-bold text-warning">
+
+                                @(ViewBag.UnreadNotifications ?? 0)
+
+                            </h2>
+
+                            <p class="text-muted mb-3">
+
+                                Unread notifications
+
+                            </p>
+
+                            <a asp-controller="Admin"
+                               asp-action="Notifications"
+                               class="btn btn-warning">
+
+                                <i class="bi bi-bell"></i>
+                                View Notifications
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="card border-success h-100 shadow-sm">
+
+                        <div class="card-body text-center">
+
+                            <div class="fs-1 text-success mb-2">
+
+                                <i class="bi bi-star"></i>
+
+                            </div>
+
+                            <h5 class="fw-bold">
+                                Customer Feedback
+                            </h5>
+
+                            <h2 class="fw-bold text-success">
+
+                                @(ViewBag.TotalReviews ?? 0)
+
+                            </h2>
+
+                            <p class="text-muted mb-3">
+
+                                Customer reviews
+
+                            </p>
+
+                            <a asp-controller="Admin"
+                               asp-action="Feedback"
+                               class="btn btn-success">
+
+                                <i class="bi bi-star"></i>
+                                View Feedback
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-gear"></i>
+                Administration
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+
+                
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Shopkeepers"
+                       class="btn btn-outline-primary
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-shop fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Manage Shopkeepers
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Approve & manage
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Shops"
+                       class="btn btn-outline-success
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-building fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Manage Shops
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Verify shop information
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Customers"
+                       class="btn btn-outline-info
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-people fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Manage Customers
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            View & manage users
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="DeliveryBoys"
+                       class="btn btn-outline-warning
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-bicycle fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Manage Delivery
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Verify & assign zones
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Orders"
+                       class="btn btn-outline-secondary
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-bag-check fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Manage Orders
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Monitor all orders
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Payments"
+                       class="btn btn-outline-dark
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-credit-card fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Payments
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Payments & commission
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Reports"
+                       class="btn btn-outline-danger
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-bar-chart fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Reports
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Business reports
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Chat"
+                       class="btn btn-outline-primary
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-chat-dots fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Chat
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            View user conversations
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Notifications"
+                       class="btn btn-outline-warning
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-bell fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Notifications
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            View admin notifications
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="Feedback"
+                       class="btn btn-outline-success
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-star fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            Customer Feedback
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            View ratings & reviews
+                        </small>
+
+                    </a>
+
+                </div>
+
+
+               
+
+                <div class="col-lg-3 col-md-6">
+
+                    <a asp-controller="Admin"
+                       asp-action="UserAccounts"
+                       class="btn btn-outline-secondary
+                              w-100
+                              p-3">
+
+                        <i class="bi bi-person-gear fs-3"></i>
+
+                        <br />
+
+                        <strong>
+                            User Accounts
+                        </strong>
+
+                        <br />
+
+                        <small>
+                            Active / disabled users
+                        </small>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+

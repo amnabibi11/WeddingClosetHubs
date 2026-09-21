@@ -1,0 +1,1894 @@
+﻿@model WeddingClosetHubs.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = null;
+
+    string orderStatus = Model.OrderStatus ?? "Pending";
+
+    string statusClass = orderStatus.ToLower() switch
+    {
+        "confirmed" => "status-confirmed",
+        "processing" => "status-processing",
+        "ready for delivery" => "status-ready",
+        "assigned" => "status-assigned",
+        "picked up" => "status-pickedup",
+        "shipped" => "status-shipped",
+        "delivered" => "status-delivered",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "rejected" => "status-rejected",
+        _ => "status-pending"
+    };
+
+    var deliveryBoys =
+        ViewBag.DeliveryBoys as IEnumerable<WeddingClosetHubs.Models.User>
+        ?? Enumerable.Empty<WeddingClosetHubs.Models.User>();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Order Details - Wedding Closet Hub</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+
+    <style>
+
+        body {
+            background: #f6f6f6;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #333;
+        }
+
+        .page-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* =====================================================
+           PAGE HEADER
+        ===================================================== */
+
+        .page-header {
+            background: #800020;
+            color: white;
+            border-radius: 14px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            background: white;
+            color: #800020;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #f5f5f5;
+            color: #800020;
+        }
+
+        /* =====================================================
+           ALERTS
+        ===================================================== */
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        /* =====================================================
+           CARDS
+        ===================================================== */
+
+        .custom-card {
+            background: white;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+
+        .custom-card-header {
+            padding: 16px 22px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-primary {
+            background: #800020;
+        }
+
+        .header-gold {
+            background: #b08d25;
+        }
+
+        .header-dark {
+            background: #343a40;
+        }
+
+        .header-success {
+            background: #198754;
+        }
+
+        .custom-card-body {
+            padding: 25px;
+        }
+
+        /* =====================================================
+           INFORMATION
+        ===================================================== */
+
+        .info-group {
+            margin-bottom: 18px;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 13px;
+            color: #777;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .info-value i {
+            margin-right: 5px;
+        }
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 15px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-ready {
+            background: #e2e3e5;
+            color: #41464b;
+        }
+
+        .status-assigned {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-pickedup {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-shipped {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-delivered {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-cancelled,
+        .status-rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        /* =====================================================
+           PRODUCT TABLE
+        ===================================================== */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .product-table th {
+            background: #f8f8f8;
+            color: #555;
+            font-size: 13px;
+            text-transform: uppercase;
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-table td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #800020;
+        }
+
+        /* =====================================================
+           AMOUNTS
+        ===================================================== */
+
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .amount-row:last-child {
+            border-bottom: none;
+        }
+
+        .amount-label {
+            color: #666;
+        }
+
+        .amount-value {
+            font-weight: 600;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0 0;
+            margin-top: 8px;
+            border-top: 2px solid #800020;
+            font-size: 20px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        /* =====================================================
+           PAYMENT
+        ===================================================== */
+
+        .payment-badge {
+            display: inline-block;
+            padding: 6px 13px;
+            border-radius: 20px;
+            background: #f1f1f1;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .paid {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .unpaid {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* =====================================================
+           DELIVERY ASSIGNMENT
+        ===================================================== */
+
+        .assignment-box {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .current-delivery {
+            background: #f1f8f4;
+            border: 1px solid #cce5d5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #198754;
+        }
+
+        .delivery-zone {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .delivery-status {
+            display: inline-block;
+            margin-top: 8px;
+            background: #d1e7dd;
+            color: #0f5132;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .form-select {
+            min-height: 46px;
+            border-radius: 8px;
+        }
+
+        .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.12);
+        }
+
+        .assign-btn {
+            min-height: 46px;
+            background: #800020;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .assign-btn:hover {
+            background: #650019;
+            color: white;
+        }
+
+        /* =====================================================
+           ACTION BUTTONS
+        ===================================================== */
+
+        .action-btn {
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-maroon {
+            background: #800020;
+            color: white;
+        }
+
+        .btn-maroon:hover {
+            background: #650019;
+            color: white;
+        }
+
+        .btn-outline-maroon {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+        }
+
+        .btn-outline-maroon:hover {
+            background: #800020;
+            color: white;
+        }
+
+        /* =====================================================
+           NOTES
+        ===================================================== */
+
+        .notes-box {
+            background: #fffdf5;
+            border-left: 4px solid #d4af37;
+            padding: 15px 18px;
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+
+        .not-assigned {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .custom-card-body {
+                padding: 18px;
+            }
+
+            .total-row {
+                font-size: 17px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ===================================================== -->
+
+    <div class="page-header">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <h2>
+                    <i class="bi bi-receipt"></i>
+                    Order Details
+                </h2>
+
+                <p>
+                    Order #@Model.OrderId
+                </p>
+
+            </div>
+
+            <a asp-controller="Admin"
+               asp-action="Orders"
+               class="back-btn">
+
+                <i class="bi bi-arrow-left"></i>
+                Back to Orders
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ALERTS
+    ===================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =====================================================
+         ORDER INFORMATION
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-info-circle me-2"></i>
+
+            Order Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order ID
+                        </label>
+
+                        <div class="info-value">
+                            #@Model.OrderId
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order Date
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-calendar3"></i>
+
+                            @Model.CreatedDate.ToString(
+                                "dd MMM yyyy, hh:mm tt")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order Status
+                        </label>
+
+                        <div class="info-value">
+
+                            <span class="status-badge @statusClass">
+
+                                @orderStatus
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CUSTOMER INFORMATION
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-person me-2"></i>
+
+            Customer Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Customer Name
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-person-circle"></i>
+
+                            @(Model.Customer?.Name ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Email
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-envelope"></i>
+
+                            @(Model.Customer?.Email ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Phone
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-telephone"></i>
+
+                            @(Model.Customer?.Phone ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+
+                    <div class="info-group mb-0">
+
+                        <label class="info-label">
+                            Customer Address
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                            @(Model.Customer?.Address ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SHOP INFORMATION
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-gold">
+
+            <i class="bi bi-shop me-2"></i>
+
+            Shop Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Name
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-shop"></i>
+
+                            @(Model.Shop?.ShopName ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shopkeeper
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-person-badge"></i>
+
+                            @(Model.Shop?.Shopkeeper?.Name ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Phone
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-telephone"></i>
+
+                            @(Model.Shop?.ShopPhone ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+
+                    <div class="info-group mb-0">
+
+                        <label class="info-label">
+                            Shop Address
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                            @(Model.Shop?.ShopAddress ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ORDERED PRODUCTS
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-bag me-2"></i>
+
+            Ordered Products
+
+        </div>
+
+        <div class="custom-card-body">
+
+            @if (Model.OrderDetails != null &&
+                 Model.OrderDetails.Any())
+            {
+
+                <div class="table-container">
+
+                    <table class="product-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Product</th>
+
+                                <th>Price</th>
+
+                                <th>Quantity</th>
+
+                                <th>Subtotal</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var item in Model.OrderDetails)
+                        {
+
+                            decimal price = item.UnitPrice;
+
+                            decimal subtotal =
+                                price * item.Quantity;
+
+                            <tr>
+
+                                <td>
+
+                                    <span class="product-name">
+
+                                        @(item.Product?.ProductName ?? "N/A")
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    Rs. @price.ToString("N2")
+
+                                </td>
+
+                                <td>
+
+                                    @item.Quantity
+
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        Rs. @subtotal.ToString("N2")
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="alert alert-warning mb-0">
+
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+
+                    No products found for this order.
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PAYMENT INFORMATION
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-success">
+
+            <i class="bi bi-credit-card me-2"></i>
+
+            Payment Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Method
+                        </label>
+
+                        <div class="info-value">
+
+                            <span class="payment-badge">
+
+                                <i class="bi bi-wallet2"></i>
+
+                                @(Model.PaymentMethod ?? "N/A")
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Status
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.PaymentReceived)
+                            {
+                                <span class="paid">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Paid
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="unpaid">
+
+                                    <i class="bi bi-x-circle-fill"></i>
+
+                                    @(Model.PaymentStatus ?? "Unpaid")
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Date
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.PaymentDate.HasValue)
+                            {
+                                @Model.PaymentDate.Value.ToString(
+                                    "dd MMM yyyy, hh:mm tt")
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Available
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         AMOUNT SUMMARY
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-gold">
+
+            <i class="bi bi-calculator me-2"></i>
+
+            Amount Summary
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="amount-row">
+
+                <span class="amount-label">
+                    Product Total
+                </span>
+
+                <span class="amount-value">
+                    Rs. @Model.ProductTotal.ToString("N2")
+                </span>
+
+            </div>
+
+
+            <div class="amount-row">
+
+                <span class="amount-label">
+                    Delivery Charges
+                </span>
+
+                <span class="amount-value">
+                    Rs. @Model.DeliveryCharges.ToString("N2")
+                </span>
+
+            </div>
+
+
+            <div class="amount-row">
+
+                <span class="amount-label">
+                    Service Fee / Commission
+                </span>
+
+                <span class="amount-value">
+                    Rs. @Model.ServiceFee.ToString("N2")
+                </span>
+
+            </div>
+
+
+            <div class="total-row">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <span>
+                    Rs. @Model.TotalAmount.ToString("N2")
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DELIVERY INFORMATION
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-bicycle me-2"></i>
+
+            Delivery Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <!-- CURRENT ASSIGNMENT -->
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Current Delivery Boy
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.Delivery != null)
+                            {
+
+                                <span class="delivery-name">
+
+                                    <i class="bi bi-person-check-fill"></i>
+
+                                    @Model.Delivery.Name
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="not-assigned">
+
+                                    <i class="bi bi-person-x-fill"></i>
+
+                                    Not Assigned
+
+                                </span>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Delivery ID
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.DeliveryId.HasValue)
+                            {
+                                @Model.DeliveryId.Value
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Assigned
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+
+                    <div class="info-group mb-0">
+
+                        <label class="info-label">
+                            Delivery Address
+                        </label>
+
+                        <div class="info-value">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            @(Model.DeliveryAddress ??
+                              "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+            <!-- =================================================
+                 ASSIGN DELIVERY BOY
+            ================================================= -->
+
+            <div class="assignment-box">
+
+                <h5 class="mb-3">
+
+                    <i class="bi bi-person-plus-fill me-2"></i>
+
+                    Assign Delivery Boy
+
+                </h5>
+
+
+                @if (Model.Delivery != null)
+                {
+
+                    <div class="current-delivery">
+
+                        <div class="delivery-name">
+
+                            <i class="bi bi-check-circle-fill me-1"></i>
+
+                            Currently Assigned:
+                            @Model.Delivery.Name
+
+                        </div>
+
+                        @if (Model.Delivery.DeliveryBoy != null)
+                        {
+
+                            <div class="delivery-zone">
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                Zone:
+                                @(string.IsNullOrWhiteSpace(
+                                    Model.Delivery.DeliveryBoy.AssignedZone)
+                                    ? "Not Assigned"
+                                    : Model.Delivery.DeliveryBoy.AssignedZone)
+
+                            </div>
+
+                            <span class="delivery-status">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Assigned Delivery Boy
+
+                            </span>
+
+                        }
+
+                        <div class="small text-muted mt-2">
+
+                            You can reassign this order to another
+                            approved delivery boy below.
+
+                        </div>
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     DELIVERY BOY DROPDOWN
+                ================================================= -->
+
+                @if (deliveryBoys.Any())
+                {
+
+                    <form asp-controller="Admin"
+                          asp-action="AssignDeliveryBoy"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+
+                        <div class="row align-items-end">
+
+                            <div class="col-md-8">
+
+                                <label class="info-label">
+
+                                    Select Delivery Boy
+
+                                </label>
+
+
+                                <select name="deliveryId"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+
+                                        -- Select Delivery Boy --
+
+                                    </option>
+
+
+                                    @foreach (var deliveryBoy in deliveryBoys)
+                                    {
+
+                                        bool isCurrent =
+                                            Model.DeliveryId ==
+                                            deliveryBoy.UserId;
+
+
+                                        <option value="@deliveryBoy.UserId"
+                                                selected="@isCurrent">
+
+                                            @deliveryBoy.Name
+
+                                            @if (deliveryBoy.DeliveryBoy != null &&
+                                                 !string.IsNullOrWhiteSpace(
+                                                     deliveryBoy.DeliveryBoy.AssignedZone))
+                                            {
+                                                <text>
+                                                    -
+                                                    @deliveryBoy.DeliveryBoy.AssignedZone
+                                                </text>
+                                            }
+
+                                        </option>
+
+                                    }
+
+                                </select>
+
+
+                                <small class="text-muted">
+
+                                    Only approved, active and verified
+                                    delivery boys are shown.
+
+                                </small>
+
+                            </div>
+
+
+                            <div class="col-md-4 mt-3 mt-md-0">
+
+                                <button type="submit"
+                                        class="btn assign-btn w-100">
+
+                                    <i class="bi bi-bicycle me-1"></i>
+
+                                    @if (Model.DeliveryId.HasValue)
+                                    {
+                                        <text>
+                                            Reassign Delivery Boy
+                                        </text>
+                                    }
+                                    else
+                                    {
+                                        <text>
+                                            Assign Delivery Boy
+                                        </text>
+                                    }
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                }
+                else
+                {
+
+                    <div class="alert alert-warning mb-0">
+
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                        <strong>
+                            No delivery boys available.
+                        </strong>
+
+                        <hr />
+
+                        <div>
+                            A delivery boy must satisfy all of these:
+                        </div>
+
+                        <ul class="mb-0 mt-2">
+
+                            <li>
+                                Registered with Delivery role
+                            </li>
+
+                            <li>
+                                Approved by Admin
+                            </li>
+
+                            <li>
+                                Enabled / Active
+                            </li>
+
+                            <li>
+                                Verification Status = Approved
+                            </li>
+
+                            <li>
+                                Assigned Zone
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DELIVERY PAYMENT
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-success">
+
+            <i class="bi bi-cash-stack me-2"></i>
+
+            Delivery Payment Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Delivery Charges
+                        </label>
+
+                        <div class="info-value">
+
+                            Rs. @Model.DeliveryCharges.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Delivery Payment Status
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.DeliveryPaymentStatus == "Paid")
+                            {
+
+                                <span class="paid">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Paid
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="unpaid">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    @(Model.DeliveryPaymentStatus ??
+                                      "Pending")
+
+                                </span>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Delivery Paid Amount
+                        </label>
+
+                        <div class="info-value">
+
+                            Rs. @Model.DeliveryPaidAmount.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SHOPKEEPER PAYMENT
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-gold">
+
+            <i class="bi bi-shop me-2"></i>
+
+            Shopkeeper Payment Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shopkeeper Amount
+                        </label>
+
+                        <div class="info-value">
+
+                            Rs. @Model.ShopkeeperAmount.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Status
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (Model.ShopkeeperPaymentStatus == "Paid")
+                            {
+
+                                <span class="paid">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Paid
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="unpaid">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    @(Model.ShopkeeperPaymentStatus ??
+                                      "Pending")
+
+                                </span>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Paid Amount
+                        </label>
+
+                        <div class="info-value">
+
+                            Rs. @Model.ShopkeeperPaidAmount.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DELIVERY ADDRESS
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-geo-alt me-2"></i>
+
+            Delivery Address
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="info-value">
+
+                <i class="bi bi-pin-map-fill"></i>
+
+                @(Model.DeliveryAddress ??
+                  "No delivery address provided.")
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTES
+    ===================================================== -->
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+
+        <div class="custom-card">
+
+            <div class="custom-card-header header-dark">
+
+                <i class="bi bi-chat-left-text me-2"></i>
+
+                Order Notes
+
+            </div>
+
+            <div class="custom-card-body">
+
+                <div class="notes-box">
+
+                    @Model.Notes
+
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+
+
+    <!-- =====================================================
+         ACTIONS
+    ===================================================== -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-gear me-2"></i>
+
+            Order Actions
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <a asp-controller="Admin"
+               asp-action="Orders"
+               class="action-btn btn-outline-maroon">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Orders
+
+            </a>
+
+
+            @if (!Model.PaymentReceived &&
+                 Model.PaymentStatus != "Paid")
+            {
+
+                <form asp-controller="Admin"
+                      asp-action="ReceivePayment"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.OrderId" />
+
+                    <button type="submit"
+                            class="action-btn btn btn-success">
+
+                        <i class="bi bi-cash-coin"></i>
+
+                        Receive Payment
+
+                    </button>
+
+                </form>
+
+            }
+
+
+            @if (Model.PaymentReceived &&
+                 Model.ShopkeeperPaymentStatus != "Paid")
+            {
+
+                <form asp-controller="Admin"
+                      asp-action="PayShopkeeper"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.OrderId" />
+
+                    <button type="submit"
+                            class="action-btn btn btn-warning">
+
+                        <i class="bi bi-shop"></i>
+
+                        Pay Shopkeeper
+
+                    </button>
+
+                </form>
+
+            }
+
+
+            @if (Model.PaymentReceived &&
+                 Model.DeliveryId.HasValue &&
+                 Model.DeliveryPaymentStatus != "Paid")
+            {
+
+                <form asp-controller="Admin"
+                      asp-action="PayDeliveryBoy"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.OrderId" />
+
+                    <button type="submit"
+                            class="action-btn btn btn-info">
+
+                        <i class="bi bi-bicycle"></i>
+
+                        Pay Delivery Boy
+
+                    </button>
+
+                </form>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,462 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.User>
+
+@{
+    ViewData["Title"] = "Manage Shopkeepers";
+}
+
+<div class="container-fluid mt-4 mb-5">
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold">
+
+                <i class="bi bi-shop"></i>
+
+                Manage Shopkeepers
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                Review, approve and manage shopkeeper accounts.
+
+            </p>
+
+        </div>
+
+        <div>
+
+            <a asp-controller="Admin"
+               asp-action="Dashboard"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- SUMMARY CARDS -->
+    <!-- ===================================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <!-- TOTAL SHOPKEEPERS -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Total Shopkeepers
+                            </h6>
+
+                            <h3 class="fw-bold">
+                                @Model.Count()
+                            </h3>
+
+                        </div>
+
+                        <div class="fs-1 text-primary">
+
+                            <i class="bi bi-people"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Pending Approval
+                            </h6>
+
+                            <h3 class="fw-bold text-warning">
+
+                                @Model.Count(u => !u.IsApproved)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="fs-1 text-warning">
+
+                            <i class="bi bi-hourglass-split"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- APPROVED -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Approved
+                            </h6>
+
+                            <h3 class="fw-bold text-success">
+
+                                @Model.Count(u => u.IsApproved)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="fs-1 text-success">
+
+                            <i class="bi bi-check-circle"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SHOPKEEPERS TABLE -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-shop"></i>
+
+                Shopkeeper Applications
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    No shopkeeper accounts found.
+
+                </div>
+            }
+            else
+            {
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Shopkeeper
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Shop
+                                </th>
+
+                                <th>
+                                    Approval
+                                </th>
+
+                                <th>
+                                    Account
+                                </th>
+
+                                <th>
+                                    Registered
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @{
+                                int number = 1;
+                            }
+
+                            @foreach (var user in Model)
+                            {
+
+                                <tr>
+
+                                    <!-- NUMBER -->
+
+                                    <td>
+                                        @number
+                                    </td>
+
+
+                                    <!-- NAME -->
+
+                                    <td>
+
+                                        <strong>
+                                            @user.Name
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- EMAIL -->
+
+                                    <td>
+                                        @user.Email
+                                    </td>
+
+
+                                    <!-- PHONE -->
+
+                                    <td>
+                                        @(user.Phone ?? "N/A")
+                                    </td>
+
+
+                                    <!-- SHOP -->
+
+                                    <td>
+
+                                        @if (user.Shop != null)
+                                        {
+                                            <span class="fw-semibold">
+
+                                                <i class="bi bi-shop"></i>
+
+                                                @user.Shop.ShopName
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+
+                                                No shop registered
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- APPROVAL STATUS -->
+
+                                    <td>
+
+                                        @if (user.IsApproved)
+                                        {
+                                            <span class="badge bg-success">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                                Approved
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+
+                                                <i class="bi bi-hourglass-split"></i>
+
+                                                Pending
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ACCOUNT STATUS -->
+
+                                    <td>
+
+                                        @if (user.Status)
+                                        {
+                                            <span class="badge bg-success">
+
+                                                Active
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                Disabled
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- REGISTERED DATE -->
+
+                                    <td>
+
+                                        @user.CreatedDate.ToString("dd-MM-yyyy")
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+
+                                    <td>
+
+                                        <a asp-controller="Admin"
+                                           asp-action="ShopkeeperDetails"
+                                           asp-route-id="@user.UserId"
+                                           class="btn btn-primary btn-sm">
+
+                                            <i class="bi bi-eye"></i>
+
+                                            View Details
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                number++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>

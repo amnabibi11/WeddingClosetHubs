@@ -1,0 +1,853 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Review>
+
+@{
+    ViewData["Title"] = "Customer Feedback";
+    Layout = null;
+
+    var reviews = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.Review>();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Customer Feedback - Wedding Closet Hub</title>
+
+
+    <!-- Bootstrap -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+
+    <!-- Bootstrap Icons -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+
+    <style>
+
+        body {
+            background: #f7f7f7;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .page-header {
+            background: #800020;
+            color: white;
+            padding: 22px 30px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+            opacity: .85;
+        }
+
+
+        /* =====================================================
+           SUMMARY CARDS
+        ===================================================== */
+
+        .summary-card {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            height: 100%;
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7e9ed;
+            color: #800020;
+            font-size: 22px;
+        }
+
+        .summary-number {
+            font-size: 25px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .summary-label {
+            color: #777;
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           MAIN CARD
+        ===================================================== */
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 18px 20px;
+            color: #800020;
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table thead {
+            background: #800020;
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 14px;
+            font-size: 14px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 14px;
+        }
+
+
+        /* =====================================================
+           RATING
+        ===================================================== */
+
+        .stars {
+            color: #d4af37;
+            font-size: 17px;
+            white-space: nowrap;
+        }
+
+        .rating-number {
+            font-size: 13px;
+            color: #666;
+            margin-left: 5px;
+        }
+
+
+        /* =====================================================
+           CUSTOMER
+        ===================================================== */
+
+        .customer-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .customer-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+
+        /* =====================================================
+           PRODUCT
+        ===================================================== */
+
+        .product-name {
+            font-weight: 600;
+            color: #800020;
+        }
+
+
+        /* =====================================================
+           COMMENT
+        ===================================================== */
+
+        .comment {
+            max-width: 350px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           BADGES
+        ===================================================== */
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .approved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .type-badge {
+            background: #f1f1f1;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        .empty-state {
+            padding: 70px 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #ccc;
+        }
+
+
+        /* =====================================================
+           FILTER
+        ===================================================== */
+
+        .filter-box {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            border-radius: 7px;
+            border: 1px solid #ddd;
+        }
+
+        .search-input:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 .15rem rgba(128,32,0,.10);
+        }
+
+
+        /* =====================================================
+           UNREAD FEEDBACK
+        ===================================================== */
+
+        .unread-row {
+            background: #fff8e1 !important;
+        }
+
+        .unread-row td {
+            font-weight: 500;
+        }
+
+        .unread-badge {
+            background: #800020;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .page-header {
+                padding: 18px;
+            }
+
+            .page-header .btn {
+                margin-top: 10px;
+            }
+
+            .comment {
+                max-width: 250px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================= -->
+
+    <div class="page-header">
+
+        <div class="container-fluid">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+                <div>
+
+                    <h2>
+
+                        <i class="bi bi-star"></i>
+
+                        Customer Feedback
+
+                    </h2>
+
+                    <p>
+
+                        View ratings and feedback from your customers.
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Dashboard"
+                       class="btn btn-light">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="container-fluid">
+
+
+        <!-- =====================================================
+             SUMMARY
+        ===================================================== -->
+
+        <div class="row g-3 mb-4">
+
+
+            <!-- TOTAL REVIEWS -->
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="summary-icon me-3">
+
+                            <i class="bi bi-chat-square-text"></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+
+                                @reviews.Count
+
+                            </div>
+
+                            <div class="summary-label">
+
+                                Total Feedback
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- APPROVED -->
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="summary-icon me-3">
+
+                            <i class="bi bi-check-circle"></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+
+                                @reviews.Count(x => x.IsApproved)
+
+                            </div>
+
+                            <div class="summary-label">
+
+                                Approved Feedback
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AVERAGE RATING -->
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="summary-icon me-3">
+
+                            <i class="bi bi-star-fill"></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+
+                                @(reviews.Any()
+                                    ? reviews.Average(x => x.Rating).ToString("0.0")
+                                    : "0.0")
+
+                            </div>
+
+                            <div class="summary-label">
+
+                                Average Rating
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             FEEDBACK TABLE
+        ===================================================== -->
+
+        <div class="card">
+
+
+            <div class="card-header">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span>
+
+                        <i class="bi bi-star me-2"></i>
+
+                        Customer Reviews
+
+                    </span>
+
+
+                    <span class="badge bg-secondary">
+
+                        @reviews.Count Reviews
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body p-0">
+
+
+                @if (reviews.Any())
+                {
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover mb-0">
+
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>#</th>
+
+                                    <th>Customer</th>
+
+                                    <th>Product</th>
+
+                                    <th>Rating</th>
+
+                                    <th>Feedback</th>
+
+                                    <th>Type</th>
+
+                                    <th>Date</th>
+
+                                    <th>Status</th>
+
+                                    <th>Read</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+
+                                @{
+                                    int count = 1;
+                                }
+
+
+                                @foreach (var review in reviews
+                                    .OrderByDescending(x => x.CreatedAt))
+                                {
+
+                                    <tr class="@(review.IsRead ? "" : "unread-row")">
+
+
+                                        <!-- NUMBER -->
+
+                                        <td>
+
+                                            @count
+
+                                        </td>
+
+
+                                        <!-- CUSTOMER -->
+
+                                        <td>
+
+                                            <div class="customer-box">
+
+                                                <div class="customer-icon">
+
+                                                    <i class="bi bi-person"></i>
+
+                                                </div>
+
+
+                                                <div class="customer-name">
+
+                                                    @(review.User?.Name ?? "Customer")
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- PRODUCT -->
+
+                                        <td>
+
+                                            <div class="product-name">
+
+                                                @(review.Product?.ProductName
+                                                    ?? "Product")
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- RATING -->
+
+                                        <td>
+
+                                            <div class="stars">
+
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+
+                                                    if (i <= review.Rating)
+                                                    {
+
+                                                        <i class="bi bi-star-fill"></i>
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <i class="bi bi-star"></i>
+
+                                                    }
+
+                                                }
+
+
+                                                <span class="rating-number">
+
+                                                    (@review.Rating/5)
+
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- COMMENT -->
+
+                                        <td>
+
+                                            <div class="comment">
+
+                                                @(string.IsNullOrWhiteSpace(review.Comment)
+                                                    ? "No comment provided."
+                                                    : review.Comment)
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- TYPE -->
+
+                                        <td>
+
+                                            <span class="type-badge">
+
+                                                @(string.IsNullOrWhiteSpace(review.ReviewType)
+                                                    ? "General"
+                                                    : review.ReviewType)
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- DATE -->
+
+                                        <td>
+
+                                            @review.CreatedAt.ToString("dd MMM yyyy")
+
+                                            <small class="d-block text-muted">
+
+                                                @review.CreatedAt.ToString("hh:mm tt")
+
+                                            </small>
+
+                                        </td>
+
+
+                                        <!-- STATUS -->
+
+                                        <td>
+
+                                            @if (review.IsApproved)
+                                            {
+
+                                                <span class="status-badge approved">
+
+                                                    <i class="bi bi-check-circle"></i>
+
+                                                    Approved
+
+                                                </span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="status-badge pending">
+
+                                                    <i class="bi bi-clock"></i>
+
+                                                    Pending
+
+                                                </span>
+
+                                            }
+
+                                        </td>
+
+
+                                        <!-- READ STATUS -->
+
+                                        <td>
+
+                                            @if (review.IsRead)
+                                            {
+
+                                                <span class="badge bg-success">
+
+                                                    <i class="bi bi-check2"></i>
+
+                                                    Read
+
+                                                </span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="unread-badge">
+
+                                                    <i class="bi bi-envelope"></i>
+
+                                                    Unread
+
+                                                </span>
+
+                                            }
+
+                                        </td>
+
+
+                                    </tr>
+
+
+                                    count++;
+
+                                }
+
+
+                            </tbody>
+
+
+                        </table>
+
+                    </div>
+
+                }
+                else
+                {
+
+                    <div class="empty-state">
+
+                        <i class="bi bi-chat-square-heart"></i>
+
+                        <h4 class="mt-3">
+
+                            No Feedback Yet
+
+                        </h4>
+
+                        <p>
+
+                            Customer reviews and ratings will appear here
+                            when customers submit feedback.
+
+                        </p>
+
+                    </div>
+
+                }
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             INFORMATION
+        ===================================================== -->
+
+        <div class="alert alert-light border mb-4">
+
+            <i class="bi bi-info-circle me-2"></i>
+
+            <strong>About Customer Feedback:</strong>
+
+            Customer ratings and comments help the shopkeeper understand
+            customer satisfaction and improve products and services.
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>
+

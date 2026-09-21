@@ -1,0 +1,877 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Order>
+
+@{
+ViewData["Title"] = "My Orders";
+Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8" />
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+
+<title>My Orders - Wedding Closet Hubs</title>
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+
+    body {
+        margin: 0;
+        background: #f7f5f3;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #333;
+    }
+
+    /* =====================================================
+       NAVBAR
+    ===================================================== */
+
+    .navbar-custom {
+        background: #800020;
+        padding: 15px 30px;
+    }
+
+    .brand {
+        color: #d4af37 !important;
+        font-size: 23px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .nav-link-custom {
+        color: white;
+        text-decoration: none;
+        margin-left: 22px;
+        font-size: 15px;
+    }
+
+    .nav-link-custom:hover {
+        color: #d4af37;
+    }
+
+    /* =====================================================
+       PAGE
+    ===================================================== */
+
+    .page-wrapper {
+        max-width: 1250px;
+        margin: 35px auto;
+        padding: 0 20px;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 14px;
+        padding: 25px 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+    }
+
+    .page-title {
+        color: #800020;
+        font-size: 29px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .page-subtitle {
+        color: #777;
+        margin: 0;
+    }
+
+    /* =====================================================
+       ORDER CARD
+    ===================================================== */
+
+    .order-card {
+        background: white;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        border: 1px solid #eee;
+    }
+
+    .order-header {
+        background: #800020;
+        color: white;
+        padding: 16px 20px;
+    }
+
+    .order-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .order-id {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .order-date {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    /* =====================================================
+       ORDER BODY
+    ===================================================== */
+
+    .order-body {
+        padding: 22px;
+    }
+
+    .info-item {
+        margin-bottom: 15px;
+    }
+
+    .info-label {
+        display: block;
+        color: #777;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* =====================================================
+       AMOUNT
+    ===================================================== */
+
+    .amount-box {
+        background: #faf7f1;
+        border: 1px solid #eee0c3;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .amount-label {
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .amount-value {
+        color: #800020;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    /* =====================================================
+       BADGES
+    ===================================================== */
+
+    .status-badge {
+        display: inline-block;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirmed {
+        background: #cff4fc;
+        color: #055160;
+    }
+
+    .status-processing {
+        background: #e2e3ff;
+        color: #373a8a;
+    }
+
+    .status-shipped {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-delivered {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .status-default {
+        background: #e2e3e5;
+        color: #41464b;
+    }
+
+    /* =====================================================
+       PAYMENT
+    ===================================================== */
+
+    .payment-badge {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 6px;
+        background: #f1f1f1;
+        color: #444;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .payment-received {
+        color: #198754;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .payment-pending {
+        color: #856404;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    /* =====================================================
+       BUTTON
+    ===================================================== */
+
+    .btn-details {
+        background: #800020;
+        border: 1px solid #800020;
+        color: white;
+        padding: 9px 18px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .btn-details:hover {
+        background: #660019;
+        color: white;
+    }
+
+    .btn-shop {
+        background: #d4af37;
+        border: 1px solid #d4af37;
+        color: white;
+        padding: 9px 18px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .btn-shop:hover {
+        background: #b8941f;
+        color: white;
+    }
+
+    /* =====================================================
+       EMPTY ORDERS
+    ===================================================== */
+
+    .empty-card {
+        background: white;
+        border-radius: 14px;
+        padding: 60px 25px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+    }
+
+    .empty-icon {
+        font-size: 60px;
+        color: #800020;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #800020;
+        margin-bottom: 8px;
+    }
+
+    .empty-text {
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @@media (max-width: 768px) {
+
+        .navbar-custom {
+            padding: 15px;
+        }
+
+        .page-wrapper {
+            margin-top: 20px;
+            padding: 0 12px;
+        }
+
+        .page-header {
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+        }
+
+        .order-header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .order-body {
+            padding: 17px;
+        }
+
+    }
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+====================================================== -->
+
+<nav class="navbar-custom">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="brand">
+
+            Wedding Closet Hubs
+
+        </a>
+
+        <div>
+
+            <a asp-controller="Customer"
+               asp-action="Dashboard"
+               class="nav-link-custom">
+
+                <i class="bi bi-house"></i>
+
+                Home
+
+            </a>
+
+            <a asp-controller="Customer"
+               asp-action="MyOrders"
+               class="nav-link-custom">
+
+                <i class="bi bi-bag-check"></i>
+
+                My Orders
+
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     PAGE WRAPPER
+====================================================== -->
+
+<div class="page-wrapper">
+
+
+    <!-- =================================================
+         PAGE HEADER
+    ================================================== -->
+
+    <div class="page-header">
+
+        <h2 class="page-title">
+
+            <i class="bi bi-bag-check"></i>
+
+            My Orders
+
+        </h2>
+
+        <p class="page-subtitle">
+
+            View and track all your orders placed through
+            Wedding Closet Hubs.
+
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         SUCCESS MESSAGE
+    ================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =================================================
+         ERROR MESSAGE
+    ================================================== -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    @if (Model != null && Model.Any())
+    {
+
+        <!-- =============================================
+             ORDER LIST
+        ============================================== -->
+
+        foreach (var order in Model)
+        {
+
+            <div class="order-card">
+
+
+                <!-- =====================================
+                     ORDER HEADER
+                ====================================== -->
+
+                <div class="order-header">
+
+                    <div class="order-header-content">
+
+                        <div>
+
+                            <div class="order-id">
+
+                                <i class="bi bi-receipt"></i>
+
+                                Order #@order.OrderId
+
+                            </div>
+
+                            <div class="order-date">
+
+                                Placed on
+
+                                @order.CreatedDate.ToString(
+                                    "dd MMMM yyyy hh:mm tt"
+                                )
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ORDER STATUS -->
+
+                        <div>
+
+                            @if (order.OrderStatus == "Pending")
+                            {
+                                <span class="status-badge status-pending">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    Pending
+
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Confirmed")
+                            {
+                                <span class="status-badge status-confirmed">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Confirmed
+
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Processing")
+                            {
+                                <span class="status-badge status-processing">
+
+                                    <i class="bi bi-gear"></i>
+
+                                    Processing
+
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Shipped")
+                            {
+                                <span class="status-badge status-shipped">
+
+                                    <i class="bi bi-truck"></i>
+
+                                    Shipped
+
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Delivered")
+                            {
+                                <span class="status-badge status-delivered">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Delivered
+
+                                </span>
+                            }
+                            else if (order.OrderStatus == "Cancelled")
+                            {
+                                <span class="status-badge status-cancelled">
+
+                                    <i class="bi bi-x-circle"></i>
+
+                                    Cancelled
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-default">
+
+                                    @(order.OrderStatus ?? "Unknown")
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     ORDER BODY
+                ====================================== -->
+
+                <div class="order-body">
+
+                    <div class="row">
+
+
+                        <!-- =================================
+                             SHOP
+                        ================================== -->
+
+                        <div class="col-md-4">
+
+                            <div class="info-item">
+
+                                <span class="info-label">
+
+                                    <i class="bi bi-shop"></i>
+
+                                    Shop
+
+                                </span>
+
+                                <span class="info-value">
+
+                                    @(order.Shop?.ShopName ?? "N/A")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             PAYMENT METHOD
+                        ================================== -->
+
+                        <div class="col-md-4">
+
+                            <div class="info-item">
+
+                                <span class="info-label">
+
+                                    <i class="bi bi-credit-card"></i>
+
+                                    Payment Method
+
+                                </span>
+
+                                <span class="payment-badge">
+
+                                    @(order.PaymentMethod ?? "N/A")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             PAYMENT STATUS
+                        ================================== -->
+
+                        <div class="col-md-4">
+
+                            <div class="info-item">
+
+                                <span class="info-label">
+
+                                    <i class="bi bi-wallet2"></i>
+
+                                    Payment Status
+
+                                </span>
+
+                                @if (order.PaymentReceived)
+                                {
+                                    <span class="payment-received">
+
+                                        <i class="bi bi-check-circle-fill"></i>
+
+                                        Payment Received
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="payment-pending">
+
+                                        <i class="bi bi-clock"></i>
+
+                                        @(order.PaymentStatus ?? "Pending")
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             DELIVERY ADDRESS
+                        ================================== -->
+
+                        <div class="col-md-8">
+
+                            <div class="info-item">
+
+                                <span class="info-label">
+
+                                    <i class="bi bi-geo-alt"></i>
+
+                                    Delivery Address
+
+                                </span>
+
+                                <span class="info-value">
+
+                                    @(order.DeliveryAddress ?? "N/A")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             TOTAL
+                        ================================== -->
+
+                        <div class="col-md-4">
+
+                            <div class="amount-box">
+
+                                <div class="amount-label">
+
+                                    Final Order Total
+
+                                </div>
+
+                                <div class="amount-value">
+
+                                    Rs.
+                                    @order.TotalAmount.ToString("N2")
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =====================================
+                         ORDER FOOTER
+                    ====================================== -->
+
+                    <div class="d-flex justify-content-between
+                                align-items-center
+                                flex-wrap
+                                gap-3
+                                mt-3
+                                pt-3"
+                         style="border-top:1px solid #eee;">
+
+
+                        <div>
+
+                            @if (order.DeliveryId != null)
+                            {
+                                <span class="text-success small fw-semibold">
+
+                                    <i class="bi bi-person-check"></i>
+
+                                    Delivery Boy Assigned
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">
+
+                                    <i class="bi bi-person-x"></i>
+
+                                    Delivery Boy Not Assigned Yet
+
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <div>
+
+                            <a asp-controller="Customer"
+                               asp-action="OrderDetails"
+                               asp-route-id="@order.OrderId"
+                               class="btn-details">
+
+                                <i class="bi bi-eye"></i>
+
+                                View Order Details
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        }
+
+    }
+    else
+    {
+
+        <!-- =================================================
+             NO ORDERS
+        ================================================== -->
+
+        <div class="empty-card">
+
+            <div class="empty-icon">
+
+                <i class="bi bi-bag-x"></i>
+
+            </div>
+
+            <div class="empty-title">
+
+                No Orders Yet
+
+            </div>
+
+            <p class="empty-text">
+
+                You have not placed any orders yet.
+                Browse our shops and find your perfect dress.
+
+            </p>
+
+            <a asp-controller="Customer"
+               asp-action="Shops"
+               class="btn-shop">
+
+                <i class="bi bi-shop"></i>
+
+                Browse Shops
+
+            </a>
+
+        </div>
+
+    }
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,367 @@
+﻿@model WeddingClosetHubs.Models.User
+
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+<div class="container mt-5">
+
+   
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                Customer Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete information about the selected customer.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Customers"
+           class="btn btn-secondary">
+
+            Back to Customers
+
+        </a>
+
+    </div>
+
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+
+    <div class="card shadow">
+
+        
+
+        <div class="card-header bg-dark text-white">
+
+            <h4 class="mb-0">
+                @Model.Name
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+        
+
+            <h5 class="fw-bold border-bottom pb-2 mb-4">
+                Customer Information
+            </h5>
+
+
+            <div class="row">
+
+
+              
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Customer ID
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.UserId
+                    </div>
+
+                </div>
+
+
+               
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Name
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.Name
+                    </div>
+
+                </div>
+
+
+                
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Email
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.Email
+                    </div>
+
+                </div>
+
+
+             
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Phone
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (!string.IsNullOrEmpty(Model.Phone))
+                        {
+                            @Model.Phone
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+             
+
+                <div class="col-md-12 mb-3">
+
+                    <label class="fw-bold">
+                        Address
+                    </label>
+
+                    <div class="form-control bg-light"
+                         style="min-height:60px;">
+
+                        @if (!string.IsNullOrEmpty(Model.Address))
+                        {
+                            @Model.Address
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+             
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Role
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.Role != null)
+                        {
+                            @Model.Role.RoleName
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Customer
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Account Status
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.Status)
+                        {
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">
+                                Disabled
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Registration Date
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.CreatedDate.ToString("dd-MM-yyyy")
+                    </div>
+
+                </div>
+
+
+               
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Approval Status
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.IsApproved)
+                        {
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Not Required
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+           
+
+            <h5 class="fw-bold border-bottom pb-2 mb-4">
+                Account Management
+            </h5>
+
+
+            <div class="d-flex flex-wrap gap-2">
+
+
+              
+
+                @if (!Model.Status)
+                {
+                    <form asp-controller="Admin"
+                          asp-action="EnableCustomer"
+                          asp-route-id="@Model.UserId"
+                          method="post"
+                          class="d-inline">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-success"
+                                onclick="return confirm('Are you sure you want to enable this customer account?');">
+
+                            Enable Customer
+
+                        </button>
+
+                    </form>
+                }
+
+
+                
+
+                @if (Model.Status)
+                {
+                    <form asp-controller="Admin"
+                          asp-action="DisableCustomer"
+                          asp-route-id="@Model.UserId"
+                          method="post"
+                          class="d-inline">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-danger"
+                                onclick="return confirm('Are you sure you want to disable this customer account?');">
+
+                            Disable Customer
+
+                        </button>
+
+                    </form>
+                }
+
+
+            
+
+                <a asp-controller="Admin"
+                   asp-action="Customers"
+                   class="btn btn-secondary">
+
+                    Back to Customers
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,326 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.User>
+
+@{
+    ViewData["Title"] = "Manage Customers";
+}
+
+<div class="container-fluid mt-5">
+
+    
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                Manage Customers
+            </h2>
+
+            <p class="text-muted mb-0">
+                View and manage all registered customers.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Dashboard"
+           class="btn btn-secondary">
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+  
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                Registered Customers
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (Model != null && Model.Any())
+            {
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped table-hover align-middle">
+
+                     
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Address
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Created Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                       
+
+                        <tbody>
+
+                            @foreach (var customer in Model)
+                            {
+
+                                <tr>
+
+
+                                    <td>
+                                        @customer.UserId
+                                    </td>
+
+
+                                  
+
+                                    <td>
+
+                                        <strong>
+                                            @customer.Name
+                                        </strong>
+
+                                    </td>
+
+
+
+                                    <td>
+                                        @customer.Email
+                                    </td>
+
+
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(customer.Phone))
+                                        {
+                                            @customer.Phone
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(customer.Address))
+                                        {
+                                            @customer.Address
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+
+                                    <td>
+
+                                        @if (customer.Status)
+                                        {
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Disabled
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                   
+
+                                    <td>
+                                        @customer.CreatedDate.ToString("dd-MM-yyyy")
+                                    </td>
+
+
+                                   
+                                    <td>
+
+                                        <div class="d-flex flex-wrap gap-1">
+
+                                            
+
+                                            <a asp-controller="Admin"
+                                               asp-action="CustomerDetails"
+                                               asp-route-id="@customer.UserId"
+                                               class="btn btn-primary btn-sm">
+
+                                                View Details
+
+                                            </a>
+
+
+                                           
+
+                                            @if (!customer.Status)
+                                            {
+                                                <form asp-controller="Admin"
+                                                      asp-action="EnableCustomer"
+                                                      asp-route-id="@customer.UserId"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-success btn-sm"
+                                                            onclick="return confirm('Are you sure you want to enable this customer account?');">
+
+                                                        Enable
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+
+
+                                            @if (customer.Status)
+                                            {
+                                                <form asp-controller="Admin"
+                                                      asp-action="DisableCustomer"
+                                                      asp-route-id="@customer.UserId"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm"
+                                                            onclick="return confirm('Are you sure you want to disable this customer account?');">
+
+                                                        Disable
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+            else
+            {
+
+               
+
+                <div class="alert alert-info text-center">
+
+                    <h5>
+                        No Customers Registered
+                    </h5>
+
+                    <p class="mb-0">
+                        No customers have been registered in the system yet.
+                    </p>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>

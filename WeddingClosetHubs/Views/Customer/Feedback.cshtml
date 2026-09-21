@@ -1,0 +1,1342 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Review>
+
+@{
+    ViewData["Title"] = "Feedback";
+    Layout = null;
+
+    var completedOrders =
+        ViewBag.CompletedOrders as IEnumerable<WeddingClosetHubs.Models.Order>
+        ?? Enumerable.Empty<WeddingClosetHubs.Models.Order>();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Feedback - Wedding Closet Hubs</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .page-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #800020;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+            color: #800020;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 11px 13px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 0.15rem rgba(128, 0, 32, 0.12);
+        }
+
+        /* =========================================
+           ORDER INFORMATION
+        ========================================= */
+
+        .order-info {
+            background: #fff8f8;
+            border: 1px solid #ead0d7;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .order-info-title {
+            font-weight: 700;
+            color: #800020;
+            margin-bottom: 10px;
+        }
+
+        .shop-name {
+            font-weight: 700;
+            color: #800020;
+        }
+
+        /* =========================================
+           STAR RATING
+        ========================================= */
+
+        .rating-container {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .rating-container input {
+            display: none;
+        }
+
+        .rating-container label {
+            font-size: 32px;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .rating-container label:hover,
+        .rating-container label:hover ~ label,
+        .rating-container input:checked ~ label {
+            color: #d4af37;
+        }
+
+        .rating-help {
+            color: #888;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* =========================================
+           SUBMIT BUTTON
+        ========================================= */
+
+        .submit-button {
+            padding: 11px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            background: #800020;
+            border-color: #800020;
+        }
+
+        .submit-button:hover:not(:disabled) {
+            background: #660019;
+            border-color: #660019;
+        }
+
+        .submit-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        /* =========================================
+           REVIEW LIST
+        ========================================= */
+
+        .review-item {
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .review-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .review-type {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .shop-review {
+            background: #f8e4ea;
+            color: #800020;
+        }
+
+        .product-review {
+            background: #f7efd4;
+            color: #806600;
+        }
+
+        .stars {
+            color: #d4af37;
+            font-size: 17px;
+        }
+
+        .empty-feedback {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-feedback i {
+            font-size: 60px;
+            color: #bbb;
+        }
+
+        .empty-feedback h5 {
+            margin-top: 15px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        /* =========================================
+           INFORMATION BOX
+        ========================================= */
+
+        .info-box {
+            background: #fff8f8;
+            border: 1px solid #ead0d7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box i {
+            color: #800020;
+            margin-right: 6px;
+        }
+
+        /* =========================================
+           NO ORDERS
+        ========================================= */
+
+        .no-orders {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            color: #777;
+        }
+
+        .no-orders i {
+            font-size: 40px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+            .feedback-card {
+                padding: 20px;
+            }
+
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- =========================================
+         BACK BUTTON
+    ========================================= -->
+
+    <div class="back-button">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================
+         PAGE HEADER
+    ========================================= -->
+
+    <div class="page-header">
+
+        <h2 class="page-title">
+
+            <i class="bi bi-star"></i>
+
+            Feedback & Reviews
+
+        </h2>
+
+        <p class="page-subtitle">
+
+            Share your experience with shops and products from your completed orders.
+
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         SUCCESS MESSAGE
+    ========================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =========================================
+         ERROR MESSAGE
+    ========================================= -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =========================================
+         FEEDBACK FORM
+    ========================================= -->
+
+    <div class="feedback-card">
+
+        <div class="card-title">
+
+            <i class="bi bi-pencil-square"></i>
+
+            Give Your Feedback
+
+        </div>
+
+
+        <div class="info-box">
+
+            <i class="bi bi-info-circle-fill"></i>
+
+            Select one of your completed orders below.
+            You can then review the shop or a product from that order.
+
+        </div>
+
+
+        @if (completedOrders.Any())
+        {
+
+            <form asp-controller="Customer"
+                  asp-action="SubmitFeedback"
+                  method="post"
+                  id="feedbackForm">
+
+                @Html.AntiForgeryToken()
+
+
+                <!-- =====================================
+                     SELECT ORDER
+                ====================================== -->
+
+                <div class="mb-4">
+
+                    <label for="orderSelect"
+                           class="form-label">
+
+                        Select Completed Order
+
+                    </label>
+
+                    <select name="orderId"
+                            id="orderSelect"
+                            class="form-select"
+                            required>
+
+                        <option value="">
+                            -- Select Your Order --
+                        </option>
+
+                        @foreach (var order in completedOrders)
+                        {
+                            <option value="@order.OrderId"
+                                    data-shop-id="@order.ShopId"
+                                    data-shop-name="@(order.Shop?.ShopName ?? "Shop")">
+
+                                Order #@order.OrderId
+                                -
+                                @(order.Shop?.ShopName ?? "Shop")
+                                -
+                                @order.CreatedDate.ToString("dd MMM yyyy")
+
+                            </option>
+                        }
+
+                    </select>
+
+                    <small class="text-muted">
+
+                        Only your Delivered/Completed orders are shown.
+
+                    </small>
+
+                </div>
+
+
+                <!-- =====================================
+                     SELECT FEEDBACK TYPE
+                ====================================== -->
+
+                <div class="mb-4">
+
+                    <label for="reviewType"
+                           class="form-label">
+
+                        Feedback For
+
+                    </label>
+
+                    <select name="reviewType"
+                            id="reviewType"
+                            class="form-select"
+                            required
+                            disabled>
+
+                        <option value="">
+                            -- Select Feedback Type --
+                        </option>
+
+                        <option value="Shop">
+                            Shop
+                        </option>
+
+                        <option value="Product">
+                            Product
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =====================================
+                     SELECTED SHOP INFORMATION
+                ====================================== -->
+
+                <div id="shopSection"
+                     class="order-info">
+
+                    <div class="order-info-title">
+
+                        <i class="bi bi-shop"></i>
+
+                        Shop Being Reviewed
+
+                    </div>
+
+                    <div id="shopNameDisplay"
+                         class="shop-name">
+
+                        -
+
+                    </div>
+
+                    <input type="hidden"
+                           name="shopId"
+                           id="shopId" />
+
+                </div>
+
+
+                <!-- =====================================
+                     SELECT PRODUCT
+                ====================================== -->
+
+                <div id="productSection"
+                     class="order-info">
+
+                    <div class="order-info-title">
+
+                        <i class="bi bi-box-seam"></i>
+
+                        Select Product to Review
+
+                    </div>
+
+                    <select name="productId"
+                            id="productSelect"
+                            class="form-select">
+
+                        <option value="">
+                            -- Select Product --
+                        </option>
+
+                    </select>
+
+                    <small class="text-muted">
+
+                        Only products from the selected completed order are shown.
+
+                    </small>
+
+                </div>
+
+
+                <!-- =====================================
+                     RATING
+                ====================================== -->
+
+                <div class="mb-4 mt-4">
+
+                    <label class="form-label">
+
+                        Rating
+
+                    </label>
+
+                    <div class="rating-container">
+
+                        <input type="radio"
+                               id="star5"
+                               name="rating"
+                               value="5"
+                               required />
+
+                        <label for="star5">
+                            ★
+                        </label>
+
+
+                        <input type="radio"
+                               id="star4"
+                               name="rating"
+                               value="4" />
+
+                        <label for="star4">
+                            ★
+                        </label>
+
+
+                        <input type="radio"
+                               id="star3"
+                               name="rating"
+                               value="3" />
+
+                        <label for="star3">
+                            ★
+                        </label>
+
+
+                        <input type="radio"
+                               id="star2"
+                               name="rating"
+                               value="2" />
+
+                        <label for="star2">
+                            ★
+                        </label>
+
+
+                        <input type="radio"
+                               id="star1"
+                               name="rating"
+                               value="1" />
+
+                        <label for="star1">
+                            ★
+                        </label>
+
+                    </div>
+
+                    <div class="rating-help">
+
+                        1 = Very Poor
+                        &nbsp; | &nbsp;
+                        5 = Excellent
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     COMMENT
+                ====================================== -->
+
+                <div class="mb-4">
+
+                    <label for="comment"
+                           class="form-label">
+
+                        Your Feedback
+
+                    </label>
+
+                    <textarea name="comment"
+                              id="comment"
+                              class="form-control"
+                              rows="5"
+                              maxlength="1000"
+                              placeholder="Write your experience..."
+                              required></textarea>
+
+                </div>
+
+
+                <!-- =====================================
+                     SUBMIT
+                ====================================== -->
+
+                <button type="submit"
+                        id="submitButton"
+                        class="btn btn-primary submit-button"
+                        disabled>
+
+                    <i class="bi bi-send"></i>
+
+                    Submit Feedback
+
+                </button>
+
+            </form>
+
+        }
+        else
+        {
+
+            <div class="no-orders">
+
+                <i class="bi bi-bag-x d-block"></i>
+
+                <h5>
+                    No Completed Orders
+                </h5>
+
+                <p class="mb-0">
+
+                    You can submit feedback after your order has been
+                    Delivered or Completed.
+
+                </p>
+
+            </div>
+
+        }
+
+    </div>
+
+
+    <!-- =========================================
+         PREVIOUS REVIEWS
+    ========================================= -->
+
+    <div class="feedback-card">
+
+        <div class="card-title">
+
+            <i class="bi bi-chat-square-text"></i>
+
+            My Previous Feedback
+
+        </div>
+
+
+        @if (Model != null && Model.Any())
+        {
+
+            foreach (var review in Model.OrderByDescending(x => x.CreatedAt))
+            {
+
+                <div class="review-item">
+
+                    <div class="review-header">
+
+                        <div>
+
+                            @if (review.ReviewType == "Shop")
+                            {
+                                <span class="review-type shop-review">
+
+                                    <i class="bi bi-shop"></i>
+
+                                    Shop Review
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="review-type product-review">
+
+                                    <i class="bi bi-box-seam"></i>
+
+                                    Product Review
+
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <!-- RATING -->
+
+                        <div class="stars">
+
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= review.Rating)
+                                {
+                                    <i class="bi bi-star-fill"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star"></i>
+                                }
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- COMMENT -->
+
+                    <div class="mt-2">
+
+                        @review.Comment
+
+                    </div>
+
+
+                    <!-- DATE -->
+
+                    <div class="text-muted small mt-2">
+
+                        <i class="bi bi-clock"></i>
+
+                        @review.CreatedAt.ToString(
+                            "dd MMMM yyyy hh:mm tt")
+
+                    </div>
+
+
+                    <!-- APPROVAL -->
+
+                    <div class="mt-2">
+
+                        @if (review.IsApproved)
+                        {
+                            <span class="badge bg-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Published
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">
+
+                                <i class="bi bi-clock"></i>
+
+                                Pending Admin Approval
+
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            }
+
+        }
+        else
+        {
+
+            <div class="empty-feedback">
+
+                <i class="bi bi-star"></i>
+
+                <h5>
+                    No Feedback Yet
+                </h5>
+
+                <p>
+                    Your submitted reviews will appear here.
+                </p>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const orderSelect =
+                document.getElementById("orderSelect");
+
+            const reviewType =
+                document.getElementById("reviewType");
+
+            const shopSection =
+                document.getElementById("shopSection");
+
+            const productSection =
+                document.getElementById("productSection");
+
+            const shopNameDisplay =
+                document.getElementById("shopNameDisplay");
+
+            const shopId =
+                document.getElementById("shopId");
+
+            const productSelect =
+                document.getElementById("productSelect");
+
+            const submitButton =
+                document.getElementById("submitButton");
+
+            const feedbackForm =
+                document.getElementById("feedbackForm");
+
+
+            // -------------------------------------------------
+            // CHECK REQUIRED ELEMENTS
+            // -------------------------------------------------
+
+            if (
+                !orderSelect ||
+                !reviewType ||
+                !shopSection ||
+                !productSection ||
+                !shopNameDisplay ||
+                !shopId ||
+                !productSelect ||
+                !submitButton ||
+                !feedbackForm
+            ) {
+                console.error(
+                    "Feedback form elements were not found."
+                );
+
+                return;
+            }
+
+
+            // -------------------------------------------------
+            // PRODUCTS FOR EACH COMPLETED ORDER
+            // -------------------------------------------------
+
+            const orderProducts = {};
+
+            @foreach (var order in completedOrders)
+            {
+                <text>
+                orderProducts["@order.OrderId"] = [
+                </text>
+
+                var validDetails =
+                    order.OrderDetails?
+                        .Where(d => d.Product != null)
+                        .ToList()
+                    ?? new List<WeddingClosetHubs.Models.OrderDetail>();
+
+                for (int i = 0; i < validDetails.Count; i++)
+                {
+                    var detail = validDetails[i];
+
+                    <text>
+                    {
+                        id: "@detail.ProductId",
+                        name:
+                            @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                    detail.Product!.ProductName ?? "Product"
+                                )
+                            )
+                    }@(i < validDetails.Count - 1 ? "," : "")
+                    </text>
+                }
+
+                <text>
+                ];
+                </text>
+            }
+
+
+            // -------------------------------------------------
+            // ENABLE/DISABLE SUBMIT BUTTON
+            // -------------------------------------------------
+
+            function updateSubmitButton() {
+
+                // No order
+                if (!orderSelect.value) {
+
+                    submitButton.disabled = true;
+
+                    return;
+                }
+
+
+                // No review type
+                if (!reviewType.value) {
+
+                    submitButton.disabled = true;
+
+                    return;
+                }
+
+
+                // Product review requires product
+                if (
+                    reviewType.value === "Product" &&
+                    !productSelect.value
+                ) {
+
+                    submitButton.disabled = true;
+
+                    return;
+                }
+
+
+                // Shop review or valid product review
+                submitButton.disabled = false;
+            }
+
+
+            // -------------------------------------------------
+            // RESET PRODUCT SELECT
+            // -------------------------------------------------
+
+            function resetProductSelect() {
+
+                productSelect.innerHTML =
+                    '<option value="">-- Select Product --</option>';
+
+                productSelect.required = false;
+            }
+
+
+            // -------------------------------------------------
+            // ORDER CHANGED
+            // -------------------------------------------------
+
+            orderSelect.addEventListener(
+                "change",
+                function () {
+
+                    const selectedOrderId =
+                        this.value;
+
+                    const selectedOption =
+                        this.options[
+                            this.selectedIndex
+                        ];
+
+
+                    // Reset feedback type
+                    reviewType.value = "";
+
+                    reviewType.disabled =
+                        selectedOrderId === "";
+
+
+                    // Hide sections
+                    shopSection.style.display =
+                        "none";
+
+                    productSection.style.display =
+                        "none";
+
+
+                    // Clear shop
+                    shopId.value = "";
+
+                    shopNameDisplay.textContent =
+                        "-";
+
+
+                    // Reset product
+                    resetProductSelect();
+
+
+                    // Disable submit
+                    submitButton.disabled =
+                        true;
+
+
+                    if (!selectedOrderId) {
+                        return;
+                    }
+
+
+                    // Get shop information
+                    shopId.value =
+                        selectedOption.getAttribute(
+                            "data-shop-id"
+                        ) || "";
+
+
+                    shopNameDisplay.textContent =
+                        selectedOption.getAttribute(
+                            "data-shop-name"
+                        ) || "Shop";
+
+
+                    updateSubmitButton();
+                }
+            );
+
+
+            // -------------------------------------------------
+            // REVIEW TYPE CHANGED
+            // -------------------------------------------------
+
+            reviewType.addEventListener(
+                "change",
+                function () {
+
+                    const selectedType =
+                        this.value;
+
+
+                    // Hide both sections first
+                    shopSection.style.display =
+                        "none";
+
+                    productSection.style.display =
+                        "none";
+
+
+                    resetProductSelect();
+
+
+                    if (!selectedType) {
+
+                        updateSubmitButton();
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // SHOP REVIEW
+                    // -------------------------------------------------
+
+                    if (selectedType === "Shop") {
+
+                        shopSection.style.display =
+                            "block";
+
+                        updateSubmitButton();
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // PRODUCT REVIEW
+                    // -------------------------------------------------
+
+                    if (selectedType === "Product") {
+
+                        shopSection.style.display =
+                            "block";
+
+                        productSection.style.display =
+                            "block";
+
+
+                        const products =
+                            orderProducts[
+                                orderSelect.value
+                            ] || [];
+
+
+                        products.forEach(
+                            function (product) {
+
+                                const option =
+                                    document.createElement(
+                                        "option"
+                                    );
+
+                                option.value =
+                                    product.id;
+
+                                option.textContent =
+                                    product.name;
+
+                                productSelect.appendChild(
+                                    option
+                                );
+                            }
+                        );
+
+
+                        productSelect.required =
+                            true;
+
+
+                        if (products.length === 0) {
+
+                            const option =
+                                document.createElement(
+                                    "option"
+                                );
+
+                            option.value = "";
+
+                            option.disabled = true;
+
+                            option.textContent =
+                                "No products found for this order.";
+
+                            productSelect.appendChild(
+                                option
+                            );
+                        }
+
+
+                        updateSubmitButton();
+                    }
+
+                }
+            );
+
+
+            // -------------------------------------------------
+            // PRODUCT CHANGED
+            // -------------------------------------------------
+
+            productSelect.addEventListener(
+                "change",
+                function () {
+
+                    updateSubmitButton();
+
+                }
+            );
+
+
+            // -------------------------------------------------
+            // FORM SUBMIT VALIDATION
+            // -------------------------------------------------
+
+            feedbackForm.addEventListener(
+                "submit",
+                function (event) {
+
+                    // Order
+                    if (!orderSelect.value) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select a completed order."
+                        );
+
+                        return;
+                    }
+
+
+                    // Review type
+                    if (!reviewType.value) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select Shop or Product."
+                        );
+
+                        return;
+                    }
+
+
+                    // Product
+                    if (
+                        reviewType.value === "Product" &&
+                        !productSelect.value
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select a product."
+                        );
+
+                        return;
+                    }
+
+
+                    // Rating
+                    const selectedRating =
+                        document.querySelector(
+                            'input[name="rating"]:checked'
+                        );
+
+                    if (!selectedRating) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select a rating."
+                        );
+
+                        return;
+                    }
+
+
+                    // Comment
+                    const comment =
+                        document.getElementById(
+                            "comment"
+                        );
+
+                    if (
+                        !comment ||
+                        !comment.value.trim()
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please enter your feedback."
+                        );
+
+                        return;
+                    }
+
+
+                    // Make sure button cannot be clicked twice
+                    submitButton.disabled = true;
+
+                    submitButton.innerHTML =
+                        '<i class="bi bi-hourglass-split"></i> Submitting...';
+
+                }
+            );
+
+        });
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>
+

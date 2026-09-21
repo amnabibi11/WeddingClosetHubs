@@ -1,0 +1,1848 @@
+﻿@model WeddingClosetHubs.Models.User
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white text-center">
+
+                    <h3 class="mb-0">
+                        Create Account
+                    </h3>
+
+                    <small>
+                        Wedding Closet Hubs
+                    </small>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <form asp-controller="Account"
+                          asp-action="Register"
+                          method="post"
+                          enctype="multipart/form-data"
+                          id="registerForm">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- ===================================================== -->
+                        <!-- VALIDATION SUMMARY -->
+                        <!-- ===================================================== -->
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- PERSONAL INFORMATION -->
+                        <!-- ===================================================== -->
+
+                        <h5 class="border-bottom pb-2 mb-3">
+
+                            Personal Information
+
+                        </h5>
+
+
+                        <!-- NAME -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Name"
+                                   class="form-label">
+
+                                Full Name
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="form-control"
+                                   id="name"
+                                   maxlength="100"
+                                   placeholder="Enter your full name"
+                                   autocomplete="name" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
+
+                            
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+
+                                Email
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="Email"
+                                   type="email"
+                                   class="form-control"
+                                   id="email"
+                                   maxlength="150"
+                                   placeholder="Enter email address"
+                                   autocomplete="email" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Password"
+                                   class="form-label">
+
+                                Password
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="Password"
+                                       type="password"
+                                       id="registerPassword"
+                                       class="form-control"
+                                       maxlength="100"
+                                       placeholder="Create password"
+                                       autocomplete="new-password" />
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="toggleRegisterPassword">
+
+                                    <i class="bi bi-eye"
+                                       id="registerEyeIcon">
+                                    </i>
+
+                                </button>
+
+                            </div>
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted">
+                                Minimum 8 characters with uppercase,
+                                lowercase and a number.
+                            </small>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Phone"
+                                   class="form-label">
+
+                                Phone Number
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="Phone"
+                                   type="tel"
+                                   class="form-control"
+                                   id="phone"
+                                   maxlength="16"
+                                   placeholder="03XX-XXXXXXX"
+                                   autocomplete="tel" />
+
+                            <span asp-validation-for="Phone"
+                                  class="text-danger">
+                            </span>
+
+                           
+
+                        </div>
+
+
+                        <!-- ADDRESS -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Address"
+                                   class="form-label">
+
+                                Complete Address
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <textarea asp-for="Address"
+                                      class="form-control"
+                                      id="address"
+                                      rows="3"
+                                      maxlength="500"
+                                      placeholder="House/Shop No, Street/Road, Area, Rawalpindi"></textarea>
+
+                            <span asp-validation-for="Address"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted">
+                                Enter your complete Rawalpindi address.
+                            </small>
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- ACCOUNT TYPE -->
+                        <!-- ===================================================== -->
+
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">
+
+                            Account Type
+
+                        </h5>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="RoleId"
+                                   class="form-label">
+
+                                Select Account Type
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <select asp-for="RoleId"
+                                    class="form-control"
+                                    id="roleSelect">
+
+                                <option value="">
+                                    -- Select Account Type --
+                                </option>
+
+                                @if (ViewBag.Roles != null)
+                                {
+                                    foreach (var role in ViewBag.Roles)
+                                    {
+                                        <option value="@role.RoleId"
+                                                data-role="@role.RoleName">
+
+                                            @role.RoleName
+
+                                        </option>
+                                    }
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="RoleId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- CUSTOMER -->
+                        <!-- ===================================================== -->
+
+                        <div id="customerSection"
+                             style="display:none;">
+
+                            <div class="alert alert-success">
+
+                                <h5>
+                                    Customer Registration
+                                </h5>
+
+                                
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- SHOPKEEPER -->
+                        <!-- ===================================================== -->
+
+                        <div id="shopkeeperSection"
+                             style="display:none;">
+
+                            <div class="card border-primary mb-4">
+
+                                <div class="card-header bg-primary text-white">
+
+                                    <h5 class="mb-0">
+
+                                        Shopkeeper Registration
+
+                                    </h5>
+
+                                </div>
+
+
+                                <div class="card-body">
+
+
+                                    <!-- SHOP INFORMATION -->
+
+                                    <h6 class="border-bottom pb-2 mb-3">
+
+                                        Shop Information
+
+                                    </h6>
+
+
+                                    <!-- SHOP NAME -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Name
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="ShopName"
+                                               id="shopName"
+                                               class="form-control"
+                                               maxlength="100"
+                                               placeholder="Enter shop name" />
+
+                                        <span class="text-danger"
+                                              id="shopNameError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- SHOP CATEGORY -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Category
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <select name="ShopCategory"
+                                                id="shopCategory"
+                                                class="form-control">
+
+                                            <option value="">
+                                                -- Select Category --
+                                            </option>
+
+                                            <option value="Dress">
+                                                Dress
+                                            </option>
+
+                                            <option value="Wedding Guest Wear">
+                                                Wedding Guest Wear
+                                            </option>
+
+                                            <option value="Footwear">
+                                                Footwear
+                                            </option>
+
+                                            <option value="Jewellery">
+                                                Jewellery
+                                            </option>
+
+                                            <option value="Accessories">
+                                                Accessories
+                                            </option>
+
+                                        </select>
+
+                                        <span class="text-danger"
+                                              id="shopCategoryError">
+                                        </span>
+
+                                        
+
+                                    </div>
+
+
+                                    <!-- SHOP PHONE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Phone
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="tel"
+                                               name="ShopPhone"
+                                               id="shopPhone"
+                                               class="form-control"
+                                               maxlength="16"
+                                               placeholder="03XX-XXXXXXX" />
+
+                                        <span class="text-danger"
+                                              id="shopPhoneError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- SHOP ADDRESS -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Address
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <textarea name="ShopAddress"
+                                                  id="shopAddress"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  maxlength="500"
+                                                  placeholder="Complete shop address in Rawalpindi"></textarea>
+
+                                        <span class="text-danger"
+                                              id="shopAddressError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- SHOP DESCRIPTION -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Description
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <textarea name="ShopDescription"
+                                                  id="shopDescription"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  maxlength="1000"
+                                                  placeholder="Describe your shop"></textarea>
+
+                                        <span class="text-danger"
+                                              id="shopDescriptionError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- SHOP VERIFICATION -->
+
+                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
+
+                                        Shop Verification
+
+                                    </h6>
+
+
+                                    <div class="alert alert-info">
+
+                                        <strong>
+                                            Shop Verification
+                                        </strong>
+
+                                        <br />
+
+                                        Please upload clear photos of your
+                                        shop for Admin verification.
+
+                                        <br />
+
+                                        <small>
+                                            JPG, JPEG or PNG only.
+                                            Maximum 5 MB per image.
+                                        </small>
+
+                                    </div>
+
+
+                                    <!-- FRONT -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Front Photo
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopFrontPhoto"
+                                               id="shopFrontPhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger"
+                                              id="shopFrontPhotoError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- INSIDE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Inside Photo
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopInsidePhoto"
+                                               id="shopInsidePhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger"
+                                              id="shopInsidePhotoError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- SIGNBOARD -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Shop Signboard Photo
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopSignboardPhoto"
+                                               id="shopSignboardPhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger"
+                                              id="shopSignboardPhotoError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="alert alert-warning mt-4">
+
+                                        <strong>
+                                            Important:
+                                        </strong>
+
+                                        <br />
+
+                                        Your shopkeeper account will remain
+                                        <strong>Pending</strong> until Admin
+                                        verifies your shop information and
+                                        photos.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- DELIVERY -->
+                        <!-- ===================================================== -->
+
+                        <div id="deliverySection"
+                             style="display:none;">
+
+                            <div class="card border-warning mb-4">
+
+                                <div class="card-header bg-warning">
+
+                                    <h5 class="mb-0">
+
+                                        Delivery Boy Registration
+
+                                    </h5>
+
+                                </div>
+
+
+                                <div class="card-body">
+
+
+                                    <!-- CNIC -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            CNIC Number
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="CNIC"
+                                               id="CNIC"
+                                               class="form-control"
+                                               placeholder="XXXXX-XXXXXXX-X"
+                                               maxlength="15"
+                                               inputmode="numeric"
+                                               autocomplete="off" />
+
+                                        <span class="text-danger"
+                                              id="cnicError">
+                                        </span>
+
+                                        <small class="text-muted">
+
+                                            Format:
+                                            12345-1234567-1
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <!-- CNIC FRONT -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            CNIC Front Image
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICFrontImage"
+                                               id="cnicFrontImage"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger"
+                                              id="cnicFrontImageError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- CNIC BACK -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            CNIC Back Image
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICBackImage"
+                                               id="cnicBackImage"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger"
+                                              id="cnicBackImageError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- VEHICLE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Vehicle
+
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               value="Motorbike"
+                                               readonly />
+
+                                        <input type="hidden"
+                                               name="VehicleType"
+                                               value="Motorbike" />
+
+                                    </div>
+
+
+                                    <!-- MOTORBIKE NUMBER -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Motorbike Registration Number
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="MotorbikeNumber"
+                                               id="motorbikeNumber"
+                                               class="form-control"
+                                               maxlength="30"
+                                               placeholder="Enter motorbike registration number" />
+
+                                        <span class="text-danger"
+                                              id="motorbikeNumberError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- PREFERRED ZONE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Preferred Delivery Zone
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <select name="PreferredZone"
+                                                id="preferredZone"
+                                                class="form-control">
+
+                                            <option value="">
+                                                -- Select Zone --
+                                            </option>
+
+                                            <option value="Saddar">
+                                                Saddar
+                                            </option>
+
+                                            <option value="6th Road">
+                                                6th Road
+                                            </option>
+
+                                            <option value="Askari 7">
+                                                Askari 7
+                                            </option>
+
+                                        </select>
+
+                                        <span class="text-danger"
+                                              id="preferredZoneError">
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- ASSIGNED ZONE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Assigned Delivery Zone
+
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               value="Will be assigned by Admin"
+                                               readonly />
+
+                                    </div>
+
+
+                                    <div class="alert alert-warning">
+
+                                        <strong>
+                                            Delivery Verification
+                                        </strong>
+
+                                        <br />
+
+                                        Your delivery account will remain
+                                        <strong>Pending</strong> until Admin
+                                        verifies your information.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- GENERAL MESSAGE -->
+                        <!-- ===================================================== -->
+
+                        <div id="generalMessage"
+                             class="alert alert-info">
+
+                            <strong>
+                                Important:
+                            </strong>
+
+                            <br />
+
+                            Select an account type above to see the
+                            registration requirements.
+
+                        </div>
+
+
+                        <!-- ===================================================== -->
+                        <!-- REGISTER -->
+                        <!-- ===================================================== -->
+
+                        <button type="submit"
+                                class="btn btn-primary w-100"
+                                id="registerButton">
+
+                            <i class="bi bi-person-plus"></i>
+
+                            Register
+
+                        </button>
+
+
+                    </form>
+
+
+                    <!-- LOGIN -->
+
+                    <div class="text-center mt-3">
+
+                        Already have an account?
+
+                        <a asp-controller="Account"
+                           asp-action="Login">
+
+                            Login
+
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // =====================================================
+            // ELEMENTS
+            // =====================================================
+
+            const form =
+                document.getElementById("registerForm");
+
+            const roleSelect =
+                document.getElementById("roleSelect");
+
+            const customerSection =
+                document.getElementById("customerSection");
+
+            const shopkeeperSection =
+                document.getElementById("shopkeeperSection");
+
+            const deliverySection =
+                document.getElementById("deliverySection");
+
+            const generalMessage =
+                document.getElementById("generalMessage");
+
+
+            // =====================================================
+            // SHOW ROLE SECTION
+            // =====================================================
+
+            function showSection() {
+
+                customerSection.style.display = "none";
+                shopkeeperSection.style.display = "none";
+                deliverySection.style.display = "none";
+                generalMessage.style.display = "none";
+
+
+                const selectedOption =
+                    roleSelect.options[
+                        roleSelect.selectedIndex
+                    ];
+
+
+                if (!selectedOption ||
+                    !selectedOption.dataset.role) {
+
+                    generalMessage.style.display = "block";
+
+                    return;
+                }
+
+
+                const role =
+                    selectedOption.dataset.role.trim();
+
+
+                if (role === "Customer") {
+
+                    customerSection.style.display = "block";
+
+                }
+                else if (role === "Shopkeeper") {
+
+                    shopkeeperSection.style.display = "block";
+
+                }
+                else if (role === "Delivery") {
+
+                    deliverySection.style.display = "block";
+
+                }
+                else {
+
+                    generalMessage.style.display = "block";
+
+                }
+
+            }
+
+
+            roleSelect.addEventListener(
+                "change",
+                showSection
+            );
+
+
+            showSection();
+
+
+            // =====================================================
+            // PASSWORD SHOW / HIDE
+            // =====================================================
+
+            const registerPassword =
+                document.getElementById("registerPassword");
+
+            const toggleRegisterPassword =
+                document.getElementById(
+                    "toggleRegisterPassword"
+                );
+
+            const registerEyeIcon =
+                document.getElementById(
+                    "registerEyeIcon"
+                );
+
+
+            if (toggleRegisterPassword) {
+
+                toggleRegisterPassword.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            registerPassword.type ===
+                            "password"
+                        ) {
+
+                            registerPassword.type =
+                                "text";
+
+                            registerEyeIcon.classList.remove(
+                                "bi-eye"
+                            );
+
+                            registerEyeIcon.classList.add(
+                                "bi-eye-slash"
+                            );
+
+                        }
+                        else {
+
+                            registerPassword.type =
+                                "password";
+
+                            registerEyeIcon.classList.remove(
+                                "bi-eye-slash"
+                            );
+
+                            registerEyeIcon.classList.add(
+                                "bi-eye"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            // =====================================================
+            // CNIC FORMAT
+            // =====================================================
+
+            const cnic =
+                document.getElementById("CNIC");
+
+
+            if (cnic) {
+
+                cnic.addEventListener(
+                    "input",
+                    function () {
+
+                        let value =
+                            this.value.replace(
+                                /\D/g,
+                                ""
+                            );
+
+
+                        // Maximum 13 digits
+
+                        if (value.length > 13) {
+
+                            value =
+                                value.substring(
+                                    0,
+                                    13
+                                );
+
+                        }
+
+
+                        // XXXXX-XXXXXXX-X
+
+                        if (value.length > 12) {
+
+                            value =
+                                value.substring(0, 5)
+                                + "-"
+                                + value.substring(5, 12)
+                                + "-"
+                                + value.substring(12);
+
+                        }
+                        else if (value.length > 5) {
+
+                            value =
+                                value.substring(0, 5)
+                                + "-"
+                                + value.substring(5);
+
+                        }
+
+
+                        this.value = value;
+
+                    }
+                );
+
+            }
+
+
+            // =====================================================
+            // PHONE FORMAT
+            // =====================================================
+
+            function formatPhone(input) {
+
+                if (!input) {
+                    return;
+                }
+
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        let value =
+                            this.value.replace(
+                                /[^\d+]/g,
+                                ""
+                            );
+
+
+                        // Convert +92XXXXXXXXXX
+                        // to 03XXXXXXXXX
+
+                        if (
+                            value.startsWith("+92")
+                        ) {
+
+                            value =
+                                "0" +
+                                value.substring(3);
+
+                        }
+
+
+                        // Remove spaces and hyphens
+
+                        value =
+                            value.replace(
+                                /\D/g,
+                                ""
+                            );
+
+
+                        // Maximum 11 digits
+
+                        if (value.length > 11) {
+
+                            value =
+                                value.substring(
+                                    0,
+                                    11
+                                );
+
+                        }
+
+
+                        // Format 0300-1234567
+
+                        if (value.length > 4) {
+
+                            value =
+                                value.substring(0, 4)
+                                + "-"
+                                + value.substring(4);
+
+                        }
+
+
+                        this.value = value;
+
+                    }
+                );
+
+            }
+
+
+            formatPhone(
+                document.getElementById("phone")
+            );
+
+
+            formatPhone(
+                document.getElementById("shopPhone")
+            );
+
+
+            // =====================================================
+            // IMAGE VALIDATION
+            // =====================================================
+
+            const maxFileSize =
+                5 * 1024 * 1024;
+
+
+            function validateImage(
+                input,
+                errorElementId
+            ) {
+
+                const error =
+                    document.getElementById(
+                        errorElementId
+                    );
+
+
+                if (!input || !error) {
+                    return true;
+                }
+
+
+                error.textContent = "";
+
+
+                if (!input.files ||
+                    input.files.length === 0) {
+
+                    return true;
+
+                }
+
+
+                const file =
+                    input.files[0];
+
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png"
+                ];
+
+
+                const allowedExtensions = [
+                    ".jpg",
+                    ".jpeg",
+                    ".png"
+                ];
+
+
+                const fileName =
+                    file.name.toLowerCase();
+
+
+                const validExtension =
+                    allowedExtensions.some(
+                        function (extension) {
+
+                            return fileName.endsWith(
+                                extension
+                            );
+
+                        }
+                    );
+
+
+                if (
+                    !validExtension ||
+                    !allowedTypes.includes(
+                        file.type
+                    )
+                ) {
+
+                    error.textContent =
+                        "Only JPG, JPEG or PNG images are allowed.";
+
+                    input.value = "";
+
+                    return false;
+
+                }
+
+
+                if (file.size > maxFileSize) {
+
+                    error.textContent =
+                        "Image size must not exceed 5 MB.";
+
+                    input.value = "";
+
+                    return false;
+
+                }
+
+
+                return true;
+
+            }
+
+
+            // Shop images
+
+            document
+                .getElementById("shopFrontPhoto")
+                .addEventListener(
+                    "change",
+                    function () {
+
+                        validateImage(
+                            this,
+                            "shopFrontPhotoError"
+                        );
+
+                    }
+                );
+
+
+            document
+                .getElementById("shopInsidePhoto")
+                .addEventListener(
+                    "change",
+                    function () {
+
+                        validateImage(
+                            this,
+                            "shopInsidePhotoError"
+                        );
+
+                    }
+                );
+
+
+            document
+                .getElementById("shopSignboardPhoto")
+                .addEventListener(
+                    "change",
+                    function () {
+
+                        validateImage(
+                            this,
+                            "shopSignboardPhotoError"
+                        );
+
+                    }
+                );
+
+
+            // CNIC images
+
+            document
+                .getElementById("cnicFrontImage")
+                .addEventListener(
+                    "change",
+                    function () {
+
+                        validateImage(
+                            this,
+                            "cnicFrontImageError"
+                        );
+
+                    }
+                );
+
+
+            document
+                .getElementById("cnicBackImage")
+                .addEventListener(
+                    "change",
+                    function () {
+
+                        validateImage(
+                            this,
+                            "cnicBackImageError"
+                        );
+
+                    }
+                );
+
+
+            // =====================================================
+            // BASIC CLIENT-SIDE VALIDATION
+            // =====================================================
+
+            function isValidPhone(phone) {
+
+                const cleaned =
+                    phone
+                        .replace(/\s/g, "")
+                        .replace(/-/g, "");
+
+
+                return /^03\d{9}$/.test(
+                    cleaned
+                );
+
+            }
+
+
+            function isValidCNIC(value) {
+
+                return /^\d{5}-\d{7}-\d$/.test(
+                    value
+                );
+
+            }
+
+
+            function hasRawalpindi(address) {
+
+                return address
+                    .toLowerCase()
+                    .includes("rawalpindi");
+
+            }
+
+
+            function clearErrors() {
+
+                document
+                    .querySelectorAll(
+                        ".custom-validation-error"
+                    )
+                    .forEach(
+                        function (element) {
+
+                            element.textContent = "";
+
+                        }
+                    );
+
+            }
+
+
+            function setError(
+                elementId,
+                message
+            ) {
+
+                const element =
+                    document.getElementById(
+                        elementId
+                    );
+
+
+                if (element) {
+
+                    element.textContent =
+                        message;
+
+                }
+
+            }
+
+
+            // =====================================================
+            // FORM SUBMIT
+            // =====================================================
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    clearErrors();
+
+
+                    let valid = true;
+
+
+                    // ---------------------------------------------
+                    // ACCOUNT TYPE
+                    // ---------------------------------------------
+
+                    if (!roleSelect.value) {
+
+                        valid = false;
+
+                        alert(
+                            "Please select an account type."
+                        );
+
+                    }
+
+
+                    // ---------------------------------------------
+                    // SHOPKEEPER VALIDATION
+                    // ---------------------------------------------
+
+                    const selectedOption =
+                        roleSelect.options[
+                            roleSelect.selectedIndex
+                        ];
+
+
+                    const selectedRole =
+                        selectedOption
+                            ?.dataset
+                            ?.role
+                            ?.trim() || "";
+
+
+                    if (
+                        selectedRole ===
+                        "Shopkeeper"
+                    ) {
+
+                        const shopName =
+                            document
+                                .getElementById(
+                                    "shopName"
+                                )
+                                .value
+                                .trim();
+
+
+                        const shopCategory =
+                            document
+                                .getElementById(
+                                    "shopCategory"
+                                )
+                                .value
+                                .trim();
+
+
+                        const shopPhone =
+                            document
+                                .getElementById(
+                                    "shopPhone"
+                                )
+                                .value
+                                .trim();
+
+
+                        const shopAddress =
+                            document
+                                .getElementById(
+                                    "shopAddress"
+                                )
+                                .value
+                                .trim();
+
+
+                        const shopDescription =
+                            document
+                                .getElementById(
+                                    "shopDescription"
+                                )
+                                .value
+                                .trim();
+
+
+                        if (shopName.length < 3) {
+
+                            setError(
+                                "shopNameError",
+                                "Shop name must be at least 3 characters."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (!shopCategory) {
+
+                            setError(
+                                "shopCategoryError",
+                                "Please select a shop category."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            !isValidPhone(
+                                shopPhone
+                            )
+                        ) {
+
+                            setError(
+                                "shopPhoneError",
+                                "Enter a valid Pakistani phone number."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            shopAddress.length < 10
+                        ) {
+
+                            setError(
+                                "shopAddressError",
+                                "Please enter a complete shop address."
+                            );
+
+                            valid = false;
+
+                        }
+                        else if (
+                            !hasRawalpindi(
+                                shopAddress
+                            )
+                        ) {
+
+                            setError(
+                                "shopAddressError",
+                                "Shop address must be in Rawalpindi."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            shopDescription.length < 10
+                        ) {
+
+                            setError(
+                                "shopDescriptionError",
+                                "Please provide a shop description."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        // Required shop images
+
+                        const shopFront =
+                            document
+                                .getElementById(
+                                    "shopFrontPhoto"
+                                );
+
+
+                        const shopInside =
+                            document
+                                .getElementById(
+                                    "shopInsidePhoto"
+                                );
+
+
+                        const shopSignboard =
+                            document
+                                .getElementById(
+                                    "shopSignboardPhoto"
+                                );
+
+
+                        if (
+                            !shopFront.files.length
+                        ) {
+
+                            setError(
+                                "shopFrontPhotoError",
+                                "Shop front photo is required."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            !shopInside.files.length
+                        ) {
+
+                            setError(
+                                "shopInsidePhotoError",
+                                "Shop inside photo is required."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            !shopSignboard.files.length
+                        ) {
+
+                            setError(
+                                "shopSignboardPhotoError",
+                                "Shop signboard photo is required."
+                            );
+
+                            valid = false;
+
+                        }
+
+                    }
+
+
+                    // ---------------------------------------------
+                    // DELIVERY VALIDATION
+                    // ---------------------------------------------
+
+                    if (
+                        selectedRole ===
+                        "Delivery"
+                    ) {
+
+                        const cnicValue =
+                            document
+                                .getElementById(
+                                    "CNIC"
+                                )
+                                .value
+                                .trim();
+
+
+                        const motorbikeNumber =
+                            document
+                                .getElementById(
+                                    "motorbikeNumber"
+                                )
+                                .value
+                                .trim();
+
+
+                        const preferredZone =
+                            document
+                                .getElementById(
+                                    "preferredZone"
+                                )
+                                .value
+                                .trim();
+
+
+                        if (
+                            !isValidCNIC(
+                                cnicValue
+                            )
+                        ) {
+
+                            setError(
+                                "cnicError",
+                                "Enter CNIC in XXXXX-XXXXXXX-X format."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            !motorbikeNumber ||
+                            motorbikeNumber.length < 3
+                        ) {
+
+                            setError(
+                                "motorbikeNumberError",
+                                "Please enter a valid motorbike registration number."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (!preferredZone) {
+
+                            setError(
+                                "preferredZoneError",
+                                "Please select your preferred delivery zone."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        const cnicFront =
+                            document
+                                .getElementById(
+                                    "cnicFrontImage"
+                                );
+
+
+                        const cnicBack =
+                            document
+                                .getElementById(
+                                    "cnicBackImage"
+                                );
+
+
+                        if (
+                            !cnicFront.files.length
+                        ) {
+
+                            setError(
+                                "cnicFrontImageError",
+                                "CNIC front image is required."
+                            );
+
+                            valid = false;
+
+                        }
+
+
+                        if (
+                            !cnicBack.files.length
+                        ) {
+
+                            setError(
+                                "cnicBackImageError",
+                                "CNIC back image is required."
+                            );
+
+                            valid = false;
+
+                        }
+
+                    }
+
+
+                    // ---------------------------------------------
+                    // STOP SUBMISSION
+                    // ---------------------------------------------
+
+                    if (!valid) {
+
+                        event.preventDefault();
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
+}

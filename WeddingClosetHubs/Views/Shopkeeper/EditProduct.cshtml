@@ -1,0 +1,1920 @@
+﻿@model WeddingClosetHubs.Models.Product
+
+@{
+    ViewData["Title"] = "Edit Product";
+    Layout = null;
+
+    string shopCategory =
+        ViewBag.ShopCategory as string ?? "";
+
+    string currentCategory =
+        Model?.Category ?? "";
+
+    string currentSubCategory =
+        Model?.Subcategory ?? "";
+
+    string categoryDataJson =
+        ViewBag.CategoryDataJson as string ?? "{}";
+
+    string currentSize =
+        Model?.Size ?? "";
+
+    bool currentHasCustomMeasurement =
+        Model?.HasCustomMeasurement ?? false;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Edit Product - Wedding Closet Hub</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+
+    <style>
+
+        body {
+            background: #f7f4f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .navbar-custom {
+            background: #800020;
+            padding: 15px 30px;
+        }
+
+        .brand {
+            color: #d4af37;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .brand:hover {
+            color: #d4af37;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main-container {
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        .form-card {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.08);
+        }
+
+        .page-title {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        .section-title {
+            color: #800020;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 8px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .form-label {
+            font-weight: 600;
+        }
+
+        .required {
+            color: red;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn-save {
+            background: #800020;
+            color: white;
+            border: none;
+            padding: 11px 25px;
+            border-radius: 7px;
+        }
+
+        .btn-save:hover {
+            background: #5f0018;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 11px 25px;
+            border-radius: 7px;
+        }
+
+        .btn-cancel:hover {
+            background: #555b60;
+            color: white;
+        }
+
+        /* =====================================================
+           CATEGORY INFO
+        ===================================================== */
+
+        .category-info {
+            background: #f8e9ed;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .category-info strong {
+            color: #333;
+        }
+
+        /* =====================================================
+           MEASUREMENT
+        ===================================================== */
+
+        .measurement-box {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .measurement-title {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           SALE
+        ===================================================== */
+
+        .sale-box {
+            background: #fdf1f3;
+            border: 1px solid #800020;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .sale-title {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           RENTAL
+        ===================================================== */
+
+        .rental-box {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .rental-title {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           NEGOTIATION
+        ===================================================== */
+
+        .negotiation-box {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .negotiation-title {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           IMAGE
+        ===================================================== */
+
+        .current-image {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .image-preview {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            display: none;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+
+        /* =====================================================
+           SELECT / INPUT
+        ===================================================== */
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 .2rem rgba(128,0,32,.15);
+        }
+
+        /* =====================================================
+           CHECKBOX
+        ===================================================== */
+
+        .form-check-input:checked {
+            background-color: #800020;
+            border-color: #800020;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .main-container {
+                margin: 20px 10px;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .navbar-custom {
+                padding: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+    ===================================================== -->
+
+    <nav class="navbar-custom">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <span class="brand">
+                Wedding Closet Hub
+            </span>
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Products"
+               class="btn btn-light">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Products
+
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN
+    ===================================================== -->
+
+    <div class="main-container">
+
+        <div class="form-card">
+
+            <!-- =================================================
+                 TITLE
+            ================================================= -->
+
+            <h2 class="page-title mb-2">
+
+                <i class="bi bi-pencil-square"></i>
+
+                Edit Product
+
+            </h2>
+
+            <p class="text-muted">
+                Update your product information, sale, rental and
+                negotiation settings.
+            </p>
+
+
+            <!-- =================================================
+                 SHOP CATEGORY
+            ================================================= -->
+
+            <div class="category-info">
+
+                <strong>
+                    Shop Category:
+                </strong>
+
+                <span class="text-danger fw-bold">
+                    @shopCategory
+                </span>
+
+                <br />
+
+                <small class="text-muted">
+
+                    Product categories are automatically
+                    based on your shop category.
+
+                </small>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM
+            ================================================= -->
+
+            <form asp-controller="Shopkeeper"
+                  asp-action="EditProduct"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+
+                <!-- PRODUCT ID -->
+
+                <input type="hidden"
+                       asp-for="ProductId" />
+
+
+                <!-- VALIDATION -->
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+                <!-- =================================================
+                     PRODUCT INFORMATION
+                ================================================= -->
+
+                <h5 class="section-title">
+
+                    Product Information
+
+                </h5>
+
+
+                <div class="row">
+
+                    <!-- PRODUCT NAME -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ProductName"
+                               class="form-label">
+
+                            Product Name
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <input asp-for="ProductName"
+                               class="form-control"
+                               placeholder="Enter product name" />
+
+                        <span asp-validation-for="ProductName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- COLOR -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Color"
+                               class="form-label">
+
+                            Color
+
+                        </label>
+
+                        <input asp-for="Color"
+                               class="form-control"
+                               placeholder="e.g. Maroon, Golden, Black" />
+
+                        <span asp-validation-for="Color"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     DESCRIPTION
+                ================================================= -->
+
+                <div class="mb-3">
+
+                    <label asp-for="Description"
+                           class="form-label">
+
+                        Description
+
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Describe the product"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- =================================================
+                     CATEGORY
+                ================================================= -->
+
+                <h5 class="section-title">
+
+                    Category
+
+                </h5>
+
+
+                <div class="row">
+
+                    <!-- CATEGORY -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Category"
+                               class="form-label">
+
+                            Category
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <select asp-for="Category"
+                                id="category"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                -- Select Category --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Category"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- SUBCATEGORY -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Subcategory"
+                               class="form-label">
+
+                            Subcategory
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <select asp-for="Subcategory"
+                                id="subCategory"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                -- Select Subcategory --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Subcategory"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     PRODUCT TYPE
+                ================================================= -->
+
+                <div class="mb-3">
+
+                    <label asp-for="ProductType"
+                           class="form-label">
+
+                        Product Type
+
+                    </label>
+
+                    <input asp-for="ProductType"
+                           id="productType"
+                           class="form-control"
+                           readonly />
+
+                    <small class="text-muted">
+                        Product type is automatically determined
+                        from the selected category.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     NORMAL SIZE
+                ================================================= -->
+
+                <div id="normalSizeSection"
+                     class="mb-3">
+
+                    <label asp-for="Size"
+                           class="form-label">
+
+                        Size
+
+                    </label>
+
+                    <select asp-for="Size"
+                            id="size"
+                            class="form-select">
+
+                        <option value="">
+                            -- Select Size --
+                        </option>
+
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+
+                    </select>
+
+                    <span asp-validation-for="Size"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- =================================================
+                     SHOE SIZE
+                ================================================= -->
+
+                <div id="shoeSizeSection"
+                     class="mb-3"
+                     style="display:none;">
+
+                    <label class="form-label">
+
+                        Shoe Size
+
+                    </label>
+
+                    <select name="Size"
+                            id="shoeSize"
+                            class="form-select"
+                            disabled>
+
+                        <option value="">
+                            -- Select Shoe Size --
+                        </option>
+
+                        <option value="36">36</option>
+                        <option value="37">37</option>
+                        <option value="38">38</option>
+                        <option value="39">39</option>
+                        <option value="40">40</option>
+                        <option value="41">41</option>
+                        <option value="42">42</option>
+                        <option value="43">43</option>
+                        <option value="44">44</option>
+                        <option value="45">45</option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =================================================
+                     PRICE & STOCK
+                ================================================= -->
+
+                <h5 class="section-title">
+
+                    Price & Stock
+
+                </h5>
+
+
+                <div class="row">
+
+                    <!-- ORIGINAL PRICE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Price"
+                               class="form-label">
+
+                            Original Price
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                Rs.
+                            </span>
+
+                            <input asp-for="Price"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   class="form-control"
+                                   placeholder="0.00" />
+
+                        </div>
+
+                        <span asp-validation-for="Price"
+                              class="text-danger">
+                        </span>
+
+                        <small class="text-muted">
+                            This remains the original product price.
+                        </small>
+
+                    </div>
+
+
+                    <!-- STOCK -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="StockQuantity"
+                               class="form-label">
+
+                            Stock Quantity
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <input asp-for="StockQuantity"
+                               type="number"
+                               min="0"
+                               class="form-control"
+                               placeholder="Enter stock quantity" />
+
+                        <span asp-validation-for="StockQuantity"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SALE / DISCOUNT
+                ================================================= -->
+
+                <div class="sale-box">
+
+                    <h5 class="sale-title">
+
+                        <i class="bi bi-tag-fill"></i>
+
+                        Sale / Discount
+
+                    </h5>
+
+                    <p class="text-muted">
+                        Offer this product at a special sale price.
+                        The original price will remain unchanged.
+                    </p>
+
+
+                    <!-- ENABLE SALE -->
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="IsOnSale"
+                               class="form-check-input"
+                               id="isOnSale" />
+
+                        <label class="form-check-label"
+                               for="isOnSale">
+
+                            Enable Sale / Discount
+
+                        </label>
+
+                    </div>
+
+
+                    <div id="saleFields">
+
+                        <div class="row">
+
+                            <!-- SALE PRICE -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="SalePrice"
+                                       class="form-label">
+
+                                    Sale Price
+
+                                    <span class="required">*</span>
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        Rs.
+                                    </span>
+
+                                    <input asp-for="SalePrice"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter sale price" />
+
+                                </div>
+
+                                <span asp-validation-for="SalePrice"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- SALE DETAILS -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="SaleDetails"
+                                       class="form-label">
+
+                                    Sale Details
+
+                                </label>
+
+                                <input asp-for="SaleDetails"
+                                       class="form-control"
+                                       placeholder="e.g. Eid Sale, 20% Off" />
+
+                                <span asp-validation-for="SaleDetails"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     RENTAL
+                ================================================= -->
+
+                <div class="rental-box">
+
+                    <h5 class="rental-title">
+
+                        <i class="bi bi-calendar2-check"></i>
+
+                        Rental Settings
+
+                    </h5>
+
+                    <p class="text-muted">
+
+                        Set your own rental price, refundable security,
+                        rental duration and conditions.
+
+                    </p>
+
+
+                    <!-- ENABLE RENTAL -->
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="IsAvailableForRent"
+                               class="form-check-input"
+                               id="isAvailableForRent" />
+
+                        <label class="form-check-label"
+                               for="isAvailableForRent">
+
+                            Make this product available for rent
+
+                        </label>
+
+                    </div>
+
+
+                    <div id="rentalFields">
+
+                        <div class="row">
+
+                            <!-- RENT PRICE -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="RentPrice"
+                                       class="form-label">
+
+                                    Rental Price
+
+                                    <span class="required">*</span>
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        Rs.
+                                    </span>
+
+                                    <input asp-for="RentPrice"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter rental price" />
+
+                                </div>
+
+                                <span asp-validation-for="RentPrice"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- SECURITY -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="RentalSecurity"
+                                       class="form-label">
+
+                                    Refundable Security
+
+                                    <span class="required">*</span>
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        Rs.
+                                    </span>
+
+                                    <input asp-for="RentalSecurity"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter security amount" />
+
+                                </div>
+
+                                <span asp-validation-for="RentalSecurity"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RENTAL DURATION -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="RentalDuration"
+                                   class="form-label">
+
+                                Rental Duration
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input asp-for="RentalDuration"
+                                   class="form-control"
+                                   placeholder="e.g. 3 Days, 1 Week, 10 Days" />
+
+                            <span asp-validation-for="RentalDuration"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- RENTAL CONDITIONS -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="RentalConditions"
+                                   class="form-label">
+
+                                Rental Conditions
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <textarea asp-for="RentalConditions"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter rental conditions, return rules, damage policy etc."></textarea>
+
+                            <span asp-validation-for="RentalConditions"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     NEGOTIATION
+                ================================================= -->
+
+                <div class="negotiation-box">
+
+                    <h5 class="negotiation-title">
+
+                        <i class="bi bi-chat-square-text"></i>
+
+                        Price Negotiation
+
+                    </h5>
+
+                    <p class="text-muted">
+
+                        Allow customers to request a lower price.
+                        Negotiation will not change the original
+                        product price or sale price.
+
+                    </p>
+
+
+                    <div class="form-check">
+
+                        <input asp-for="AllowNegotiation"
+                               class="form-check-input"
+                               id="allowNegotiation" />
+
+                        <label class="form-check-label"
+                               for="allowNegotiation">
+
+                            Allow customers to negotiate the price
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     PRODUCT IMAGE
+                ================================================= -->
+
+                <h5 class="section-title">
+
+                    Product Image
+
+                </h5>
+
+
+                @if (!string.IsNullOrWhiteSpace(Model?.Image))
+                {
+
+                    <div class="mb-3">
+
+                        <p class="text-muted mb-2">
+                            Current Image:
+                        </p>
+
+                        <img src="@Model.Image"
+                             class="current-image"
+                             alt="@Model.ProductName" />
+
+                    </div>
+
+                }
+
+
+                <!-- NEW IMAGE -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Change Product Image
+
+                    </label>
+
+                    <input type="file"
+                           name="productImage"
+                           id="productImage"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                    <small class="text-muted">
+
+                        Allowed formats: JPG, JPEG, PNG, WEBP.
+                        Maximum size: 5 MB.
+
+                    </small>
+
+                    <img id="imagePreview"
+                         class="image-preview"
+                         alt="New image preview" />
+
+                </div>
+
+
+                <!-- =================================================
+                     CUSTOM MEASUREMENT
+                ================================================= -->
+
+                <div id="customMeasurementBox"
+                     class="measurement-box"
+                     style="display:none;">
+
+                    <h5 class="measurement-title">
+
+                        <i class="bi bi-rulers"></i>
+
+                        Custom Measurement
+
+                    </h5>
+
+                    <p class="text-muted">
+
+                        Customers can provide their own measurements
+                        when ordering this product.
+
+                    </p>
+
+                    <div class="form-check">
+
+                        <input asp-for="HasCustomMeasurement"
+                               class="form-check-input"
+                               id="hasCustomMeasurement" />
+
+                        <label class="form-check-label"
+                               for="hasCustomMeasurement">
+
+                            Allow customer to provide custom measurements
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     BUTTONS
+                ================================================= -->
+
+                <div class="mt-4 d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-save">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        Save Changes
+
+                    </button>
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Products"
+                       class="btn btn-cancel">
+
+                        Cancel
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
+    <script>
+
+        // =====================================================
+        // CATEGORY DATA FROM CONTROLLER
+        // =====================================================
+
+        const categoryData =
+            @Html.Raw(categoryDataJson);
+
+
+        // =====================================================
+        // DATABASE VALUES
+        // =====================================================
+
+        const databaseCategory =
+            @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                    currentCategory
+                )
+            );
+
+
+        const databaseSubCategory =
+            @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                    currentSubCategory
+                )
+            );
+
+
+        const databaseSize =
+            @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                    currentSize
+                )
+            );
+
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
+        const categorySelect =
+            document.getElementById("category");
+
+        const subCategorySelect =
+            document.getElementById("subCategory");
+
+        const productTypeInput =
+            document.getElementById("productType");
+
+        const customMeasurementBox =
+            document.getElementById("customMeasurementBox");
+
+        const normalSizeSection =
+            document.getElementById("normalSizeSection");
+
+        const shoeSizeSection =
+            document.getElementById("shoeSizeSection");
+
+        const sizeSelect =
+            document.getElementById("size");
+
+        const shoeSize =
+            document.getElementById("shoeSize");
+
+        const isOnSale =
+            document.getElementById("isOnSale");
+
+        const saleFields =
+            document.getElementById("saleFields");
+
+        const isAvailableForRent =
+            document.getElementById("isAvailableForRent");
+
+        const rentalFields =
+            document.getElementById("rentalFields");
+
+
+        // =====================================================
+        // NORMALIZE
+        // =====================================================
+
+        function normalize(value) {
+
+            if (!value) {
+                return "";
+            }
+
+            return value
+                .toString()
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+
+        }
+
+
+        // =====================================================
+        // FIND CATEGORY
+        // =====================================================
+
+        function findCategory(value) {
+
+            const normalized =
+                normalize(value);
+
+            return Object.keys(categoryData)
+                .find(function (category) {
+
+                    return normalize(category) ===
+                           normalized;
+
+                }) || "";
+
+        }
+
+
+        // =====================================================
+        // FIND SUBCATEGORY
+        // =====================================================
+
+        function findSubCategory(
+            category,
+            value) {
+
+            if (!category) {
+                return "";
+            }
+
+            const list =
+                categoryData[category];
+
+            if (!Array.isArray(list)) {
+                return "";
+            }
+
+            const normalized =
+                normalize(value);
+
+            return list.find(function (item) {
+
+                return normalize(item) ===
+                       normalized;
+
+            }) || "";
+
+        }
+
+
+        // =====================================================
+        // SALE FIELDS
+        // =====================================================
+
+        function updateSaleFields() {
+
+            if (isOnSale.checked) {
+
+                saleFields.style.display =
+                    "block";
+
+            }
+            else {
+
+                saleFields.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        // =====================================================
+        // RENTAL FIELDS
+        // =====================================================
+
+        function updateRentalFields() {
+
+            if (isAvailableForRent.checked) {
+
+                rentalFields.style.display =
+                    "block";
+
+            }
+            else {
+
+                rentalFields.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        // =====================================================
+        // LOAD CATEGORIES
+        // =====================================================
+
+        function loadCategories() {
+
+            categorySelect.innerHTML =
+                '<option value="">-- Select Category --</option>';
+
+
+            Object.keys(categoryData)
+                .forEach(function (categoryName) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        categoryName;
+
+                    option.textContent =
+                        categoryName;
+
+                    categorySelect.appendChild(option);
+
+                });
+
+
+            // Restore current database category
+
+            const matchingCategory =
+                findCategory(databaseCategory);
+
+
+            if (matchingCategory) {
+
+                categorySelect.value =
+                    matchingCategory;
+
+            }
+
+
+            loadSubCategories(
+                matchingCategory,
+                databaseSubCategory
+            );
+
+        }
+
+
+        // =====================================================
+        // LOAD SUBCATEGORIES
+        // =====================================================
+
+        function loadSubCategories(
+            categoryName = null,
+            selectedSubCategory = null) {
+
+            subCategorySelect.innerHTML =
+                '<option value="">-- Select Subcategory --</option>';
+
+
+            const selectedCategory =
+                categoryName ||
+                categorySelect.value;
+
+
+            if (!selectedCategory) {
+
+                updateProductOptions();
+
+                return;
+
+            }
+
+
+            const subCategories =
+                categoryData[selectedCategory];
+
+
+            if (!Array.isArray(subCategories)) {
+
+                updateProductOptions();
+
+                return;
+
+            }
+
+
+            subCategories.forEach(
+                function (subCategoryName) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        subCategoryName;
+
+                    option.textContent =
+                        subCategoryName;
+
+                    subCategorySelect.appendChild(
+                        option
+                    );
+
+                });
+
+
+            // Restore current database subcategory
+
+            const matchingSubCategory =
+                findSubCategory(
+                    selectedCategory,
+                    selectedSubCategory
+                );
+
+
+            if (matchingSubCategory) {
+
+                subCategorySelect.value =
+                    matchingSubCategory;
+
+            }
+
+
+            updateProductOptions();
+
+        }
+
+
+        // =====================================================
+        // UPDATE PRODUCT TYPE / SIZE
+        // =====================================================
+
+        function updateProductOptions() {
+
+            const selectedCategory =
+                normalize(
+                    categorySelect.value
+                );
+
+
+            const selectedSubCategory =
+                normalize(
+                    subCategorySelect.value
+                );
+
+
+            // =================================================
+            // RESET
+            // =================================================
+
+            customMeasurementBox.style.display =
+                "none";
+
+            shoeSizeSection.style.display =
+                "none";
+
+            normalSizeSection.style.display =
+                "block";
+
+            sizeSelect.disabled =
+                false;
+
+            shoeSize.disabled =
+                true;
+
+
+            // =================================================
+            // FOOTWEAR
+            // =================================================
+
+            if (
+                selectedCategory === "footwear" ||
+                selectedCategory === "shoes"
+            ) {
+
+                normalSizeSection.style.display =
+                    "none";
+
+                shoeSizeSection.style.display =
+                    "block";
+
+                productTypeInput.value =
+                    "Footwear";
+
+                sizeSelect.disabled =
+                    true;
+
+                shoeSize.disabled =
+                    false;
+
+
+                // Restore existing shoe size
+
+                const existingSize =
+                    databaseSize
+                        .toString()
+                        .trim();
+
+
+                if (
+                    existingSize &&
+                    Array.from(shoeSize.options)
+                        .some(function (option) {
+
+                            return option.value ===
+                                   existingSize;
+
+                        })
+                ) {
+
+                    shoeSize.value =
+                        existingSize;
+
+                }
+
+
+                return;
+
+            }
+
+
+            // =================================================
+            // JEWELLERY
+            // =================================================
+
+            if (
+                selectedCategory === "jewellery" ||
+                selectedCategory === "jewelry"
+            ) {
+
+                normalSizeSection.style.display =
+                    "none";
+
+                productTypeInput.value =
+                    "Jewellery";
+
+                sizeSelect.disabled =
+                    true;
+
+                shoeSize.disabled =
+                    true;
+
+                return;
+
+            }
+
+
+            // =================================================
+            // ACCESSORIES
+            // =================================================
+
+            if (
+                selectedCategory === "accessories" ||
+                selectedCategory === "wedding accessories"
+            ) {
+
+                normalSizeSection.style.display =
+                    "none";
+
+                productTypeInput.value =
+                    "Accessories";
+
+                sizeSelect.disabled =
+                    true;
+
+                shoeSize.disabled =
+                    true;
+
+                return;
+
+            }
+
+
+            // =================================================
+            // WEDDING GUEST WEAR
+            // =================================================
+
+            if (
+                selectedCategory === "wedding guest wear" ||
+                selectedCategory === "guest wear"
+            ) {
+
+                normalSizeSection.style.display =
+                    "block";
+
+                productTypeInput.value =
+                    "Wedding Guest Wear";
+
+                customMeasurementBox.style.display =
+                    "none";
+
+                sizeSelect.disabled =
+                    false;
+
+                shoeSize.disabled =
+                    true;
+
+                return;
+
+            }
+
+
+            // =================================================
+            // DRESS
+            // =================================================
+
+            const dressKeywords = [
+
+                "dress",
+                "lehenga",
+                "gown",
+                "maxi",
+                "sharara",
+                "gharara",
+                "pishwas",
+                "saree",
+                "frock",
+                "anarkali",
+                "palazzo",
+                "shalwar kameez",
+                "kurta pajama",
+                "suit",
+                "tuxedo",
+                "sherwani",
+                "prince coat",
+                "waistcoat",
+                "blazer",
+                "shirt & trouser"
+
+            ];
+
+
+            const isDress =
+                dressKeywords.some(function (keyword) {
+
+                    return selectedSubCategory
+                        .includes(keyword);
+
+                });
+
+
+            if (
+                selectedCategory === "dress" ||
+                isDress
+            ) {
+
+                normalSizeSection.style.display =
+                    "block";
+
+                customMeasurementBox.style.display =
+                    "block";
+
+                productTypeInput.value =
+                    "Dress / Custom Size";
+
+                sizeSelect.disabled =
+                    false;
+
+                shoeSize.disabled =
+                    true;
+
+                return;
+
+            }
+
+
+            // =================================================
+            // DEFAULT
+            // =================================================
+
+            productTypeInput.value =
+                "Standard Product";
+
+            sizeSelect.disabled =
+                false;
+
+            shoeSize.disabled =
+                true;
+
+        }
+
+
+        // =====================================================
+        // CATEGORY CHANGE
+        // =====================================================
+
+        categorySelect.addEventListener(
+            "change",
+            function () {
+
+                loadSubCategories();
+
+            });
+
+
+        // =====================================================
+        // SUBCATEGORY CHANGE
+        // =====================================================
+
+        subCategorySelect.addEventListener(
+            "change",
+            function () {
+
+                updateProductOptions();
+
+            });
+
+
+        // =====================================================
+        // SALE CHANGE
+        // =====================================================
+
+        isOnSale.addEventListener(
+            "change",
+            function () {
+
+                updateSaleFields();
+
+            });
+
+
+        // =====================================================
+        // RENTAL CHANGE
+        // =====================================================
+
+        isAvailableForRent.addEventListener(
+            "change",
+            function () {
+
+                updateRentalFields();
+
+            });
+
+
+        // =====================================================
+        // SHOE SIZE CHANGE
+        //
+        // Keep Product.Size synchronized.
+        // =====================================================
+
+        shoeSize.addEventListener(
+            "change",
+            function () {
+
+                if (!shoeSize.disabled) {
+
+                    sizeSelect.value = "";
+
+                }
+
+            });
+
+
+        // =====================================================
+        // IMAGE PREVIEW
+        // =====================================================
+
+        document
+            .getElementById("productImage")
+            .addEventListener(
+                "change",
+                function () {
+
+                    const file =
+                        this.files[0];
+
+                    const preview =
+                        document.getElementById(
+                            "imagePreview"
+                        );
+
+
+                    if (file) {
+
+                        // Maximum 5 MB
+
+                        if (
+                            file.size >
+                            5 * 1024 * 1024
+                        ) {
+
+                            alert(
+                                "Product image must be 5 MB or smaller."
+                            );
+
+                            this.value =
+                                "";
+
+                            preview.src =
+                                "";
+
+                            preview.style.display =
+                                "none";
+
+                            return;
+
+                        }
+
+
+                        preview.src =
+                            URL.createObjectURL(file);
+
+                        preview.style.display =
+                            "block";
+
+                    }
+                    else {
+
+                        preview.src =
+                            "";
+
+                        preview.style.display =
+                            "none";
+
+                    }
+
+                });
+
+
+        // =====================================================
+        // INITIAL LOAD
+        // =====================================================
+
+        loadCategories();
+
+        updateSaleFields();
+
+        updateRentalFields();
+
+    </script>
+
+</body>
+
+</html>

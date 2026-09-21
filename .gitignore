@@ -1,0 +1,39 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build output
+bin/
+obj/
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# NuGet
+*.nupkg
+*.snupkg
+
+# Local SQL Server database files
+*.mdf
+*.ldf
+
+# Publish output
+publish/
+
+# Development settings
+appsettings.Development.json
+
+# User-uploaded files
+WeddingClosetHubs/wwwroot/uploads/
+WeddingClosetHubs/wwwroot/profiles/

@@ -1,0 +1,702 @@
+﻿@model WeddingClosetHubs.Models.Shop
+
+@{
+    ViewData["Title"] = "My Shop";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>My Shop - Wedding Closet Hub</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            background: #f5f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .page-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .custom-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .card-header-custom {
+            padding: 16px 20px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            background: #800020;
+        }
+
+        .card-body-custom {
+            padding: 25px;
+        }
+
+        .info-group {
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            background: #f8f9fa;
+            border: 1px solid #e1e5ea;
+            border-radius: 7px;
+            padding: 11px 14px;
+            min-height: 45px;
+        }
+
+        .shop-logo {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .photo-box {
+            width: 100%;
+            height: 220px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action-buttons .btn {
+            padding: 10px 18px;
+            border-radius: 7px;
+        }
+
+        .approved-box {
+            background: #eaf7ef;
+            border: 1px solid #b7e4c7;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .pending-box {
+            background: #fff8e1;
+            border: 1px solid #ffe69c;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-8">
+
+                <h2 class="page-title">
+
+                    <i class="bi bi-shop"></i>
+
+                    My Shop
+
+                </h2>
+
+                <p class="page-subtitle">
+
+                    View and manage your shop information.
+
+                </p>
+
+            </div>
+
+            <div class="col-md-4 text-md-end">
+
+                <a asp-controller="Shopkeeper"
+                   asp-action="Dashboard"
+                   class="btn btn-secondary me-2">
+
+                    <i class="bi bi-speedometer2"></i>
+
+                    Dashboard
+
+                </a>
+
+                <a asp-controller="Shopkeeper"
+                   asp-action="EditShop"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-pencil"></i>
+
+                    Edit Shop
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MESSAGES -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- SHOP STATUS -->
+
+    @if (Model.IsApproved && Model.Status)
+    {
+        <div class="approved-box mb-4">
+
+            <h5 class="text-success">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Shop is Active
+
+            </h5>
+
+            <p class="mb-0">
+
+                Your shop has been approved by the administrator
+                and is currently active.
+
+            </p>
+
+        </div>
+    }
+    else if (!Model.IsApproved)
+    {
+        <div class="pending-box mb-4">
+
+            <h5 class="text-warning">
+
+                <i class="bi bi-clock-fill"></i>
+
+                Shop Approval Pending
+
+            </h5>
+
+            <p class="mb-0">
+
+                Your shop is waiting for administrator approval.
+
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+
+            <i class="bi bi-x-circle-fill"></i>
+
+            Your shop is currently disabled by the administrator.
+
+        </div>
+    }
+
+
+    <!-- BASIC INFORMATION -->
+
+    <div class="custom-card">
+
+        <div class="card-header-custom">
+
+            <i class="bi bi-shop"></i>
+
+            Shop Information
+
+        </div>
+
+        <div class="card-body-custom">
+
+            <div class="row">
+
+                <div class="col-md-4 text-center mb-4">
+
+                    @if (!string.IsNullOrEmpty(Model.Logo))
+                    {
+                        <img src="@Model.Logo"
+                             class="shop-logo"
+                             alt="Shop Logo" />
+                    }
+                    else
+                    {
+                        <div class="shop-logo d-flex align-items-center justify-content-center mx-auto">
+
+                            <i class="bi bi-shop fs-1 text-secondary"></i>
+
+                        </div>
+                    }
+
+                </div>
+
+                <div class="col-md-8">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Name
+                        </label>
+
+                        <div class="info-value">
+                            @Model.ShopName
+                        </div>
+
+                    </div>
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Category
+                        </label>
+
+                        <div class="info-value">
+                            @Model.ShopCategory
+                        </div>
+
+                    </div>
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Description
+                        </label>
+
+                        <div class="info-value">
+
+                            @(string.IsNullOrEmpty(Model.ShopDescription)
+                                ? "No description provided."
+                                : Model.ShopDescription)
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTACT INFORMATION -->
+
+    <div class="custom-card">
+
+        <div class="card-header-custom">
+
+            <i class="bi bi-person-lines-fill"></i>
+
+            Shop Contact Information
+
+        </div>
+
+        <div class="card-body-custom">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Phone
+                        </label>
+
+                        <div class="info-value">
+
+                            @(string.IsNullOrEmpty(Model.ShopPhone)
+                                ? "N/A"
+                                : Model.ShopPhone)
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Email
+                        </label>
+
+                        <div class="info-value">
+
+                            @(string.IsNullOrEmpty(Model.Email)
+                                ? "N/A"
+                                : Model.Email)
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-12">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop Address
+                        </label>
+
+                        <div class="info-value">
+                            @Model.ShopAddress
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- VERIFICATION PHOTOS -->
+
+    <div class="custom-card">
+
+        <div class="card-header-custom">
+
+            <i class="bi bi-images"></i>
+
+            Shop Verification Photos
+
+        </div>
+
+        <div class="card-body-custom">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-4">
+
+                    <label class="info-label">
+                        Shop Front
+                    </label>
+
+                    <div class="photo-box">
+
+                        @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
+                        {
+                            <img src="@Model.ShopFrontPhoto"
+                                 alt="Shop Front" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center
+                                        align-items-center h-100 text-secondary">
+
+                                No photo available
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4 mb-4">
+
+                    <label class="info-label">
+                        Shop Inside
+                    </label>
+
+                    <div class="photo-box">
+
+                        @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
+                        {
+                            <img src="@Model.ShopInsidePhoto"
+                                 alt="Shop Inside" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center
+                                        align-items-center h-100 text-secondary">
+
+                                No photo available
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4 mb-4">
+
+                    <label class="info-label">
+                        Shop Signboard
+                    </label>
+
+                    <div class="photo-box">
+
+                        @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
+                        {
+                            <img src="@Model.ShopSignboardPhoto"
+                                 alt="Shop Signboard" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center
+                                        align-items-center h-100 text-secondary">
+
+                                No photo available
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SHOP STATUS DETAILS -->
+
+    <div class="custom-card">
+
+        <div class="card-header-custom">
+
+            <i class="bi bi-shield-check"></i>
+
+            Shop Status
+
+        </div>
+
+        <div class="card-body-custom">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <label class="info-label">
+                        Approval Status
+                    </label>
+
+                    @if (Model.IsApproved)
+                    {
+                        <span class="status-badge bg-success text-white">
+                            Approved
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="status-badge bg-warning text-dark">
+                            Pending
+                        </span>
+                    }
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="info-label">
+                        Shop Status
+                    </label>
+
+                    @if (Model.Status)
+                    {
+                        <span class="status-badge bg-success text-white">
+                            Active
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="status-badge bg-secondary text-white">
+                            Disabled
+                        </span>
+                    }
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="info-label">
+                        Created Date
+                    </label>
+
+                    <div class="info-value">
+
+                        @Model.CreatedDate.ToString("dd MMMM yyyy")
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="custom-card">
+
+        <div class="card-body-custom">
+
+            <div class="action-buttons">
+
+                <a asp-controller="Shopkeeper"
+                   asp-action="EditShop"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-pencil"></i>
+
+                    Edit Shop
+
+                </a>
+
+                <a asp-controller="Shopkeeper"
+                   asp-action="Dashboard"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>

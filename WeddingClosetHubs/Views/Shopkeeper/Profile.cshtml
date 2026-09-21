@@ -1,0 +1,1042 @@
+﻿@model WeddingClosetHubs.Models.User
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>My Profile - Wedding Closet Hub</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            background: #f7f7f7;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .page-header {
+            background: #800020;
+            color: white;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+            opacity: .85;
+        }
+
+        /* =====================================================
+           CARD
+        ===================================================== */
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 16px 20px;
+            color: #800020;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* =====================================================
+           PROFILE IMAGE
+        ===================================================== */
+
+        .profile-image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #800020;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        .profile-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
+            margin: 0 auto 15px;
+            border: 4px solid #d4af37;
+        }
+
+        .profile-name {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #800020;
+        }
+
+        .profile-role {
+            text-align: center;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        /* =====================================================
+           UPLOAD
+        ===================================================== */
+
+        .upload-label {
+            background: #d4af37;
+            color: #222;
+            padding: 8px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .upload-label:hover {
+            background: #c39d25;
+        }
+
+        #profileFile {
+            display: none;
+        }
+
+        .image-help {
+            font-size: 12px;
+            color: #777;
+            margin-top: 8px;
+        }
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 7px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 .15rem rgba(128,0,32,.15);
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .save-btn {
+            background: #800020;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 10px 22px;
+        }
+
+        .save-btn:hover {
+            background: #650019;
+            color: white;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 10px 20px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #5c636a;
+            color: white;
+        }
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-disabled {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-approved {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* =====================================================
+           PAYMENT BOX
+        ===================================================== */
+
+        .payment-box {
+            background: #fffdf5;
+            border-left: 4px solid #d4af37;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .payment-icon {
+            color: #d4af37;
+            font-size: 28px;
+        }
+
+        /* =====================================================
+           INFO ROW
+        ===================================================== */
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #222;
+            text-align: right;
+        }
+
+        /* =====================================================
+           PAYMENT METHOD HELP
+        ===================================================== */
+
+        .payment-method-note {
+            font-size: 13px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .page-header h2 {
+                font-size: 22px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .info-row {
+                display: block;
+            }
+
+            .info-value {
+                text-align: left;
+                margin-top: 4px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================= -->
+
+    <div class="page-header">
+
+        <div class="container-fluid">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h2>
+                        <i class="bi bi-person-circle"></i>
+                        My Profile
+                    </h2>
+
+                    <p>
+                        Manage your personal and shopkeeper information.
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Dashboard"
+                       class="btn btn-light">
+
+                        <i class="bi bi-arrow-left"></i>
+                        Dashboard
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="container-fluid">
+
+        <!-- =====================================================
+             ALERT MESSAGES
+        ===================================================== -->
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+
+                <i class="bi bi-check-circle"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+
+                <i class="bi bi-exclamation-circle"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        <div class="row">
+
+            <!-- =================================================
+                 LEFT SIDE
+            ================================================= -->
+
+            <div class="col-lg-4">
+
+                <!-- PROFILE SUMMARY -->
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <!-- PROFILE IMAGE -->
+
+                        <div class="profile-image-container">
+
+                            @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                            {
+                                <img id="profilePreview"
+                                     src="@Model.ProfileImage"
+                                     alt="Profile Picture"
+                                     class="profile-image" />
+                            }
+                            else
+                            {
+                                <div id="profilePlaceholder"
+                                     class="profile-placeholder">
+
+                                    <i class="bi bi-person"></i>
+
+                                </div>
+
+                                <img id="profilePreview"
+                                     src=""
+                                     alt="Profile Picture"
+                                     class="profile-image"
+                                     style="display:none;" />
+                            }
+
+
+                            <!-- IMAGE UPLOAD -->
+
+                            <label for="profileFile"
+                                   class="upload-label">
+
+                                <i class="bi bi-camera"></i>
+
+                                Change Profile Picture
+
+                            </label>
+
+
+                            <div class="image-help">
+
+                                JPG, JPEG, PNG
+                                <br />
+                                Maximum recommended size: 2 MB
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="profile-name">
+
+                            @Model.Name
+
+                        </div>
+
+
+                        <div class="profile-role">
+
+                            Shopkeeper
+
+                        </div>
+
+
+                        <!-- ACCOUNT STATUS -->
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Account Status
+                            </span>
+
+                            <span class="info-value">
+
+                                @if (Model.Status)
+                                {
+                                    <span class="status-badge status-active">
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-disabled">
+                                        Disabled
+                                    </span>
+                                }
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- APPROVAL -->
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Approval
+                            </span>
+
+                            <span class="info-value">
+
+                                @if (Model.IsApproved)
+                                {
+                                    <span class="status-badge status-approved">
+                                        Approved
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-pending">
+                                        Pending
+                                    </span>
+                                }
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- MEMBER SINCE -->
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Member Since
+                            </span>
+
+                            <span class="info-value">
+
+                                @Model.CreatedDate.ToString("dd MMM yyyy")
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT INFORMATION -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-wallet2"></i>
+
+                        Payment Receiving Information
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="payment-box">
+
+                            <div class="d-flex">
+
+                                <i class="bi bi-cash-stack payment-icon me-3"></i>
+
+                                <div>
+
+                                    <h6>
+                                        Shopkeeper Payment
+                                    </h6>
+
+                                    <p class="text-muted mb-0">
+
+                                        Admin will send your shop earnings
+                                        to the Easypaisa or JazzCash account
+                                        selected below.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+            ================================================= -->
+
+            <div class="col-lg-8">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-person-lines-fill"></i>
+
+                        Personal Information
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <form asp-controller="Shopkeeper"
+                              asp-action="Profile"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <input type="hidden"
+                                   asp-for="UserId" />
+
+
+                            <!-- PROFILE IMAGE -->
+
+                            <input type="file"
+                                   id="profileFile"
+                                   name="profileFile"
+                                   accept=".jpg,.jpeg,.png"
+                                   onchange="previewProfileImage(this)" />
+
+
+                            <div class="row">
+
+                                <!-- NAME -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Name"
+                                           class="form-label">
+
+                                        Full Name
+
+                                    </label>
+
+                                    <input asp-for="Name"
+                                           class="form-control"
+                                           placeholder="Enter your name" />
+
+                                    <span asp-validation-for="Name"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+
+                                <!-- EMAIL -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Email"
+                                           class="form-label">
+
+                                        Email Address
+
+                                    </label>
+
+                                    <input asp-for="Email"
+                                           class="form-control"
+                                           type="email"
+                                           placeholder="Enter email" />
+
+                                    <span asp-validation-for="Email"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+
+                                <!-- PHONE -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Phone"
+                                           class="form-label">
+
+                                        Phone Number
+
+                                    </label>
+
+                                    <input asp-for="Phone"
+                                           class="form-control"
+                                           placeholder="03XXXXXXXXX" />
+
+                                    <span asp-validation-for="Phone"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+
+                                <!-- ADDRESS -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Address"
+                                           class="form-label">
+
+                                        Address
+
+                                    </label>
+
+                                    <input asp-for="Address"
+                                           class="form-control"
+                                           placeholder="Enter address" />
+
+                                    <span asp-validation-for="Address"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <hr class="my-4" />
+
+
+                            <!-- =================================================
+                                 PAYMENT METHOD
+                            ================================================= -->
+
+                            <h5 class="mb-3">
+
+                                <i class="bi bi-credit-card"></i>
+
+                                Payment Receiving Method
+
+                            </h5>
+
+
+                            <div class="payment-box mb-4">
+
+                                <div class="row">
+
+                                    <!-- PAYMENT METHOD -->
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <label for="PaymentMethod"
+                                               class="form-label">
+
+                                            Preferred Payment Method
+
+                                        </label>
+
+                                        <select id="PaymentMethod"
+                                                name="PaymentMethod"
+                                                class="form-select">
+
+                                            <option value="">
+                                                Select Payment Method
+                                            </option>
+
+                                            @if (ViewBag.PaymentMethod == "Easypaisa")
+                                            {
+                                                <option value="Easypaisa" selected>
+                                                    Easypaisa
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Easypaisa">
+                                                    Easypaisa
+                                                </option>
+                                            }
+
+                                            @if (ViewBag.PaymentMethod == "JazzCash")
+                                            {
+                                                <option value="JazzCash" selected>
+                                                    JazzCash
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="JazzCash">
+                                                    JazzCash
+                                                </option>
+                                            }
+
+                                        </select>
+
+                                        <div class="payment-method-note">
+                                            Select only one payment method.
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- ACCOUNT NUMBER -->
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <label for="PaymentAccount"
+                                               class="form-label">
+
+                                            Easypaisa / JazzCash Number
+
+                                        </label>
+
+                                        <input type="text"
+                                               id="PaymentAccount"
+                                               name="PaymentAccount"
+                                               value="@ViewBag.PaymentAccount"
+                                               class="form-control"
+                                               placeholder="03XXXXXXXXX"
+                                               maxlength="20" />
+
+                                        <div class="payment-method-note">
+
+                                            Enter the account number belonging
+                                            to the selected payment method.
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 BUTTONS
+                            ================================================= -->
+
+                            <div class="d-flex justify-content-end gap-2">
+
+                                <a asp-controller="Shopkeeper"
+                                   asp-action="Dashboard"
+                                   class="back-btn">
+
+                                    <i class="bi bi-x-circle"></i>
+
+                                    Cancel
+
+                                </a>
+
+
+                                <button type="submit"
+                                        class="save-btn">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SECURITY INFORMATION
+                ================================================= -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-shield-lock"></i>
+
+                        Account Security
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="alert alert-light border mb-0">
+
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+
+                            Keep your account information and payment
+                            receiving number up to date so the administrator
+                            can contact you and process your shop payments.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- PROFILE IMAGE PREVIEW -->
+
+    <script>
+
+        function previewProfileImage(input) {
+
+            if (input.files && input.files[0]) {
+
+                const file = input.files[0];
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png"
+                ];
+
+                if (!allowedTypes.includes(file.type)) {
+
+                    alert("Please select a JPG, JPEG, or PNG image.");
+
+                    input.value = "";
+
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+
+                    alert("Image size must not exceed 2 MB.");
+
+                    input.value = "";
+
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    const preview =
+                        document.getElementById("profilePreview");
+
+                    const placeholder =
+                        document.getElementById("profilePlaceholder");
+
+                    preview.src = e.target.result;
+
+                    preview.style.display = "block";
+
+                    if (placeholder) {
+                        placeholder.style.display = "none";
+                    }
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+
+        }
+
+    </script>
+
+
+    <!-- PAYMENT METHOD VALIDATION -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const paymentMethod =
+                document.getElementById("PaymentMethod");
+
+            const paymentAccount =
+                document.getElementById("PaymentAccount");
+
+            function updatePaymentAccount() {
+
+                if (paymentMethod.value === "") {
+
+                    paymentAccount.value = "";
+                    paymentAccount.disabled = true;
+                    paymentAccount.placeholder =
+                        "Select a payment method first";
+
+                }
+                else {
+
+                    paymentAccount.disabled = false;
+
+                    paymentAccount.placeholder =
+                        "03XXXXXXXXX";
+
+                }
+
+            }
+
+            paymentMethod.addEventListener(
+                "change",
+                updatePaymentAccount
+            );
+
+            updatePaymentAccount();
+
+        });
+
+    </script>
+
+</body>
+
+</html>
+

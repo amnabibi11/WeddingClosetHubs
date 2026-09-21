@@ -1,0 +1,1748 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Product>
+
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = null;
+
+    decimal productTotal = Model?.Sum(p => p.Price) ?? 0m;
+
+    decimal deliveryCharges =
+        Model != null && Model.Any()
+            ? 300m
+            : 0m;
+
+    decimal serviceFee = productTotal * 0.10m;
+
+    decimal grandTotal =
+        productTotal +
+        deliveryCharges +
+        serviceFee;
+
+    bool hasCustomMeasurement =
+        Model?.Any(p => p.HasCustomMeasurement) ?? false;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Checkout - Wedding Closet Hubs</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            background: #f8f6f4;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .navbar-custom {
+            background: #800020;
+            padding: 15px 30px;
+        }
+
+        .navbar-brand {
+            color: #d4af37 !important;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .navbar-custom a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .navbar-custom a:hover {
+            color: #d4af37;
+        }
+
+        .page-wrapper {
+            padding: 35px;
+        }
+
+        .page-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .checkout-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .card-header-custom {
+            background: #800020;
+            color: white;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-body-custom {
+            padding: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 7px;
+            padding: 11px 13px;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 0.15rem rgba(128,0,32,0.15);
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .product-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image {
+            width: 90px;
+            height: 105px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .product-name {
+            color: #800020;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .measurement-box {
+            background: #fffaf0;
+            border: 1px solid #f0d98c;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .measurement-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .measurement-help {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .payment-option:hover {
+            border-color: #800020;
+        }
+
+        .payment-option input {
+            margin-right: 10px;
+        }
+
+        .payment-option strong {
+            color: #800020;
+        }
+
+        .online-payment-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .payment-instruction {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-instruction strong {
+            color: #856404;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-title {
+            color: #800020;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .grand-total {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 18px;
+            margin-top: 10px;
+            border-top: 2px solid #800020;
+            color: #800020;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            background: #800020;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+        .place-order-btn:hover {
+            background: #650018;
+            color: white;
+        }
+
+        .back-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #800020;
+            color: white;
+        }
+
+        .address-note {
+            background: #eef5ff;
+            border: 1px solid #b8d4ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: #365a8a;
+            font-size: 14px;
+        }
+
+        .rawalpindi-note {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 20px;
+            color: #6b5200;
+            font-size: 14px;
+        }
+
+        .security-note {
+            text-align: center;
+            margin-top: 15px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .field-error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 20px 15px;
+            }
+
+            .summary-card {
+                position: static;
+                margin-top: 20px;
+            }
+
+            .navbar-custom {
+                padding: 15px;
+            }
+
+            .navbar-custom a {
+                margin-left: 8px;
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ===================================================== -->
+    <!-- NAVBAR -->
+    <!-- ===================================================== -->
+
+    <nav class="navbar-custom">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <a asp-controller="Customer"
+               asp-action="Dashboard"
+               class="navbar-brand">
+
+                Wedding Closet Hubs
+
+            </a>
+
+            <div>
+
+                <a asp-controller="Customer"
+                   asp-action="Dashboard">
+
+                    <i class="bi bi-house"></i>
+                    Home
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Shops">
+
+                    <i class="bi bi-shop"></i>
+                    Shops
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Cart">
+
+                    <i class="bi bi-cart"></i>
+                    Cart
+
+                </a>
+
+                <a asp-controller="Account"
+                   asp-action="Logout">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ===================================================== -->
+    <!-- MAIN -->
+    <!-- ===================================================== -->
+
+    <div class="page-wrapper">
+
+        <h2 class="page-title">
+
+            <i class="bi bi-credit-card"></i>
+
+            Checkout
+
+        </h2>
+
+        <p class="page-subtitle">
+
+            Confirm your delivery information, measurements and payment method.
+
+        </p>
+
+
+        <!-- ================================================= -->
+        <!-- TEMP DATA ERRORS -->
+        <!-- ================================================= -->
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        <!-- ================================================= -->
+        <!-- EMPTY CART -->
+        <!-- ================================================= -->
+
+        @if (Model == null || !Model.Any())
+        {
+
+            <div class="checkout-card">
+
+                <div class="card-body-custom text-center py-5">
+
+                    <i class="bi bi-cart-x"
+                       style="font-size:60px;color:#800020;">
+                    </i>
+
+                    <h3 class="mt-3"
+                        style="color:#800020;">
+
+                        Your cart is empty.
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Please add a dress to your cart before checkout.
+
+                    </p>
+
+                    <a asp-controller="Customer"
+                       asp-action="Shops"
+                       class="btn"
+                       style="background:#800020;color:white;">
+
+                        <i class="bi bi-shop"></i>
+
+                        Browse Shops
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        }
+        else
+        {
+
+            <!-- ================================================= -->
+            <!-- CHECKOUT FORM -->
+            <!-- ================================================= -->
+
+            <form asp-controller="Customer"
+                  asp-action="PlaceOrder"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="checkoutForm">
+
+                @Html.AntiForgeryToken()
+
+
+                <div class="row">
+
+                    <!-- ================================================= -->
+                    <!-- LEFT SIDE -->
+                    <!-- ================================================= -->
+
+                    <div class="col-lg-8">
+
+
+                        <!-- ================================================= -->
+                        <!-- DELIVERY INFORMATION -->
+                        <!-- ================================================= -->
+
+                        <div class="checkout-card">
+
+                            <div class="card-header-custom">
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                Delivery Information
+
+                            </div>
+
+                            <div class="card-body-custom">
+
+                                <!-- RAWALPINDI NOTICE -->
+
+                                <div class="rawalpindi-note">
+
+                                    <i class="bi bi-info-circle-fill"></i>
+
+                                    <strong>Delivery Area:</strong>
+
+                                    Wedding Closet Hubs currently accepts
+                                    orders for delivery within
+                                    <strong>Rawalpindi only</strong>.
+
+                                    Orders for other cities cannot be placed
+                                    at this time.
+
+                                </div>
+
+
+                                <!-- CITY -->
+
+                                <div class="mb-3">
+
+                                    <label for="deliveryCity"
+                                           class="form-label">
+
+                                        Delivery City
+
+                                        <span class="required">*</span>
+
+                                    </label>
+
+                                    <select name="DeliveryCity"
+                                            id="deliveryCity"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            -- Select Delivery City --
+                                        </option>
+
+                                        <option value="Rawalpindi">
+                                            Rawalpindi
+                                        </option>
+
+                                    </select>
+
+                                    <div id="cityError"
+                                         class="field-error">
+
+                                        Please select Rawalpindi as the
+                                        delivery city.
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        Currently, only Rawalpindi is available
+                                        for delivery.
+
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ADDRESS -->
+
+                                <div class="mb-3">
+
+                                    <label for="deliveryAddress"
+                                           class="form-label">
+
+                                        Complete Delivery Address
+
+                                        <span class="required">*</span>
+
+                                    </label>
+
+                                    <textarea name="DeliveryAddress"
+                                              id="deliveryAddress"
+                                              class="form-control"
+                                              rows="4"
+                                              maxlength="500"
+                                              required
+                                              placeholder="Enter complete Rawalpindi delivery address"></textarea>
+
+                                    <div id="addressError"
+                                         class="field-error">
+
+                                        Please enter your complete delivery
+                                        address.
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- NOTES -->
+
+                                <div class="mb-3">
+
+                                    <label for="notes"
+                                           class="form-label">
+
+                                        Additional Notes
+
+                                    </label>
+
+                                    <textarea name="Notes"
+                                              id="notes"
+                                              class="form-control"
+                                              rows="3"
+                                              maxlength="500"
+                                              placeholder="Any additional instructions for the shopkeeper or delivery boy"></textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- ORDER PRODUCTS -->
+                        <!-- ================================================= -->
+
+                        <div class="checkout-card">
+
+                            <div class="card-header-custom">
+
+                                <i class="bi bi-bag-check"></i>
+
+                                Your Order
+
+                            </div>
+
+                            <div class="card-body-custom">
+
+                                @foreach (var product in Model)
+                                {
+
+                                    <div class="product-item">
+
+                                        <div class="row align-items-center">
+
+                                            <!-- IMAGE -->
+
+                                            <div class="col-md-2 text-center">
+
+                                                @if (!string.IsNullOrEmpty(product.Image))
+                                                {
+
+                                                    <img src="@Url.Content(product.Image)"
+                                                         class="product-image"
+                                                         alt="@product.ProductName" />
+
+                                                }
+                                                else
+                                                {
+
+                                                    <div class="product-image bg-light d-flex align-items-center justify-content-center">
+
+                                                        <i class="bi bi-image fs-2 text-muted"></i>
+
+                                                    </div>
+
+                                                }
+
+                                            </div>
+
+
+                                            <!-- PRODUCT DETAILS -->
+
+                                            <div class="col-md-7">
+
+                                                <div class="product-name">
+
+                                                    @product.ProductName
+
+                                                </div>
+
+                                                <div class="text-muted small mt-1">
+
+                                                    Category:
+
+                                                    @(product.Category ?? "N/A")
+
+                                                </div>
+
+                                                <div class="text-muted small">
+
+                                                    Subcategory:
+
+                                                    @(product.Subcategory ?? "N/A")
+
+                                                </div>
+
+
+                                                @if (product.HasCustomMeasurement)
+                                                {
+
+                                                    <span class="badge text-bg-warning mt-2">
+
+                                                        <i class="bi bi-rulers"></i>
+
+                                                        Custom Measurement Required
+
+                                                    </span>
+
+                                                }
+
+                                            </div>
+
+
+                                            <!-- PRICE -->
+
+                                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                                                <div class="product-price">
+
+                                                    Rs. @product.Price.ToString("N2")
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- CUSTOM MEASUREMENTS -->
+                        <!-- ================================================= -->
+
+                        @if (hasCustomMeasurement)
+                        {
+
+                            <div class="checkout-card">
+
+                                <div class="card-header-custom">
+
+                                    <i class="bi bi-rulers"></i>
+
+                                    Dress Measurements
+
+                                </div>
+
+                                <div class="card-body-custom">
+
+                                    <div class="measurement-box">
+
+                                        <div class="measurement-title">
+
+                                            <i class="bi bi-person-lines-fill"></i>
+
+                                            Custom Dress Measurements
+
+                                        </div>
+
+                                        <div class="measurement-help">
+
+                                            Enter your measurements according
+                                            to the selected dress/subcategory.
+                                            Please use inches.
+
+                                        </div>
+
+
+                                        <div class="row">
+
+                                            <!-- BUST -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Bust / Chest
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="Bust"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 36 inches" />
+
+                                            </div>
+
+
+                                            <!-- WAIST -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Waist
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="Waist"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 30 inches" />
+
+                                            </div>
+
+
+                                            <!-- HIP -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Hip
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="Hip"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 38 inches" />
+
+                                            </div>
+
+
+                                            <!-- SHOULDER -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Shoulder
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="Shoulder"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 15 inches" />
+
+                                            </div>
+
+
+                                            <!-- SLEEVE -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Sleeve Length
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="SleeveLength"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 22 inches" />
+
+                                            </div>
+
+
+                                            <!-- SHIRT LENGTH -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Shirt / Kameez Length
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="ShirtLength"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 42 inches" />
+
+                                            </div>
+
+
+                                            <!-- TROUSER -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Trouser / Shalwar Length
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="TrouserLength"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 40 inches" />
+
+                                            </div>
+
+
+                                            <!-- NECK -->
+
+                                            <div class="col-md-6 mb-3">
+
+                                                <label class="form-label">
+
+                                                    Neck
+
+                                                </label>
+
+                                                <input type="text"
+                                                       name="Neck"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="e.g. 14 inches" />
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- MEASUREMENT NOTES -->
+
+                                        <div class="mt-2">
+
+                                            <label class="form-label">
+
+                                                Additional Measurement
+                                                Instructions
+
+                                            </label>
+
+                                            <textarea name="MeasurementNotes"
+                                                      class="form-control"
+                                                      rows="3"
+                                                      maxlength="1000"
+                                                      placeholder="Enter any additional measurement or customization instructions"></textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        }
+
+
+                        <!-- ================================================= -->
+                        <!-- PAYMENT METHOD -->
+                        <!-- ================================================= -->
+
+                        <div class="checkout-card">
+
+                            <div class="card-header-custom">
+
+                                <i class="bi bi-wallet2"></i>
+
+                                Payment Method
+
+                            </div>
+
+                            <div class="card-body-custom">
+
+
+                                <!-- ================================================= -->
+                                <!-- COD -->
+                                <!-- ================================================= -->
+
+                                <label class="payment-option d-block">
+
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="Cash on Delivery"
+                                           checked
+                                           onchange="showPaymentDetails('cod')" />
+
+                                    <strong>
+
+                                        <i class="bi bi-cash-coin"></i>
+
+                                        Cash on Delivery
+
+                                    </strong>
+
+                                    <div class="small text-muted ms-4 mt-1">
+
+                                        Pay the complete order amount when
+                                        your order is delivered.
+
+                                    </div>
+
+                                </label>
+
+
+                                <!-- ================================================= -->
+                                <!-- EASYPAISA -->
+                                <!-- ================================================= -->
+
+                                <label class="payment-option d-block">
+
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="Easypaisa"
+                                           onchange="showPaymentDetails('easypaisa')" />
+
+                                    <strong>
+
+                                        <i class="bi bi-phone"></i>
+
+                                        Easypaisa
+
+                                    </strong>
+
+                                    <div class="small text-muted ms-4 mt-1">
+
+                                        Pay through Easypaisa and upload your
+                                        transaction proof.
+
+                                    </div>
+
+                                </label>
+
+
+                                <!-- ================================================= -->
+                                <!-- JAZZCASH -->
+                                <!-- ================================================= -->
+
+                                <label class="payment-option d-block">
+
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="JazzCash"
+                                           onchange="showPaymentDetails('jazzcash')" />
+
+                                    <strong>
+
+                                        <i class="bi bi-phone"></i>
+
+                                        JazzCash
+
+                                    </strong>
+
+                                    <div class="small text-muted ms-4 mt-1">
+
+                                        Pay through JazzCash and upload your
+                                        transaction proof.
+
+                                    </div>
+
+                                </label>
+
+
+                                <!-- ================================================= -->
+                                <!-- COD INFORMATION -->
+                                <!-- ================================================= -->
+
+                                <div id="codDetails"
+                                     class="online-payment-box">
+
+                                    <div class="payment-instruction">
+
+                                        <strong>
+
+                                            <i class="bi bi-info-circle"></i>
+
+                                            Cash on Delivery
+
+                                        </strong>
+
+                                        <p class="mb-0 mt-2">
+
+                                            You will pay
+
+                                            <strong>
+                                                Rs. @grandTotal.ToString("N2")
+                                            </strong>
+
+                                            to the delivery boy when your
+                                            order arrives.
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- ONLINE PAYMENT -->
+                                <!-- ================================================= -->
+
+                                <div id="onlinePaymentDetails"
+                                     class="online-payment-box"
+                                     style="display:none;">
+
+                                    <div class="payment-instruction">
+
+                                        <strong>
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            Online Payment Instructions
+
+                                        </strong>
+
+                                        <p class="mb-2 mt-2">
+
+                                            Transfer
+
+                                            <strong>
+                                                Rs. @grandTotal.ToString("N2")
+                                            </strong>
+
+                                            using the selected payment method.
+
+                                        </p>
+
+                                        <p class="mb-0">
+
+                                            After payment, enter your
+                                            transaction ID and upload a clear
+                                            screenshot of the payment.
+
+                                        </p>
+
+                                    </div>
+
+
+                                    <!-- TRANSACTION ID -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Transaction ID
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="TransactionId"
+                                               id="transactionId"
+                                               class="form-control"
+                                               maxlength="100"
+                                               placeholder="Enter transaction ID" />
+
+                                    </div>
+
+
+                                    <!-- TRANSACTION IMAGE -->
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Payment Screenshot
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="TransactionImage"
+                                               id="transactionImage"
+                                               class="form-control"
+                                               accept="image/png,image/jpeg,image/jpg,image/webp" />
+
+                                        <small class="text-muted">
+
+                                            Upload a clear screenshot of your
+                                            successful payment.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- TERMS -->
+                        <!-- ================================================= -->
+
+                        <div class="checkout-card">
+
+                            <div class="card-body-custom">
+
+                                <div class="form-check">
+
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="terms"
+                                           required />
+
+                                    <label class="form-check-label"
+                                           for="terms">
+
+                                        I confirm that the delivery address,
+                                        measurements and payment information
+                                        provided above are correct.
+
+                                        <span class="required">*</span>
+
+                                    </label>
+
+                                </div>
+
+                                <div id="termsError"
+                                     class="field-error">
+
+                                    Please accept the terms before placing
+                                    the order.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- BACK TO CART -->
+                        <!-- ================================================= -->
+
+                        <div class="mb-4">
+
+                            <a asp-controller="Customer"
+                               asp-action="Cart"
+                               class="back-btn">
+
+                                <i class="bi bi-arrow-left"></i>
+
+                                Back to Cart
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- RIGHT SIDE - SUMMARY -->
+                    <!-- ================================================= -->
+
+                    <div class="col-lg-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-title">
+
+                                <i class="bi bi-receipt"></i>
+
+                                Order Summary
+
+                            </div>
+
+
+                            <!-- PRODUCT TOTAL -->
+
+                            <div class="summary-row">
+
+                                <span class="summary-label">
+
+                                    Dress/Product Total
+
+                                </span>
+
+                                <span class="summary-value">
+
+                                    Rs. @productTotal.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- DELIVERY -->
+
+                            <div class="summary-row">
+
+                                <span class="summary-label">
+
+                                    Delivery Charges
+
+                                </span>
+
+                                <span class="summary-value">
+
+                                    Rs. @deliveryCharges.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- SERVICE FEE -->
+
+                            <div class="summary-row">
+
+                                <span class="summary-label">
+
+                                    Platform Service Fee (10%)
+
+                                </span>
+
+                                <span class="summary-value">
+
+                                    Rs. @serviceFee.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- FINAL TOTAL -->
+
+                            <div class="grand-total">
+
+                                <span>
+
+                                    Final Total
+
+                                </span>
+
+                                <span>
+
+                                    Rs. @grandTotal.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- PAYMENT METHOD -->
+
+                            <div class="mt-3">
+
+                                <div class="small text-muted">
+
+                                    Selected Payment Method
+
+                                </div>
+
+                                <div id="selectedPaymentMethod"
+                                     class="fw-bold mt-1">
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        <i class="bi bi-cash"></i>
+
+                                        Cash on Delivery
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PLACE ORDER -->
+
+                            <button type="submit"
+                                    class="place-order-btn">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Place Order
+
+                            </button>
+
+
+                            <div class="security-note">
+
+                                <i class="bi bi-shield-check"></i>
+
+                                Your payment information is handled securely.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        }
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ===================================================== -->
+
+    <script>
+
+        // =====================================================
+        // PAYMENT DETAILS
+        // =====================================================
+
+        function showPaymentDetails(method) {
+
+            var onlineBox =
+                document.getElementById("onlinePaymentDetails");
+
+            var codBox =
+                document.getElementById("codDetails");
+
+            var transactionId =
+                document.getElementById("transactionId");
+
+            var transactionImage =
+                document.getElementById("transactionImage");
+
+            var selectedMethod =
+                document.getElementById("selectedPaymentMethod");
+
+
+            if (method === "cod") {
+
+                codBox.style.display = "block";
+
+                onlineBox.style.display = "none";
+
+                transactionId.required = false;
+
+                transactionImage.required = false;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-warning text-dark">' +
+                    '<i class="bi bi-cash"></i> Cash on Delivery' +
+                    '</span>';
+
+            }
+
+            else if (method === "easypaisa") {
+
+                codBox.style.display = "none";
+
+                onlineBox.style.display = "block";
+
+                transactionId.required = true;
+
+                transactionImage.required = true;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-success">' +
+                    '<i class="bi bi-phone"></i> Easypaisa' +
+                    '</span>';
+
+            }
+
+            else if (method === "jazzcash") {
+
+                codBox.style.display = "none";
+
+                onlineBox.style.display = "block";
+
+                transactionId.required = true;
+
+                transactionImage.required = true;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-danger">' +
+                    '<i class="bi bi-phone"></i> JazzCash' +
+                    '</span>';
+
+            }
+
+        }
+
+
+        // =====================================================
+        // CHECKOUT VALIDATION
+        // =====================================================
+
+        document.getElementById("checkoutForm")
+            ?.addEventListener("submit", function (event) {
+
+                var form = this;
+
+                var valid = true;
+
+
+                // -------------------------------------------------
+                // DELIVERY CITY
+                // -------------------------------------------------
+
+                var deliveryCity =
+                    document.getElementById("deliveryCity");
+
+                var cityError =
+                    document.getElementById("cityError");
+
+
+                cityError.style.display = "none";
+
+                deliveryCity.classList.remove("is-invalid");
+
+
+                if (deliveryCity.value !== "Rawalpindi") {
+
+                    valid = false;
+
+                    cityError.style.display = "block";
+
+                    deliveryCity.classList.add("is-invalid");
+
+                    deliveryCity.focus();
+
+                }
+
+
+                // -------------------------------------------------
+                // DELIVERY ADDRESS
+                // -------------------------------------------------
+
+                var deliveryAddress =
+                    document.getElementById("deliveryAddress");
+
+                var addressError =
+                    document.getElementById("addressError");
+
+
+                addressError.style.display = "none";
+
+                deliveryAddress.classList.remove("is-invalid");
+
+
+                if (deliveryAddress.value.trim() === "") {
+
+                    valid = false;
+
+                    addressError.style.display = "block";
+
+                    deliveryAddress.classList.add("is-invalid");
+
+                    if (deliveryCity.value === "Rawalpindi") {
+                        deliveryAddress.focus();
+                    }
+
+                }
+
+
+                // -------------------------------------------------
+                // PAYMENT METHOD
+                // -------------------------------------------------
+
+                var paymentMethod =
+                    document.querySelector(
+                        'input[name="PaymentMethod"]:checked'
+                    );
+
+
+                if (!paymentMethod) {
+
+                    valid = false;
+
+                    alert("Please select a payment method.");
+
+                }
+
+
+                // -------------------------------------------------
+                // ONLINE PAYMENT
+                // -------------------------------------------------
+
+                if (paymentMethod &&
+                    (paymentMethod.value === "Easypaisa" ||
+                     paymentMethod.value === "JazzCash")) {
+
+                    var transactionId =
+                        document.getElementById("transactionId");
+
+                    var transactionImage =
+                        document.getElementById("transactionImage");
+
+
+                    if (transactionId.value.trim() === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please enter the transaction ID."
+                        );
+
+                        transactionId.focus();
+
+                    }
+
+
+                    if (transactionImage.files.length === 0) {
+
+                        valid = false;
+
+                        alert(
+                            "Please upload the payment screenshot."
+                        );
+
+                        transactionImage.focus();
+
+                    }
+
+                }
+
+
+                // -------------------------------------------------
+                // TERMS
+                // -------------------------------------------------
+
+                var terms =
+                    document.getElementById("terms");
+
+                var termsError =
+                    document.getElementById("termsError");
+
+
+                termsError.style.display = "none";
+
+
+                if (!terms.checked) {
+
+                    valid = false;
+
+                    termsError.style.display = "block";
+
+                    terms.focus();
+
+                }
+
+
+                // -------------------------------------------------
+                // STOP SUBMISSION IF INVALID
+                // -------------------------------------------------
+
+                if (!valid) {
+
+                    event.preventDefault();
+
+                    return false;
+
+                }
+
+
+                // -------------------------------------------------
+                // FINAL CONFIRMATION
+                // -------------------------------------------------
+
+                var confirmation =
+                    confirm(
+                        "Are you sure you want to place this order?"
+                    );
+
+
+                if (!confirmation) {
+
+                    event.preventDefault();
+
+                    return false;
+
+                }
+
+
+                return true;
+
+            });
+
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

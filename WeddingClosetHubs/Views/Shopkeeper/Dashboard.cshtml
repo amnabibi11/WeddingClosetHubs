@@ -1,0 +1,2221 @@
+﻿@{
+    ViewData["Title"] = "Shopkeeper Dashboard";
+    Layout = null;
+
+    // =====================================================
+    // SHOP INFORMATION
+    // =====================================================
+
+    string shopName =
+        ViewBag.ShopName as string ?? "My Shop";
+
+    string shopCategory =
+        ViewBag.ShopCategory as string ?? "Not Selected";
+
+
+    // =====================================================
+    // SHOPKEEPER INFORMATION
+    // =====================================================
+
+    string shopkeeperName =
+        ViewBag.ShopkeeperName as string ?? "Shopkeeper";
+
+    string shopkeeperEmail =
+        ViewBag.ShopkeeperEmail as string ?? "Email not available";
+
+    string shopkeeperPhone =
+        ViewBag.ShopkeeperPhone as string ?? "Phone not available";
+
+    string shopkeeperAddress =
+        ViewBag.ShopkeeperAddress as string ?? "Address not available";
+
+    string? shopkeeperProfileImage =
+        ViewBag.ShopkeeperProfileImage as string;
+
+
+    // =====================================================
+    // SHOP STATUS
+    // =====================================================
+
+    bool shopApproved =
+        ViewBag.ShopApproved == true;
+
+    bool shopStatus =
+        ViewBag.ShopStatus == true;
+
+
+    // =====================================================
+    // DASHBOARD STATISTICS
+    // =====================================================
+
+    int totalProducts =
+        ViewBag.TotalProducts ?? 0;
+
+    int totalOrders =
+        ViewBag.TotalOrders ?? 0;
+
+    int pendingOrders =
+        ViewBag.PendingOrders ?? 0;
+
+    int acceptedOrders =
+        ViewBag.AcceptedOrders ?? 0;
+
+    int completedOrders =
+        ViewBag.CompletedOrders ?? 0;
+
+    int cancelledOrders =
+        ViewBag.CancelledOrders ?? 0;
+
+
+    // =====================================================
+    // CUSTOMER INTERACTION
+    // =====================================================
+
+    int totalReviews =
+        ViewBag.TotalReviews ?? 0;
+
+     int unreadFeedback =
+        ViewBag.UnreadFeedback ?? 0;
+
+    int unreadMessages =
+        ViewBag.UnreadMessages ?? 0;
+
+    int unreadNotifications =
+        ViewBag.UnreadNotifications ?? 0;
+
+
+    // =====================================================
+    // FINANCIAL INFORMATION
+    // =====================================================
+
+    decimal totalSales =
+        (decimal?)ViewBag.TotalSales ?? 0m;
+
+    decimal averageRating =
+        (decimal?)ViewBag.AverageRating ?? 0m;
+
+    decimal pendingPayments =
+        (decimal?)ViewBag.PendingPayments ?? 0m;
+
+    decimal paidPayments =
+        (decimal?)ViewBag.PaidPayments ?? 0m;
+
+
+    // =====================================================
+    // STAR RATING
+    // =====================================================
+
+    int fullStars =
+        (int)Math.Round(
+            averageRating,
+            MidpointRounding.AwayFromZero);
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Shopkeeper Dashboard - Wedding Closet Hubs
+    </title>
+
+
+    <!-- =====================================================
+         BOOTSTRAP
+    ===================================================== -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+
+    <!-- =====================================================
+         BOOTSTRAP ICONS
+    ===================================================== -->
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f6fa;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background: #212529;
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-brand i {
+            font-size: 35px;
+            color: #d4af37;
+        }
+
+        .sidebar-brand h4 {
+            margin: 8px 0 0;
+            font-weight: 700;
+        }
+
+        .sidebar-brand small {
+            color: #aaa;
+        }
+
+        .sidebar-menu {
+            padding: 15px 10px;
+        }
+
+        .menu-title {
+            color: #999;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 15px 12px 7px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ddd;
+            text-decoration: none;
+            padding: 12px 14px;
+            margin-bottom: 4px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #800020;
+            color: white;
+        }
+
+        .sidebar-menu a i {
+            font-size: 18px;
+            width: 22px;
+        }
+
+        .badge-count {
+            margin-left: auto;
+            background: #dc3545;
+            color: white;
+            font-size: 11px;
+            padding: 3px 7px;
+            border-radius: 20px;
+        }
+
+
+        /* =====================================================
+           MAIN CONTENT
+        ===================================================== */
+
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           TOP NAVBAR
+        ===================================================== */
+
+        .top-navbar {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            z-index: 1500;
+        }
+
+        .top-navbar h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #800020;
+        }
+
+
+        /* =====================================================
+           SHOPKEEPER PROFILE AREA
+        ===================================================== */
+
+        .shopkeeper-info {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-button {
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-button:focus {
+            outline: none;
+        }
+
+        .profile-icon,
+        .profile-image {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+
+        .profile-icon {
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid #d4af37;
+        }
+
+        .profile-image {
+            object-fit: cover;
+            border: 2px solid #d4af37;
+        }
+
+        .profile-button:hover .profile-icon {
+            background: #a52a45;
+        }
+
+        .profile-button:hover .profile-image {
+            border-color: #800020;
+        }
+
+
+        /* =====================================================
+           PROFILE CARD
+        ===================================================== */
+
+        .profile-card {
+            position: absolute;
+            top: 58px;
+            right: 0;
+            width: 330px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            padding: 20px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .profile-card.show {
+            display: block;
+        }
+
+
+        /* =====================================================
+           PROFILE CARD HEADER
+        ===================================================== */
+
+        .profile-card-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-card-image {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .profile-card-default {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            border: 3px solid #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 10px;
+        }
+
+        .profile-card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .profile-card-header small {
+            color: #777;
+        }
+
+
+        /* =====================================================
+           PROFILE DETAILS
+        ===================================================== */
+
+        .profile-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .profile-detail:last-of-type {
+            border-bottom: none;
+        }
+
+        .profile-detail > i {
+            width: 22px;
+            color: #800020;
+            font-size: 17px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .profile-detail strong {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .profile-detail span {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+
+
+        /* =====================================================
+           PROFILE SHOP INFORMATION
+        ===================================================== */
+
+        .profile-shop {
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff8e1;
+            border-radius: 8px;
+            text-align: center;
+            color: #800020;
+        }
+
+        .profile-shop i {
+            color: #d4af37;
+            margin-right: 5px;
+        }
+
+        .profile-shop small {
+            color: #777;
+        }
+
+
+        /* =====================================================
+           PROFILE FOOTER
+        ===================================================== */
+
+        .profile-card-footer {
+            margin-top: 15px;
+        }
+
+        .profile-card-footer a {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #800020;
+            color: white;
+            text-decoration: none;
+            padding: 9px;
+            border-radius: 7px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .profile-card-footer a:hover {
+            background: #a52a45;
+            color: white;
+        }
+
+
+        /* =====================================================
+           PAGE CONTENT
+        ===================================================== */
+
+        .content-wrapper {
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           WELCOME BOX
+        ===================================================== */
+
+        .welcome-box {
+            background: linear-gradient(135deg, #800020, #a52a45);
+            color: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .welcome-box h2 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .welcome-box p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .shop-status {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .shop-status-divider {
+            opacity: 0.5;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #d4af37;
+            color: #212529;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           STAT CARDS
+        ===================================================== */
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border: none;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            transition: 0.2s;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .icon-products {
+            background: #e8f0ff;
+            color: #0d6efd;
+        }
+
+        .icon-orders {
+            background: #fff3cd;
+            color: #997404;
+        }
+
+        .icon-sales {
+            background: #d1e7dd;
+            color: #198754;
+        }
+
+        .icon-pending {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
+        .icon-reviews {
+            background: #fff0f3;
+            color: #800020;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            color: #777;
+            margin: 4px 0 0;
+        }
+
+
+        /* =====================================================
+           SECTION CARD
+        ===================================================== */
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            margin-top: 25px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-header h5 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .section-body {
+            padding: 22px;
+        }
+
+
+        /* =====================================================
+           QUICK ACTIONS
+        ===================================================== */
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .quick-action:hover {
+            background: #eee;
+            color: #800020;
+        }
+
+        .quick-action i {
+            font-size: 22px;
+            color: #800020;
+        }
+
+
+        /* =====================================================
+           REVIEW / FEEDBACK
+        ===================================================== */
+
+        .rating-box {
+            text-align: center;
+            padding: 15px;
+            background: #fff8e1;
+            border-radius: 10px;
+        }
+
+        .rating-number {
+            font-size: 34px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .stars {
+            color: #d4af37;
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .review-info {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .review-info h4 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           SHOP STATUS
+        ===================================================== */
+
+        .status-approved {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #997404;
+            font-weight: 600;
+        }
+
+        .status-disabled {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .shop-category-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff8e1;
+            color: #800020;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .shop-category-box i {
+            color: #d4af37;
+            font-size: 18px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 992px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main-content {
+                margin-left: 220px;
+            }
+
+        }
+
+
+        @@media (max-width: 768px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-navbar {
+                padding: 0 15px;
+            }
+
+            .content-wrapper {
+                padding: 15px;
+            }
+
+            .shop-status {
+                width: 100%;
+            }
+
+            .profile-card {
+                position: fixed;
+                top: 75px;
+                right: 15px;
+                left: 15px;
+                width: auto;
+                max-width: 330px;
+                margin-left: auto;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <i class="bi bi-shop"></i>
+
+            <h4>
+                Wedding Closet
+            </h4>
+
+            <small>
+                Shopkeeper Panel
+            </small>
+
+        </div>
+
+
+        <div class="sidebar-menu">
+
+
+            <!-- =================================================
+                 MAIN
+            ================================================= -->
+
+            <div class="menu-title">
+                Main
+            </div>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Dashboard"
+               class="active">
+
+                <i class="bi bi-speedometer2"></i>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="MyShop">
+
+                <i class="bi bi-shop"></i>
+
+                <span>
+                    My Shop
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 STORE MANAGEMENT
+            ================================================= -->
+
+            <div class="menu-title">
+                Store Management
+            </div>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Products">
+
+                <i class="bi bi-box-seam"></i>
+
+                <span>
+                    Products
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Orders">
+
+                <i class="bi bi-cart3"></i>
+
+                <span>
+                    Orders
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Negotiations">
+
+                <i class="bi bi-tags me-2"></i>
+
+                <span>
+                    Negotiations
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Payments">
+
+                <i class="bi bi-wallet2"></i>
+
+                <span>
+                    Payments
+                </span>
+
+            </a>
+
+
+            <!-- =================================================
+                 CUSTOMER INTERACTION
+            ================================================= -->
+
+            <div class="menu-title">
+                Customer Interaction
+            </div>
+
+
+            <!-- REVIEWS -->
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Feedback">
+
+                <i class="bi bi-star"></i>
+
+                <span>
+                    Feedback & Reviews
+                </span>
+
+                @if (unreadFeedback > 0)
+                {
+                    <span class="badge-count">
+                    @unreadFeedback 
+                    </span> 
+                }
+
+            </a>
+
+
+            <!-- CHAT -->
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Chat">
+
+                <i class="bi bi-chat-dots"></i>
+
+                <span>
+                    Chat
+                </span>
+
+                @if (unreadMessages > 0)
+                {
+                    <span class="badge-count">
+                        @unreadMessages
+                    </span>
+                }
+
+            </a>
+
+
+            <!-- NOTIFICATIONS -->
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Notifications">
+
+                <i class="bi bi-bell"></i>
+
+                <span>
+                    Notifications
+                </span>
+
+                @if (unreadNotifications > 0)
+                {
+                    <span class="badge-count">
+                        @unreadNotifications
+                    </span>
+                }
+
+            </a>
+
+
+            <!-- =================================================
+                 ACCOUNT
+            ================================================= -->
+
+            <div class="menu-title">
+                Account
+            </div>
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Profile">
+
+                <i class="bi bi-person-circle"></i>
+
+                <span>
+                    Profile
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Account"
+               asp-action="Logout">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </a>
+
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOP NAVBAR
+        ================================================= -->
+
+        <div class="top-navbar">
+
+            <div>
+
+                <h5>
+                    Shopkeeper Dashboard
+                </h5>
+
+            </div>
+
+
+            <!-- =================================================
+                 SHOPKEEPER PROFILE
+            ================================================= -->
+
+            <div class="shopkeeper-info">
+
+                <div class="profile-dropdown">
+
+
+                    <!-- PROFILE BUTTON -->
+
+                    <button type="button"
+                            class="profile-button"
+                            id="profileButton"
+                            aria-label="Open Shopkeeper Profile"
+                            title="Shopkeeper Profile">
+
+
+                        @if (!string.IsNullOrWhiteSpace(shopkeeperProfileImage))
+                        {
+
+                            <img src="@shopkeeperProfileImage"
+                                 alt="Shopkeeper Profile"
+                                 class="profile-image" />
+
+                        }
+                        else
+                        {
+
+                            <div class="profile-icon">
+
+                                <i class="bi bi-person-fill"></i>
+
+                            </div>
+
+                        }
+
+
+                    </button>
+
+
+                    <!-- =================================================
+                         PROFILE CARD
+                    ================================================= -->
+
+                    <div class="profile-card"
+                         id="profileCard">
+
+
+                        <!-- PROFILE HEADER -->
+
+                        <div class="profile-card-header">
+
+
+                            @if (!string.IsNullOrWhiteSpace(shopkeeperProfileImage))
+                            {
+
+                                <img src="@shopkeeperProfileImage"
+                                     alt="Shopkeeper Profile"
+                                     class="profile-card-image" />
+
+                            }
+                            else
+                            {
+
+                                <div class="profile-card-default">
+
+                                    <i class="bi bi-person-fill"></i>
+
+                                </div>
+
+                            }
+
+
+                            <h5>
+                                @shopkeeperName
+                            </h5>
+
+
+                            <small>
+                                Shopkeeper
+                            </small>
+
+
+                        </div>
+
+
+                        <!-- =================================================
+                             EMAIL
+                        ================================================= -->
+
+                        <div class="profile-detail">
+
+                            <i class="bi bi-envelope-fill"></i>
+
+                            <div>
+
+                                <strong>
+                                    Email
+                                </strong>
+
+                                <span>
+                                    @shopkeeperEmail
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             PHONE
+                        ================================================= -->
+
+                        <div class="profile-detail">
+
+                            <i class="bi bi-telephone-fill"></i>
+
+                            <div>
+
+                                <strong>
+                                    Phone
+                                </strong>
+
+                                <span>
+                                    @shopkeeperPhone
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             ADDRESS
+                        ================================================= -->
+
+                        <div class="profile-detail">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            <div>
+
+                                <strong>
+                                    Address
+                                </strong>
+
+                                <span>
+                                    @shopkeeperAddress
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             SHOP INFORMATION
+                        ================================================= -->
+
+                        <div class="profile-shop">
+
+                            <i class="bi bi-shop"></i>
+
+                            <strong>
+                                @shopName
+                            </strong>
+
+                            <br />
+
+                            <small>
+                                @shopCategory
+                            </small>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             FULL PROFILE BUTTON
+                        ================================================= -->
+
+                        <div class="profile-card-footer">
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Profile">
+
+                                <i class="bi bi-person-circle"></i>
+
+                                View Full Profile
+
+                            </a>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================= -->
+
+        <div class="content-wrapper">
+
+
+            <!-- =================================================
+                 WELCOME
+            ================================================= -->
+
+            <div class="welcome-box">
+
+
+                <h2>
+                    Welcome to your Shopkeeper Panel
+                </h2>
+
+
+                <p>
+                    Manage your shop, products, orders, payments
+                    and customer feedback from one place.
+                </p>
+
+
+                <!-- SHOP INFORMATION -->
+
+                <div class="shop-status">
+
+
+                    <i class="bi bi-shop"></i>
+
+
+                    <strong>
+                        @shopName
+                    </strong>
+
+
+                    <span class="shop-status-divider">
+                        |
+                    </span>
+
+
+                    <!-- SHOP CATEGORY -->
+
+                    <span class="category-badge">
+
+                        <i class="bi bi-tags-fill"></i>
+
+                        @shopCategory
+
+                    </span>
+
+
+                    <span class="shop-status-divider">
+                        |
+                    </span>
+
+
+                    <!-- APPROVAL -->
+
+                    @if (shopApproved)
+                    {
+
+                        <span>
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Approved
+
+                        </span>
+
+                    }
+                    else
+                    {
+
+                        <span>
+
+                            <i class="bi bi-clock-fill"></i>
+
+                            Approval Pending
+
+                        </span>
+
+                    }
+
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUCCESS MESSAGE
+            ================================================= -->
+
+            @if (TempData["Success"] != null)
+            {
+
+                <div class="alert alert-success alert-dismissible fade show"
+                     role="alert">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    @TempData["Success"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+
+            }
+
+
+            <!-- =================================================
+                 ERROR MESSAGE
+            ================================================= -->
+
+            @if (TempData["Error"] != null)
+            {
+
+                <div class="alert alert-danger alert-dismissible fade show"
+                     role="alert">
+
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                    @TempData["Error"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+
+            }
+
+
+            <!-- =================================================
+                 STATISTICS
+            ================================================= -->
+
+            <div class="row g-4">
+
+
+                <!-- PRODUCTS -->
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon icon-products">
+
+                            <i class="bi bi-box-seam"></i>
+
+                        </div>
+
+
+                        <h3>
+                            @totalProducts
+                        </h3>
+
+
+                        <p>
+                            Total Products
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ORDERS -->
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon icon-orders">
+
+                            <i class="bi bi-cart-check"></i>
+
+                        </div>
+
+
+                        <h3>
+                            @totalOrders
+                        </h3>
+
+
+                        <p>
+                            Total Orders
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALES -->
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon icon-sales">
+
+                            <i class="bi bi-cash-stack"></i>
+
+                        </div>
+
+
+                        <h3>
+
+                            Rs.
+                            @totalSales.ToString("N0")
+
+                        </h3>
+
+
+                        <p>
+                            Total Sales
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PENDING ORDERS -->
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon icon-pending">
+
+                            <i class="bi bi-hourglass-split"></i>
+
+                        </div>
+
+
+                        <h3>
+                            @pendingOrders
+                        </h3>
+
+
+                        <p>
+                            Pending Orders
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FEEDBACK & REVIEW SUMMARY
+            ================================================= -->
+
+            <div class="section-card">
+
+
+                <div class="section-header">
+
+                    <h5>
+
+                        <i class="bi bi-star-fill"
+                           style="color:#d4af37;"></i>
+
+                        Customer Feedback & Reviews
+
+                    </h5>
+
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Feedback"
+                       class="btn btn-sm btn-outline-primary">
+
+                        View All Reviews
+
+                    </a>
+
+                </div>
+
+
+                <div class="section-body">
+
+
+                    <div class="row g-4">
+
+
+                        <!-- TOTAL REVIEWS -->
+
+                        <div class="col-md-6">
+
+                            <div class="review-info">
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    <div class="stat-icon icon-reviews mb-0">
+
+                                        <i class="bi bi-chat-square-text"></i>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <h4>
+                                            @totalReviews
+                                        </h4>
+
+
+                                        <p class="text-muted mb-0">
+                                            Total Customer Reviews
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- AVERAGE RATING -->
+
+                        <div class="col-md-6">
+
+                            <div class="rating-box">
+
+
+                                <div class="rating-number">
+
+                                    @averageRating.ToString("0.0")
+
+                                    / 5
+
+                                </div>
+
+
+                                <div class="stars">
+
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+
+                                        if (i <= fullStars)
+                                        {
+
+                                            <i class="bi bi-star-fill"></i>
+
+                                        }
+                                        else
+                                        {
+
+                                            <i class="bi bi-star"></i>
+
+                                        }
+
+                                    }
+
+                                </div>
+
+
+                                <small class="text-muted">
+
+                                    Average Customer Rating
+
+                                </small>
+
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SECOND ROW
+            ================================================= -->
+
+            <div class="row g-4">
+
+
+                <!-- =================================================
+                     ORDER + PAYMENT
+                ================================================= -->
+
+                <div class="col-lg-8">
+
+
+                    <!-- ORDER SUMMARY -->
+
+                    <div class="section-card">
+
+
+                        <div class="section-header">
+
+                            <h5>
+
+                                <i class="bi bi-bar-chart"></i>
+
+                                Order Summary
+
+                            </h5>
+
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Orders"
+                               class="btn btn-sm btn-outline-primary">
+
+                                View Orders
+
+                            </a>
+
+                        </div>
+
+
+                        <div class="section-body">
+
+
+                            <div class="row text-center">
+
+
+                                <!-- PENDING -->
+
+                                <div class="col-6 col-md-3">
+
+                                    <h4>
+                                        @pendingOrders
+                                    </h4>
+
+
+                                    <small class="text-warning">
+                                        Pending
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ACCEPTED -->
+
+                                <div class="col-6 col-md-3">
+
+                                    <h4>
+                                        @acceptedOrders
+                                    </h4>
+
+
+                                    <small class="text-primary">
+                                        Accepted
+                                    </small>
+
+                                </div>
+
+
+                                <!-- COMPLETED -->
+
+                                <div class="col-6 col-md-3 mt-3 mt-md-0">
+
+                                    <h4>
+                                        @completedOrders
+                                    </h4>
+
+
+                                    <small class="text-success">
+                                        Completed
+                                    </small>
+
+                                </div>
+
+
+                                <!-- CANCELLED -->
+
+                                <div class="col-6 col-md-3 mt-3 mt-md-0">
+
+                                    <h4>
+                                        @cancelledOrders
+                                    </h4>
+
+
+                                    <small class="text-danger">
+                                        Cancelled
+                                    </small>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PAYMENT SUMMARY
+                    ================================================= -->
+
+                    <div class="section-card">
+
+
+                        <div class="section-header">
+
+                            <h5>
+
+                                <i class="bi bi-wallet2"></i>
+
+                                Payment Summary
+
+                            </h5>
+
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Payments"
+                               class="btn btn-sm btn-outline-success">
+
+                                View Payments
+
+                            </a>
+
+                        </div>
+
+
+                        <div class="section-body">
+
+
+                            <div class="row">
+
+
+                                <!-- PENDING PAYMENT -->
+
+                                <div class="col-md-6">
+
+                                    <p class="text-muted mb-1">
+
+                                        Pending Settlement
+
+                                    </p>
+
+
+                                    <h4 class="text-warning">
+
+                                        Rs.
+                                        @pendingPayments.ToString("N2")
+
+                                    </h4>
+
+                                </div>
+
+
+                                <!-- PAID PAYMENT -->
+
+                                <div class="col-md-6">
+
+                                    <p class="text-muted mb-1">
+
+                                        Paid Settlement
+
+                                    </p>
+
+
+                                    <h4 class="text-success">
+
+                                        Rs.
+                                        @paidPayments.ToString("N2")
+
+                                    </h4>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     QUICK ACTIONS
+                ================================================= -->
+
+                <div class="col-lg-4">
+
+
+                    <div class="section-card">
+
+
+                        <div class="section-header">
+
+                            <h5>
+
+                                <i class="bi bi-lightning-charge"></i>
+
+                                Quick Actions
+
+                            </h5>
+
+                        </div>
+
+
+                        <div class="section-body">
+
+
+                            <!-- ADD PRODUCT -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="AddProduct"
+                               class="quick-action">
+
+                                <i class="bi bi-plus-circle"></i>
+
+                                <span>
+                                    Add New Product
+                                </span>
+
+                            </a>
+
+
+                            <!-- PRODUCTS -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Products"
+                               class="quick-action">
+
+                                <i class="bi bi-box-seam"></i>
+
+                                <span>
+                                    Manage Products
+                                </span>
+
+                            </a>
+
+
+                            <!-- ORDERS -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Orders"
+                               class="quick-action">
+
+                                <i class="bi bi-cart-check"></i>
+
+                                <span>
+                                    Manage Orders
+                                </span>
+
+                            </a>
+
+
+                            <!-- FEEDBACK -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Feedback"
+                               class="quick-action">
+
+                                <i class="bi bi-star"></i>
+
+                                <span>
+                                    Customer Feedback
+                                </span>
+
+                            </a>
+
+
+                            <!-- CHAT -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Chat"
+                               class="quick-action">
+
+                                <i class="bi bi-chat-dots"></i>
+
+                                <span>
+                                    Customer Chat
+                                </span>
+
+                            </a>
+
+
+                            <!-- MY SHOP -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="MyShop"
+                               class="quick-action">
+
+                                <i class="bi bi-shop"></i>
+
+                                <span>
+                                    View My Shop
+                                </span>
+
+                            </a>
+
+
+                            <!-- PROFILE -->
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Profile"
+                               class="quick-action">
+
+                                <i class="bi bi-person"></i>
+
+                                <span>
+                                    My Profile
+                                </span>
+
+                            </a>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 SHOP STATUS
+            ================================================= -->
+
+            <div class="section-card">
+
+
+                <div class="section-header">
+
+                    <h5>
+
+                        <i class="bi bi-shield-check"></i>
+
+                        Shop Status
+
+                    </h5>
+
+                </div>
+
+
+                <div class="section-body">
+
+
+                    <div class="row g-4">
+
+
+                        <!-- APPROVAL -->
+
+                        <div class="col-md-4">
+
+                            <p class="mb-2">
+
+                                <strong>
+                                    Approval:
+                                </strong>
+
+
+                                @if (shopApproved)
+                                {
+
+                                    <span class="status-approved">
+
+                                        <i class="bi bi-check-circle-fill"></i>
+
+                                        Approved
+
+                                    </span>
+
+                                }
+                                else
+                                {
+
+                                    <span class="status-pending">
+
+                                        <i class="bi bi-clock-fill"></i>
+
+                                        Pending
+
+                                    </span>
+
+                                }
+
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- SHOP STATUS -->
+
+                        <div class="col-md-4">
+
+                            <p class="mb-2">
+
+                                <strong>
+                                    Shop Status:
+                                </strong>
+
+
+                                @if (shopStatus)
+                                {
+
+                                    <span class="status-approved">
+
+                                        <i class="bi bi-toggle-on"></i>
+
+                                        Active
+
+                                    </span>
+
+                                }
+                                else
+                                {
+
+                                    <span class="status-disabled">
+
+                                        <i class="bi bi-toggle-off"></i>
+
+                                        Disabled
+
+                                    </span>
+
+                                }
+
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- SHOP CATEGORY -->
+
+                        <div class="col-md-4">
+
+                            <p class="mb-2">
+
+                                <strong>
+                                    Shop Category:
+                                </strong>
+
+                            </p>
+
+
+                            <div class="shop-category-box">
+
+                                <i class="bi bi-tags-fill"></i>
+
+                                <span>
+                                    @shopCategory
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         BOOTSTRAP JS
+    ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- =====================================================
+         PROFILE DROPDOWN JAVASCRIPT
+    ===================================================== -->
+
+    <script>
+
+        const profileButton =
+            document.getElementById("profileButton");
+
+        const profileCard =
+            document.getElementById("profileCard");
+
+
+        // =====================================================
+        // OPEN / CLOSE PROFILE
+        // =====================================================
+
+        profileButton.addEventListener("click", function (event) {
+
+            event.stopPropagation();
+
+            profileCard.classList.toggle("show");
+
+        });
+
+
+        // =====================================================
+        // PREVENT PROFILE CARD CLICK FROM CLOSING IT
+        // =====================================================
+
+        profileCard.addEventListener("click", function (event) {
+
+            event.stopPropagation();
+
+        });
+
+
+        // =====================================================
+        // CLICK OUTSIDE PROFILE
+        // =====================================================
+
+        document.addEventListener("click", function () {
+
+            profileCard.classList.remove("show");
+
+        });
+
+
+        // =====================================================
+        // ESC KEY CLOSES PROFILE
+        // =====================================================
+
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "Escape") {
+
+                profileCard.classList.remove("show");
+
+            }
+
+        });
+
+    </script>
+
+
+</body>
+
+</html>
+

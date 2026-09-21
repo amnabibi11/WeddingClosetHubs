@@ -1,0 +1,2745 @@
+﻿@model WeddingClosetHubs.Models.Order
+
+@{
+    ViewData["Title"] = "Payment Details";
+    Layout = null;
+
+    bool isCod =
+        string.Equals(
+            Model.PaymentMethod,
+            "Cash on Delivery",
+            StringComparison.OrdinalIgnoreCase);
+
+    bool isCancelled =
+        string.Equals(
+            Model.OrderStatus,
+            "Cancelled",
+            StringComparison.OrdinalIgnoreCase);
+
+    bool codCollected =
+        Model.DeliveryCollectedAmount > 0;
+
+    bool codHandedOver =
+        Model.DeliveryCashHandedToAdmin;
+
+    bool customerPaymentReceived =
+        Model.PaymentReceived &&
+        string.Equals(
+            Model.PaymentStatus,
+            "Paid",
+            StringComparison.OrdinalIgnoreCase);
+
+    bool shopkeeperPaid =
+        string.Equals(
+            Model.ShopkeeperPaymentStatus,
+            "Paid",
+            StringComparison.OrdinalIgnoreCase);
+
+    bool deliveryPaid =
+        string.Equals(
+            Model.DeliveryPaymentStatus,
+            "Paid",
+            StringComparison.OrdinalIgnoreCase);
+
+
+    // =========================================================
+    // DELIVERY BOY SAVED PAYMENT SETTINGS
+    // These values come from DeliveryBoy table through
+    // AdminController.PaymentDetails()
+    // =========================================================
+
+    string deliveryPaymentMethod =
+        ViewBag.DeliveryPaymentMethod as string ?? "";
+
+    string deliveryPaymentAccount =
+        ViewBag.DeliveryPaymentAccount as string ?? "";
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Payment Details - Wedding Closet Hubs</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            background: #f5f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .page-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .custom-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .custom-card-header {
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-primary {
+            background: #0d6efd;
+        }
+
+        .header-success {
+            background: #198754;
+        }
+
+        .header-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .header-danger {
+            background: #dc3545;
+        }
+
+        .header-info {
+            background: #0dcaf0;
+            color: #212529;
+        }
+
+        .header-dark {
+            background: #212529;
+        }
+
+        .custom-card-body {
+            padding: 25px;
+        }
+
+        .info-group {
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            background: #f8f9fa;
+            border: 1px solid #e1e5ea;
+            border-radius: 7px;
+            padding: 11px 14px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            word-break: break-word;
+        }
+
+        .amount-box {
+            background: #f8f9fa;
+            border: 1px solid #e1e5ea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .amount-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .amount-value {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .total-box {
+            background: #212529;
+            color: white;
+            border-radius: 8px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .total-box .amount-value {
+            font-size: 24px;
+        }
+
+        .commission-box {
+            background: #fff8e1;
+            border: 1px solid #ffe69c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .shopkeeper-box {
+            background: #eaf7ef;
+            border: 1px solid #b7e4c7;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .delivery-box {
+            background: #eef5ff;
+            border: 1px solid #b8d4ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .cod-box {
+            background: #fff8e1;
+            border: 1px solid #ffe69c;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .cod-pending-box {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .cod-confirmed-box {
+            background: #e8f7ee;
+            border: 1px solid #b7e4c7;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .account-box {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .account-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+
+        .account-row:last-child {
+            border-bottom: none;
+        }
+
+        .account-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .account-number {
+            font-weight: 700;
+            font-size: 15px;
+            word-break: break-word;
+            text-align: right;
+        }
+
+        .status-badge {
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .payment-instruction {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-instruction i {
+            margin-right: 7px;
+        }
+
+        .manual-payment-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .manual-payment-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #343a40;
+        }
+
+        .manual-payment-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 7px;
+            min-height: 45px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13,110,253,.15);
+        }
+
+        .record-btn {
+            padding: 10px 18px;
+            border-radius: 7px;
+            font-weight: 600;
+        }
+
+        .already-paid-box {
+            background: #e8f7ee;
+            border: 1px solid #b7e4c7;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .already-paid-title {
+            color: #198754;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .payment-record-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,.08);
+        }
+
+        .payment-record-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-record-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .payment-record-value {
+            font-weight: 600;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #664d03;
+        }
+
+        .danger-box {
+            background: #f8d7da;
+            border: 1px solid #f1aeb5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #842029;
+        }
+
+        .success-box {
+            background: #d1e7dd;
+            border: 1px solid #a3cfbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #0f5132;
+        }
+
+        .info-box {
+            background: #cff4fc;
+            border: 1px solid #9eeaf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #055160;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action-buttons .btn {
+            padding: 10px 18px;
+            border-radius: 7px;
+        }
+
+        .cod-flow-step {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            height: 100%;
+            background: #fff;
+        }
+
+        .cod-flow-number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+            .account-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+            }
+
+            .account-number {
+                text-align: left;
+            }
+
+            .payment-record-row {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .payment-record-value {
+                text-align: left;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-8">
+
+                <h2 class="page-title">
+
+                    <i class="bi bi-credit-card"></i>
+
+                    Payment Details
+
+                </h2>
+
+                <p class="page-subtitle">
+
+                    Manage customer payments and manually record
+                    shopkeeper and delivery boy payouts.
+
+                </p>
+
+            </div>
+
+            <div class="col-md-4 text-md-end">
+
+                <a asp-controller="Admin"
+                   asp-action="Payments"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Payments
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- ERROR MESSAGE -->
+    <!-- ================================================= -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- CANCELLED ORDER WARNING -->
+    <!-- ================================================= -->
+
+    @if (isCancelled)
+    {
+        <div class="alert alert-danger">
+
+            <i class="bi bi-x-circle-fill"></i>
+
+            <strong>Cancelled Order:</strong>
+
+            This order is cancelled and must not be included
+            in payment or payout settlement.
+
+        </div>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- ORDER INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-receipt"></i>
+
+            Order & Customer Information
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order ID
+                        </label>
+
+                        <div class="info-value">
+
+                            #@Model.OrderId
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order Date
+                        </label>
+
+                        <div class="info-value">
+
+                            @Model.CreatedDate.ToString("dd MMMM yyyy hh:mm tt")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Customer
+                        </label>
+
+                        <div class="info-value">
+
+                            @(Model.Customer?.Name ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Shop
+                        </label>
+
+                        <div class="info-value">
+
+                            @(Model.Shop?.ShopName ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Delivery Address
+                        </label>
+
+                        <div class="info-value">
+
+                            @(Model.DeliveryAddress ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- CUSTOMER PAYMENT -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-warning">
+
+            <i class="bi bi-wallet2"></i>
+
+            Customer Payment
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <!-- PAYMENT METHOD -->
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Method
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (isCod)
+                            {
+                                <span class="status-badge bg-warning text-dark">
+
+                                    <i class="bi bi-cash"></i>
+
+                                    Cash on Delivery
+
+                                </span>
+                            }
+                            else if (string.Equals(
+                                Model.PaymentMethod,
+                                "JazzCash",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="status-badge bg-danger text-white">
+
+                                    <i class="bi bi-phone"></i>
+
+                                    JazzCash
+
+                                </span>
+                            }
+                            else if (string.Equals(
+                                Model.PaymentMethod,
+                                "Easypaisa",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="status-badge bg-success text-white">
+
+                                    <i class="bi bi-phone"></i>
+
+                                    Easypaisa
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    @(Model.PaymentMethod ?? "N/A")
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT STATUS -->
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Status
+                        </label>
+
+                        <div class="info-value">
+
+                            @if (customerPaymentReceived)
+                            {
+                                <span class="status-badge bg-success text-white">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Paid / Received
+
+                                </span>
+                            }
+                            else if (isCod && codCollected && !codHandedOver)
+                            {
+                                <span class="status-badge bg-warning text-dark">
+
+                                    <i class="bi bi-hourglass-split"></i>
+
+                                    COD Collected - Awaiting Admin
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge bg-warning text-dark">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    Payment Pending
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT DATE -->
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Payment Confirmation Date
+                        </label>
+
+                        <div class="info-value">
+
+                            @(Model.PaymentDate.HasValue
+                                ? Model.PaymentDate.Value.ToString("dd MMMM yyyy hh:mm tt")
+                                : "Not Confirmed")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CUSTOMER TRANSACTION ID -->
+
+                @if (!string.IsNullOrWhiteSpace(Model.TransactionId))
+                {
+                    <div class="col-md-6">
+
+                        <div class="info-group">
+
+                            <label class="info-label">
+                                Customer Transaction ID
+                            </label>
+
+                            <div class="info-value">
+
+                                @Model.TransactionId
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+
+                <!-- TRANSACTION IMAGE -->
+
+                @if (!string.IsNullOrWhiteSpace(Model.TransactionImage))
+                {
+                    <div class="col-md-12">
+
+                        <div class="info-group">
+
+                            <label class="info-label">
+                                Payment Screenshot
+                            </label>
+
+                            <div class="info-value">
+
+                                <a href="@Model.TransactionImage"
+                                   target="_blank"
+                                   class="btn btn-outline-primary">
+
+                                    <i class="bi bi-image"></i>
+
+                                    View Payment Screenshot
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+
+                <!-- ORDER STATUS -->
+
+                <div class="col-md-6">
+
+                    <div class="info-group">
+
+                        <label class="info-label">
+                            Order Status
+                        </label>
+
+                        <div class="info-value">
+
+                            @(Model.OrderStatus ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- COD COLLECTION INFORMATION -->
+            <!-- ================================================= -->
+
+            @if (isCod)
+            {
+                <hr class="my-4" />
+
+                <div class="cod-box">
+
+                    <h5 class="mb-3">
+
+                        <i class="bi bi-cash-stack"></i>
+
+                        COD Cash Collection
+
+                    </h5>
+
+                    @if (codCollected)
+                    {
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="amount-box">
+
+                                    <div class="amount-label">
+                                        Cash Collected by Delivery Boy
+                                    </div>
+
+                                    <div class="amount-value">
+
+                                        Rs. @Model.DeliveryCollectedAmount.ToString("N2")
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <div class="amount-box">
+
+                                    <div class="amount-label">
+                                        Collection Date
+                                    </div>
+
+                                    <div class="amount-value">
+
+                                        @(Model.DeliveryCollectionDate.HasValue
+                                            ? Model.DeliveryCollectionDate.Value.ToString("dd MMMM yyyy hh:mm tt")
+                                            : "N/A")
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-12">
+
+                                @if (codHandedOver)
+                                {
+                                    <div class="cod-confirmed-box">
+
+                                        <h5 class="text-success">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Cash Handed Over to Admin
+
+                                        </h5>
+
+                                        <div class="payment-record-row">
+
+                                            <span class="payment-record-label">
+                                                Handover Status
+                                            </span>
+
+                                            <span class="payment-record-value text-success">
+                                                Confirmed
+                                            </span>
+
+                                        </div>
+
+                                        <div class="payment-record-row">
+
+                                            <span class="payment-record-label">
+                                                Handover Date
+                                            </span>
+
+                                            <span class="payment-record-value">
+
+                                                @(Model.DeliveryCashHandoverDate.HasValue
+                                                    ? Model.DeliveryCashHandoverDate.Value.ToString("dd MMMM yyyy hh:mm tt")
+                                                    : "N/A")
+
+                                            </span>
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            Model.DeliveryCashHandoverNotes))
+                                        {
+                                            <div class="payment-record-row">
+
+                                                <span class="payment-record-label">
+                                                    Admin Handover Notes
+                                                </span>
+
+                                                <span class="payment-record-value">
+                                                    @Model.DeliveryCashHandoverNotes
+                                                </span>
+
+                                            </div>
+                                        }
+
+                                        <div class="alert alert-success mt-3 mb-0">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Admin has confirmed receipt of the
+                                            COD cash. Customer payment is now
+                                            officially marked as <strong>Paid</strong>.
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="cod-pending-box">
+
+                                        <h5 class="text-warning">
+
+                                            <i class="bi bi-hourglass-split"></i>
+
+                                            COD Cash Awaiting Admin Confirmation
+
+                                        </h5>
+
+                                        <p class="mb-3">
+
+                                            The delivery boy has collected the
+                                            customer's cash, but this does
+                                            <strong>not</strong> mean that the
+                                            customer payment has been received
+                                            by Admin yet.
+
+                                        </p>
+
+                                        <div class="alert alert-warning">
+
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                            <strong>Important:</strong>
+
+                                            Customer Payment remains
+
+                                            <strong>Pending</strong>
+
+                                            until the delivery boy hands the
+                                            cash to Admin and Admin confirms
+                                            the handover.
+
+                                        </div>
+
+
+                                        @if (!isCancelled)
+                                        {
+                                            <form asp-controller="Admin"
+                                                  asp-action="ConfirmCODHandover"
+                                                  method="post"
+                                                  class="mt-3">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@Model.OrderId" />
+
+                                                <div class="row g-3">
+
+                                                    <div class="col-md-8">
+
+                                                        <label class="form-label">
+
+                                                            Admin Handover Notes
+
+                                                        </label>
+
+                                                        <input type="text"
+                                                               name="notes"
+                                                               class="form-control"
+                                                               maxlength="500"
+                                                               placeholder="Optional note about COD cash handover" />
+
+                                                    </div>
+
+                                                    <div class="col-md-4 d-flex align-items-end">
+
+                                                        <button type="submit"
+                                                                class="btn btn-success record-btn w-100"
+                                                                onclick="return confirm('Confirm that the delivery boy has handed over the COD cash to Admin and you have physically received it?');">
+
+                                                            <i class="bi bi-check-circle-fill"></i>
+
+                                                            Confirm Cash Handover
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        }
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="warning-box">
+
+                            <i class="bi bi-clock"></i>
+
+                            <strong>COD Cash Not Yet Collected</strong>
+
+                            <p class="mb-0 mt-2">
+
+                                The delivery boy has not recorded collection
+                                of the customer's COD amount yet.
+
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+
+            <!-- ================================================= -->
+            <!-- GENERAL PAYMENT INFORMATION -->
+            <!-- ================================================= -->
+
+            @if (!customerPaymentReceived)
+            {
+                <div class="payment-instruction">
+
+                    <i class="bi bi-info-circle-fill"></i>
+
+                    @if (isCod && codCollected && !codHandedOver)
+                    {
+                        <strong>Admin Action Required:</strong>
+
+                        <span>
+
+                            COD cash has been collected by the delivery boy.
+                            Confirm the cash handover above only after Admin
+                            physically receives the cash.
+
+                        </span>
+                    }
+                    else
+                    {
+                        <strong>Admin Action:</strong>
+
+                        <span>
+
+                            Customer payment has not yet been confirmed.
+                            Shopkeeper and delivery boy payouts remain locked.
+
+                        </span>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success mb-0">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <strong>Customer payment confirmed.</strong>
+
+                    The customer payment has been officially received.
+                    Settlement payouts can now be recorded separately.
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- AMOUNT BREAKDOWN -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-dark">
+
+            <i class="bi bi-calculator"></i>
+
+            Amount Breakdown
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="amount-box">
+
+                        <div class="amount-label">
+                            Final Product Total
+                        </div>
+
+                        <div class="amount-value">
+
+                            Rs. @Model.ProductTotal.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="commission-box">
+
+                        <div class="amount-label">
+
+                            Platform Service Fee (10%)
+
+                        </div>
+
+                        <div class="amount-value">
+
+                            Rs. @Model.ServiceFee.ToString("N2")
+
+                        </div>
+
+                        <small class="text-muted">
+
+                            Retained by Wedding Closet Hubs.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="amount-box">
+
+                        <div class="amount-label">
+
+                            Delivery Charges
+
+                        </div>
+
+                        <div class="amount-value">
+
+                            Rs. @Model.DeliveryCharges.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="amount-box">
+
+                        <div class="amount-label">
+
+                            Shopkeeper Payable Amount
+
+                        </div>
+
+                        <div class="amount-value">
+
+                            Rs. @Model.ShopkeeperAmount.ToString("N2")
+
+                        </div>
+
+                        <small class="text-muted">
+
+                            Actual final product amount payable to shopkeeper.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="total-box">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span>
+                        Final Customer Total
+                    </span>
+
+                    <span class="amount-value">
+
+                        Rs. @Model.TotalAmount.ToString("N2")
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SHOPKEEPER SETTLEMENT -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-success">
+
+            <i class="bi bi-shop"></i>
+
+            Shopkeeper Settlement
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="shopkeeper-box">
+
+                <div class="row">
+
+                    <div class="col-md-7">
+
+                        <h5>
+
+                            <i class="bi bi-shop"></i>
+
+                            @(Model.Shop?.ShopName ?? "N/A")
+
+                        </h5>
+
+                        <p class="mb-2">
+
+                            Shopkeeper:
+
+                            <strong>
+                                @(Model.Shop?.Shopkeeper?.Name ?? "N/A")
+                            </strong>
+
+                        </p>
+
+                        <p class="mb-2">
+
+                            Product Amount Payable:
+
+                            <strong>
+
+                                Rs. @Model.ShopkeeperAmount.ToString("N2")
+
+                            </strong>
+
+                        </p>
+
+                        <p class="mb-0">
+
+                            Platform Service Fee:
+
+                            <strong>
+
+                                Rs. @Model.ServiceFee.ToString("N2")
+
+                            </strong>
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-5">
+
+                        <div class="account-box">
+
+                            <div class="account-title">
+
+                                <i class="bi bi-phone"></i>
+
+                                Shopkeeper Payment Account
+
+                            </div>
+
+                            @if (Model.Shop?.Shopkeeper != null)
+                            {
+                                @if (!string.IsNullOrWhiteSpace(
+                                    Model.Shop.Shopkeeper.PaymentAccount))
+                                {
+                                    <div class="account-row">
+
+                                        <span class="account-label">
+                                            Payment Method
+                                        </span>
+
+                                        <span class="account-number">
+
+                                            @(Model.Shop.Shopkeeper.PaymentMethod
+                                                ?? "Not Added")
+
+                                        </span>
+
+                                    </div>
+
+                                    <div class="account-row">
+
+                                        <span class="account-label">
+                                            Account
+                                        </span>
+
+                                        <span class="account-number">
+
+                                            @Model.Shop.Shopkeeper.PaymentAccount
+
+                                        </span>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-danger">
+
+                                        <i class="bi bi-exclamation-circle"></i>
+
+                                        Payment account not added by shopkeeper.
+
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-muted">
+
+                                    Shopkeeper information not available.
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <hr />
+
+
+                <!-- SHOPKEEPER STATUS -->
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-8">
+
+                        <strong>
+
+                            Shopkeeper Payout:
+
+                            Rs. @Model.ShopkeeperAmount.ToString("N2")
+
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-4 text-md-end">
+
+                        @if (shopkeeperPaid)
+                        {
+                            <span class="status-badge bg-success text-white">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Paid
+
+                            </span>
+                        }
+                        else if (!customerPaymentReceived)
+                        {
+                            <span class="status-badge bg-secondary text-white">
+
+                                <i class="bi bi-lock"></i>
+
+                                Awaiting Customer Payment
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge bg-warning text-dark">
+
+                                <i class="bi bi-clock"></i>
+
+                                Payout Pending
+
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- ALREADY PAID DETAILS -->
+
+                @if (shopkeeperPaid)
+                {
+                    <div class="already-paid-box">
+
+                        <div class="already-paid-title">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Shopkeeper Payment Recorded
+
+                        </div>
+
+                        <div class="payment-record-row">
+
+                            <span class="payment-record-label">
+                                Amount Paid
+                            </span>
+
+                            <span class="payment-record-value">
+                                Rs. @Model.ShopkeeperPaidAmount.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="payment-record-row">
+
+                            <span class="payment-record-label">
+                                Payment Method
+                            </span>
+
+                            <span class="payment-record-value">
+                                @(Model.ShopkeeperPaymentMethod ?? "N/A")
+                            </span>
+
+                        </div>
+
+                        <div class="payment-record-row">
+
+                            <span class="payment-record-label">
+                                Account
+                            </span>
+
+                            <span class="payment-record-value">
+                                @(Model.ShopkeeperPaymentAccount ?? "N/A")
+                            </span>
+
+                        </div>
+
+                        <div class="payment-record-row">
+
+                            <span class="payment-record-label">
+                                Transaction / Reference ID
+                            </span>
+
+                            <span class="payment-record-value">
+                                @(Model.ShopkeeperTransactionId ?? "N/A")
+                            </span>
+
+                        </div>
+
+                        <div class="payment-record-row">
+
+                            <span class="payment-record-label">
+                                Payment Date
+                            </span>
+
+                            <span class="payment-record-value">
+
+                                @(Model.ShopkeeperPaymentDate.HasValue
+                                    ? Model.ShopkeeperPaymentDate.Value.ToString("dd MMMM yyyy hh:mm tt")
+                                    : "N/A")
+
+                            </span>
+
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.ShopkeeperPaymentNotes))
+                        {
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Admin Notes
+                                </span>
+
+                                <span class="payment-record-value">
+                                    @Model.ShopkeeperPaymentNotes
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+
+                <!-- MANUAL SHOPKEEPER PAYMENT -->
+
+                @if (customerPaymentReceived &&
+                     !shopkeeperPaid)
+                {
+                    @if (Model.Shop?.Shopkeeper != null &&
+                         !string.IsNullOrWhiteSpace(
+                             Model.Shop.Shopkeeper.PaymentAccount))
+                    {
+                        <div class="manual-payment-box">
+
+                            <div class="manual-payment-title">
+
+                                <i class="bi bi-send"></i>
+
+                                Record Manual Shopkeeper Payment
+
+                            </div>
+
+                            <div class="manual-payment-text">
+
+                                First send the amount manually through
+                                the shopkeeper's Easypaisa or JazzCash account.
+                                After the transfer is completed, enter the
+                                transaction/reference ID below and record it
+                                in the website.
+
+                            </div>
+
+
+                            <form asp-controller="Admin"
+                                  asp-action="RecordShopkeeperPayment"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="orderId"
+                                       value="@Model.OrderId" />
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Amount Paid
+                                        </label>
+
+                                        <input type="number"
+                                               class="form-control"
+                                               name="paidAmount"
+                                               value="@Model.ShopkeeperAmount.ToString("0.00")"
+                                               min="0.01"
+                                               step="0.01"
+                                               required />
+
+                                        <small class="text-muted">
+
+                                            Expected:
+                                            Rs. @Model.ShopkeeperAmount.ToString("N2")
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Payment Method
+                                        </label>
+
+                                        <select name="paymentMethod"
+                                                class="form-select"
+                                                required>
+
+                                            <option value="">
+                                                Select Method
+                                            </option>
+
+                                            <option value="Easypaisa"
+                                                    selected="@(string.Equals(
+                                                        Model.Shop.Shopkeeper.PaymentMethod,
+                                                        "Easypaisa",
+                                                        StringComparison.OrdinalIgnoreCase))">
+
+                                                Easypaisa
+
+                                            </option>
+
+                                            <option value="JazzCash"
+                                                    selected="@(string.Equals(
+                                                        Model.Shop.Shopkeeper.PaymentMethod,
+                                                        "JazzCash",
+                                                        StringComparison.OrdinalIgnoreCase))">
+
+                                                JazzCash
+
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Payment Account
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               name="paymentAccount"
+                                               value="@Model.Shop.Shopkeeper.PaymentAccount"
+                                               readonly />
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+
+                                            Transaction / Reference ID
+
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               name="transactionId"
+                                               maxlength="100"
+                                               placeholder="Enter Easypaisa/JazzCash transaction ID"
+                                               required />
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Payment Date
+                                        </label>
+
+                                        <input type="datetime-local"
+                                               class="form-control"
+                                               name="paymentDate"
+                                               value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                               required />
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Admin Notes
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               name="notes"
+                                               maxlength="500"
+                                               placeholder="Optional payment notes" />
+
+                                    </div>
+
+
+                                    <div class="col-md-12">
+
+                                        <div class="warning-box">
+
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                            <strong>Important:</strong>
+
+                                            This button does not send money.
+                                            Make the actual transfer through
+                                            Easypaisa/JazzCash first, then click
+                                            <strong>Record Payment</strong>.
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-md-12">
+
+                                        <button type="submit"
+                                                class="btn btn-success record-btn"
+                                                onclick="return confirm('Confirm that you have already transferred the shopkeeper amount through Easypaisa or JazzCash and entered the correct transaction ID?');">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Record Shopkeeper Payment
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="danger-box">
+
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                            <strong>Cannot Record Payment:</strong>
+
+                            The shopkeeper has not added a valid
+                            Easypaisa/JazzCash payment account.
+
+                        </div>
+                    }
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DELIVERY BOY SETTLEMENT -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-bicycle"></i>
+
+            Delivery Boy Settlement
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="delivery-box">
+
+                @if (Model.Delivery != null)
+                {
+                    <div class="row">
+
+                        <div class="col-md-7">
+
+                            <h5>
+
+                                <i class="bi bi-person-badge"></i>
+
+                                @(Model.Delivery.Name ?? "N/A")
+
+                            </h5>
+
+                            <p class="mb-2">
+
+                                Delivery Boy:
+
+                                <strong>
+                                    @(Model.Delivery.Name ?? "N/A")
+                                </strong>
+
+                            </p>
+
+                            <p class="mb-2">
+
+                                Delivery Charges:
+
+                                <strong>
+
+                                    Rs. @Model.DeliveryCharges.ToString("N2")
+
+                                </strong>
+
+                            </p>
+
+                            <!-- ================================================= -->
+                            <!-- CORRECT DELIVERY BOY PAYMENT METHOD -->
+                            <!-- ================================================= -->
+
+                            <p class="mb-0">
+
+                                Saved Payment Method:
+
+                                <strong>
+
+                                    @(string.IsNullOrWhiteSpace(
+                                        deliveryPaymentMethod)
+                                        ? "Not Added"
+                                        : deliveryPaymentMethod)
+
+                                </strong>
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-md-5">
+
+                            <div class="account-box">
+
+                                <div class="account-title">
+
+                                    <i class="bi bi-phone"></i>
+
+                                    Delivery Payment Account
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- CORRECT DELIVERY BOY ACCOUNT -->
+                                <!-- ================================================= -->
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    deliveryPaymentMethod) &&
+                                    !string.IsNullOrWhiteSpace(
+                                        deliveryPaymentAccount))
+                                {
+                                    <div class="account-row">
+
+                                        <span class="account-label">
+                                            Payment Method
+                                        </span>
+
+                                        <span class="account-number">
+
+                                            @deliveryPaymentMethod
+
+                                        </span>
+
+                                    </div>
+
+                                    <div class="account-row">
+
+                                        <span class="account-label">
+                                            Account
+                                        </span>
+
+                                        <span class="account-number">
+
+                                            @deliveryPaymentAccount
+
+                                        </span>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-danger">
+
+                                        <i class="bi bi-exclamation-circle"></i>
+
+                                        Delivery boy payment account
+                                        not added.
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <!-- ================================================= -->
+                    <!-- DELIVERY PAYMENT STATUS -->
+                    <!-- ================================================= -->
+
+                    <div class="row align-items-center">
+
+                        <div class="col-md-8">
+
+                            <strong>
+
+                                Delivery Boy Payout:
+
+                                Rs. @Model.DeliveryCharges.ToString("N2")
+
+                            </strong>
+
+                        </div>
+
+                        <div class="col-md-4 text-md-end">
+
+                            @if (deliveryPaid)
+                            {
+                                <span class="status-badge bg-success text-white">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Paid
+
+                                </span>
+                            }
+                            else if (!customerPaymentReceived)
+                            {
+                                <span class="status-badge bg-secondary text-white">
+
+                                    <i class="bi bi-lock"></i>
+
+                                    Awaiting Customer Payment
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge bg-warning text-dark">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    Payout Pending
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- ACTUAL DELIVERY PAYMENT RECORD -->
+                    <!-- ================================================= -->
+
+                    @if (deliveryPaid)
+                    {
+                        <div class="already-paid-box">
+
+                            <div class="already-paid-title">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                                Delivery Boy Payment Recorded
+
+                            </div>
+
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Amount Paid
+                                </span>
+
+                                <span class="payment-record-value">
+                                    Rs. @Model.DeliveryPaidAmount.ToString("N2")
+                                </span>
+
+                            </div>
+
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Payment Method
+                                </span>
+
+                                <span class="payment-record-value">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.DeliveryPaymentMethod))
+                                    {
+                                        @Model.DeliveryPaymentMethod
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            Not Recorded
+                                        </span>
+                                    }
+
+                                </span>
+
+                            </div>
+
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Account Paid To
+                                </span>
+
+                                <span class="payment-record-value">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.DeliveryPaymentAccount))
+                                    {
+                                        @Model.DeliveryPaymentAccount
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            Not Recorded
+                                        </span>
+                                    }
+
+                                </span>
+
+                            </div>
+
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Transaction / Reference ID
+                                </span>
+
+                                <span class="payment-record-value">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.DeliveryTransactionId))
+                                    {
+                                        @Model.DeliveryTransactionId
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            Not Recorded
+                                        </span>
+                                    }
+
+                                </span>
+
+                            </div>
+
+                            <div class="payment-record-row">
+
+                                <span class="payment-record-label">
+                                    Payment Date
+                                </span>
+
+                                <span class="payment-record-value">
+
+                                    @(Model.DeliveryPaymentDate.HasValue
+                                        ? Model.DeliveryPaymentDate.Value.ToString("dd MMMM yyyy hh:mm tt")
+                                        : "N/A")
+
+                                </span>
+
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                Model.DeliveryPaymentNotes))
+                            {
+                                <div class="payment-record-row">
+
+                                    <span class="payment-record-label">
+                                        Admin Notes
+                                    </span>
+
+                                    <span class="payment-record-value">
+                                        @Model.DeliveryPaymentNotes
+                                    </span>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+
+                    <!-- ================================================= -->
+                    <!-- MANUAL DELIVERY PAYMENT -->
+                    <!-- ================================================= -->
+
+                    @if (customerPaymentReceived &&
+                         !deliveryPaid)
+                    {
+                        @if (!string.IsNullOrWhiteSpace(
+                            deliveryPaymentMethod) &&
+                            !string.IsNullOrWhiteSpace(
+                                deliveryPaymentAccount))
+                        {
+                            <div class="manual-payment-box">
+
+                                <div class="manual-payment-title">
+
+                                    <i class="bi bi-send"></i>
+
+                                    Record Manual Delivery Boy Payment
+
+                                </div>
+
+                                <div class="manual-payment-text">
+
+                                    First send the delivery payout manually
+                                    through the delivery boy's
+                                    <strong>
+                                        @deliveryPaymentMethod
+                                    </strong>
+                                    account.
+
+                                    After the transfer is completed,
+                                    enter the actual transaction/reference
+                                    ID below and record it in the website.
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- RECORD DELIVERY PAYMENT -->
+                                <!-- ================================================= -->
+
+                                <form asp-controller="Admin"
+                                      asp-action="RecordDeliveryPayment"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.OrderId" />
+
+
+                                    <div class="row g-3">
+
+                                        <!-- PAYMENT AMOUNT -->
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+                                                Amount Paid
+                                            </label>
+
+                                            <input type="number"
+                                                   class="form-control"
+                                                   value="@Model.DeliveryCharges.ToString("0.00")"
+                                                   min="0.01"
+                                                   step="0.01"
+                                                   readonly />
+
+                                            <small class="text-muted">
+
+                                                Delivery payout:
+                                                Rs. @Model.DeliveryCharges.ToString("N2")
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- PAYMENT METHOD - READONLY -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+
+                                                Payment Method
+
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   value="@deliveryPaymentMethod"
+                                                   readonly />
+
+                                            <small class="text-muted">
+
+                                                This payment method was saved
+                                                by the delivery boy.
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- PAYMENT ACCOUNT - READONLY -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+
+                                                Payment Account
+
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   value="@deliveryPaymentAccount"
+                                                   readonly />
+
+                                            <small class="text-muted">
+
+                                                This account was saved by the
+                                                delivery boy.
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- TRANSACTION ID -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+
+                                                Transaction / Reference ID
+
+                                                <span class="text-danger">*</span>
+
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="transactionId"
+                                                   maxlength="100"
+                                                   placeholder="Enter Easypaisa/JazzCash transaction ID"
+                                                   required />
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- PAYMENT NOTES -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-12">
+
+                                            <label class="form-label">
+                                                Payment Notes
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="paymentNotes"
+                                                   maxlength="500"
+                                                   placeholder="Optional payment notes" />
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- WARNING -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-12">
+
+                                            <div class="warning-box">
+
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                                <strong>Important:</strong>
+
+                                                This button does not send money.
+
+                                                Make the actual Rs.
+                                                @Model.DeliveryCharges.ToString("N2")
+                                                transfer through
+                                                <strong>
+                                                    @deliveryPaymentMethod
+                                                </strong>
+                                                first.
+
+                                                Then enter the actual
+                                                transaction ID and click
+
+                                                <strong>
+                                                    Record Delivery Payment
+                                                </strong>.
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- ================================================= -->
+                                        <!-- RECORD BUTTON -->
+                                        <!-- ================================================= -->
+
+                                        <div class="col-md-12">
+
+                                            <button type="submit"
+                                                    class="btn btn-primary record-btn"
+                                                    onclick="return confirm('Confirm that you have already transferred the delivery boy amount through Easypaisa or JazzCash and entered the correct transaction ID?');">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                                Record Delivery Payment
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="danger-box">
+
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                <strong>Cannot Record Payment:</strong>
+
+                                The delivery boy has not added a valid
+                                Easypaisa/JazzCash payment account.
+
+                            </div>
+                        }
+                    }
+
+
+                    <!-- ================================================= -->
+                    <!-- COD SEPARATION -->
+                    <!-- ================================================= -->
+
+                    @if (isCod && codCollected)
+                    {
+                        <div class="info-box">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            <strong>COD and Delivery Payout are separate:</strong>
+
+                            <span>
+
+                                The cash collected from the customer belongs
+                                to the customer's order payment.
+
+                                The
+
+                                <strong>
+                                    Rs. @Model.DeliveryCharges.ToString("N2")
+                                </strong>
+
+                                delivery charge is the delivery boy's separate
+                                payout.
+
+                                Recording COD cash collection does not
+                                automatically pay the delivery boy.
+
+                            </span>
+
+                        </div>
+                    }
+
+                }
+                else
+                {
+                    <div class="text-center text-danger">
+
+                        <i class="bi bi-person-x fs-2"></i>
+
+                        <h5 class="mt-2">
+
+                            No Delivery Boy Assigned
+
+                        </h5>
+
+                        <p class="mb-0">
+
+                            A delivery boy must be assigned before
+                            delivery payment can be made.
+
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    
+
+    <!-- ================================================= -->
+    <!-- MANUAL PAYMENT PROCEDURE -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-dark">
+
+            <i class="bi bi-info-circle"></i>
+
+            Manual Payment Procedure
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <div class="amount-box h-100">
+
+                        <div class="amount-label">
+
+                            <strong>Step 1</strong>
+
+                        </div>
+
+                        <div class="mt-2">
+
+                            Confirm that the customer payment
+                            has actually been received.
+
+                            For COD, Admin must first confirm
+                            cash handover.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="amount-box h-100">
+
+                        <div class="amount-label">
+
+                            <strong>Step 2</strong>
+
+                        </div>
+
+                        <div class="mt-2">
+
+                            Open Easypaisa or JazzCash outside
+                            this website and manually transfer
+                            the shopkeeper or delivery payout.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="amount-box h-100">
+
+                        <div class="amount-label">
+
+                            <strong>Step 3</strong>
+
+                        </div>
+
+                        <div class="mt-2">
+
+                            Enter the actual transaction/reference
+                            ID and record the payment.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="alert alert-warning mt-3 mb-0">
+
+                <i class="bi bi-shield-check"></i>
+
+                <strong>Important:</strong>
+
+                Wedding Closet Hubs does not automatically transfer
+                money through Easypaisa or JazzCash.
+
+                The website only stores the payment record,
+                account information and transaction/reference ID.
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ACTION BUTTONS -->
+    <!-- ================================================= -->
+
+    <div class="custom-card">
+
+        <div class="custom-card-header header-primary">
+
+            <i class="bi bi-arrow-left-right"></i>
+
+            Navigation
+
+        </div>
+
+        <div class="custom-card-body">
+
+            <div class="action-buttons">
+
+                <a asp-controller="Admin"
+                   asp-action="Payments"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Payments
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Dashboard"
+                   class="btn btn-outline-dark">
+
+                    <i class="bi bi-speedometer2"></i>
+
+                    Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>

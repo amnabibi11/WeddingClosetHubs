@@ -1,0 +1,1173 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Order>
+
+@{
+    ViewData["Title"] = "Payments";
+    Layout = null;
+
+    var orders = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.Order>();
+
+    var totalOrders = orders.Count;
+
+    var receivedPayments =
+        orders.Count(x => x.PaymentReceived);
+
+    var pendingPayments =
+        orders.Count(x => !x.PaymentReceived);
+
+    var totalServiceFee =
+        orders.Sum(x => x.ServiceFee);
+
+    var totalShopkeeperPayable =
+        orders.Sum(x => x.ShopkeeperAmount);
+
+    var totalShopkeeperPaid =
+        orders.Sum(x => x.ShopkeeperPaidAmount);
+
+    var totalShopkeeperPending =
+        orders
+            .Where(x =>
+                x.PaymentReceived &&
+                x.ShopkeeperPaymentStatus != "Paid")
+            .Sum(x => x.ShopkeeperAmount);
+
+    var totalDeliveryPayable =
+        orders.Sum(x => x.DeliveryCharges);
+
+    var totalDeliveryPaid =
+        orders.Sum(x => x.DeliveryPaidAmount);
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Payments - Wedding Closet Hubs</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        body {
+            background: #f5f6fa;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .page-container {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            color: #343a40;
+        }
+
+        .page-header p {
+            margin-top: 7px;
+            color: #777;
+        }
+
+        .back-btn {
+            border-radius: 8px;
+            padding: 9px 16px;
+        }
+
+
+        /* =====================================================
+           SUMMARY CARDS
+           ===================================================== */
+
+        .summary-row {
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            height: 100%;
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .summary-title {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .icon-orders {
+            background: #e7f1ff;
+            color: #0d6efd;
+        }
+
+        .icon-received {
+            background: #e8f7ee;
+            color: #198754;
+        }
+
+        .icon-pending {
+            background: #fff4d6;
+            color: #997404;
+        }
+
+        .icon-revenue {
+            background: #f3e8ff;
+            color: #6f42c1;
+        }
+
+
+        /* =====================================================
+           PAYMENT CARD
+           ===================================================== */
+
+        .payment-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .payment-card-header {
+            background: #198754;
+            color: white;
+            padding: 17px 22px;
+        }
+
+        .payment-card-header h5 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .table-container {
+            padding: 20px;
+        }
+
+        .table thead th {
+            background: #212529;
+            color: white;
+            border: none;
+            padding: 13px 10px;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .table tbody td {
+            padding: 13px 10px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: #0d6efd;
+        }
+
+        .amount {
+            font-weight: 700;
+        }
+
+        .badge {
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .btn-details {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .btn-details:hover {
+            background: #0b5ed7;
+            color: white;
+        }
+
+        .payment-note {
+            background: #f8f9fa;
+            border: 1px solid #e1e5ea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-note i {
+            color: #0d6efd;
+        }
+
+        .empty-box {
+            text-align: center;
+            padding: 70px 20px;
+            color: #777;
+        }
+
+        .empty-box i {
+            font-size: 65px;
+            color: #adb5bd;
+        }
+
+        .empty-box h5 {
+            margin-top: 20px;
+            color: #555;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+
+        /* =====================================================
+           PAYMENT FLOW
+           ===================================================== */
+
+        .flow-box {
+            background: #fff;
+            border: 1px solid #e1e5ea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+        }
+
+        .flow-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #343a40;
+            font-size: 17px;
+        }
+
+        .flow-item {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .flow-item:last-child {
+            margin-bottom: 0;
+        }
+
+
+        /* =====================================================
+           PAYOUT INFORMATION
+           ===================================================== */
+
+        .payout-info {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .payout-account {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .transaction-id {
+            font-size: 11px;
+            word-break: break-all;
+            color: #6c757d;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .page-container {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 18px;
+            }
+
+            .page-header-content {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start !important;
+            }
+
+            .back-btn {
+                width: 100%;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-header-content d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h2>
+
+                    <i class="bi bi-credit-card"></i>
+
+                    Payments
+
+                </h2>
+
+                <p class="mb-0">
+
+                    Manage customer payments and manually record
+                    shopkeeper and delivery boy payouts.
+
+                </p>
+
+            </div>
+
+
+            <a asp-controller="Admin"
+               asp-action="Dashboard"
+               class="btn btn-secondary back-btn">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUCCESS MESSAGE
+         ===================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+
+        <div class="alert alert-success alert-dismissible fade show">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    }
+
+
+    <!-- =====================================================
+         ERROR MESSAGE
+         ===================================================== -->
+
+    @if (TempData["Error"] != null)
+    {
+
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    }
+
+
+    <!-- =====================================================
+         SUMMARY
+         ===================================================== -->
+
+    <div class="row g-3 summary-row">
+
+
+        <!-- TOTAL ORDERS -->
+
+        <div class="col-md-3">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-orders">
+
+                    <i class="bi bi-receipt"></i>
+
+                </div>
+
+                <div class="summary-title">
+
+                    Total Orders
+
+                </div>
+
+                <div class="summary-value">
+
+                    @totalOrders
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RECEIVED -->
+
+        <div class="col-md-3">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-received">
+
+                    <i class="bi bi-check-circle"></i>
+
+                </div>
+
+                <div class="summary-title">
+
+                    Customer Payments Received
+
+                </div>
+
+                <div class="summary-value">
+
+                    @receivedPayments
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="col-md-3">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-pending">
+
+                    <i class="bi bi-clock-history"></i>
+
+                </div>
+
+                <div class="summary-title">
+
+                    Customer Payments Pending
+
+                </div>
+
+                <div class="summary-value">
+
+                    @pendingPayments
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SERVICE FEE -->
+
+        <div class="col-md-3">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-revenue">
+
+                    <i class="bi bi-graph-up-arrow"></i>
+
+                </div>
+
+                <div class="summary-title">
+
+                    Platform Service Fee
+
+                </div>
+
+                <div class="summary-value">
+
+                    Rs. @totalServiceFee.ToString("N2")
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+   
+    <!-- =====================================================
+         PAYMENT TABLE
+         ===================================================== -->
+
+    <div class="payment-card">
+
+        <div class="payment-card-header">
+
+            <h5>
+
+                <i class="bi bi-wallet2"></i>
+
+                Order Payment Management
+
+            </h5>
+
+        </div>
+
+
+        <div class="table-container">
+
+
+            @if (orders.Any())
+            {
+
+                <div class="payment-note">
+
+                    <i class="bi bi-info-circle-fill"></i>
+
+                    <strong>Admin Payment Management:</strong>
+
+                    Use <strong>Details</strong> to verify
+                    customer payment and record manual
+                    payouts to the shopkeeper and delivery boy.
+
+                    <br />
+
+                    <small class="text-muted">
+
+                        The website records the payout.
+                        The actual Easypaisa/JazzCash transfer
+                        is performed manually by Admin.
+
+                    </small>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Order ID</th>
+
+                                <th>Customer</th>
+
+                                <th>Shop</th>
+
+                                <th>Payment Method</th>
+
+                                <th>Product Total</th>
+
+                                <th>Delivery</th>
+
+                                <th>Service Fee</th>
+
+                                <th>Customer Total</th>
+
+                                <th>Customer Payment</th>
+
+                                <th>Shopkeeper Payout</th>
+
+                                <th>Delivery Payout</th>
+
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        @{
+                            int count = 1;
+                        }
+
+
+                        @foreach (var order in orders)
+                        {
+
+                            <tr>
+
+
+                                <!-- NUMBER -->
+
+                                <td>
+
+                                    @count
+
+                                </td>
+
+
+                                <!-- ORDER ID -->
+
+                                <td>
+
+                                    <span class="order-id">
+
+                                        #@order.OrderId
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CUSTOMER -->
+
+                                <td>
+
+                                    @(order.Customer?.Name ?? "N/A")
+
+                                </td>
+
+
+                                <!-- SHOP -->
+
+                                <td>
+
+                                    @(order.Shop?.ShopName ?? "N/A")
+
+                                </td>
+
+
+                                <!-- PAYMENT METHOD -->
+
+                                <td>
+
+                                    @if (string.Equals(
+                                        order.PaymentMethod,
+                                        "Cash on Delivery",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="bi bi-cash"></i>
+
+                                            COD
+
+                                        </span>
+
+                                    }
+                                    else if (string.Equals(
+                                        order.PaymentMethod,
+                                        "JazzCash",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+
+                                        <span class="badge bg-danger">
+
+                                            <i class="bi bi-phone"></i>
+
+                                            JazzCash
+
+                                        </span>
+
+                                    }
+                                    else if (string.Equals(
+                                        order.PaymentMethod,
+                                        "Easypaisa",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+
+                                        <span class="badge bg-success">
+
+                                            <i class="bi bi-phone"></i>
+
+                                            Easypaisa
+
+                                        </span>
+
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-secondary">
+
+                                            @(order.PaymentMethod ?? "Not Selected")
+
+                                        </span>
+
+                                    }
+
+                                </td>
+
+
+                                <!-- PRODUCT TOTAL -->
+
+                                <td>
+
+                                    <span class="amount">
+
+                                        Rs. @order.ProductTotal.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- DELIVERY -->
+
+                                <td>
+
+                                    Rs. @order.DeliveryCharges.ToString("N2")
+
+                                </td>
+
+
+                                <!-- SERVICE FEE -->
+
+                                <td>
+
+                                    <span class="amount text-success">
+
+                                        Rs. @order.ServiceFee.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CUSTOMER TOTAL -->
+
+                                <td>
+
+                                    <span class="amount">
+
+                                        Rs. @order.TotalAmount.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CUSTOMER PAYMENT -->
+
+                                <td>
+
+                                    @if (order.PaymentReceived)
+                                    {
+
+                                        <span class="badge bg-success">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Received
+
+                                        </span>
+
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="bi bi-clock"></i>
+
+                                            Pending
+
+                                        </span>
+
+                                    }
+
+                                </td>
+
+
+                                <!-- SHOPKEEPER PAYOUT -->
+
+                                <td>
+
+                                    @if (order.ShopkeeperPaymentStatus == "Paid")
+                                    {
+
+                                        <span class="badge bg-success">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Paid
+
+                                        </span>
+
+                                        <div class="payout-info mt-2">
+
+                                            <div>
+
+                                                Rs.
+                                                @order.ShopkeeperPaidAmount.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payout-account">
+
+                                                @(order.ShopkeeperPaymentMethod ?? "N/A")
+
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                order.ShopkeeperTransactionId))
+                                            {
+
+                                                <div class="transaction-id">
+
+                                                    Ref:
+                                                    @order.ShopkeeperTransactionId
+
+                                                </div>
+
+                                            }
+
+                                        </div>
+
+                                    }
+                                    else if (order.PaymentReceived)
+                                    {
+
+                                        <span class="badge bg-primary">
+
+                                            <i class="bi bi-arrow-right-circle"></i>
+
+                                            Pending Payout
+
+                                        </span>
+
+                                        <div class="small text-muted mt-2">
+
+                                            Rs.
+                                            @order.ShopkeeperAmount.ToString("N2")
+
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="bi bi-lock"></i>
+
+                                            Waiting
+
+                                        </span>
+
+                                    }
+
+                                </td>
+
+
+                                <!-- DELIVERY PAYOUT -->
+
+                                <td>
+
+                                    @if (order.DeliveryId == null)
+                                    {
+
+                                        <span class="badge bg-secondary">
+
+                                            <i class="bi bi-person-x"></i>
+
+                                            Not Assigned
+
+                                        </span>
+
+                                    }
+                                    else if (order.DeliveryPaymentStatus == "Paid")
+                                    {
+
+                                        <span class="badge bg-success">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Paid
+
+                                        </span>
+
+                                        <div class="payout-info mt-2">
+
+                                            <div>
+
+                                                Rs.
+                                                @order.DeliveryPaidAmount.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payout-account">
+
+                                                @(order.DeliveryPaymentMethod ?? "N/A")
+
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                order.DeliveryTransactionId))
+                                            {
+
+                                                <div class="transaction-id">
+
+                                                    Ref:
+                                                    @order.DeliveryTransactionId
+
+                                                </div>
+
+                                            }
+
+                                        </div>
+
+                                    }
+                                    else if (order.PaymentReceived)
+                                    {
+
+                                        <span class="badge bg-primary">
+
+                                            <i class="bi bi-arrow-right-circle"></i>
+
+                                            Pending Payout
+
+                                        </span>
+
+                                        <div class="small text-muted mt-2">
+
+                                            Rs.
+                                            @order.DeliveryCharges.ToString("N2")
+
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="bi bi-lock"></i>
+
+                                            Waiting
+
+                                        </span>
+
+                                    }
+
+                                </td>
+
+
+                                <!-- DETAILS -->
+
+                                <td>
+
+                                    <a asp-controller="Admin"
+                                       asp-action="PaymentDetails"
+                                       asp-route-id="@order.OrderId"
+                                       class="btn btn-details">
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                        Details
+
+                                    </a>
+
+                                </td>
+
+
+                            </tr>
+
+                            count++;
+
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =====================================================
+                     PAYOUT SUMMARY
+                     ===================================================== -->
+
+                <div class="row g-3 mt-3">
+
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-title">
+
+                                Total Shopkeeper Payable
+
+                            </div>
+
+                            <div class="summary-value">
+
+                                Rs. @totalShopkeeperPayable.ToString("N2")
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                Based on ShopkeeperAmount
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-title">
+
+                                Shopkeeper Paid
+
+                            </div>
+
+                            <div class="summary-value text-success">
+
+                                Rs. @totalShopkeeperPaid.ToString("N2")
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-title">
+
+                                Shopkeeper Pending
+
+                            </div>
+
+                            <div class="summary-value text-warning">
+
+                                Rs. @totalShopkeeperPending.ToString("N2")
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="empty-box">
+
+                    <i class="bi bi-credit-card"></i>
+
+                    <h5>
+
+                        No Payment Records Found
+
+                    </h5>
+
+                    <p>
+
+                        There are currently no orders available
+                        for payment management.
+
+                    </p>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>

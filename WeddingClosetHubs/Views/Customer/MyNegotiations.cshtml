@@ -1,0 +1,1503 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.Negotiation>
+
+@{
+    ViewData["Title"] = "My Negotiations";
+    Layout = null;
+
+    var negotiations = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.Negotiation>();
+
+    string customerName = ViewBag.CustomerName ?? "Customer";
+
+    const decimal ServiceFeePercentage = 10m;
+    const decimal FixedDeliveryCharge = 300m;
+
+    int pendingCount = negotiations.Count(n =>
+        string.Equals(
+            n.Status,
+            "Pending",
+            StringComparison.OrdinalIgnoreCase));
+
+    int counterCount = negotiations.Count(n =>
+        string.Equals(
+            n.Status,
+            "CounterOffer",
+            StringComparison.OrdinalIgnoreCase));
+
+    int acceptedCount = negotiations.Count(n =>
+        string.Equals(
+            n.Status,
+            "Accepted",
+            StringComparison.OrdinalIgnoreCase));
+
+    int rejectedCount = negotiations.Count(n =>
+        string.Equals(
+            n.Status,
+            "Rejected",
+            StringComparison.OrdinalIgnoreCase));
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        My Negotiations - WeddingClosetHubs
+    </title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f7f3f0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: #800020;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 25px 15px;
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .brand {
+            text-align: center;
+            font-size: 23px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 30px;
+        }
+
+        .customer-name {
+            text-align: center;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .customer-name i {
+            font-size: 25px;
+        }
+
+        .sidebar a {
+            display: block;
+            text-decoration: none;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 7px;
+            transition: .2s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #d4af37;
+            color: #800020;
+            font-weight: 600;
+        }
+
+        /* =====================================================
+           MAIN CONTENT
+        ===================================================== */
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           PAGE HEADER
+        ===================================================== */
+
+        .page-header {
+            background: white;
+            padding: 22px 25px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            color: #800020;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-header p {
+            color: #777;
+        }
+
+        /* =====================================================
+           STATISTICS
+        ===================================================== */
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.06);
+            height: 100%;
+        }
+
+        .stat-number {
+            font-size: 27px;
+            font-weight: bold;
+            color: #800020;
+        }
+
+        .stat-title {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* =====================================================
+           NEGOTIATION CARD
+        ===================================================== */
+
+        .negotiation-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+            border-left: 5px solid #800020;
+        }
+
+        .product-name {
+            color: #800020;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           PRODUCT IMAGE
+        ===================================================== */
+
+        .product-image {
+            width: 110px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: #f8f8f8;
+        }
+
+        .product-image-placeholder {
+            width: 110px;
+            height: 130px;
+            border-radius: 10px;
+            background: #f8f8f8;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+        }
+
+        .product-image-placeholder i {
+            font-size: 40px;
+            color: #d4af37;
+        }
+
+        /* =====================================================
+           PRICE BOX
+        ===================================================== */
+
+        .price-box {
+            background: #faf6ee;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+
+        .price-label {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+
+        .price-value {
+            font-size: 19px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .agreed-price {
+            color: #198754;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           PAYMENT CALCULATION
+        ===================================================== */
+
+        .payment-summary {
+            background: #fffdf7;
+            border: 1px solid #e7d9ad;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .payment-summary-title {
+            color: #800020;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .payment-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-label {
+            color: #555;
+        }
+
+        .payment-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .service-fee-text {
+            color: #800020;
+        }
+
+        .delivery-text {
+            color: #555;
+        }
+
+        .total-row {
+            margin-top: 8px;
+            padding-top: 14px;
+            border-top: 2px solid #d4af37;
+        }
+
+        .total-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .total-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #198754;
+        }
+
+        .shopkeeper-payment-box {
+            background: #f0fff5;
+            border: 1px solid #b7dfc5;
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 15px;
+        }
+
+        .shopkeeper-payment-box strong {
+            color: #198754;
+        }
+
+        /* =====================================================
+           MESSAGE BOX
+        ===================================================== */
+
+        .message-box {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 13px;
+            margin-top: 13px;
+        }
+
+        .message-box strong {
+            color: #333;
+        }
+
+        /* =====================================================
+           STATUS BADGES
+        ===================================================== */
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-counter {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-accepted {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-expired {
+            background: #e2e3e5;
+            color: #41464b;
+        }
+
+        /* =====================================================
+           ACCEPTED BOX
+        ===================================================== */
+
+        .accepted-box {
+            background: #f0fff5;
+            border: 1px solid #b7dfc5;
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .accepted-title {
+            color: #198754;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .accepted-price-text {
+            color: #198754;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn-maroon {
+            background: #800020;
+            color: white;
+            border: none;
+        }
+
+        .btn-maroon:hover {
+            background: #650019;
+            color: white;
+        }
+
+        .btn-gold {
+            background: #d4af37;
+            color: #800020;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-gold:hover {
+            background: #bd982c;
+            color: #800020;
+        }
+
+        /* =====================================================
+           EMPTY BOX
+        ===================================================== */
+
+        .empty-box {
+            background: white;
+            border-radius: 14px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+        }
+
+        .empty-box i {
+            font-size: 55px;
+            color: #d4af37;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 768px) {
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .product-image {
+                margin-bottom: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<div class="sidebar">
+
+    <div class="brand">
+
+        <i class="bi bi-gem"></i>
+
+        WeddingClosetHubs
+
+    </div>
+
+    <div class="customer-name">
+
+        <i class="bi bi-person-circle"></i>
+
+        <div>
+            @customerName
+        </div>
+
+    </div>
+
+    <a href="@Url.Action("Dashboard", "Customer")">
+
+        <i class="bi bi-speedometer2 me-2"></i>
+
+        Dashboard
+
+    </a>
+
+    <a href="@Url.Action("Shops", "Customer")">
+
+        <i class="bi bi-shop me-2"></i>
+
+        Shops
+
+    </a>
+
+    <a href="@Url.Action("Cart", "Customer")">
+
+        <i class="bi bi-cart3 me-2"></i>
+
+        Cart
+
+    </a>
+
+    <a href="@Url.Action("MyOrders", "Customer")">
+
+        <i class="bi bi-bag-check me-2"></i>
+
+        My Orders
+
+    </a>
+
+    <!-- MY NEGOTIATIONS -->
+
+    <a href="@Url.Action("MyNegotiations", "Customer")"
+       class="active">
+
+        <i class="bi bi-chat-square-text me-2"></i>
+
+        My Negotiations
+
+    </a>
+
+    <a href="@Url.Action("Notifications", "Customer")">
+
+        <i class="bi bi-bell me-2"></i>
+
+        Notifications
+
+    </a>
+
+    <a href="@Url.Action("Chat", "Customer")">
+
+        <i class="bi bi-chat-dots me-2"></i>
+
+        Chat
+
+    </a>
+
+    <a href="@Url.Action("Feedback", "Customer")">
+
+        <i class="bi bi-star me-2"></i>
+
+        Feedback
+
+    </a>
+
+    <hr />
+
+    <a href="@Url.Action("Logout", "Account")">
+
+        <i class="bi bi-box-arrow-right me-2"></i>
+
+        Logout
+
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<div class="main-content">
+
+    <!-- =================================================
+         PAGE HEADER
+    ================================================= -->
+
+    <div class="page-header">
+
+        <h2>
+
+            <i class="bi bi-chat-square-text me-2"></i>
+
+            My Negotiations
+
+        </h2>
+
+        <p class="mb-0 mt-2">
+
+            View your offers, shopkeeper responses,
+            agreed prices and negotiated payment details.
+
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    @negotiations.Count
+                </div>
+
+                <div class="stat-title">
+                    Total Negotiations
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    @pendingCount
+                </div>
+
+                <div class="stat-title">
+                    Pending
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    @counterCount
+                </div>
+
+                <div class="stat-title">
+                    Counter Offers
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    @acceptedCount
+                </div>
+
+                <div class="stat-title">
+                    Accepted
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUCCESS MESSAGE
+    ================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+
+            <i class="bi bi-check-circle me-2"></i>
+
+            @TempData["Success"]
+
+        </div>
+    }
+
+
+    <!-- =================================================
+         ERROR MESSAGE
+    ================================================= -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+
+            <i class="bi bi-exclamation-circle me-2"></i>
+
+            @TempData["Error"]
+
+        </div>
+    }
+
+
+    <!-- =================================================
+         NO NEGOTIATIONS
+    ================================================= -->
+
+    @if (!negotiations.Any())
+    {
+
+        <div class="empty-box">
+
+            <i class="bi bi-chat-square-dots"></i>
+
+            <h4 class="mt-3">
+                No Negotiations Yet
+            </h4>
+
+            <p class="text-muted">
+                You have not made any price offers yet.
+            </p>
+
+            <a href="@Url.Action("Shops", "Customer")"
+               class="btn btn-maroon">
+
+                <i class="bi bi-shop me-1"></i>
+
+                Browse Shops
+
+            </a>
+
+        </div>
+
+    }
+    else
+    {
+
+        <!-- =================================================
+             NEGOTIATION LIST
+        ================================================= -->
+
+        foreach (var negotiation in negotiations)
+        {
+
+            string status =
+                negotiation.Status ?? "Pending";
+
+
+            string statusClass =
+
+                status.Equals(
+                    "Accepted",
+                    StringComparison.OrdinalIgnoreCase)
+
+                    ? "status-accepted"
+
+                : status.Equals(
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase)
+
+                    ? "status-rejected"
+
+                : status.Equals(
+                    "CounterOffer",
+                    StringComparison.OrdinalIgnoreCase)
+
+                    ? "status-counter"
+
+                : status.Equals(
+                    "Expired",
+                    StringComparison.OrdinalIgnoreCase)
+
+                    ? "status-expired"
+
+                : "status-pending";
+
+
+            <!-- =================================================
+                 NEGOTIATION CARD
+            ================================================= -->
+
+            <div class="negotiation-card">
+
+
+                <!-- =================================================
+                     PRODUCT HEADER
+                ================================================= -->
+
+                <div class="row align-items-center">
+
+                    <!-- IMAGE -->
+
+                    <div class="col-md-2 text-center">
+
+                        @if (negotiation.Product != null &&
+                             !string.IsNullOrWhiteSpace(
+                                 negotiation.Product.Image))
+                        {
+
+                            <img src="@negotiation.Product.Image"
+                                 alt="@negotiation.Product.ProductName"
+                                 class="product-image" />
+
+                        }
+                        else
+                        {
+
+                            <div class="product-image-placeholder">
+
+                                <i class="bi bi-image"></i>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+
+                    <!-- PRODUCT DETAILS -->
+
+                    <div class="col-md-7">
+
+                        <div class="product-name">
+
+                            @(negotiation.Product?.ProductName
+                                ?? "Product")
+
+                        </div>
+
+
+                        @if (negotiation.Product?.Shop != null)
+                        {
+
+                            <div class="text-muted mt-1">
+
+                                <i class="bi bi-shop me-1"></i>
+
+                                @negotiation.Product.Shop.ShopName
+
+                            </div>
+
+                        }
+
+
+                        <small class="text-muted">
+
+                            Negotiation #
+
+                            @negotiation.NegotiationId
+
+                        </small>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                        <span class="status-badge @statusClass">
+
+                            @status
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     NEGOTIATION PRICES
+                ================================================= -->
+
+                <div class="price-box">
+
+                    <div class="row g-4">
+
+                        <!-- ORIGINAL PRICE -->
+
+                        <div class="col-md-3">
+
+                            <div class="price-label">
+                                Original Price
+                            </div>
+
+                            <div class="price-value">
+
+                                Rs.
+                                @negotiation.OriginalPrice.ToString("N0")
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CUSTOMER OFFER -->
+
+                        <div class="col-md-3">
+
+                            <div class="price-label">
+                                Your Offer
+                            </div>
+
+                            <div class="price-value">
+
+                                Rs.
+                                @negotiation.RequestedPrice.ToString("N0")
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- COUNTER OFFER -->
+
+                        <div class="col-md-3">
+
+                            <div class="price-label">
+                                Shopkeeper Counter
+                            </div>
+
+                            <div class="price-value">
+
+                                @if (negotiation.CounterPrice.HasValue)
+                                {
+
+                                    <span>
+
+                                        Rs.
+                                        @negotiation.CounterPrice.Value.ToString("N0")
+
+                                    </span>
+
+                                }
+                                else
+                                {
+
+                                    <span class="text-muted">
+                                        Not Available
+                                    </span>
+
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- AGREED PRICE -->
+
+                        <div class="col-md-3">
+
+                            <div class="price-label">
+                                Agreed Price
+                            </div>
+
+                            @if (negotiation.AgreedPrice.HasValue)
+                            {
+
+                                <div class="agreed-price">
+
+                                    Rs.
+                                    @negotiation.AgreedPrice.Value.ToString("N0")
+
+                                </div>
+
+                            }
+                            else
+                            {
+
+                                <div class="text-muted">
+                                    Not agreed
+                                </div>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CUSTOMER MESSAGE
+                ================================================= -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    negotiation.CustomerMessage))
+                {
+
+                    <div class="message-box">
+
+                        <strong>
+
+                            <i class="bi bi-person me-1"></i>
+
+                            Your Message
+
+                        </strong>
+
+                        <div class="mt-1">
+
+                            @negotiation.CustomerMessage
+
+                        </div>
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     SHOPKEEPER MESSAGE
+                ================================================= -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    negotiation.ShopkeeperMessage))
+                {
+
+                    <div class="message-box">
+
+                        <strong>
+
+                            <i class="bi bi-shop me-1"></i>
+
+                            Shopkeeper Message
+
+                        </strong>
+
+                        <div class="mt-1">
+
+                            @negotiation.ShopkeeperMessage
+
+                        </div>
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     DATES
+                ================================================= -->
+
+                <div class="mt-3">
+
+                    <small class="text-muted">
+
+                        <i class="bi bi-calendar3 me-1"></i>
+
+                        Created:
+
+                        @negotiation.CreatedDate.ToString(
+                            "dd MMM yyyy hh:mm tt")
+
+                    </small>
+
+
+                    @if (negotiation.RespondedDate.HasValue)
+                    {
+
+                        <small class="text-muted ms-3">
+
+                            <i class="bi bi-clock me-1"></i>
+
+                            Responded:
+
+                            @negotiation.RespondedDate.Value.ToString(
+                                "dd MMM yyyy hh:mm tt")
+
+                        </small>
+
+                    }
+
+                </div>
+
+
+                <!-- =================================================
+                     COUNTER OFFER ACTIONS
+                ================================================= -->
+
+                @if (status.Equals(
+                    "CounterOffer",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+
+                    <div class="mt-4 d-flex gap-2 flex-wrap">
+
+
+                        <!-- ACCEPT COUNTER -->
+
+                        <form asp-action="AcceptCounterOffer"
+                              asp-controller="Customer"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@negotiation.NegotiationId" />
+
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    onclick="return confirm('Accept this counter-offer?');">
+
+                                <i class="bi bi-check-circle me-1"></i>
+
+                                Accept Counter Offer
+
+                            </button>
+
+                        </form>
+
+
+                        <!-- REJECT COUNTER -->
+
+                        <form asp-action="RejectNegotiation"
+                              asp-controller="Customer"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@negotiation.NegotiationId" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger"
+                                    onclick="return confirm('Reject this counter-offer?');">
+
+                                <i class="bi bi-x-circle me-1"></i>
+
+                                Reject
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     ACCEPTED NEGOTIATION
+                ================================================= -->
+
+                @if (status.Equals(
+                    "Accepted",
+                    StringComparison.OrdinalIgnoreCase)
+                    &&
+                    negotiation.AgreedPrice.HasValue)
+                {
+
+                    decimal agreedPrice =
+                        negotiation.AgreedPrice.Value;
+
+                    decimal serviceFee =
+                        Math.Round(
+                            agreedPrice *
+                            ServiceFeePercentage /
+                            100m,
+                            2);
+
+                    decimal deliveryCharge =
+                        FixedDeliveryCharge;
+
+                    decimal customerTotal =
+                        agreedPrice +
+                        serviceFee +
+                        deliveryCharge;
+
+
+                    <div class="accepted-box">
+
+
+                        <!-- ACCEPTED TITLE -->
+
+                        <div class="accepted-title">
+
+                            <i class="bi bi-check-circle-fill me-2"></i>
+
+                            Negotiation Accepted
+
+                        </div>
+
+
+                        <div class="mt-2">
+
+                            The shopkeeper has accepted
+                            your price offer.
+
+                        </div>
+
+
+                        <!-- AGREED PRICE -->
+
+                        <div class="mt-3">
+
+                            <span>
+                                Your final negotiated product price:
+                            </span>
+
+                            <span class="accepted-price-text ms-1">
+
+                                Rs.
+                                @agreedPrice.ToString("N0")
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             PAYMENT SUMMARY
+                        ================================================= -->
+
+                        <div class="payment-summary">
+
+                            <div class="payment-summary-title">
+
+                                <i class="bi bi-receipt me-2"></i>
+
+                                Payment Summary
+
+                            </div>
+
+
+                            <!-- PRODUCT PRICE -->
+
+                            <div class="payment-row">
+
+                                <span class="payment-label">
+
+                                    Negotiated Product Price
+
+                                </span>
+
+                                <span class="payment-value">
+
+                                    Rs.
+                                    @agreedPrice.ToString("N0")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- SERVICE FEE -->
+
+                            <div class="payment-row">
+
+                                <span class="payment-label service-fee-text">
+
+                                    Service Fee (10%)
+
+                                </span>
+
+                                <span class="payment-value service-fee-text">
+
+                                    Rs.
+                                    @serviceFee.ToString("N0")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- DELIVERY -->
+
+                            <div class="payment-row">
+
+                                <span class="payment-label delivery-text">
+
+                                    Delivery Charges
+
+                                </span>
+
+                                <span class="payment-value">
+
+                                    Rs.
+                                    @deliveryCharge.ToString("N0")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- CUSTOMER TOTAL -->
+
+                            <div class="payment-row total-row">
+
+                                <span class="total-label">
+
+                                    Total Amount You Pay
+
+                                </span>
+
+                                <span class="total-value">
+
+                                    Rs.
+                                    @customerTotal.ToString("N0")
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- SHOPKEEPER AMOUNT -->
+
+                            <div class="shopkeeper-payment-box">
+
+                                <i class="bi bi-shop me-2"></i>
+
+                                <strong>
+                                    Shopkeeper receives:
+                                </strong>
+
+                                <span class="ms-1">
+
+                                    Rs.
+                                    @agreedPrice.ToString("N0")
+
+                                </span>
+
+                                <div class="small text-muted mt-1">
+
+                                    The 10% service fee is added separately
+                                    and is not deducted from the negotiated
+                                    product price.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             ADD TO CART
+                        ================================================= -->
+
+                        @if (negotiation.Product != null)
+                        {
+
+                            <form asp-action="AddToCart"
+                                  asp-controller="Customer"
+                                  method="post"
+                                  class="mt-4">
+
+                                @Html.AntiForgeryToken()
+
+
+                                <!-- PRODUCT ID AUTOMATICALLY PROVIDED -->
+
+                                <input type="hidden"
+                                       name="productId"
+                                       value="@negotiation.Product.ProductId" />
+
+
+                                <!-- QUANTITY -->
+
+                                <input type="hidden"
+                                       name="quantity"
+                                       value="1" />
+
+
+                                <!-- BUY -->
+
+                                <input type="hidden"
+                                       name="purchaseType"
+                                       value="Negotiated" />
+
+
+                                <button type="submit"
+                                        class="btn btn-maroon">
+
+                                    <i class="bi bi-cart-plus me-1"></i>
+
+                                    Add Negotiated Product to Cart
+
+                                </button>
+
+                            </form>
+
+                            <div class="small text-muted mt-2">
+
+                                <i class="bi bi-info-circle me-1"></i>
+
+                                Your accepted negotiated price will be
+                                automatically used when this product is
+                                added to your cart.
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     REJECTED
+                ================================================= -->
+
+                @if (status.Equals(
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+
+                    <div class="alert alert-danger mt-4 mb-0">
+
+                        <i class="bi bi-x-circle me-2"></i>
+
+                        This negotiation was rejected by the shopkeeper.
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     PENDING
+                ================================================= -->
+
+                @if (status.Equals(
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+
+                    <div class="alert alert-warning mt-4 mb-0">
+
+                        <i class="bi bi-hourglass-split me-2"></i>
+
+                        Your offer is waiting for the shopkeeper's
+                        response.
+
+                    </div>
+
+                }
+
+
+                <!-- =================================================
+                     EXPIRED
+                ================================================= -->
+
+                @if (status.Equals(
+                    "Expired",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+
+                    <div class="alert alert-secondary mt-4 mb-0">
+
+                        <i class="bi bi-clock-history me-2"></i>
+
+                        This negotiation has expired.
+
+                    </div>
+
+                }
+
+            </div>
+
+        }
+
+    }
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,783 @@
+﻿@model WeddingClosetHubs.Models.Shop
+
+@{
+    ViewData["Title"] = "Shop Details";
+}
+
+<div class="container mt-5">
+
+    <!-- ===================================================== -->
+    <!-- PAGE HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold">
+                Shop Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete information about the selected shop.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="Admin"
+           asp-action="Shops"
+           class="btn btn-secondary">
+
+            Back to Shops
+
+        </a>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ===================================================== -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- SHOP DETAILS CARD -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow">
+
+        <!-- ================================================= -->
+        <!-- CARD HEADER -->
+        <!-- ================================================= -->
+
+        <div class="card-header bg-dark text-white">
+
+            <h4 class="mb-0">
+                @Model.ShopName
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <!-- ================================================= -->
+            <!-- LOGO + BASIC INFORMATION -->
+            <!-- ================================================= -->
+
+            <div class="row">
+
+
+                <!-- ============================================= -->
+                <!-- SHOP LOGO -->
+                <!-- ============================================= -->
+
+                <div class="col-md-4 text-center mb-4">
+
+                    @if (!string.IsNullOrEmpty(Model.Logo))
+                    {
+                        <img src="@Model.Logo"
+                             alt="@Model.ShopName Logo"
+                             class="img-fluid"
+                             style="width:220px;
+                                    height:220px;
+                                    object-fit:cover;
+                                    border-radius:12px;
+                                    border:1px solid #ddd;" />
+                    }
+                    else
+                    {
+                        <div class="border rounded p-5 text-muted">
+
+                            <h5>
+                                No Logo
+                            </h5>
+
+                            <p class="mb-0">
+                                Shop logo is not available.
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- ============================================= -->
+                <!-- BASIC SHOP INFORMATION -->
+                <!-- ============================================= -->
+
+                <div class="col-md-8">
+
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">
+                        Shop Information
+                    </h5>
+
+
+                    <!-- Shop ID -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Shop ID:
+                        </div>
+
+                        <div class="col-sm-8">
+                            @Model.ShopId
+                        </div>
+
+                    </div>
+
+
+                    <!-- Shop Name -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Shop Name:
+                        </div>
+
+                        <div class="col-sm-8">
+                            @Model.ShopName
+                        </div>
+
+                    </div>
+
+
+                    <!-- Description -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Description:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (!string.IsNullOrEmpty(Model.ShopDescription))
+                            {
+                                @Model.ShopDescription
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    No description provided.
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- APPROVAL STATUS -->
+                    <!-- ================================================= -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Approval:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (Model.IsApproved)
+                            {
+                                <span class="badge bg-success">
+                                    Approved
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Pending
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- SHOP STATUS -->
+                    <!-- ================================================= -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Shop Status:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (!Model.IsApproved)
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Pending Approval
+                                </span>
+                            }
+                            else if (Model.Status)
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Disabled
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- APPROVED DATE -->
+                    <!-- ================================================= -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Approved Date:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (Model.ApprovedDate.HasValue)
+                            {
+                                @Model.ApprovedDate.Value.ToString("dd-MM-yyyy hh:mm tt")
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Approved
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- CREATED DATE -->
+                    <!-- ================================================= -->
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Created Date:
+                        </div>
+
+                        <div class="col-sm-8">
+                            @Model.CreatedDate.ToString("dd-MM-yyyy hh:mm tt")
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+            <!-- ===================================================== -->
+            <!-- SHOPKEEPER INFORMATION -->
+            <!-- ===================================================== -->
+
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                Shopkeeper Information
+            </h5>
+
+
+            @if (Model.Shopkeeper != null)
+            {
+
+                <div class="row">
+
+
+                    <!-- Shopkeeper ID -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            Shopkeeper ID
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.Shopkeeper.UserId
+                        </div>
+
+                    </div>
+
+
+                    <!-- Shopkeeper Name -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            Shopkeeper Name
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.Shopkeeper.Name
+                        </div>
+
+                    </div>
+
+
+                    <!-- Shopkeeper Email -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            Email
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.Shopkeeper.Email
+                        </div>
+
+                    </div>
+
+
+                    <!-- Shopkeeper Phone -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            Phone
+                        </label>
+
+                        <div class="form-control bg-light">
+
+                            @if (!string.IsNullOrEmpty(Model.Shopkeeper.Phone))
+                            {
+                                @Model.Shopkeeper.Phone
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Provided
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Shopkeeper Address -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label class="fw-bold">
+                            Shopkeeper Address
+                        </label>
+
+                        <div class="form-control bg-light">
+
+                            @if (!string.IsNullOrEmpty(Model.Shopkeeper.Address))
+                            {
+                                @Model.Shopkeeper.Address
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Provided
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="alert alert-warning">
+
+                    <strong>
+                        No Shopkeeper Found.
+                    </strong>
+
+                    <br />
+
+                    This shop is not currently associated with a shopkeeper.
+
+                </div>
+
+            }
+
+
+            <hr class="my-4" />
+
+
+            <!-- ===================================================== -->
+            <!-- SHOP CONTACT INFORMATION -->
+            <!-- ===================================================== -->
+
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                Shop Contact Information
+            </h5>
+
+
+            <div class="row">
+
+
+                <!-- Shop Email -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Shop Email
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            @Model.Email
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Shop Phone -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Shop Phone
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (!string.IsNullOrEmpty(Model.ShopPhone))
+                        {
+                            @Model.ShopPhone
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Shop Address -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label class="fw-bold">
+                        Shop Address
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (!string.IsNullOrEmpty(Model.ShopAddress))
+                        {
+                            @Model.ShopAddress
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- VERIFICATION PHOTOS -->
+            <!-- ===================================================== -->
+
+            <hr class="my-4" />
+
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                Shop Verification Photos
+            </h5>
+
+
+            <div class="row">
+
+
+                <!-- Shop Front -->
+
+                <div class="col-md-4 text-center mb-4">
+
+                    <h6 class="fw-bold">
+                        Shop Front
+                    </h6>
+
+                    @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
+                    {
+                        <img src="@Model.ShopFrontPhoto"
+                             alt="Shop Front"
+                             class="img-fluid rounded border"
+                             style="height:220px;
+                                    width:100%;
+                                    object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="border rounded p-5 text-muted">
+                            No Photo
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- Shop Inside -->
+
+                <div class="col-md-4 text-center mb-4">
+
+                    <h6 class="fw-bold">
+                        Shop Inside
+                    </h6>
+
+                    @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
+                    {
+                        <img src="@Model.ShopInsidePhoto"
+                             alt="Shop Inside"
+                             class="img-fluid rounded border"
+                             style="height:220px;
+                                    width:100%;
+                                    object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="border rounded p-5 text-muted">
+                            No Photo
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- Shop Signboard -->
+
+                <div class="col-md-4 text-center mb-4">
+
+                    <h6 class="fw-bold">
+                        Shop Signboard
+                    </h6>
+
+                    @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
+                    {
+                        <img src="@Model.ShopSignboardPhoto"
+                             alt="Shop Signboard"
+                             class="img-fluid rounded border"
+                             style="height:220px;
+                                    width:100%;
+                                    object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="border rounded p-5 text-muted">
+                            No Photo
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- ACTION BUTTONS -->
+            <!-- ===================================================== -->
+
+            <hr class="my-4" />
+
+            <div class="mt-4 d-flex gap-2 flex-wrap">
+
+
+                <!-- ================================================= -->
+                <!-- PENDING SHOP -->
+                <!-- ================================================= -->
+
+                @if (!Model.IsApproved)
+                {
+
+                    <form asp-controller="Admin"
+                          asp-action="ApproveShop"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.ShopId" />
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            Approve Shop
+
+                        </button>
+
+                    </form>
+
+
+                    <form asp-controller="Admin"
+                          asp-action="RejectShop"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.ShopId" />
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            Reject Shop
+
+                        </button>
+
+                    </form>
+
+                }
+
+
+                <!-- ================================================= -->
+                <!-- APPROVED + ACTIVE SHOP -->
+                <!-- ================================================= -->
+
+                @if (Model.IsApproved && Model.Status)
+                {
+
+                    <form asp-controller="Admin"
+                          asp-action="DisableShop"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.ShopId" />
+
+                        <button type="submit"
+                                class="btn btn-warning">
+
+                            Disable Shop
+
+                        </button>
+
+                    </form>
+
+                }
+
+
+                <!-- ================================================= -->
+                <!-- APPROVED + DISABLED SHOP -->
+                <!-- ================================================= -->
+
+                @if (Model.IsApproved && !Model.Status)
+                {
+
+                    <form asp-controller="Admin"
+                          asp-action="EnableShop"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.ShopId" />
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            Enable Shop
+
+                        </button>
+
+                    </form>
+
+                }
+
+
+                <!-- ================================================= -->
+                <!-- BACK -->
+                <!-- ================================================= -->
+
+                <a asp-controller="Admin"
+                   asp-action="Shops"
+                   class="btn btn-secondary">
+
+                    Back to Shops
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

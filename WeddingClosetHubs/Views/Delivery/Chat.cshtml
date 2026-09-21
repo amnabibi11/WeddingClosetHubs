@@ -1,0 +1,1156 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.ChatMessage>
+
+@{
+    ViewData["Title"] = "Chat";
+    Layout = null;
+
+    var messages = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.ChatMessage>();
+
+    int? selectedUserId = ViewBag.SelectedUserId as int?;
+
+    string selectedUserName =
+        ViewBag.SelectedUserName as string ?? "Select a User";
+
+    string selectedUserRole =
+        ViewBag.SelectedUserRole as string ?? "";
+
+    string deliveryName =
+        ViewBag.DeliveryName as string ?? "Delivery Boy";
+
+    string assignedZone =
+        ViewBag.AssignedZone as string ?? "Not Assigned";
+
+    string chatPlaceholder =
+        ViewBag.ChatPlaceholder as string
+        ?? "Type your message...";
+
+    int? currentUserId =
+        ViewBag.CurrentUserId as int?;
+
+    var conversations =
+        ViewBag.Conversations as IEnumerable<dynamic>
+        ?? Enumerable.Empty<dynamic>();
+
+    int unreadChats = 0;
+
+    foreach (var conversation in conversations)
+    {
+        try
+        {
+            unreadChats +=
+                Convert.ToInt32(conversation.UnreadCount);
+        }
+        catch
+        {
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Chat - Wedding Closet Hub</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background: #f7f5f3;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: #800020;
+            color: white;
+            padding: 25px 15px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 60px;
+            height: 60px;
+            margin: auto;
+            border-radius: 50%;
+            background: #d4af37;
+            color: #800020;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .brand h4 {
+            margin-top: 12px;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+
+        .brand small {
+            color: #f3dca1;
+        }
+
+        .delivery-info {
+            background: rgba(255,255,255,.10);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-info strong {
+            display: block;
+            font-size: 15px;
+        }
+
+        .delivery-info span {
+            font-size: 12px;
+            color: #f3dca1;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-menu li {
+            margin-bottom: 7px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            padding: 13px 15px;
+            border-radius: 9px;
+            transition: .2s;
+            font-size: 14px;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #d4af37;
+            color: #800020;
+        }
+
+        .nav-menu i {
+            font-size: 18px;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+            margin-left: 250px;
+            height: 100vh;
+            padding: 25px;
+        }
+
+        .chat-wrapper {
+            height: calc(100vh - 50px);
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.07);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* =====================================================
+           CONVERSATIONS
+        ===================================================== */
+
+        .conversation-panel {
+            width: 310px;
+            min-width: 310px;
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conversation-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .conversation-header h4 {
+            color: #800020;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .conversation-header small {
+            color: #888;
+            display: block;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            display: block;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            text-decoration: none;
+            color: #333;
+            transition: .2s;
+        }
+
+        .conversation-item:hover {
+            background: #faf6f7;
+        }
+
+        .conversation-item.active {
+            background: #f5e8ec;
+            border-left: 4px solid #800020;
+        }
+
+        .conversation-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .conversation-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: #800020;
+            font-size: 14px;
+        }
+
+        .conversation-preview {
+            color: #888;
+            font-size: 11px;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            color: #999;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .unread-badge {
+            background: #800020;
+            color: white;
+            min-width: 21px;
+            height: 21px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: #f4eedc;
+            color: #806515;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* =====================================================
+           CHAT AREA
+        ===================================================== */
+
+        .chat-area {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            height: 72px;
+            padding: 12px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .chat-header h5 {
+            margin: 0;
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .chat-header small {
+            color: #888;
+        }
+
+        /* =====================================================
+           MESSAGES
+        ===================================================== */
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background: #faf9f8;
+        }
+
+        .empty-chat {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-chat i {
+            display: block;
+            font-size: 55px;
+            color: #d4af37;
+            margin-bottom: 12px;
+        }
+
+        .message-row {
+            display: flex;
+            margin-bottom: 14px;
+        }
+
+        .message-row.sent {
+            justify-content: flex-end;
+        }
+
+        .message-row.received {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 11px 15px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message-row.sent .message-bubble {
+            background: #800020;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-row.received .message-bubble {
+            background: white;
+            color: #444;
+            border: 1px solid #eee;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            font-size: 9px;
+            margin-top: 5px;
+            opacity: .65;
+        }
+
+        /* =====================================================
+           DELETE MESSAGE
+        ===================================================== */
+
+        .delete-message {
+            border: none;
+            background: transparent;
+            padding: 0;
+            font-size: 11px;
+            color: inherit;
+            opacity: .75;
+            cursor: pointer;
+        }
+
+        .delete-message:hover {
+            opacity: 1;
+            color: #d4af37;
+        }
+
+        .deleted-message {
+            font-style: italic;
+            opacity: .65;
+        }
+
+        .message-row.received .deleted-message {
+            color: #888;
+        }
+
+        /* =====================================================
+           MESSAGE INPUT
+        ===================================================== */
+
+        .message-input {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .message-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-form textarea {
+            flex: 1;
+            resize: none;
+            height: 45px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 11px 13px;
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .message-form textarea:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 2px rgba(128,0,32,.08);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 45px;
+            border: none;
+            border-radius: 10px;
+            background: #800020;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: #650018;
+        }
+
+        .select-user {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .select-user i {
+            font-size: 60px;
+            color: #d4af37;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .no-conversations {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+        }
+
+        .no-conversations i {
+            font-size: 40px;
+            color: #d4af37;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @@media (max-width: 900px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                padding: 15px;
+            }
+
+            .conversation-panel {
+                width: 260px;
+                min-width: 260px;
+            }
+        }
+
+        @@media (max-width: 700px) {
+
+            body {
+                overflow: auto;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                height: auto;
+            }
+
+            .chat-wrapper {
+                height: 750px;
+            }
+
+            .conversation-panel {
+                width: 220px;
+                min-width: 220px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                <i class="bi bi-truck"></i>
+            </div>
+
+            <h4>Wedding Closet</h4>
+
+            <small>Delivery Panel</small>
+
+        </div>
+
+
+        <div class="delivery-info">
+
+            <strong>
+                <i class="bi bi-person-circle me-1"></i>
+                @deliveryName
+            </strong>
+
+            <span>
+                <i class="bi bi-geo-alt me-1"></i>
+                Zone: @assignedZone
+            </span>
+
+        </div>
+
+
+        <ul class="nav-menu">
+
+            <li>
+                <a asp-controller="Delivery"
+                   asp-action="Dashboard">
+
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+
+                </a>
+            </li>
+
+
+            <li>
+                <a asp-controller="Delivery"
+                   asp-action="Orders">
+
+                    <i class="bi bi-box-seam"></i>
+                    Orders
+
+                </a>
+            </li>
+
+
+            <li>
+                <a asp-controller="Delivery"
+                   asp-action="Payments">
+
+                    <i class="bi bi-wallet2"></i>
+                    Payments
+
+                </a>
+            </li>
+
+
+            <li>
+                <a asp-controller="Delivery"
+                   asp-action="Notifications">
+
+                    <i class="bi bi-bell"></i>
+                    Notifications
+
+                </a>
+            </li>
+
+
+            <li>
+
+                <a asp-controller="Delivery"
+                   asp-action="Chat"
+                   class="active">
+
+                    <i class="bi bi-chat-dots"></i>
+                    Chat
+
+                    @if (unreadChats > 0)
+                    {
+                        <span class="badge bg-warning text-dark ms-auto">
+                            @unreadChats
+                        </span>
+                    }
+
+                </a>
+
+            </li>
+
+
+            <li class="mt-4">
+
+                <a asp-controller="Account"
+                   asp-action="Logout">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ===================================================== -->
+
+    <main class="main">
+
+        <div class="chat-wrapper">
+
+
+            <!-- =================================================
+                 CONVERSATION LIST
+            ================================================= -->
+
+            <section class="conversation-panel">
+
+                <div class="conversation-header">
+
+                    <h4>
+                        <i class="bi bi-chat-dots me-2"></i>
+                        Messages
+                    </h4>
+
+                    <small>
+                        Chat with Admin, Customers and Shopkeepers
+                    </small>
+
+                </div>
+
+
+                <div class="conversation-list">
+
+                    @if (!conversations.Any())
+                    {
+                        <div class="no-conversations">
+
+                            <i class="bi bi-chat-square-text"></i>
+
+                            <div class="mt-3"
+                                 style="font-size:13px;">
+
+                                No conversations yet.
+
+                            </div>
+
+                            <div class="mt-1"
+                                 style="font-size:11px;">
+
+                                Conversations will appear when an
+                                order is assigned to you.
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var conversation in conversations)
+                        {
+                            int conversationUserId =
+                                Convert.ToInt32(
+                                    conversation.UserId);
+
+                            string conversationName =
+                                Convert.ToString(
+                                    conversation.UserName)
+                                ?? "User";
+
+                            string conversationRole =
+                                Convert.ToString(
+                                    conversation.RoleName)
+                                ?? "";
+
+                            string lastMessage =
+                                Convert.ToString(
+                                    conversation.LastMessage)
+                                ?? "";
+
+                            int unread = 0;
+
+                            try
+                            {
+                                unread =
+                                    Convert.ToInt32(
+                                        conversation.UnreadCount);
+                            }
+                            catch
+                            {
+                            }
+
+                            string timeText = "";
+
+                            try
+                            {
+                                DateTime lastDate =
+                                    Convert.ToDateTime(
+                                        conversation.LastMessageDate);
+
+                                timeText =
+                                    lastDate.ToString(
+                                        "dd MMM, hh:mm tt");
+                            }
+                            catch
+                            {
+                            }
+
+                            string initial =
+                                conversationName.Length > 0
+                                    ? conversationName
+                                        .Substring(0, 1)
+                                        .ToUpper()
+                                    : "U";
+
+
+                            <a asp-controller="Delivery"
+                               asp-action="Chat"
+                               asp-route-userId="@conversationUserId"
+                               class="conversation-item @(selectedUserId == conversationUserId ? "active" : "")">
+
+                                <div class="conversation-row">
+
+                                    <div class="user-avatar">
+                                        @initial
+                                    </div>
+
+
+                                    <div class="conversation-info">
+
+                                        <div class="d-flex justify-content-between">
+
+                                            <span class="conversation-name">
+                                                @conversationName
+                                            </span>
+
+                                            @if (!string.IsNullOrEmpty(timeText))
+                                            {
+                                                <span class="conversation-time">
+                                                    @timeText
+                                                </span>
+                                            }
+
+                                        </div>
+
+
+                                        <span class="role-badge">
+                                            @conversationRole
+                                        </span>
+
+
+                                        <div class="conversation-preview">
+
+                                            @if (!string.IsNullOrWhiteSpace(lastMessage))
+                                            {
+                                                @lastMessage
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    No messages yet
+                                                </span>
+                                            }
+
+                                        </div>
+
+
+                                        @if (unread > 0)
+                                        {
+                                            <span class="unread-badge">
+                                                @unread
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                            </a>
+                        }
+                    }
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CHAT AREA
+            ================================================= -->
+
+            <section class="chat-area">
+
+                @if (selectedUserId.HasValue)
+                {
+
+                    <!-- CHAT HEADER -->
+
+                    <div class="chat-header">
+
+                        <div class="chat-header-avatar">
+
+                            @(selectedUserName.Length > 0
+                                ? selectedUserName
+                                    .Substring(0, 1)
+                                    .ToUpper()
+                                : "U")
+
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                @selectedUserName
+                            </h5>
+
+                            <small>
+                                @selectedUserRole
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         MESSAGES
+                    ================================================= -->
+
+                    <div class="messages"
+                         id="messagesContainer">
+
+                        @if (!messages.Any())
+                        {
+                            <div class="empty-chat">
+
+                                <div>
+
+                                    <i class="bi bi-chat-left-text"></i>
+
+                                    <strong>
+                                        No messages yet
+                                    </strong>
+
+                                    <div class="small mt-1">
+                                        Start the conversation below.
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var message in messages)
+                            {
+                                bool isSent =
+                                    currentUserId.HasValue &&
+                                    message.SenderId ==
+                                    currentUserId.Value;
+
+
+                                <div class="message-row @(isSent ? "sent" : "received")">
+
+                                    <div class="message-bubble">
+
+                                        @if (message.IsDeleted)
+                                        {
+                                            <span class="deleted-message">
+                                                <i class="bi bi-trash me-1"></i>
+                                                This message was deleted.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                @message.Message
+                                            </span>
+                                        }
+
+
+                                        <span class="message-time">
+
+                                            @message.SentDate.ToString(
+                                                "dd MMM yyyy, hh:mm tt")
+
+
+                                            @if (isSent &&
+                                                 !message.IsDeleted)
+                                            {
+                                                <form asp-controller="Delivery"
+                                                      asp-action="DeleteMessage"
+                                                      method="post"
+                                                      style="display:inline;"
+                                                      class="delete-form">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="messageId"
+                                                           value="@message.ChatMessageId" />
+
+                                                    <input type="hidden"
+                                                           name="receiverId"
+                                                           value="@message.ReceiverId" />
+
+                                                    <button type="submit"
+                                                            class="delete-message"
+                                                            title="Delete message"
+                                                            onclick="return confirm('Delete this message?');">
+
+                                                        <i class="bi bi-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            }
+                        }
+
+                    </div>
+
+
+                    <!-- =================================================
+                         MESSAGE INPUT
+                    ================================================= -->
+
+                    <div class="message-input">
+
+                        <form asp-controller="Delivery"
+                              asp-action="SendMessage"
+                              method="post"
+                              class="message-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="receiverId"
+                                   value="@selectedUserId.Value" />
+
+                            <textarea name="message"
+                                      placeholder="@chatPlaceholder"
+                                      required
+                                      maxlength="2000"
+                                      autocomplete="off"></textarea>
+
+                            <button type="submit"
+                                    class="send-btn"
+                                    title="Send Message">
+
+                                <i class="bi bi-send-fill"></i>
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                }
+                else
+                {
+
+                    <!-- =================================================
+                         NO USER SELECTED
+                    ================================================= -->
+
+                    <div class="select-user">
+
+                        <div>
+
+                            <i class="bi bi-chat-heart"></i>
+
+                            <h4 style="color:#800020;">
+                                Delivery Chat
+                            </h4>
+
+                            <p>
+                                Select a conversation from the left
+                                to start chatting.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ===================================================== -->
+
+    <script>
+
+        // =====================================================
+        // SCROLL TO LATEST MESSAGE
+        // =====================================================
+
+        const messagesContainer =
+            document.getElementById("messagesContainer");
+
+        if (messagesContainer) {
+
+            messagesContainer.scrollTop =
+                messagesContainer.scrollHeight;
+
+        }
+
+
+        // =====================================================
+        // ENTER = SEND
+        // SHIFT + ENTER = NEW LINE
+        // =====================================================
+
+        const textarea =
+            document.querySelector(".message-form textarea");
+
+        if (textarea) {
+
+            textarea.addEventListener("keydown", function (event) {
+
+                if (event.key === "Enter" && !event.shiftKey) {
+
+                    event.preventDefault();
+
+                    this.form.submit();
+
+                }
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

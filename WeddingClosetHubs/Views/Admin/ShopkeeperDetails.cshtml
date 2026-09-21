@@ -1,0 +1,793 @@
+﻿@model WeddingClosetHubs.Models.User
+
+@{
+    ViewData["Title"] = "Shopkeeper Details";
+}
+
+<div class="container-fluid mt-4">
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-person-badge"></i>
+                Shopkeeper Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View and manage shopkeeper information
+            </p>
+        </div>
+
+        <div>
+
+            <a asp-controller="Admin"
+               asp-action="Shopkeepers"
+               class="btn btn-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+                Back to Shopkeepers
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- CHECK MODEL -->
+    <!-- ===================================================== -->
+
+    @if (Model == null)
+    {
+        <div class="alert alert-danger">
+
+            <i class="bi bi-exclamation-triangle"></i>
+
+            Shopkeeper information could not be loaded.
+
+        </div>
+    }
+    else
+    {
+
+        <!-- ================================================= -->
+        <!-- SUCCESS / ERROR MESSAGES -->
+        <!-- ================================================= -->
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+
+                <i class="bi bi-check-circle"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+
+                <i class="bi bi-exclamation-triangle"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+
+        <div class="row g-4">
+
+            <!-- ================================================= -->
+            <!-- PERSONAL INFORMATION -->
+            <!-- ================================================= -->
+
+            <div class="col-lg-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-header bg-primary text-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-person"></i>
+
+                            Personal Information
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                User ID
+                            </label>
+
+                            <p class="form-control bg-light">
+                                @Model.UserId
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                Name
+                            </label>
+
+                            <p class="form-control bg-light">
+                                @(Model.Name ?? "Not provided")
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                Email
+                            </label>
+
+                            <p class="form-control bg-light">
+                                @(Model.Email ?? "Not provided")
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                Phone
+                            </label>
+
+                            <p class="form-control bg-light">
+                                @(Model.Phone ?? "Not provided")
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                Address
+                            </label>
+
+                            <p class="form-control bg-light">
+                                @(Model.Address ?? "Not provided")
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="fw-bold">
+                                Role
+                            </label>
+
+                            <p class="form-control bg-light">
+
+                                @(Model.Role?.RoleName ?? "Shopkeeper")
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="mb-0">
+
+                            <label class="fw-bold">
+                                Registration Date
+                            </label>
+
+                            <p class="form-control bg-light">
+
+                                @Model.CreatedDate.ToString("dd MMMM yyyy hh:mm tt")
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- ACCOUNT STATUS -->
+            <!-- ================================================= -->
+
+            <div class="col-lg-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-header bg-dark text-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            Account Status
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- APPROVAL STATUS -->
+
+                        <div class="mb-4">
+
+                            <h6 class="fw-bold">
+                                Approval Status
+                            </h6>
+
+                            @if (Model.IsApproved)
+                            {
+                                <span class="badge bg-success fs-6 p-2">
+
+                                    <i class="bi bi-check-circle"></i>
+                                    Approved
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark fs-6 p-2">
+
+                                    <i class="bi bi-hourglass-split"></i>
+                                    Pending Approval
+
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <!-- APPROVAL DATE -->
+
+                        <div class="mb-4">
+
+                            <h6 class="fw-bold">
+                                Approved Date
+                            </h6>
+
+                            @if (Model.ApprovedDate.HasValue)
+                            {
+                                <p class="text-success">
+
+                                    <i class="bi bi-calendar-check"></i>
+
+                                    @Model.ApprovedDate.Value.ToString(
+                                        "dd MMMM yyyy hh:mm tt"
+                                    )
+
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">
+
+                                    <i class="bi bi-calendar-x"></i>
+
+                                    Not approved yet
+
+                                </p>
+                            }
+
+                        </div>
+
+
+                        <!-- ACCOUNT STATUS -->
+
+                        <div class="mb-4">
+
+                            <h6 class="fw-bold">
+                                Account Status
+                            </h6>
+
+                            @if (Model.Status)
+                            {
+                                <span class="badge bg-success fs-6 p-2">
+
+                                    <i class="bi bi-person-check"></i>
+
+                                    Active
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6 p-2">
+
+                                    <i class="bi bi-person-x"></i>
+
+                                    Disabled
+
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- ACTIONS -->
+                        <!-- ================================================= -->
+
+                        <h6 class="fw-bold mb-3">
+                            Account Actions
+                        </h6>
+
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            @if (!Model.IsApproved)
+                            {
+                                <form asp-controller="Admin"
+                                      asp-action="ApproveShopkeeper"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-success">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Approve
+
+                                    </button>
+
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Admin"
+                                      asp-action="RejectShopkeeper"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-warning">
+
+                                        <i class="bi bi-x-circle"></i>
+
+                                        Reject
+
+                                    </button>
+
+                                </form>
+                            }
+
+
+                            @if (Model.Status)
+                            {
+                                <form asp-controller="Admin"
+                                      asp-action="DisableShopkeeper"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-danger">
+
+                                        <i class="bi bi-person-x"></i>
+
+                                        Disable Account
+
+                                    </button>
+
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Admin"
+                                      asp-action="EnableShopkeeper"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+
+                                        <i class="bi bi-person-check"></i>
+
+                                        Enable Account
+
+                                    </button>
+
+                                </form>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- SHOP INFORMATION -->
+            <!-- ================================================= -->
+
+            <div class="col-12">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-success text-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-shop"></i>
+
+                            Shop Information
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        @if (Model.Shop == null)
+                        {
+                            <div class="alert alert-info mb-0">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                This shopkeeper has not created a shop yet.
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row g-4">
+
+                                <!-- SHOP NAME -->
+
+                                <div class="col-md-6">
+
+                                    <label class="fw-bold">
+                                        Shop Name
+                                    </label>
+
+                                    <p class="form-control bg-light">
+
+                                        @(Model.Shop.ShopName ?? "Not provided")
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- SHOP PHONE -->
+
+                                <div class="col-md-6">
+
+                                    <label class="fw-bold">
+                                        Shop Phone
+                                    </label>
+
+                                    <p class="form-control bg-light">
+
+                                        @(Model.Shop.ShopPhone ?? "Not provided")
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- SHOP EMAIL -->
+
+                                <div class="col-md-6">
+
+                                    <label class="fw-bold">
+                                        Shop Email
+                                    </label>
+
+                                    <p class="form-control bg-light">
+
+                                        @(Model.Shop.Email ?? "Not provided")
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- SHOP ADDRESS -->
+
+                                <div class="col-md-6">
+
+                                    <label class="fw-bold">
+                                        Shop Address
+                                    </label>
+
+                                    <p class="form-control bg-light">
+
+                                        @(Model.Shop.ShopAddress ?? "Not provided")
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- DESCRIPTION -->
+
+                                <div class="col-12">
+
+                                    <label class="fw-bold">
+                                        Description
+                                    </label>
+
+                                    <p class="form-control bg-light">
+
+                                        @(Model.Shop.ShopDescription ?? "No description provided.")
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- SHOP STATUS -->
+
+                                <div class="col-md-4">
+
+                                    <label class="fw-bold">
+                                        Shop Status
+                                    </label>
+
+                                    <div>
+
+                                        @if (Model.Shop.Status)
+                                        {
+                                            <span class="badge bg-success fs-6">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger fs-6">
+                                                Disabled
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- SHOP APPROVAL -->
+
+                                <div class="col-md-4">
+
+                                    <label class="fw-bold">
+                                        Shop Approval
+                                    </label>
+
+                                    <div>
+
+                                        @if (Model.Shop.IsApproved)
+                                        {
+                                            <span class="badge bg-success fs-6">
+                                                Approved
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark fs-6">
+                                                Pending
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- SHOP APPROVED DATE -->
+
+                                <div class="col-md-4">
+
+                                    <label class="fw-bold">
+                                        Shop Approved Date
+                                    </label>
+
+                                    <div>
+
+                                        @if (Model.Shop.ApprovedDate.HasValue)
+                                        {
+                                            <span>
+
+                                                @Model.Shop.ApprovedDate.Value.ToString(
+                                                    "dd MMM yyyy hh:mm tt"
+                                                )
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not approved
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- SHOP PHOTOS -->
+
+                                <div class="col-12">
+
+                                    <hr />
+
+                                    <h5 class="fw-bold mb-3">
+
+                                        <i class="bi bi-images"></i>
+
+                                        Shop Verification Photos
+
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- LOGO -->
+
+                                <div class="col-md-3">
+
+                                    <h6 class="fw-bold">
+                                        Shop Logo
+                                    </h6>
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.Logo))
+                                    {
+                                        <img src="@Model.Shop.Logo"
+                                             class="img-fluid rounded border"
+                                             alt="Shop Logo"
+                                             style="max-height:200px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary">
+                                            No logo uploaded.
+                                        </div>
+                                    }
+
+                                </div>
+
+
+                                <!-- FRONT PHOTO -->
+
+                                <div class="col-md-3">
+
+                                    <h6 class="fw-bold">
+                                        Shop Front
+                                    </h6>
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopFrontPhoto))
+                                    {
+                                        <img src="@Model.Shop.ShopFrontPhoto"
+                                             class="img-fluid rounded border"
+                                             alt="Shop Front"
+                                             style="max-height:200px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary">
+                                            No front photo uploaded.
+                                        </div>
+                                    }
+
+                                </div>
+
+
+                                <!-- INSIDE PHOTO -->
+
+                                <div class="col-md-3">
+
+                                    <h6 class="fw-bold">
+                                        Shop Inside
+                                    </h6>
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopInsidePhoto))
+                                    {
+                                        <img src="@Model.Shop.ShopInsidePhoto"
+                                             class="img-fluid rounded border"
+                                             alt="Shop Inside"
+                                             style="max-height:200px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary">
+                                            No inside photo uploaded.
+                                        </div>
+                                    }
+
+                                </div>
+
+
+                                <!-- SIGNBOARD PHOTO -->
+
+                                <div class="col-md-3">
+
+                                    <h6 class="fw-bold">
+                                        Shop Signboard
+                                    </h6>
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopSignboardPhoto))
+                                    {
+                                        <img src="@Model.Shop.ShopSignboardPhoto"
+                                             class="img-fluid rounded border"
+                                             alt="Shop Signboard"
+                                             style="max-height:200px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary">
+                                            No signboard photo uploaded.
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

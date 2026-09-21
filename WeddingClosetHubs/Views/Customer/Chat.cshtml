@@ -1,0 +1,936 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.ChatMessage>
+
+@{
+    ViewData["Title"] = "Chat";
+    Layout = null;
+
+    var admin = ViewBag.Admin as WeddingClosetHubs.Models.User;
+
+    var shopkeepers = ViewBag.Shopkeepers
+        as IEnumerable<WeddingClosetHubs.Models.User>
+        ?? Enumerable.Empty<WeddingClosetHubs.Models.User>();
+
+    var deliveryBoys = ViewBag.DeliveryBoys
+        as IEnumerable<WeddingClosetHubs.Models.User>
+        ?? Enumerable.Empty<WeddingClosetHubs.Models.User>();
+
+    var selectedUser = ViewBag.SelectedUser
+        as WeddingClosetHubs.Models.User;
+
+    var customerId = Context.Session.GetInt32("CustomerId");
+
+    var unreadCounts = ViewBag.UnreadCounts
+        as Dictionary<int, int>
+        ?? new Dictionary<int, int>();
+
+    var messages = Model?.OrderBy(x => x.SentDate).ToList()
+        ?? new List<WeddingClosetHubs.Models.ChatMessage>();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Chat - Wedding Closet Hubs</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        .page-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            min-height: 650px;
+        }
+
+        /* SIDEBAR */
+
+        .chat-sidebar {
+            border-right: 1px solid #e5e5e5;
+            height: 650px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .sidebar-title {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+        }
+
+        .contact-section {
+            border-bottom: 1px solid #eee;
+        }
+
+        .contact-section-title {
+            padding: 12px 18px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.5px;
+            background: #fafafa;
+        }
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-bottom: 1px solid #f0f0f0;
+            text-decoration: none;
+            color: #333;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .chat-user:hover {
+            background: #f8f9fa;
+        }
+
+        .chat-user.active {
+            background: #f1f5ff;
+            border-left: 4px solid #800020;
+            padding-left: 14px;
+        }
+
+        .user-icon,
+        .chat-header-icon {
+            width: 45px;
+            height: 45px;
+            min-width: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .admin-icon,
+        .admin-header {
+            background: #e7f1ff;
+            color: #0d6efd;
+        }
+
+        .shopkeeper-icon,
+        .shopkeeper-header {
+            background: #fff1e8;
+            color: #fd7e14;
+        }
+
+        .delivery-icon,
+        .delivery-header {
+            background: #e8f7ef;
+            color: #198754;
+        }
+
+        .user-details {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .unread-badge {
+            min-width: 22px;
+            height: 22px;
+            padding: 2px 6px;
+            border-radius: 20px;
+            background: #dc3545;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-contacts {
+            padding: 18px;
+            color: #999;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .no-contacts i {
+            display: block;
+            font-size: 25px;
+            margin-bottom: 6px;
+        }
+
+        /* CHAT AREA */
+
+        .chat-area {
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            min-height: 75px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-name {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chat-header-role {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* MESSAGES */
+
+        .messages-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f8f9fb;
+        }
+
+        .message-row {
+            display: flex;
+            margin-bottom: 18px;
+        }
+
+        .message-row.sent {
+            justify-content: flex-end;
+        }
+
+        .message-row.received {
+            justify-content: flex-start;
+        }
+
+        .message-content-wrapper {
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            padding: 11px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .sent .message-bubble {
+            background: #800020;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .received .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e5e5e5;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-text {
+            white-space: pre-wrap;
+        }
+
+        .deleted-message {
+            font-style: italic;
+            opacity: 0.75;
+        }
+
+        .message-time {
+            display: block;
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        /* DELETE BUTTON */
+
+        .message-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .sent .message-actions {
+            justify-content: flex-end;
+        }
+
+        .message-action-btn {
+            border: none;
+            background: transparent;
+            padding: 2px 5px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .message-action-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .delete-message-btn {
+            color: #dc3545;
+        }
+
+        /* EMPTY CHAT */
+
+        .empty-chat,
+        .no-user-selected {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #888;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .empty-chat i,
+        .no-user-selected i {
+            font-size: 65px;
+            margin-bottom: 15px;
+            color: #bbb;
+        }
+
+        .empty-chat h5,
+        .no-user-selected h5 {
+            font-weight: 700;
+        }
+
+        /* MESSAGE FORM */
+
+        .message-form {
+            border-top: 1px solid #eee;
+            padding: 15px;
+            background: white;
+        }
+
+        .message-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 12px 18px;
+            outline: none;
+            min-width: 0;
+        }
+
+        .message-input:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 2px rgba(128,0,32,0.1);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #800020;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-button:hover {
+            background: #600018;
+        }
+
+        @@media (max-width: 768px) {
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+            .chat-container {
+                min-height: auto;
+            }
+
+            .chat-sidebar {
+                height: auto;
+                max-height: 350px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .chat-area {
+                height: 600px;
+            }
+
+            .message-content-wrapper {
+                max-width: 85%;
+            }
+
+            .message-bubble {
+                max-width: 100%;
+            }
+
+            .message-input-group {
+                gap: 6px;
+            }
+
+            .send-button {
+                width: 45px;
+                height: 45px;
+                min-width: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- BACK BUTTON -->
+
+    <div class="back-button">
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+
+        </a>
+    </div>
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="bi bi-chat-dots"></i>
+            Chat
+        </h2>
+
+        <p class="page-subtitle">
+            Communicate with Admin, your Shopkeepers, or your assigned Delivery Boys.
+        </p>
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill"></i>
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <!-- ERROR MESSAGE -->
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <!-- CHAT CONTAINER -->
+
+    <div class="chat-container">
+
+        <div class="row g-0">
+
+            <!-- LEFT SIDEBAR -->
+
+            <div class="col-md-4">
+
+                <div class="chat-sidebar">
+
+                    <div class="sidebar-title">
+                        <i class="bi bi-people"></i>
+                        Contacts
+                    </div>
+
+                    <!-- ADMIN -->
+
+                    @if (admin != null)
+                    {
+                        <div class="contact-section">
+
+                            <div class="contact-section-title">
+                                <i class="bi bi-shield-check"></i>
+                                Administrator
+                            </div>
+
+                            <a asp-controller="Customer"
+                               asp-action="Conversation"
+                               asp-route-userId="@admin.UserId"
+                               class="chat-user @(selectedUser?.UserId == admin.UserId ? "active" : "")">
+
+                                <div class="user-icon admin-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+
+                                <div class="user-details">
+                                    <div class="user-name">
+                                        @admin.Name
+                                    </div>
+
+                                    <div class="user-role">
+                                        Administrator
+                                    </div>
+                                </div>
+
+                                @if (unreadCounts.TryGetValue(admin.UserId, out int adminUnread)
+                                    && adminUnread > 0)
+                                {
+                                    <span class="unread-badge">
+                                        @adminUnread
+                                    </span>
+                                }
+
+                            </a>
+                        </div>
+                    }
+
+                    <!-- SHOPKEEPERS -->
+
+                    <div class="contact-section">
+
+                        <div class="contact-section-title">
+                            <i class="bi bi-shop"></i>
+                            Shopkeepers
+                        </div>
+
+                        @if (shopkeepers.Any())
+                        {
+                            foreach (var shopkeeper in shopkeepers)
+                            {
+                                <a asp-controller="Customer"
+                                   asp-action="Conversation"
+                                   asp-route-userId="@shopkeeper.UserId"
+                                   class="chat-user @(selectedUser?.UserId == shopkeeper.UserId ? "active" : "")">
+
+                                    <div class="user-icon shopkeeper-icon">
+                                        <i class="bi bi-shop"></i>
+                                    </div>
+
+                                    <div class="user-details">
+                                        <div class="user-name">
+                                            @shopkeeper.Name
+                                        </div>
+
+                                        <div class="user-role">
+                                            Shopkeeper
+                                        </div>
+                                    </div>
+
+                                    @if (unreadCounts.TryGetValue(shopkeeper.UserId, out int shopkeeperUnread)
+                                        && shopkeeperUnread > 0)
+                                    {
+                                        <span class="unread-badge">
+                                            @shopkeeperUnread
+                                        </span>
+                                    }
+
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="no-contacts">
+                                <i class="bi bi-shop"></i>
+                                <span>No shopkeepers available.</span>
+                                <br />
+                                <small>
+                                    Shopkeepers will appear after you place an order.
+                                </small>
+                            </div>
+                        }
+
+                    </div>
+
+                    <!-- DELIVERY BOYS -->
+
+                    <div class="contact-section">
+
+                        <div class="contact-section-title">
+                            <i class="bi bi-bicycle"></i>
+                            Delivery Boys
+                        </div>
+
+                        @if (deliveryBoys.Any())
+                        {
+                            foreach (var deliveryBoy in deliveryBoys)
+                            {
+                                <a asp-controller="Customer"
+                                   asp-action="Conversation"
+                                   asp-route-userId="@deliveryBoy.UserId"
+                                   class="chat-user @(selectedUser?.UserId == deliveryBoy.UserId ? "active" : "")">
+
+                                    <div class="user-icon delivery-icon">
+                                        <i class="bi bi-bicycle"></i>
+                                    </div>
+
+                                    <div class="user-details">
+                                        <div class="user-name">
+                                            @deliveryBoy.Name
+                                        </div>
+
+                                        <div class="user-role">
+                                            Delivery Boy
+                                        </div>
+                                    </div>
+
+                                    @if (unreadCounts.TryGetValue(deliveryBoy.UserId, out int deliveryUnread)
+                                        && deliveryUnread > 0)
+                                    {
+                                        <span class="unread-badge">
+                                            @deliveryUnread
+                                        </span>
+                                    }
+
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="no-contacts">
+                                <i class="bi bi-bicycle"></i>
+                                <span>
+                                    No delivery boy is currently assigned.
+                                </span>
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT CHAT AREA -->
+
+            <div class="col-md-8">
+
+                <div class="chat-area">
+
+                    @if (selectedUser != null)
+                    {
+                        <!-- CHAT HEADER -->
+
+                        <div class="chat-header">
+
+                            @if (selectedUser.Role?.RoleName == "Admin")
+                            {
+                                <div class="chat-header-icon admin-header">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                            }
+                            else if (selectedUser.Role?.RoleName == "Shopkeeper")
+                            {
+                                <div class="chat-header-icon shopkeeper-header">
+                                    <i class="bi bi-shop"></i>
+                                </div>
+                            }
+                            else if (selectedUser.Role?.RoleName == "Delivery")
+                            {
+                                <div class="chat-header-icon delivery-header">
+                                    <i class="bi bi-bicycle"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="chat-header-icon">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            }
+
+                            <div>
+                                <h6 class="chat-header-name">
+                                    @selectedUser.Name
+                                </h6>
+
+                                <div class="chat-header-role">
+                                    @if (selectedUser.Role?.RoleName == "Admin")
+                                    {
+                                        <span>Administrator</span>
+                                    }
+                                    else if (selectedUser.Role?.RoleName == "Shopkeeper")
+                                    {
+                                        <span>Shopkeeper</span>
+                                    }
+                                    else if (selectedUser.Role?.RoleName == "Delivery")
+                                    {
+                                        <span>Delivery Boy</span>
+                                    }
+                                    else
+                                    {
+                                        <span>User</span>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- MESSAGES -->
+
+                        <div class="messages-area" id="messagesArea">
+
+                            @if (messages.Any())
+                            {
+                                foreach (var message in messages)
+                                {
+                                    bool isSent =
+                                        message.SenderId == customerId;
+
+                                    <div class="message-row @(isSent ? "sent" : "received")">
+
+                                        <div class="message-content-wrapper">
+
+                                            <div class="message-bubble">
+
+                                                @if (message.IsDeleted)
+                                                {
+                                                    <span class="deleted-message">
+                                                        <i class="bi bi-slash-circle"></i>
+                                                        This message was deleted.
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <div class="message-text">
+                                                        @message.Message
+                                                    </div>
+
+                                                    <span class="message-time">
+                                                        @message.SentDate.ToString("dd MMM yyyy hh:mm tt")
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                            <!-- DELETE OWN MESSAGE -->
+
+                                            @if (isSent && !message.IsDeleted)
+                                            {
+                                                <div class="message-actions">
+
+                                                    <form asp-controller="Customer"
+                                                          asp-action="DeleteMessage"
+                                                          method="post"
+                                                          onsubmit="return confirm('Are you sure you want to delete this message?');">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden"
+                                                               name="messageId"
+                                                               value="@message.ChatMessageId" />
+
+                                                        <input type="hidden"
+                                                               name="receiverId"
+                                                               value="@selectedUser.UserId" />
+
+                                                        <button type="submit"
+                                                                class="message-action-btn delete-message-btn">
+
+                                                            <i class="bi bi-trash"></i>
+                                                            Delete
+
+                                                        </button>
+
+                                                    </form>
+
+                                                </div>
+                                            }
+
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-chat">
+                                    <i class="bi bi-chat-square-text"></i>
+
+                                    <h5>No Messages Yet</h5>
+
+                                    <p>
+                                        Start the conversation with
+                                        @selectedUser.Name.
+                                    </p>
+                                </div>
+                            }
+
+                        </div>
+
+                        <!-- SEND TEXT MESSAGE -->
+
+                        <div class="message-form">
+
+                            <form asp-controller="Customer"
+                                  asp-action="SendMessage"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="receiverId"
+                                       value="@selectedUser.UserId" />
+
+                                <div class="message-input-group">
+
+                                    <input type="text"
+                                           name="message"
+                                           id="messageInput"
+                                           class="message-input"
+                                           placeholder="Type your message..."
+                                           maxlength="2000"
+                                           autocomplete="off"
+                                           required />
+
+                                    <button type="submit"
+                                            class="send-button"
+                                            title="Send Message">
+
+                                        <i class="bi bi-send-fill"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- NO USER SELECTED -->
+
+                        <div class="no-user-selected">
+
+                            <i class="bi bi-chat-dots"></i>
+
+                            <h5>Select a Contact</h5>
+
+                            <p>
+                                Select Admin, a Shopkeeper, or an assigned
+                                Delivery Boy to start chatting.
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Automatically scroll to the latest message
+        var messagesArea =
+            document.getElementById("messagesArea");
+
+        if (messagesArea) {
+            messagesArea.scrollTop =
+                messagesArea.scrollHeight;
+        }
+
+        // Focus the message input
+        var messageInput =
+            document.getElementById("messageInput");
+
+        if (messageInput) {
+            messageInput.focus();
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
