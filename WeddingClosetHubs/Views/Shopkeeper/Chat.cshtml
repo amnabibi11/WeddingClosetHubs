@@ -43,13 +43,11 @@
     </title>
 
 
-    <!-- Bootstrap -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
 
-    <!-- Bootstrap Icons -->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -63,31 +61,22 @@
             margin: 0;
         }
 
-
-        /* =====================================================
-           HEADER
-        ===================================================== */
-
         .page-header {
             background: #800020;
             color: white;
             padding: 22px 30px;
         }
 
-        .page-header h2 {
-            margin: 0;
-            font-weight: 600;
-        }
+            .page-header h2 {
+                margin: 0;
+                font-weight: 600;
+            }
 
-        .page-header p {
-            margin: 5px 0 0;
-            opacity: .85;
-        }
+            .page-header p {
+                margin: 5px 0 0;
+                opacity: .85;
+            }
 
-
-        /* =====================================================
-           CHAT CONTAINER
-        ===================================================== */
 
         .chat-container {
             background: white;
@@ -98,10 +87,6 @@
             min-height: 600px;
         }
 
-
-        /* =====================================================
-           CONTACT SIDEBAR
-        ===================================================== */
 
         .contacts {
             border-right: 1px solid #eee;
@@ -127,20 +112,16 @@
             transition: .2s;
         }
 
-        .contact:hover {
-            background: #faf3f5;
-            color: #800020;
-        }
+            .contact:hover {
+                background: #faf3f5;
+                color: #800020;
+            }
 
-        .contact.active {
-            background: #f7e9ed;
-            border-left: 4px solid #800020;
-        }
+            .contact.active {
+                background: #f7e9ed;
+                border-left: 4px solid #800020;
+            }
 
-
-        /* =====================================================
-           CONTACT ICON
-        ===================================================== */
 
         .contact-icon {
             width: 45px;
@@ -198,10 +179,6 @@
         }
 
 
-        /* =====================================================
-           CHAT AREA
-        ===================================================== */
-
         .chat-area {
             height: 100%;
             display: flex;
@@ -227,9 +204,6 @@
         }
 
 
-        /* =====================================================
-           MESSAGES
-        ===================================================== */
 
         .messages {
             flex: 1;
@@ -244,13 +218,13 @@
             margin-bottom: 15px;
         }
 
-        .message-wrapper.sent {
-            justify-content: flex-end;
-        }
+            .message-wrapper.sent {
+                justify-content: flex-end;
+            }
 
-        .message-wrapper.received {
-            justify-content: flex-start;
-        }
+            .message-wrapper.received {
+                justify-content: flex-start;
+            }
 
 
         .message {
@@ -263,19 +237,19 @@
         }
 
 
-        .message.sent {
-            background: #800020;
-            color: white;
-            border-bottom-right-radius: 3px;
-        }
+            .message.sent {
+                background: #800020;
+                color: white;
+                border-bottom-right-radius: 3px;
+            }
 
 
-        .message.received {
-            background: white;
-            color: #333;
-            border: 1px solid #eee;
-            border-bottom-left-radius: 3px;
-        }
+            .message.received {
+                background: white;
+                color: #333;
+                border: 1px solid #eee;
+                border-bottom-left-radius: 3px;
+            }
 
 
         .message-text {
@@ -283,9 +257,6 @@
         }
 
 
-        /* =====================================================
-           DELETE MESSAGE
-        ===================================================== */
 
         .delete-form {
             display: inline-flex;
@@ -304,20 +275,16 @@
             opacity: .70;
         }
 
-        .delete-message-btn:hover {
-            opacity: 1;
-            color: #d4af37;
-        }
+            .delete-message-btn:hover {
+                opacity: 1;
+                color: #d4af37;
+            }
 
         .deleted-message {
             font-style: italic;
             opacity: .65;
         }
 
-
-        /* =====================================================
-           MESSAGE INPUT
-        ===================================================== */
 
         .message-input {
             border-top: 1px solid #eee;
@@ -326,24 +293,24 @@
         }
 
 
-        .message-input form {
-            display: flex;
-            gap: 10px;
-            align-items: stretch;
-        }
+            .message-input form {
+                display: flex;
+                gap: 10px;
+                align-items: stretch;
+            }
 
 
-        .message-input textarea {
-            resize: none;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 10px 12px;
-        }
+            .message-input textarea {
+                resize: none;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+                padding: 10px 12px;
+            }
 
-        .message-input textarea:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 .15rem rgba(128,32,0,.10);
-        }
+                .message-input textarea:focus {
+                    border-color: #800020;
+                    box-shadow: 0 0 0 .15rem rgba(128,32,0,.10);
+                }
 
 
         .send-btn {
@@ -354,15 +321,12 @@
             padding: 0 20px;
         }
 
-        .send-btn:hover {
-            background: #650019;
-            color: white;
-        }
+            .send-btn:hover {
+                background: #650019;
+                color: white;
+            }
 
 
-        /* =====================================================
-           EMPTY CHAT
-        ===================================================== */
 
         .empty-chat {
             height: 100%;
@@ -373,15 +337,12 @@
             color: #888;
         }
 
-        .empty-chat i {
-            font-size: 65px;
-            color: #ccc;
-        }
+            .empty-chat i {
+                font-size: 65px;
+                color: #ccc;
+            }
 
 
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
 
         @@media (max-width: 768px) {
 
@@ -412,7 +373,6 @@
             .send-btn {
                 padding: 10px;
             }
-
         }
 
     </style>
@@ -423,9 +383,6 @@
 <body>
 
 
-    <!-- =========================================================
-         PAGE HEADER
-    ========================================================= -->
 
     <div class="page-header">
 
@@ -476,18 +433,13 @@
     <div class="container-fluid py-3">
 
 
-        <!-- =====================================================
-             CHAT CONTAINER
-        ===================================================== -->
 
         <div class="chat-container">
 
             <div class="row g-0 h-100">
 
 
-                <!-- =================================================
-                     CONTACT LIST
-                ================================================= -->
+
 
                 <div class="col-md-4 col-lg-3 contacts">
 
@@ -501,10 +453,6 @@
                     </div>
 
 
-                    <!-- =================================================
-                         CUSTOMERS
-                    ================================================= -->
-
                     @if (ViewBag.Customers != null)
                     {
 
@@ -515,12 +463,12 @@
                                asp-action="Conversation"
                                asp-route-userId="@customer.UserId"
                                class="contact
-                               @(selectedUserId == customer.UserId
-                                   ? "active"
-                                   : "")">
+                                               @(selectedUserId == customer.UserId
+                                                                                                 ? "active"
+                                                                                                 : "")">
 
 
-                                <div class="contact-icon customer-icon">
+                        <div class="contact-icon customer-icon">
 
                                     <i class="bi bi-person"></i>
 
@@ -544,10 +492,10 @@
                                 </div>
 
 
-                                @if (unreadCounts.TryGetValue(
-                                        customer.UserId,
-                                        out int customerUnread)
-                                    && customerUnread > 0)
+                        @if (unreadCounts.TryGetValue(
+                                                customer.UserId,
+                                                out int customerUnread)
+                                                && customerUnread > 0)
                                 {
 
                                     <span class="unread-badge">
@@ -565,14 +513,10 @@
                     }
 
 
-                    <!-- =================================================
-                         ADMIN
-                    ================================================= -->
-
                     @if (ViewBag.Admin != null)
                     {
                         var admin =
-                            ViewBag.Admin as WeddingClosetHubs.Models.User;
+                        ViewBag.Admin as WeddingClosetHubs.Models.User;
 
                         if (admin != null)
                         {
@@ -581,12 +525,12 @@
                                asp-action="Conversation"
                                asp-route-userId="@admin.UserId"
                                class="contact
-                               @(selectedUserId == admin.UserId
-                                   ? "active"
-                                   : "")">
+                                               @(selectedUserId == admin.UserId
+                                                                                                 ? "active"
+                                                                                                 : "")">
 
 
-                                <div class="contact-icon admin-icon">
+                        <div class="contact-icon admin-icon">
 
                                     <i class="bi bi-person-badge"></i>
 
@@ -610,10 +554,10 @@
                                 </div>
 
 
-                                @if (unreadCounts.TryGetValue(
-                                        admin.UserId,
-                                        out int adminUnread)
-                                    && adminUnread > 0)
+                        @if (unreadCounts.TryGetValue(
+                                                admin.UserId,
+                                                out int adminUnread)
+                                                && adminUnread > 0)
                                 {
 
                                     <span class="unread-badge">
@@ -630,10 +574,6 @@
                     }
 
 
-                    <!-- =================================================
-                         DELIVERY BOYS
-                    ================================================= -->
-
                     @if (ViewBag.DeliveryBoys != null)
                     {
 
@@ -644,12 +584,12 @@
                                asp-action="Conversation"
                                asp-route-userId="@delivery.UserId"
                                class="contact
-                               @(selectedUserId == delivery.UserId
-                                   ? "active"
-                                   : "")">
+                                               @(selectedUserId == delivery.UserId
+                                                                                                 ? "active"
+                                                                                                 : "")">
 
 
-                                <div class="contact-icon delivery-icon">
+                        <div class="contact-icon delivery-icon">
 
                                     <i class="bi bi-truck"></i>
 
@@ -673,10 +613,10 @@
                                 </div>
 
 
-                                @if (unreadCounts.TryGetValue(
-                                        delivery.UserId,
-                                        out int deliveryUnread)
-                                    && deliveryUnread > 0)
+                        @if (unreadCounts.TryGetValue(
+                                                delivery.UserId,
+                                                out int deliveryUnread)
+                                                && deliveryUnread > 0)
                                 {
 
                                     <span class="unread-badge">
@@ -697,9 +637,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     CHAT AREA
-                ================================================= -->
 
                 <div class="col-md-8 col-lg-9 chat-area">
 
@@ -708,7 +645,7 @@
                     {
 
 
-                        <!-- CHAT HEADER -->
+
 
                         <div class="chat-header">
 
@@ -729,10 +666,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             MESSAGES
-                        ================================================= -->
-
                         <div class="messages"
                              id="messagesContainer">
 
@@ -741,27 +674,27 @@
                             {
 
                                 foreach (var message in messages
-                                    .OrderBy(x => x.SentDate))
+                                .OrderBy(x => x.SentDate))
                                 {
 
                                     bool isSent =
-                                        message.SenderId ==
-                                        currentUserId;
+                                    message.SenderId ==
+                                    currentUserId;
 
 
                                     <div class="message-wrapper
-                                                @(isSent
-                                                    ? "sent"
-                                                    : "received")">
+                                                                        @(isSent
+                                                                                                                                      ? "sent"
+                                                                                                                                      : "received")">
 
 
                                         <div class="message
-                                                    @(isSent
-                                                        ? "sent"
-                                                        : "received")">
+                                                                            @(isSent
+                                                                                                                                                  ? "sent"
+                                                                                                                                                  : "received")">
 
 
-                                            @if (message.IsDeleted)
+                                @if (message.IsDeleted)
                                             {
 
                                                 <span class="deleted-message">
@@ -857,9 +790,7 @@
                         </div>
 
 
-                        <!-- =================================================
-                             MESSAGE INPUT
-                        ================================================= -->
+
 
                         <div class="message-input">
 
@@ -876,11 +807,11 @@
 
 
                                 <textarea name="message"
-                                          class="form-control flex-grow-1"
-                                          rows="2"
-                                          maxlength="2000"
-                                          placeholder="Type your message..."
-                                          required></textarea>
+                                      class="form-control flex-grow-1"
+                                      rows="2"
+                                      maxlength="2000"
+                                      placeholder="Type your message..."
+                                      required></textarea>
 
 
                                 <button type="submit"
@@ -900,10 +831,6 @@
                     else
                     {
 
-
-                        <!-- =================================================
-                             NO CONVERSATION
-                        ================================================= -->
 
                         <div class="empty-chat">
 
@@ -939,9 +866,6 @@
     </div>
 
 
-    <!-- =========================================================
-         AUTO SCROLL
-    ========================================================= -->
 
     <script>
 

@@ -10,10 +10,6 @@ namespace WeddingClosetHubs.Models
         {
         }
 
-        // =========================
-        // DATABASE TABLES
-        // =========================
-
         public DbSet<User> Users { get; set; }
 
         public DbSet<Role> Roles { get; set; }
@@ -44,10 +40,7 @@ namespace WeddingClosetHubs.Models
             base.OnModelCreating(modelBuilder);
 
 
-            // =========================
-            // DEFAULT ROLES
-            // =========================
-
+         
             modelBuilder.Entity<Role>().HasData(
 
                 new Role
@@ -76,20 +69,12 @@ namespace WeddingClosetHubs.Models
             );
 
 
-            // =========================
-            // ORDER - CUSTOMER
-            // =========================
-
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Customer)
                 .WithMany()
                 .HasForeignKey(o => o.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // =========================
-            // ORDER - SHOP
-            // =========================
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Shop)
@@ -98,20 +83,12 @@ namespace WeddingClosetHubs.Models
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            // =========================
-            // ORDER - DELIVERY
-            // =========================
-
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Delivery)
                 .WithMany()
                 .HasForeignKey(o => o.DeliveryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-
-            // =========================
-            // ORDER DETAIL - ORDER
-            // =========================
 
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Order)
@@ -120,10 +97,6 @@ namespace WeddingClosetHubs.Models
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
-            // ORDER DETAIL - PRODUCT
-            // =========================
-
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Product)
                 .WithMany()
@@ -131,20 +104,12 @@ namespace WeddingClosetHubs.Models
                 .OnDelete(DeleteBehavior.Restrict);
 
             
-            // =====================================================
-           // USER → SHOP
-          // =====================================================
-
              modelBuilder.Entity<Shop>()
                  .HasOne(s => s.Shopkeeper)
                  .WithOne(u => u.Shop)
                  .HasForeignKey<Shop>(s => s.ShopkeeperId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-
-              // =====================================================
-             // USER → DELIVERY BOY
-            // =====================================================
 
            modelBuilder.Entity<DeliveryBoy>()
                .HasOne(d => d.User)
@@ -182,36 +147,29 @@ namespace WeddingClosetHubs.Models
                 .HasForeignKey(c => c.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Review>()
-    .HasOne(r => r.Product)
-    .WithMany()
-    .HasForeignKey(r => r.ProductId)
-    .OnDelete(DeleteBehavior.NoAction);
+                 .HasOne(r => r.Product)
+                 .WithMany()
+                 .HasForeignKey(r => r.ProductId)
+                 .OnDelete(DeleteBehavior.NoAction);
 
-modelBuilder.Entity<Review>()
-    .HasOne(r => r.Shop)
-    .WithMany()
-    .HasForeignKey(r => r.ShopId)
-    .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Shop)
+                .WithMany()
+                .HasForeignKey(r => r.ShopId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-    modelBuilder.Entity<Review>()
-    .HasOne(r => r.User)
-    .WithMany()
-    .HasForeignKey(r => r.UserId)
-    .OnDelete(DeleteBehavior.NoAction);
-                        // =====================================================
-            // NEGOTIATION - PRODUCT
-            // =====================================================
-
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+                       
             modelBuilder.Entity<Negotiation>()
                 .HasOne(n => n.Product)
                 .WithMany()
                 .HasForeignKey(n => n.ProductId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-
-            // =====================================================
-            // NEGOTIATION - CUSTOMER
-            // =====================================================
 
             modelBuilder.Entity<Negotiation>()
                 .HasOne(n => n.Customer)
@@ -220,20 +178,12 @@ modelBuilder.Entity<Review>()
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            // =====================================================
-            // NEGOTIATION - SHOPKEEPER
-            // =====================================================
-
             modelBuilder.Entity<Negotiation>()
                 .HasOne(n => n.Shopkeeper)
                 .WithMany()
                 .HasForeignKey(n => n.ShopkeeperId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-
-            // =====================================================
-            // NEGOTIATION - DECIMAL PRECISION
-            // =====================================================
 
             modelBuilder.Entity<Negotiation>()
                 .Property(n => n.OriginalPrice)
@@ -252,10 +202,6 @@ modelBuilder.Entity<Review>()
                 .HasPrecision(18, 2);
 
 
-            // =====================================================
-            // PRODUCT - DECIMAL PRECISION
-            // =====================================================
-
             modelBuilder.Entity<Product>()
                 .Property(p => p.SalePrice)
                 .HasPrecision(18, 2);
@@ -267,11 +213,6 @@ modelBuilder.Entity<Review>()
             modelBuilder.Entity<Product>()
                 .Property(p => p.RentalSecurity)
                 .HasPrecision(18, 2);
-
-
-            // =====================================================
-            // ORDER DETAIL - DECIMAL PRECISION
-            // =====================================================
 
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.RentalSecurity)

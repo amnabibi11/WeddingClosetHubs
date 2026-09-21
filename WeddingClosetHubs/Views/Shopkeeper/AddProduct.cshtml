@@ -18,8 +18,7 @@
         ViewBag.StandardSizes as List<string>
         ?? new List<string>();
 
-    // CategoryDataJson is already serialized in the controller.
-    // Do NOT serialize ViewBag.CategoryData again here.
+
     string categoryDataJson =
         ViewBag.CategoryDataJson as string ?? "{}";
 }
@@ -36,16 +35,12 @@
 
     <title>Add Product - Wedding Closet Hub</title>
 
-    <!-- =====================================================
-         BOOTSTRAP
-         ===================================================== -->
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
-    <!-- =====================================================
-         BOOTSTRAP ICONS
-         ===================================================== -->
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
           rel="stylesheet" />
@@ -53,19 +48,12 @@
 
     <style>
 
-        /* =====================================================
-           BODY
-           ===================================================== */
 
         body {
             background: #f7f4f5;
             font-family: Arial, sans-serif;
         }
 
-
-        /* =====================================================
-           NAVBAR
-           ===================================================== */
 
         .navbar-custom {
             background: #800020;
@@ -79,9 +67,6 @@
         }
 
 
-        /* =====================================================
-           MAIN
-           ===================================================== */
 
         .main-container {
             max-width: 1000px;
@@ -101,9 +86,6 @@
         }
 
 
-        /* =====================================================
-           SECTION TITLES
-           ===================================================== */
 
         .section-title {
             color: #800020;
@@ -115,9 +97,6 @@
         }
 
 
-        /* =====================================================
-           FORM
-           ===================================================== */
 
         .form-label {
             font-weight: 600;
@@ -128,10 +107,6 @@
         }
 
 
-        /* =====================================================
-           BUTTONS
-           ===================================================== */
-
         .btn-save {
             background: #800020;
             color: white;
@@ -140,10 +115,10 @@
             border-radius: 7px;
         }
 
-        .btn-save:hover {
-            background: #5f0018;
-            color: white;
-        }
+            .btn-save:hover {
+                background: #5f0018;
+                color: white;
+            }
 
         .btn-cancel {
             background: #6c757d;
@@ -152,15 +127,12 @@
             border-radius: 7px;
         }
 
-        .btn-cancel:hover {
-            background: #5a6268;
-            color: white;
-        }
+            .btn-cancel:hover {
+                background: #5a6268;
+                color: white;
+            }
 
 
-        /* =====================================================
-           CUSTOM MEASUREMENT
-           ===================================================== */
 
         .measurement-box {
             background: #fff8e1;
@@ -176,9 +148,6 @@
         }
 
 
-        /* =====================================================
-           SHOP CATEGORY INFORMATION
-           ===================================================== */
 
         .category-info {
             background: #f8e9ed;
@@ -187,10 +156,6 @@
             margin-bottom: 20px;
         }
 
-
-        /* =====================================================
-           IMAGE PREVIEW
-           ===================================================== */
 
         .image-preview {
             width: 180px;
@@ -203,19 +168,12 @@
         }
 
 
-        /* =====================================================
-           LOCKED PRODUCT TYPE
-           ===================================================== */
 
         .locked-field {
             background-color: #f1f1f1;
             cursor: not-allowed;
         }
 
-
-        /* =====================================================
-           OPTION CARDS
-           ===================================================== */
 
         .option-card {
             border: 1px solid #ddd;
@@ -226,22 +184,22 @@
             transition: .2s ease;
         }
 
-        .option-card:hover {
-            border-color: #d4af37;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
-        }
+            .option-card:hover {
+                border-color: #d4af37;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+            }
 
-        .option-card.sale-card {
-            background: #fffafa;
-        }
+            .option-card.sale-card {
+                background: #fffafa;
+            }
 
-        .option-card.rental-card {
-            background: #fffdf5;
-        }
+            .option-card.rental-card {
+                background: #fffdf5;
+            }
 
-        .option-card.negotiation-card {
-            background: #faf7fb;
-        }
+            .option-card.negotiation-card {
+                background: #faf7fb;
+            }
 
         .option-title {
             color: #800020;
@@ -255,9 +213,6 @@
         }
 
 
-        /* =====================================================
-           OPTION CONTENT
-           ===================================================== */
 
         .option-details {
             margin-top: 18px;
@@ -268,9 +223,6 @@
         }
 
 
-        /* =====================================================
-           CHECKBOX
-           ===================================================== */
 
         .form-check-input:checked {
             background-color: #800020;
@@ -282,9 +234,6 @@
         }
 
 
-        /* =====================================================
-           INFO BADGE
-           ===================================================== */
 
         .info-badge {
             display: inline-block;
@@ -297,9 +246,6 @@
         }
 
 
-        /* =====================================================
-           PRICE NOTE
-           ===================================================== */
 
         .price-note {
             background: #f8e9ed;
@@ -311,9 +257,6 @@
         }
 
 
-        /* =====================================================
-           RESPONSIVE
-           ===================================================== */
 
         @@media (max-width: 768px) {
 
@@ -332,7 +275,6 @@
             .brand {
                 font-size: 18px;
             }
-
         }
 
     </style>
@@ -342,10 +284,6 @@
 
 <body>
 
-
-    <!-- =====================================================
-         NAVBAR
-         ===================================================== -->
 
     <nav class="navbar-custom">
 
@@ -369,18 +307,12 @@
     </nav>
 
 
-    <!-- =====================================================
-         MAIN CONTAINER
-         ===================================================== -->
 
     <div class="main-container">
 
         <div class="form-card">
 
 
-            <!-- =================================================
-                 PAGE TITLE
-                 ================================================= -->
 
             <h2 class="page-title mb-2">
 
@@ -395,9 +327,6 @@
             </p>
 
 
-            <!-- =================================================
-                 SHOP CATEGORY
-                 ================================================= -->
 
             <div class="category-info">
 
@@ -421,9 +350,6 @@
             </div>
 
 
-            <!-- =================================================
-                 FORM
-                 ================================================= -->
 
             <form asp-controller="Shopkeeper"
                   asp-action="AddProduct"
@@ -433,18 +359,12 @@
                 @Html.AntiForgeryToken()
 
 
-                <!-- =================================================
-                     VALIDATION SUMMARY
-                     ================================================= -->
 
                 <div asp-validation-summary="ModelOnly"
                      class="text-danger mb-3">
                 </div>
 
 
-                <!-- =================================================
-                     PRODUCT INFORMATION
-                     ================================================= -->
 
                 <h5 class="section-title">
 
@@ -456,7 +376,6 @@
                 <div class="row">
 
 
-                    <!-- PRODUCT NAME -->
 
                     <div class="col-md-6 mb-3">
 
@@ -479,7 +398,6 @@
                     </div>
 
 
-                    <!-- COLOR -->
 
                     <div class="col-md-6 mb-3">
 
@@ -503,9 +421,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     DESCRIPTION
-                     ================================================= -->
 
                 <div class="mb-3">
 
@@ -528,9 +443,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     CATEGORY
-                     ================================================= -->
 
                 <h5 class="section-title">
 
@@ -542,7 +454,7 @@
                 <div class="row">
 
 
-                    <!-- CATEGORY -->
+
 
                     <div class="col-md-6 mb-3">
 
@@ -578,7 +490,7 @@
                     </div>
 
 
-                    <!-- SUBCATEGORY -->
+
 
                     <div class="col-md-6 mb-3">
 
@@ -616,9 +528,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     PRODUCT TYPE
-                     ================================================= -->
 
                 <div class="mb-3">
 
@@ -641,10 +550,6 @@
 
                 </div>
 
-
-                <!-- =================================================
-                     NORMAL SIZE
-                     ================================================= -->
 
                 <div id="normalSizeSection"
                      class="mb-3">
@@ -680,9 +585,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     SHOE SIZE
-                     ================================================= -->
 
                 <div id="shoeSizeSection"
                      class="mb-3"
@@ -694,11 +596,7 @@
 
                     </label>
 
-                    <!--
-                        IMPORTANT:
-                        This submits to Product.Size.
-                        Normal Size select is disabled for footwear.
-                    -->
+
 
                     <select name="Size"
                             id="shoeSize"
@@ -724,9 +622,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     PRICE & STOCK
-                     ================================================= -->
 
                 <h5 class="section-title">
 
@@ -751,7 +646,6 @@
                 <div class="row">
 
 
-                    <!-- PRICE -->
 
                     <div class="col-md-6 mb-3">
 
@@ -785,7 +679,6 @@
                     </div>
 
 
-                    <!-- STOCK -->
 
                     <div class="col-md-6 mb-3">
 
@@ -812,9 +705,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     PRODUCT IMAGE
-                     ================================================= -->
 
                 <h5 class="section-title">
 
@@ -851,9 +741,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     CUSTOM MEASUREMENT
-                     ================================================= -->
 
                 <div id="customMeasurementBox"
                      class="measurement-box"
@@ -891,9 +778,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     SELLING OPTIONS
-                     ================================================= -->
 
                 <h5 class="section-title">
 
@@ -902,9 +786,6 @@
                 </h5>
 
 
-                <!-- =================================================
-                     NORMAL BUY
-                     ================================================= -->
 
                 <div class="option-card">
 
@@ -912,15 +793,6 @@
 
                         <div class="form-check pt-1">
 
-                            <!--
-                                Normal Buy is available by default.
-
-                                There is no Product.IsAvailableForSale
-                                field in the current design.
-
-                                Product.Price represents the normal
-                                buying price.
-                            -->
 
                             <input type="checkbox"
                                    class="form-check-input"
@@ -959,9 +831,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     SALE / DISCOUNT
-                     ================================================= -->
+
 
                 <div class="option-card sale-card">
 
@@ -994,7 +864,7 @@
                             </div>
 
 
-                            <!-- SALE DETAILS -->
+
 
                             <div id="saleDetails"
                                  class="option-details"
@@ -1003,7 +873,7 @@
                                 <div class="row">
 
 
-                                    <!-- SALE PRICE -->
+
 
                                     <div class="col-md-6 mb-3">
 
@@ -1045,7 +915,7 @@
                                     </div>
 
 
-                                    <!-- SALE DETAILS -->
+
 
                                     <div class="col-md-6 mb-3">
 
@@ -1078,9 +948,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     RENTAL OPTIONS
-                     ================================================= -->
+
 
                 <div class="option-card rental-card">
 
@@ -1114,7 +982,7 @@
                             </div>
 
 
-                            <!-- RENTAL DETAILS -->
+
 
                             <div id="rentalDetails"
                                  class="option-details"
@@ -1123,7 +991,7 @@
                                 <div class="row">
 
 
-                                    <!-- RENT PRICE -->
+
 
                                     <div class="col-md-6 mb-3">
 
@@ -1165,7 +1033,7 @@
                                     </div>
 
 
-                                    <!-- REFUNDABLE SECURITY -->
+
 
                                     <div class="col-md-6 mb-3">
 
@@ -1208,7 +1076,6 @@
                                     </div>
 
 
-                                    <!-- RENTAL DURATION -->
 
                                     <div class="col-md-6 mb-3">
 
@@ -1232,7 +1099,7 @@
                                     </div>
 
 
-                                    <!-- RENTAL CONDITIONS -->
+
 
                                     <div class="col-md-6 mb-3">
 
@@ -1259,7 +1126,7 @@
                                 </div>
 
 
-                                <!-- RENTAL INFORMATION -->
+
 
                                 <div class="alert alert-warning mb-0">
 
@@ -1283,9 +1150,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     PRICE NEGOTIATION
-                     ================================================= -->
 
                 <div class="option-card negotiation-card">
 
@@ -1335,9 +1199,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     FINAL PRICE INFORMATION
-                     ================================================= -->
+
 
                 <div class="price-note mt-4">
 
@@ -1380,9 +1242,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     BUTTONS
-                     ================================================= -->
 
                 <div class="mt-4 d-flex gap-2">
 
@@ -1412,39 +1271,28 @@
     </div>
 
 
-    <!-- =====================================================
-         JAVASCRIPT
-         ===================================================== -->
+
 
     <script>
 
 
-        // =========================================================
-        // SHOP CATEGORY
-        // =========================================================
+
 
         const shopCategory =
             @Html.Raw(
                 System.Text.Json.JsonSerializer.Serialize(
-                    shopCategory.ToLowerInvariant()
+                        shopCategory.ToLowerInvariant()
                 )
-            );
+                        );
 
 
-        // =========================================================
-        // CATEGORY DATA
-        //
-        // Controller sends CategoryDataJson as an already
-        // serialized JSON string.
-        // =========================================================
+
 
         const subCategoryData =
             @Html.Raw(categoryDataJson);
 
 
-        // =========================================================
-        // ELEMENTS
-        // =========================================================
+
 
         const categorySelect =
             document.getElementById("category");
@@ -1471,9 +1319,7 @@
             document.getElementById("shoeSize");
 
 
-        // =========================================================
-        // SALE ELEMENTS
-        // =========================================================
+
 
         const isOnSale =
             document.getElementById("isOnSale");
@@ -1485,9 +1331,7 @@
             document.getElementById("salePrice");
 
 
-        // =========================================================
-        // RENTAL ELEMENTS
-        // =========================================================
+
 
         const isAvailableForRent =
             document.getElementById("isAvailableForRent");
@@ -1508,9 +1352,6 @@
             document.getElementById("rentalConditions");
 
 
-        // =========================================================
-        // DRESS KEYWORDS
-        // =========================================================
 
         const dressKeywords = [
 
@@ -1538,9 +1379,6 @@
         ];
 
 
-        // =========================================================
-        // LOAD SUBCATEGORIES
-        // =========================================================
 
         function loadSubCategories() {
 
@@ -1548,17 +1386,13 @@
                 categorySelect.value.trim();
 
 
-            // -----------------------------------------------------
-            // Clear existing subcategories
-            // -----------------------------------------------------
+
 
             subCategorySelect.innerHTML =
                 '<option value="">-- Select Subcategory --</option>';
 
 
-            // -----------------------------------------------------
-            // Reset product options
-            // -----------------------------------------------------
+
 
             updateProductOptions();
 
@@ -1568,9 +1402,7 @@
             }
 
 
-            // -----------------------------------------------------
-            // Find category without case sensitivity
-            // -----------------------------------------------------
+
 
             const categoryKey =
                 Object.keys(subCategoryData).find(function (key) {
@@ -1595,9 +1427,7 @@
             }
 
 
-            // -----------------------------------------------------
-            // Add subcategories
-            // -----------------------------------------------------
+
 
             subCategories.forEach(function (item) {
 
@@ -1617,9 +1447,6 @@
         }
 
 
-        // =========================================================
-        // UPDATE PRODUCT OPTIONS
-        // =========================================================
 
         function updateProductOptions() {
 
@@ -1629,9 +1456,6 @@
                     .toLowerCase();
 
 
-            // =====================================================
-            // DEFAULT
-            // =====================================================
 
             customBox.style.display = "none";
 
@@ -1644,9 +1468,7 @@
             shoeSize.disabled = true;
 
 
-            // =====================================================
-            // FOOTWEAR
-            // =====================================================
+
 
             if (
                 shopCategory === "footwear" ||
@@ -1659,7 +1481,7 @@
 
                 productType.value = "Footwear";
 
-                // Only shoe size is submitted
+
 
                 sizeSelect.disabled = true;
 
@@ -1668,10 +1490,6 @@
                 return;
             }
 
-
-            // =====================================================
-            // JEWELLERY
-            // =====================================================
 
             if (
                 shopCategory === "jewellery" ||
@@ -1690,10 +1508,6 @@
             }
 
 
-            // =====================================================
-            // ACCESSORIES
-            // =====================================================
-
             if (
                 shopCategory === "accessories" ||
                 shopCategory === "wedding accessories"
@@ -1710,17 +1524,6 @@
                 return;
             }
 
-
-            // =====================================================
-            // WEDDING GUEST WEAR
-            // =====================================================
-            //
-            // This check comes BEFORE dress keywords.
-            //
-            // Example:
-            // Wedding Guest Wear -> Party Dress
-            // must remain Wedding Guest Wear.
-            // =====================================================
 
             if (
                 shopCategory === "wedding guest wear" ||
@@ -1741,10 +1544,6 @@
                 return;
             }
 
-
-            // =====================================================
-            // DRESS
-            // =====================================================
 
             const isDress =
                 dressKeywords.some(function (keyword) {
@@ -1771,10 +1570,6 @@
             }
 
 
-            // =====================================================
-            // DEFAULT
-            // =====================================================
-
             productType.value =
                 "Standard Product";
 
@@ -1783,11 +1578,6 @@
             shoeSize.disabled = true;
 
         }
-
-
-        // =========================================================
-        // SALE TOGGLE
-        // =========================================================
 
         function updateSaleSection() {
 
@@ -1800,7 +1590,7 @@
 
                 saleDetails.style.display = "none";
 
-                // Clear sale price when disabled
+
 
                 salePrice.value = "";
 
@@ -1809,9 +1599,7 @@
         }
 
 
-        // =========================================================
-        // RENTAL TOGGLE
-        // =========================================================
+
 
         function updateRentalSection() {
 
@@ -1824,7 +1612,7 @@
 
                 rentalDetails.style.display = "none";
 
-                // Clear rental values when disabled
+
 
                 rentPrice.value = "";
 
@@ -1839,10 +1627,6 @@
         }
 
 
-        // =========================================================
-        // CATEGORY CHANGE
-        // =========================================================
-
         categorySelect.addEventListener(
             "change",
             function () {
@@ -1853,10 +1637,6 @@
         );
 
 
-        // =========================================================
-        // SUBCATEGORY CHANGE
-        // =========================================================
-
         subCategorySelect.addEventListener(
             "change",
             function () {
@@ -1865,11 +1645,6 @@
 
             }
         );
-
-
-        // =========================================================
-        // SALE CHECKBOX CHANGE
-        // =========================================================
 
         isOnSale.addEventListener(
             "change",
@@ -1881,10 +1656,6 @@
         );
 
 
-        // =========================================================
-        // RENTAL CHECKBOX CHANGE
-        // =========================================================
-
         isAvailableForRent.addEventListener(
             "change",
             function () {
@@ -1895,9 +1666,6 @@
         );
 
 
-        // =========================================================
-        // IMAGE PREVIEW
-        // =========================================================
 
         document
             .getElementById("productImage")
@@ -1914,10 +1682,6 @@
 
                     if (file) {
 
-                        // ------------------------------------------------
-                        // Client-side size check
-                        // ------------------------------------------------
-
                         if (file.size > 5 * 1024 * 1024) {
 
                             alert(
@@ -1933,10 +1697,6 @@
                             return;
                         }
 
-
-                        // ------------------------------------------------
-                        // Preview
-                        // ------------------------------------------------
 
                         preview.src =
                             URL.createObjectURL(file);
@@ -1958,9 +1718,6 @@
             );
 
 
-        // =========================================================
-        // FORM SUBMIT VALIDATION
-        // =========================================================
 
         document
             .querySelector("form")
@@ -1969,9 +1726,7 @@
                 function (event) {
 
 
-                    // ================================================
-                    // SALE VALIDATION
-                    // ================================================
+
 
                     if (isOnSale.checked) {
 
@@ -2022,9 +1777,7 @@
                     }
 
 
-                    // ================================================
-                    // RENTAL VALIDATION
-                    // ================================================
+
 
                     if (isAvailableForRent.checked) {
 
@@ -2102,18 +1855,14 @@
             );
 
 
-        // =========================================================
-        // INITIAL PAGE LOAD
-        // =========================================================
+
 
         document.addEventListener(
             "DOMContentLoaded",
             function () {
 
 
-                // -----------------------------------------------
-                // Automatically select shop category
-                // -----------------------------------------------
+
 
                 if (shopCategory) {
 
@@ -2140,30 +1889,18 @@
                 }
 
 
-                // -----------------------------------------------
-                // Load allowed subcategories
-                // -----------------------------------------------
 
                 loadSubCategories();
 
 
-                // -----------------------------------------------
-                // Set initial product options
-                // -----------------------------------------------
+
 
                 updateProductOptions();
 
 
-                // -----------------------------------------------
-                // Initialize sale section
-                // -----------------------------------------------
 
                 updateSaleSection();
 
-
-                // -----------------------------------------------
-                // Initialize rental section
-                // -----------------------------------------------
 
                 updateRentalSection();
 

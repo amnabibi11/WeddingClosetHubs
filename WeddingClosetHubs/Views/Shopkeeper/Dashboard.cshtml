@@ -2,9 +2,6 @@
     ViewData["Title"] = "Shopkeeper Dashboard";
     Layout = null;
 
-    // =====================================================
-    // SHOP INFORMATION
-    // =====================================================
 
     string shopName =
         ViewBag.ShopName as string ?? "My Shop";
@@ -13,9 +10,6 @@
         ViewBag.ShopCategory as string ?? "Not Selected";
 
 
-    // =====================================================
-    // SHOPKEEPER INFORMATION
-    // =====================================================
 
     string shopkeeperName =
         ViewBag.ShopkeeperName as string ?? "Shopkeeper";
@@ -33,9 +27,6 @@
         ViewBag.ShopkeeperProfileImage as string;
 
 
-    // =====================================================
-    // SHOP STATUS
-    // =====================================================
 
     bool shopApproved =
         ViewBag.ShopApproved == true;
@@ -44,9 +35,6 @@
         ViewBag.ShopStatus == true;
 
 
-    // =====================================================
-    // DASHBOARD STATISTICS
-    // =====================================================
 
     int totalProducts =
         ViewBag.TotalProducts ?? 0;
@@ -67,15 +55,12 @@
         ViewBag.CancelledOrders ?? 0;
 
 
-    // =====================================================
-    // CUSTOMER INTERACTION
-    // =====================================================
 
     int totalReviews =
         ViewBag.TotalReviews ?? 0;
 
-     int unreadFeedback =
-        ViewBag.UnreadFeedback ?? 0;
+    int unreadFeedback =
+       ViewBag.UnreadFeedback ?? 0;
 
     int unreadMessages =
         ViewBag.UnreadMessages ?? 0;
@@ -84,9 +69,6 @@
         ViewBag.UnreadNotifications ?? 0;
 
 
-    // =====================================================
-    // FINANCIAL INFORMATION
-    // =====================================================
 
     decimal totalSales =
         (decimal?)ViewBag.TotalSales ?? 0m;
@@ -101,9 +83,7 @@
         (decimal?)ViewBag.PaidPayments ?? 0m;
 
 
-    // =====================================================
-    // STAR RATING
-    // =====================================================
+
 
     int fullStars =
         (int)Math.Round(
@@ -127,17 +107,12 @@
     </title>
 
 
-    <!-- =====================================================
-         BOOTSTRAP
-    ===================================================== -->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
 
-    <!-- =====================================================
-         BOOTSTRAP ICONS
-    ===================================================== -->
+
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -145,9 +120,7 @@
 
     <style>
 
-        /* =====================================================
-           GLOBAL
-        ===================================================== */
+
 
         * {
             box-sizing: border-box;
@@ -161,9 +134,7 @@
         }
 
 
-        /* =====================================================
-           SIDEBAR
-        ===================================================== */
+
 
         .sidebar {
             position: fixed;
@@ -183,19 +154,19 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .sidebar-brand i {
-            font-size: 35px;
-            color: #d4af37;
-        }
+            .sidebar-brand i {
+                font-size: 35px;
+                color: #d4af37;
+            }
 
-        .sidebar-brand h4 {
-            margin: 8px 0 0;
-            font-weight: 700;
-        }
+            .sidebar-brand h4 {
+                margin: 8px 0 0;
+                font-weight: 700;
+            }
 
-        .sidebar-brand small {
-            color: #aaa;
-        }
+            .sidebar-brand small {
+                color: #aaa;
+            }
 
         .sidebar-menu {
             padding: 15px 10px;
@@ -222,16 +193,16 @@
             transition: 0.2s;
         }
 
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: #800020;
-            color: white;
-        }
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                background: #800020;
+                color: white;
+            }
 
-        .sidebar-menu a i {
-            font-size: 18px;
-            width: 22px;
-        }
+            .sidebar-menu a i {
+                font-size: 18px;
+                width: 22px;
+            }
 
         .badge-count {
             margin-left: auto;
@@ -243,9 +214,7 @@
         }
 
 
-        /* =====================================================
-           MAIN CONTENT
-        ===================================================== */
+
 
         .main-content {
             margin-left: 260px;
@@ -253,9 +222,7 @@
         }
 
 
-        /* =====================================================
-           TOP NAVBAR
-        ===================================================== */
+
 
         .top-navbar {
             height: 70px;
@@ -269,16 +236,13 @@
             z-index: 1500;
         }
 
-        .top-navbar h5 {
-            margin: 0;
-            font-weight: 700;
-            color: #800020;
-        }
+            .top-navbar h5 {
+                margin: 0;
+                font-weight: 700;
+                color: #800020;
+            }
 
 
-        /* =====================================================
-           SHOPKEEPER PROFILE AREA
-        ===================================================== */
 
         .shopkeeper-info {
             display: flex;
@@ -300,9 +264,9 @@
             justify-content: center;
         }
 
-        .profile-button:focus {
-            outline: none;
-        }
+            .profile-button:focus {
+                outline: none;
+            }
 
         .profile-icon,
         .profile-image {
@@ -335,9 +299,6 @@
         }
 
 
-        /* =====================================================
-           PROFILE CARD
-        ===================================================== */
 
         .profile-card {
             position: absolute;
@@ -353,14 +314,11 @@
             z-index: 2000;
         }
 
-        .profile-card.show {
-            display: block;
-        }
+            .profile-card.show {
+                display: block;
+            }
 
 
-        /* =====================================================
-           PROFILE CARD HEADER
-        ===================================================== */
 
         .profile-card-header {
             text-align: center;
@@ -402,9 +360,7 @@
         }
 
 
-        /* =====================================================
-           PROFILE DETAILS
-        ===================================================== */
+
 
         .profile-detail {
             display: flex;
@@ -414,36 +370,34 @@
             border-bottom: 1px solid #f1f1f1;
         }
 
-        .profile-detail:last-of-type {
-            border-bottom: none;
-        }
+            .profile-detail:last-of-type {
+                border-bottom: none;
+            }
 
-        .profile-detail > i {
-            width: 22px;
-            color: #800020;
-            font-size: 17px;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
+            .profile-detail > i {
+                width: 22px;
+                color: #800020;
+                font-size: 17px;
+                margin-top: 2px;
+                flex-shrink: 0;
+            }
 
-        .profile-detail strong {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 2px;
-        }
+            .profile-detail strong {
+                display: block;
+                font-size: 12px;
+                color: #888;
+                margin-bottom: 2px;
+            }
 
-        .profile-detail span {
-            display: block;
-            font-size: 14px;
-            color: #333;
-            word-break: break-word;
-        }
+            .profile-detail span {
+                display: block;
+                font-size: 14px;
+                color: #333;
+                word-break: break-word;
+            }
 
 
-        /* =====================================================
-           PROFILE SHOP INFORMATION
-        ===================================================== */
+
 
         .profile-shop {
             margin-top: 12px;
@@ -454,55 +408,47 @@
             color: #800020;
         }
 
-        .profile-shop i {
-            color: #d4af37;
-            margin-right: 5px;
-        }
+            .profile-shop i {
+                color: #d4af37;
+                margin-right: 5px;
+            }
 
-        .profile-shop small {
-            color: #777;
-        }
+            .profile-shop small {
+                color: #777;
+            }
 
 
-        /* =====================================================
-           PROFILE FOOTER
-        ===================================================== */
+
 
         .profile-card-footer {
             margin-top: 15px;
         }
 
-        .profile-card-footer a {
-            display: block;
-            width: 100%;
-            text-align: center;
-            background: #800020;
-            color: white;
-            text-decoration: none;
-            padding: 9px;
-            border-radius: 7px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
+            .profile-card-footer a {
+                display: block;
+                width: 100%;
+                text-align: center;
+                background: #800020;
+                color: white;
+                text-decoration: none;
+                padding: 9px;
+                border-radius: 7px;
+                font-weight: 600;
+                transition: 0.2s;
+            }
 
-        .profile-card-footer a:hover {
-            background: #a52a45;
-            color: white;
-        }
+                .profile-card-footer a:hover {
+                    background: #a52a45;
+                    color: white;
+                }
 
 
-        /* =====================================================
-           PAGE CONTENT
-        ===================================================== */
 
         .content-wrapper {
             padding: 30px;
         }
 
 
-        /* =====================================================
-           WELCOME BOX
-        ===================================================== */
 
         .welcome-box {
             background: linear-gradient(135deg, #800020, #a52a45);
@@ -512,15 +458,15 @@
             margin-bottom: 25px;
         }
 
-        .welcome-box h2 {
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
+            .welcome-box h2 {
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
 
-        .welcome-box p {
-            margin: 0;
-            opacity: 0.9;
-        }
+            .welcome-box p {
+                margin: 0;
+                opacity: 0.9;
+            }
 
         .shop-status {
             display: flex;
@@ -552,9 +498,7 @@
         }
 
 
-        /* =====================================================
-           STAT CARDS
-        ===================================================== */
+
 
         .stat-card {
             background: white;
@@ -565,10 +509,10 @@
             height: 100%;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            transition: 0.2s;
-        }
+            .stat-card:hover {
+                transform: translateY(-2px);
+                transition: 0.2s;
+            }
 
         .stat-icon {
             width: 52px;
@@ -618,9 +562,6 @@
         }
 
 
-        /* =====================================================
-           SECTION CARD
-        ===================================================== */
 
         .section-card {
             background: white;
@@ -639,19 +580,16 @@
             gap: 15px;
         }
 
-        .section-header h5 {
-            margin: 0;
-            font-weight: 700;
-        }
+            .section-header h5 {
+                margin: 0;
+                font-weight: 700;
+            }
 
         .section-body {
             padding: 22px;
         }
 
 
-        /* =====================================================
-           QUICK ACTIONS
-        ===================================================== */
 
         .quick-action {
             display: flex;
@@ -666,20 +604,17 @@
             transition: 0.2s;
         }
 
-        .quick-action:hover {
-            background: #eee;
-            color: #800020;
-        }
+            .quick-action:hover {
+                background: #eee;
+                color: #800020;
+            }
 
-        .quick-action i {
-            font-size: 22px;
-            color: #800020;
-        }
+            .quick-action i {
+                font-size: 22px;
+                color: #800020;
+            }
 
 
-        /* =====================================================
-           REVIEW / FEEDBACK
-        ===================================================== */
 
         .rating-box {
             text-align: center;
@@ -706,15 +641,13 @@
             border-radius: 10px;
         }
 
-        .review-info h4 {
-            margin: 0;
-            font-weight: 700;
-        }
+            .review-info h4 {
+                margin: 0;
+                font-weight: 700;
+            }
 
 
-        /* =====================================================
-           SHOP STATUS
-        ===================================================== */
+
 
         .status-approved {
             color: #198754;
@@ -742,15 +675,12 @@
             font-weight: 700;
         }
 
-        .shop-category-box i {
-            color: #d4af37;
-            font-size: 18px;
-        }
+            .shop-category-box i {
+                color: #d4af37;
+                font-size: 18px;
+            }
 
 
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
 
         @@media (max-width: 992px) {
 
@@ -761,7 +691,6 @@
             .main-content {
                 margin-left: 220px;
             }
-
         }
 
 
@@ -798,7 +727,6 @@
                 max-width: 330px;
                 margin-left: auto;
             }
-
         }
 
     </style>
@@ -809,9 +737,6 @@
 <body>
 
 
-    <!-- =====================================================
-         SIDEBAR
-    ===================================================== -->
 
     <aside class="sidebar">
 
@@ -833,9 +758,6 @@
         <div class="sidebar-menu">
 
 
-            <!-- =================================================
-                 MAIN
-            ================================================= -->
 
             <div class="menu-title">
                 Main
@@ -867,9 +789,6 @@
             </a>
 
 
-            <!-- =================================================
-                 STORE MANAGEMENT
-            ================================================= -->
 
             <div class="menu-title">
                 Store Management
@@ -924,16 +843,12 @@
             </a>
 
 
-            <!-- =================================================
-                 CUSTOMER INTERACTION
-            ================================================= -->
 
             <div class="menu-title">
                 Customer Interaction
             </div>
 
 
-            <!-- REVIEWS -->
 
             <a asp-controller="Shopkeeper"
                asp-action="Feedback">
@@ -947,14 +862,12 @@
                 @if (unreadFeedback > 0)
                 {
                     <span class="badge-count">
-                    @unreadFeedback 
-                    </span> 
+                        @unreadFeedback
+                    </span>
                 }
 
             </a>
 
-
-            <!-- CHAT -->
 
             <a asp-controller="Shopkeeper"
                asp-action="Chat">
@@ -975,7 +888,6 @@
             </a>
 
 
-            <!-- NOTIFICATIONS -->
 
             <a asp-controller="Shopkeeper"
                asp-action="Notifications">
@@ -996,9 +908,6 @@
             </a>
 
 
-            <!-- =================================================
-                 ACCOUNT
-            ================================================= -->
 
             <div class="menu-title">
                 Account
@@ -1034,16 +943,10 @@
     </aside>
 
 
-    <!-- =====================================================
-         MAIN CONTENT
-    ===================================================== -->
 
     <main class="main-content">
 
 
-        <!-- =================================================
-             TOP NAVBAR
-        ================================================= -->
 
         <div class="top-navbar">
 
@@ -1056,16 +959,11 @@
             </div>
 
 
-            <!-- =================================================
-                 SHOPKEEPER PROFILE
-            ================================================= -->
-
             <div class="shopkeeper-info">
 
                 <div class="profile-dropdown">
 
 
-                    <!-- PROFILE BUTTON -->
 
                     <button type="button"
                             class="profile-button"
@@ -1097,15 +995,11 @@
                     </button>
 
 
-                    <!-- =================================================
-                         PROFILE CARD
-                    ================================================= -->
 
                     <div class="profile-card"
                          id="profileCard">
 
 
-                        <!-- PROFILE HEADER -->
 
                         <div class="profile-card-header">
 
@@ -1143,9 +1037,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             EMAIL
-                        ================================================= -->
 
                         <div class="profile-detail">
 
@@ -1166,9 +1057,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             PHONE
-                        ================================================= -->
 
                         <div class="profile-detail">
 
@@ -1189,9 +1077,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             ADDRESS
-                        ================================================= -->
 
                         <div class="profile-detail">
 
@@ -1212,9 +1097,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             SHOP INFORMATION
-                        ================================================= -->
 
                         <div class="profile-shop">
 
@@ -1233,9 +1115,6 @@
                         </div>
 
 
-                        <!-- =================================================
-                             FULL PROFILE BUTTON
-                        ================================================= -->
 
                         <div class="profile-card-footer">
 
@@ -1260,16 +1139,10 @@
         </div>
 
 
-        <!-- =================================================
-             PAGE CONTENT
-        ================================================= -->
 
         <div class="content-wrapper">
 
 
-            <!-- =================================================
-                 WELCOME
-            ================================================= -->
 
             <div class="welcome-box">
 
@@ -1285,7 +1158,6 @@
                 </p>
 
 
-                <!-- SHOP INFORMATION -->
 
                 <div class="shop-status">
 
@@ -1303,7 +1175,6 @@
                     </span>
 
 
-                    <!-- SHOP CATEGORY -->
 
                     <span class="category-badge">
 
@@ -1318,8 +1189,6 @@
                         |
                     </span>
 
-
-                    <!-- APPROVAL -->
 
                     @if (shopApproved)
                     {
@@ -1352,10 +1221,6 @@
             </div>
 
 
-            <!-- =================================================
-                 SUCCESS MESSAGE
-            ================================================= -->
-
             @if (TempData["Success"] != null)
             {
 
@@ -1375,10 +1240,6 @@
 
             }
 
-
-            <!-- =================================================
-                 ERROR MESSAGE
-            ================================================= -->
 
             @if (TempData["Error"] != null)
             {
@@ -1400,14 +1261,10 @@
             }
 
 
-            <!-- =================================================
-                 STATISTICS
-            ================================================= -->
 
             <div class="row g-4">
 
 
-                <!-- PRODUCTS -->
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1434,7 +1291,6 @@
                 </div>
 
 
-                <!-- ORDERS -->
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1461,7 +1317,6 @@
                 </div>
 
 
-                <!-- SALES -->
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1491,7 +1346,7 @@
                 </div>
 
 
-                <!-- PENDING ORDERS -->
+
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1520,9 +1375,6 @@
             </div>
 
 
-            <!-- =================================================
-                 FEEDBACK & REVIEW SUMMARY
-            ================================================= -->
 
             <div class="section-card">
 
@@ -1556,7 +1408,6 @@
                     <div class="row g-4">
 
 
-                        <!-- TOTAL REVIEWS -->
 
                         <div class="col-md-6">
 
@@ -1591,7 +1442,6 @@
                         </div>
 
 
-                        <!-- AVERAGE RATING -->
 
                         <div class="col-md-6">
 
@@ -1649,21 +1499,12 @@
             </div>
 
 
-            <!-- =================================================
-                 SECOND ROW
-            ================================================= -->
-
             <div class="row g-4">
-
-
-                <!-- =================================================
-                     ORDER + PAYMENT
-                ================================================= -->
 
                 <div class="col-lg-8">
 
 
-                    <!-- ORDER SUMMARY -->
+
 
                     <div class="section-card">
 
@@ -1696,8 +1537,6 @@
                             <div class="row text-center">
 
 
-                                <!-- PENDING -->
-
                                 <div class="col-6 col-md-3">
 
                                     <h4>
@@ -1712,7 +1551,6 @@
                                 </div>
 
 
-                                <!-- ACCEPTED -->
 
                                 <div class="col-6 col-md-3">
 
@@ -1728,7 +1566,7 @@
                                 </div>
 
 
-                                <!-- COMPLETED -->
+
 
                                 <div class="col-6 col-md-3 mt-3 mt-md-0">
 
@@ -1744,7 +1582,7 @@
                                 </div>
 
 
-                                <!-- CANCELLED -->
+
 
                                 <div class="col-6 col-md-3 mt-3 mt-md-0">
 
@@ -1767,9 +1605,6 @@
                     </div>
 
 
-                    <!-- =================================================
-                         PAYMENT SUMMARY
-                    ================================================= -->
 
                     <div class="section-card">
 
@@ -1802,7 +1637,6 @@
                             <div class="row">
 
 
-                                <!-- PENDING PAYMENT -->
 
                                 <div class="col-md-6">
 
@@ -1823,7 +1657,6 @@
                                 </div>
 
 
-                                <!-- PAID PAYMENT -->
 
                                 <div class="col-md-6">
 
@@ -1854,9 +1687,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     QUICK ACTIONS
-                ================================================= -->
 
                 <div class="col-lg-4">
 
@@ -1880,7 +1710,6 @@
                         <div class="section-body">
 
 
-                            <!-- ADD PRODUCT -->
 
                             <a asp-controller="Shopkeeper"
                                asp-action="AddProduct"
@@ -1895,7 +1724,6 @@
                             </a>
 
 
-                            <!-- PRODUCTS -->
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Products"
@@ -1910,7 +1738,6 @@
                             </a>
 
 
-                            <!-- ORDERS -->
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Orders"
@@ -1925,7 +1752,6 @@
                             </a>
 
 
-                            <!-- FEEDBACK -->
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Feedback"
@@ -1940,7 +1766,7 @@
                             </a>
 
 
-                            <!-- CHAT -->
+
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Chat"
@@ -1955,7 +1781,7 @@
                             </a>
 
 
-                            <!-- MY SHOP -->
+
 
                             <a asp-controller="Shopkeeper"
                                asp-action="MyShop"
@@ -1970,7 +1796,7 @@
                             </a>
 
 
-                            <!-- PROFILE -->
+
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Profile"
@@ -1995,9 +1821,7 @@
             </div>
 
 
-            <!-- =================================================
-                 SHOP STATUS
-            ================================================= -->
+
 
             <div class="section-card">
 
@@ -2021,7 +1845,7 @@
                     <div class="row g-4">
 
 
-                        <!-- APPROVAL -->
+
 
                         <div class="col-md-4">
 
@@ -2063,7 +1887,7 @@
                         </div>
 
 
-                        <!-- SHOP STATUS -->
+
 
                         <div class="col-md-4">
 
@@ -2105,7 +1929,7 @@
                         </div>
 
 
-                        <!-- SHOP CATEGORY -->
+
 
                         <div class="col-md-4">
 
@@ -2143,16 +1967,10 @@
     </main>
 
 
-    <!-- =====================================================
-         BOOTSTRAP JS
-    ===================================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
-    <!-- =====================================================
-         PROFILE DROPDOWN JAVASCRIPT
-    ===================================================== -->
 
     <script>
 
@@ -2163,9 +1981,6 @@
             document.getElementById("profileCard");
 
 
-        // =====================================================
-        // OPEN / CLOSE PROFILE
-        // =====================================================
 
         profileButton.addEventListener("click", function (event) {
 
@@ -2176,9 +1991,7 @@
         });
 
 
-        // =====================================================
-        // PREVENT PROFILE CARD CLICK FROM CLOSING IT
-        // =====================================================
+
 
         profileCard.addEventListener("click", function (event) {
 
@@ -2187,9 +2000,6 @@
         });
 
 
-        // =====================================================
-        // CLICK OUTSIDE PROFILE
-        // =====================================================
 
         document.addEventListener("click", function () {
 
@@ -2198,9 +2008,6 @@
         });
 
 
-        // =====================================================
-        // ESC KEY CLOSES PROFILE
-        // =====================================================
 
         document.addEventListener("keydown", function (event) {
 

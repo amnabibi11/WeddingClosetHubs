@@ -3,16 +3,16 @@ using WeddingClosetHubs.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Entity Framework Core
+
 builder.Services.AddDbContext<WeddingClosetHubsContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-// Add MVC
+
 builder.Services.AddControllersWithViews();
 
-// Add Session
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -24,7 +24,7 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure HTTP request pipeline
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -43,6 +43,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

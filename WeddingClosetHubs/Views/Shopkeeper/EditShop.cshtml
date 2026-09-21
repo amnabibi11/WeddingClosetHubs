@@ -114,7 +114,6 @@
             .page-title {
                 font-size: 23px;
             }
-
         }
 
     </style>
@@ -123,426 +122,41 @@
 
 <body>
 
-<div class="page-wrapper">
+    <div class="page-wrapper">
 
-    <!-- HEADER -->
 
-    <div class="page-header">
 
-        <div class="row align-items-center">
+        <div class="page-header">
 
-            <div class="col-md-8">
+            <div class="row align-items-center">
 
-                <h2 class="page-title">
+                <div class="col-md-8">
 
-                    <i class="bi bi-pencil-square"></i>
+                    <h2 class="page-title">
 
-                    Edit Shop
+                        <i class="bi bi-pencil-square"></i>
 
-                </h2>
+                        Edit Shop
 
-                <p class="page-subtitle">
+                    </h2>
 
-                    Update your shop information.
+                    <p class="page-subtitle">
 
-                </p>
+                        Update your shop information.
 
-            </div>
-
-            <div class="col-md-4 text-md-end">
-
-                <a asp-controller="Shopkeeper"
-                   asp-action="MyShop"
-                   class="btn btn-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-
-                    Back to My Shop
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- VALIDATION -->
-
-    <div asp-validation-summary="ModelOnly"
-         class="alert alert-danger">
-    </div>
-
-
-    <form asp-controller="Shopkeeper"
-          asp-action="EditShop"
-          method="post"
-          enctype="multipart/form-data">
-
-        @Html.AntiForgeryToken()
-
-        <input type="hidden"
-               asp-for="ShopId" />
-
-        <input type="hidden"
-               asp-for="ShopkeeperId" />
-
-
-        <!-- SHOP INFORMATION -->
-
-        <div class="custom-card">
-
-            <div class="card-header-custom">
-
-                <i class="bi bi-shop"></i>
-
-                Shop Information
-
-            </div>
-
-            <div class="card-body-custom">
-
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-
-                        <label asp-for="ShopName"
-                               class="form-label">
-
-                            Shop Name
-
-                        </label>
-
-                        <input asp-for="ShopName"
-                               class="form-control"
-                               placeholder="Enter shop name" />
-
-                        <span asp-validation-for="ShopName"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <div class="col-md-6 mb-3">
-
-                        <label asp-for="ShopCategory"
-                               class="form-label">
-
-                            Shop Category
-
-                        </label>
-
-                        <select asp-for="ShopCategory"
-                                class="form-select">
-
-                            <option value="">
-                                Select Category
-                            </option>
-
-                            <option value="Bridal Dresses">
-                                Bridal Dresses
-                            </option>
-
-                            <option value="Groom Dresses">
-                                Groom Dresses
-                            </option>
-
-                            <option value="Party Wear">
-                                Party Wear
-                            </option>
-
-                            <option value="Wedding Accessories">
-                                Wedding Accessories
-                            </option>
-
-                            <option value="Jewellery">
-                                Jewellery
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                        <span asp-validation-for="ShopCategory"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <div class="col-md-12 mb-3">
-
-                        <label asp-for="ShopDescription"
-                               class="form-label">
-
-                            Shop Description
-
-                        </label>
-
-                        <textarea asp-for="ShopDescription"
-                                  class="form-control"
-                                  rows="4"
-                                  placeholder="Describe your shop"></textarea>
-
-                        <span asp-validation-for="ShopDescription"
-                              class="text-danger">
-                        </span>
-
-                    </div>
+                    </p>
 
                 </div>
 
-            </div>
-
-        </div>
-
-
-        <!-- CONTACT -->
-
-        <div class="custom-card">
-
-            <div class="card-header-custom">
-
-                <i class="bi bi-telephone"></i>
-
-                Contact Information
-
-            </div>
-
-            <div class="card-body-custom">
-
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-
-                        <label asp-for="ShopPhone"
-                               class="form-label">
-
-                            Shop Phone
-
-                        </label>
-
-                        <input asp-for="ShopPhone"
-                               class="form-control"
-                               placeholder="03XX-XXXXXXX" />
-
-                        <span asp-validation-for="ShopPhone"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <div class="col-md-6 mb-3">
-
-                        <label asp-for="Email"
-                               class="form-label">
-
-                            Email
-
-                        </label>
-
-                        <input asp-for="Email"
-                               type="email"
-                               class="form-control"
-                               placeholder="shop@example.com" />
-
-                        <span asp-validation-for="Email"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <div class="col-md-12 mb-3">
-
-                        <label asp-for="ShopAddress"
-                               class="form-label">
-
-                            Shop Address
-
-                        </label>
-
-                        <textarea asp-for="ShopAddress"
-                                  class="form-control"
-                                  rows="3"
-                                  placeholder="Enter complete shop address"></textarea>
-
-                        <span asp-validation-for="ShopAddress"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- SHOP LOGO -->
-
-        <div class="custom-card">
-
-            <div class="card-header-custom">
-
-                <i class="bi bi-image"></i>
-
-                Shop Logo
-
-            </div>
-
-            <div class="card-body-custom">
-
-                @if (!string.IsNullOrEmpty(Model.Logo))
-                {
-                    <div class="mb-3">
-
-                        <p class="fw-bold">
-                            Current Logo
-                        </p>
-
-                        <img src="@Model.Logo"
-                             class="current-image"
-                             alt="Current Logo" />
-
-                    </div>
-                }
-
-                <label class="form-label">
-                    Change Logo
-                </label>
-
-                <input type="file"
-                       name="LogoFile"
-                       class="form-control"
-                       accept="image/*" />
-
-                <small class="text-muted">
-
-                    Leave empty if you do not want to change the logo.
-
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- VERIFICATION PHOTOS -->
-
-        <div class="custom-card">
-
-            <div class="card-header-custom">
-
-                <i class="bi bi-images"></i>
-
-                Shop Photos
-
-            </div>
-
-            <div class="card-body-custom">
-
-                <div class="row">
-
-                    <div class="col-md-4 mb-4">
-
-                        <label class="form-label">
-                            Shop Front Photo
-                        </label>
-
-                        @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
-                        {
-                            <img src="@Model.ShopFrontPhoto"
-                                 class="photo-preview mb-2"
-                                 alt="Shop Front" />
-                        }
-
-                        <input type="file"
-                               name="ShopFrontFile"
-                               class="form-control"
-                               accept="image/*" />
-
-                    </div>
-
-
-                    <div class="col-md-4 mb-4">
-
-                        <label class="form-label">
-                            Shop Inside Photo
-                        </label>
-
-                        @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
-                        {
-                            <img src="@Model.ShopInsidePhoto"
-                                 class="photo-preview mb-2"
-                                 alt="Shop Inside" />
-                        }
-
-                        <input type="file"
-                               name="ShopInsideFile"
-                               class="form-control"
-                               accept="image/*" />
-
-                    </div>
-
-
-                    <div class="col-md-4 mb-4">
-
-                        <label class="form-label">
-                            Shop Signboard Photo
-                        </label>
-
-                        @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
-                        {
-                            <img src="@Model.ShopSignboardPhoto"
-                                 class="photo-preview mb-2"
-                                 alt="Shop Signboard" />
-                        }
-
-                        <input type="file"
-                               name="ShopSignboardFile"
-                               class="form-control"
-                               accept="image/*" />
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- BUTTONS -->
-
-        <div class="custom-card">
-
-            <div class="card-body-custom">
-
-                <div class="d-flex flex-wrap gap-2">
-
-                    <button type="submit"
-                            class="btn btn-success">
-
-                        <i class="bi bi-check-circle"></i>
-
-                        Save Changes
-
-                    </button>
+                <div class="col-md-4 text-md-end">
 
                     <a asp-controller="Shopkeeper"
                        asp-action="MyShop"
                        class="btn btn-secondary">
 
-                        <i class="bi bi-x-circle"></i>
+                        <i class="bi bi-arrow-left"></i>
 
-                        Cancel
+                        Back to My Shop
 
                     </a>
 
@@ -552,13 +166,397 @@
 
         </div>
 
-    </form>
-
-</div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+
+        <form asp-controller="Shopkeeper"
+              asp-action="EditShop"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="ShopId" />
+
+            <input type="hidden"
+                   asp-for="ShopkeeperId" />
+
+
+
+
+            <div class="custom-card">
+
+                <div class="card-header-custom">
+
+                    <i class="bi bi-shop"></i>
+
+                    Shop Information
+
+                </div>
+
+                <div class="card-body-custom">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="ShopName"
+                                   class="form-label">
+
+                                Shop Name
+
+                            </label>
+
+                            <input asp-for="ShopName"
+                                   class="form-control"
+                                   placeholder="Enter shop name" />
+
+                            <span asp-validation-for="ShopName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="ShopCategory"
+                                   class="form-label">
+
+                                Shop Category
+
+                            </label>
+
+                            <select asp-for="ShopCategory"
+                                    class="form-select">
+
+                                <option value="">
+                                    Select Category
+                                </option>
+
+                                <option value="Bridal Dresses">
+                                    Bridal Dresses
+                                </option>
+
+                                <option value="Groom Dresses">
+                                    Groom Dresses
+                                </option>
+
+                                <option value="Party Wear">
+                                    Party Wear
+                                </option>
+
+                                <option value="Wedding Accessories">
+                                    Wedding Accessories
+                                </option>
+
+                                <option value="Jewellery">
+                                    Jewellery
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="ShopCategory"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-12 mb-3">
+
+                            <label asp-for="ShopDescription"
+                                   class="form-label">
+
+                                Shop Description
+
+                            </label>
+
+                            <textarea asp-for="ShopDescription"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Describe your shop"></textarea>
+
+                            <span asp-validation-for="ShopDescription"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="custom-card">
+
+                <div class="card-header-custom">
+
+                    <i class="bi bi-telephone"></i>
+
+                    Contact Information
+
+                </div>
+
+                <div class="card-body-custom">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="ShopPhone"
+                                   class="form-label">
+
+                                Shop Phone
+
+                            </label>
+
+                            <input asp-for="ShopPhone"
+                                   class="form-control"
+                                   placeholder="03XX-XXXXXXX" />
+
+                            <span asp-validation-for="ShopPhone"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+
+                                Email
+
+                            </label>
+
+                            <input asp-for="Email"
+                                   type="email"
+                                   class="form-control"
+                                   placeholder="shop@example.com" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-12 mb-3">
+
+                            <label asp-for="ShopAddress"
+                                   class="form-label">
+
+                                Shop Address
+
+                            </label>
+
+                            <textarea asp-for="ShopAddress"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Enter complete shop address"></textarea>
+
+                            <span asp-validation-for="ShopAddress"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="custom-card">
+
+                <div class="card-header-custom">
+
+                    <i class="bi bi-image"></i>
+
+                    Shop Logo
+
+                </div>
+
+                <div class="card-body-custom">
+
+                    @if (!string.IsNullOrEmpty(Model.Logo))
+                    {
+                        <div class="mb-3">
+
+                            <p class="fw-bold">
+                                Current Logo
+                            </p>
+
+                            <img src="@Model.Logo"
+                                 class="current-image"
+                                 alt="Current Logo" />
+
+                        </div>
+                    }
+
+                    <label class="form-label">
+                        Change Logo
+                    </label>
+
+                    <input type="file"
+                           name="LogoFile"
+                           class="form-control"
+                           accept="image/*" />
+
+                    <small class="text-muted">
+
+                        Leave empty if you do not want to change the logo.
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="custom-card">
+
+                <div class="card-header-custom">
+
+                    <i class="bi bi-images"></i>
+
+                    Shop Photos
+
+                </div>
+
+                <div class="card-body-custom">
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-4">
+
+                            <label class="form-label">
+                                Shop Front Photo
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
+                            {
+                                <img src="@Model.ShopFrontPhoto"
+                                     class="photo-preview mb-2"
+                                     alt="Shop Front" />
+                            }
+
+                            <input type="file"
+                                   name="ShopFrontFile"
+                                   class="form-control"
+                                   accept="image/*" />
+
+                        </div>
+
+
+                        <div class="col-md-4 mb-4">
+
+                            <label class="form-label">
+                                Shop Inside Photo
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
+                            {
+                                <img src="@Model.ShopInsidePhoto"
+                                     class="photo-preview mb-2"
+                                     alt="Shop Inside" />
+                            }
+
+                            <input type="file"
+                                   name="ShopInsideFile"
+                                   class="form-control"
+                                   accept="image/*" />
+
+                        </div>
+
+
+                        <div class="col-md-4 mb-4">
+
+                            <label class="form-label">
+                                Shop Signboard Photo
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
+                            {
+                                <img src="@Model.ShopSignboardPhoto"
+                                     class="photo-preview mb-2"
+                                     alt="Shop Signboard" />
+                            }
+
+                            <input type="file"
+                                   name="ShopSignboardFile"
+                                   class="form-control"
+                                   accept="image/*" />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="custom-card">
+
+                <div class="card-body-custom">
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Save Changes
+
+                        </button>
+
+                        <a asp-controller="Shopkeeper"
+                           asp-action="MyShop"
+                           class="btn btn-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+
+                            Cancel
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
 </html>

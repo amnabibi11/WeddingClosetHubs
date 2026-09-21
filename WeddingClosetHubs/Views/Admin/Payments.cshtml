@@ -259,11 +259,6 @@
             border-radius: 8px;
         }
 
-
-        /* =====================================================
-           PAYMENT FLOW
-           ===================================================== */
-
         .flow-box {
             background: #fff;
             border: 1px solid #e1e5ea;
@@ -291,10 +286,6 @@
         }
 
 
-        /* =====================================================
-           PAYOUT INFORMATION
-           ===================================================== */
-
         .payout-info {
             font-size: 12px;
             line-height: 1.6;
@@ -310,11 +301,6 @@
             word-break: break-all;
             color: #6c757d;
         }
-
-
-        /* =====================================================
-           RESPONSIVE
-           ===================================================== */
 
         @@media (max-width: 768px) {
 
@@ -350,10 +336,6 @@
 
 <div class="page-container">
 
-
-    <!-- =====================================================
-         HEADER
-         ===================================================== -->
 
     <div class="page-header">
 
@@ -394,10 +376,6 @@
     </div>
 
 
-    <!-- =====================================================
-         SUCCESS MESSAGE
-         ===================================================== -->
-
     @if (TempData["Success"] != null)
     {
 
@@ -415,11 +393,6 @@
         </div>
 
     }
-
-
-    <!-- =====================================================
-         ERROR MESSAGE
-         ===================================================== -->
 
     @if (TempData["Error"] != null)
     {
@@ -439,15 +412,8 @@
 
     }
 
-
-    <!-- =====================================================
-         SUMMARY
-         ===================================================== -->
-
     <div class="row g-3 summary-row">
 
-
-        <!-- TOTAL ORDERS -->
 
         <div class="col-md-3">
 
@@ -476,7 +442,6 @@
         </div>
 
 
-        <!-- RECEIVED -->
 
         <div class="col-md-3">
 
@@ -505,7 +470,6 @@
         </div>
 
 
-        <!-- PENDING -->
 
         <div class="col-md-3">
 
@@ -534,7 +498,6 @@
         </div>
 
 
-        <!-- SERVICE FEE -->
 
         <div class="col-md-3">
 
@@ -566,10 +529,6 @@
 
 
    
-    <!-- =====================================================
-         PAYMENT TABLE
-         ===================================================== -->
-
     <div class="payment-card">
 
         <div class="payment-card-header">
@@ -666,16 +625,12 @@
                             <tr>
 
 
-                                <!-- NUMBER -->
-
                                 <td>
 
                                     @count
 
                                 </td>
 
-
-                                <!-- ORDER ID -->
 
                                 <td>
 
@@ -688,8 +643,6 @@
                                 </td>
 
 
-                                <!-- CUSTOMER -->
-
                                 <td>
 
                                     @(order.Customer?.Name ?? "N/A")
@@ -697,16 +650,11 @@
                                 </td>
 
 
-                                <!-- SHOP -->
-
                                 <td>
 
                                     @(order.Shop?.ShopName ?? "N/A")
 
                                 </td>
-
-
-                                <!-- PAYMENT METHOD -->
 
                                 <td>
 
@@ -768,9 +716,6 @@
 
                                 </td>
 
-
-                                <!-- PRODUCT TOTAL -->
-
                                 <td>
 
                                     <span class="amount">
@@ -781,17 +726,12 @@
 
                                 </td>
 
-
-                                <!-- DELIVERY -->
-
                                 <td>
 
                                     Rs. @order.DeliveryCharges.ToString("N2")
 
                                 </td>
 
-
-                                <!-- SERVICE FEE -->
 
                                 <td>
 
@@ -803,9 +743,6 @@
 
                                 </td>
 
-
-                                <!-- CUSTOMER TOTAL -->
-
                                 <td>
 
                                     <span class="amount">
@@ -816,8 +753,6 @@
 
                                 </td>
 
-
-                                <!-- CUSTOMER PAYMENT -->
 
                                 <td>
 
@@ -847,9 +782,6 @@
                                     }
 
                                 </td>
-
-
-                                <!-- SHOPKEEPER PAYOUT -->
 
                                 <td>
 
@@ -929,8 +861,6 @@
 
                                 </td>
 
-
-                                <!-- DELIVERY PAYOUT -->
 
                                 <td>
 
@@ -1023,8 +953,6 @@
                                 </td>
 
 
-                                <!-- DETAILS -->
-
                                 <td>
 
                                     <a asp-controller="Admin"
@@ -1053,10 +981,6 @@
 
                 </div>
 
-
-                <!-- =====================================================
-                     PAYOUT SUMMARY
-                     ===================================================== -->
 
                 <div class="row g-3 mt-3">
 

@@ -34,9 +34,6 @@
         }
 
 
-        /* =====================================================
-           NAVBAR
-        ===================================================== */
 
         .navbar-custom {
             background: #800020;
@@ -52,14 +49,11 @@
         }
 
 
-        .brand:hover {
-            color: #d4af37;
-        }
+            .brand:hover {
+                color: #d4af37;
+            }
 
 
-        /* =====================================================
-           MAIN
-        ===================================================== */
 
         .page-container {
             padding: 35px;
@@ -78,9 +72,6 @@
         }
 
 
-        /* =====================================================
-           SUMMARY BOXES
-        ===================================================== */
 
         .summary-box {
             background: white;
@@ -117,9 +108,6 @@
         }
 
 
-        /* =====================================================
-           ORDER TABLE
-        ===================================================== */
 
         .orders-box {
             background: white;
@@ -135,11 +123,11 @@
         }
 
 
-        .orders-header h5 {
-            color: #800020;
-            font-weight: bold;
-            margin: 0;
-        }
+            .orders-header h5 {
+                color: #800020;
+                font-weight: bold;
+                margin: 0;
+            }
 
 
         .table {
@@ -147,25 +135,25 @@
         }
 
 
-        .table thead th {
-            background: #800020;
-            color: white;
-            font-size: 14px;
-            padding: 14px 12px;
-            white-space: nowrap;
-        }
+            .table thead th {
+                background: #800020;
+                color: white;
+                font-size: 14px;
+                padding: 14px 12px;
+                white-space: nowrap;
+            }
 
 
-        .table tbody td {
-            padding: 15px 12px;
-            vertical-align: middle;
-            font-size: 14px;
-        }
+            .table tbody td {
+                padding: 15px 12px;
+                vertical-align: middle;
+                font-size: 14px;
+            }
 
 
-        .table tbody tr:hover {
-            background: #fff8fa;
-        }
+            .table tbody tr:hover {
+                background: #fff8fa;
+            }
 
 
         .order-id {
@@ -184,10 +172,6 @@
             color: #800020;
         }
 
-
-        /* =====================================================
-           STATUS BADGES
-        ===================================================== */
 
         .status-badge {
             padding: 7px 11px;
@@ -234,9 +218,6 @@
         }
 
 
-        /* =====================================================
-           PAYMENT
-        ===================================================== */
 
         .payment-paid {
             color: #198754;
@@ -255,9 +236,6 @@
         }
 
 
-        /* =====================================================
-           BUTTON
-        ===================================================== */
 
         .view-btn {
             background: #800020;
@@ -270,15 +248,12 @@
         }
 
 
-        .view-btn:hover {
-            background: #5f0018;
-            color: white;
-        }
+            .view-btn:hover {
+                background: #5f0018;
+                color: white;
+            }
 
 
-        /* =====================================================
-           EMPTY
-        ===================================================== */
 
         .empty-box {
             padding: 70px 20px;
@@ -286,21 +261,17 @@
         }
 
 
-        .empty-box i {
-            font-size: 55px;
-            color: #ccc;
-        }
+            .empty-box i {
+                font-size: 55px;
+                color: #ccc;
+            }
 
 
-        .empty-box h4 {
-            margin-top: 15px;
-            color: #555;
-        }
+            .empty-box h4 {
+                margin-top: 15px;
+                color: #555;
+            }
 
-
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
 
         @@media(max-width: 992px) {
 
@@ -312,12 +283,10 @@
                 overflow-x: auto;
             }
 
-            .orders-box table {
-                min-width: 1100px;
-            }
-
+                .orders-box table {
+                    min-width: 1100px;
+                }
         }
-
 
     </style>
 
@@ -327,9 +296,6 @@
 <body>
 
 
-    <!-- =====================================================
-         NAVBAR
-    ===================================================== -->
 
     <nav class="navbar-custom">
 
@@ -360,16 +326,10 @@
 
 
 
-    <!-- =====================================================
-         MAIN
-    ===================================================== -->
-
     <div class="page-container">
 
 
-        <!-- =================================================
-             ALERTS
-        ================================================= -->
+
 
         @if (TempData["Success"] != null)
         {
@@ -396,10 +356,6 @@
 
 
 
-        <!-- =================================================
-             PAGE HEADER
-        ================================================= -->
-
         <div class="mb-4">
 
             <h2 class="page-title">
@@ -421,28 +377,23 @@
 
 
 
-        <!-- =================================================
-             SUMMARY
-        ================================================= -->
-
         @{
             int totalOrders = Model?.Count() ?? 0;
 
             int pendingOrders =
-                Model?.Count(x => x.OrderStatus == "Pending") ?? 0;
+            Model?.Count(x => x.OrderStatus == "Pending") ?? 0;
 
             int acceptedOrders =
-                Model?.Count(x => x.OrderStatus == "Accepted") ?? 0;
+            Model?.Count(x => x.OrderStatus == "Accepted") ?? 0;
 
             int completedOrders =
-                Model?.Count(x => x.OrderStatus == "Completed") ?? 0;
+            Model?.Count(x => x.OrderStatus == "Completed") ?? 0;
         }
 
 
         <div class="row g-3 mb-4">
 
 
-            <!-- TOTAL -->
 
             <div class="col-xl-3 col-md-6">
 
@@ -480,7 +431,6 @@
 
 
 
-            <!-- PENDING -->
 
             <div class="col-xl-3 col-md-6">
 
@@ -518,8 +468,6 @@
 
 
 
-            <!-- ACCEPTED -->
-
             <div class="col-xl-3 col-md-6">
 
                 <div class="summary-box">
@@ -556,7 +504,6 @@
 
 
 
-            <!-- COMPLETED -->
 
             <div class="col-xl-3 col-md-6">
 
@@ -596,10 +543,6 @@
         </div>
 
 
-
-        <!-- =================================================
-             ORDERS TABLE
-        ================================================= -->
 
         <div class="orders-box">
 
@@ -688,8 +631,6 @@
                                 <tr>
 
 
-                                    <!-- ORDER -->
-
                                     <td>
 
                                         <span class="order-id">
@@ -701,8 +642,6 @@
                                     </td>
 
 
-
-                                    <!-- CUSTOMER -->
 
                                     <td>
 
@@ -738,8 +677,6 @@
 
 
 
-                                    <!-- DATE -->
-
                                     <td>
 
                                         @order.CreatedDate.ToString("dd MMM yyyy")
@@ -756,8 +693,6 @@
 
 
 
-                                    <!-- PRODUCT TOTAL -->
-
                                     <td>
 
                                         <span class="amount">
@@ -770,7 +705,6 @@
 
 
 
-                                    <!-- FINAL TOTAL -->
 
                                     <td>
 
@@ -784,7 +718,6 @@
 
 
 
-                                    <!-- PAYMENT -->
 
                                     <td>
 
@@ -842,7 +775,7 @@
 
 
 
-                                    <!-- ORDER STATUS -->
+
 
                                     <td>
 
@@ -893,7 +826,7 @@
 
 
 
-                                    <!-- DELIVERY -->
+
 
                                     <td>
 
@@ -926,7 +859,7 @@
 
 
 
-                                    <!-- SHOPKEEPER AMOUNT -->
+
 
                                     <td>
 
@@ -940,7 +873,7 @@
 
 
 
-                                    <!-- SHOPKEEPER PAYMENT -->
+
 
                                     <td>
 
@@ -973,7 +906,7 @@
 
 
 
-                                    <!-- ACTION -->
+
 
                                     <td>
 

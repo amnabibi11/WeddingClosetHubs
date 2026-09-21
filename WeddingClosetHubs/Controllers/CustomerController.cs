@@ -40,11 +40,6 @@ namespace WeddingClosetHubs.Controllers
             _environment = environment;
         }
 
-
-        // =========================================================
-        // CUSTOMER AUTHORIZATION
-        // =========================================================
-
         private int? GetCustomerId()
         {
             return HttpContext.Session.GetInt32("CustomerId");
@@ -69,11 +64,6 @@ namespace WeddingClosetHubs.Controllers
                 "Account"
             );
         }
-
-
-        // =========================================================
-        // CART SESSION HELPERS
-        // =========================================================
 
         private List<CustomerCartItem> GetCartItems()
         {
@@ -121,10 +111,6 @@ namespace WeddingClosetHubs.Controllers
             HttpContext.Session.Remove(CartSessionKey);
         }
 
-
-        // =========================================================
-        // CHECK WHETHER PRODUCT IS A DRESS
-        // =========================================================
 
         private bool IsDressProduct(Product product)
         {
@@ -194,24 +180,12 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // =========================================================
-        // GET EFFECTIVE PRODUCT PRICE
-        //
-        // Priority:
-        // 1. Accepted negotiation
-        // 2. Active sale
-        // 3. Original product price
-        // =========================================================
-
         private async Task<(decimal Price, string PurchaseType, int? NegotiationId)>
             GetEffectivePrice(
                 Product product,
                 int customerId,
                 int quantity = 1)
         {
-            // -----------------------------------------------------
-            // CHECK ACCEPTED NEGOTIATION
-            // -----------------------------------------------------
 
             var acceptedNegotiation =
                 await _context.Negotiations
@@ -235,11 +209,6 @@ namespace WeddingClosetHubs.Controllers
                 );
             }
 
-
-            // -----------------------------------------------------
-            // CHECK SALE
-            // -----------------------------------------------------
-
             if (product.IsOnSale &&
                 product.SalePrice.HasValue &&
                 product.SalePrice.Value > 0 &&
@@ -252,93 +221,66 @@ namespace WeddingClosetHubs.Controllers
                 );
             }
 
-
-            // -----------------------------------------------------
-            // NORMAL BUY
-            // -----------------------------------------------------
-
             return (
                 product.Price,
                 "Buy",
                 null
             );
         }
-        // =========================================================
-// CUSTOMER CHAT AUTHORIZATION
-// =========================================================
 
-private async Task<bool> CanCustomerChatWithUser(
-    int customerId,
-    int receiverId)
-{
-    // ---------------------------------------------
-    // ADMIN CAN ALWAYS BE CONTACTED
-    // ---------------------------------------------
+        private async Task<bool> CanCustomerChatWithUser(
+            int customerId,
+            int receiverId)
+        {
+            var receiver = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == receiverId);
 
-    var receiver = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(u =>
-            u.UserId == receiverId);
-
-    if (receiver == null)
-    {
-        return false;
-    }
-
-    if (receiver.Role?.RoleName == "Admin")
-    {
-        return true;
-    }
-
-    // ---------------------------------------------
-    // CHECK CUSTOMER ORDERS
-    // ---------------------------------------------
-
-    var customerOrders =
-        await _context.Orders
-            .Where(o =>
-                o.CustomerId == customerId &&
-                o.OrderStatus != "Cancelled")
-            .Select(o => new
+            if (receiver == null)
             {
-                o.ShopId,
-                o.DeliveryId
-            })
-            .ToListAsync();
+                return false;
+            }
 
-    // ---------------------------------------------
-    // SHOPKEEPER
-    // ---------------------------------------------
+            if (receiver.Role?.RoleName == "Admin")
+            {
+                return true;
+            }
 
-    if (receiver.Role?.RoleName == "Shopkeeper")
-    {
-        var shopkeeperShopIds =
-            await _context.Shops
-                .Where(s =>
-                    s.ShopkeeperId == receiverId)
-                .Select(s => s.ShopId)
-                .ToListAsync();
+            var customerOrders =
+                await _context.Orders
+                    .Where(o =>
+                        o.CustomerId == customerId &&
+                        o.OrderStatus != "Cancelled")
+                    .Select(o => new
+                    {
+                        o.ShopId,
+                        o.DeliveryId
+                    })
+                    .ToListAsync();
 
-        return customerOrders.Any(o =>
-            shopkeeperShopIds.Contains(o.ShopId));
-    }
 
-    // ---------------------------------------------
-    // DELIVERY BOY
-    // ---------------------------------------------
+            if (receiver.Role?.RoleName == "Shopkeeper")
+            {
+                var shopkeeperShopIds =
+                    await _context.Shops
+                        .Where(s =>
+                            s.ShopkeeperId == receiverId)
+                        .Select(s => s.ShopId)
+                        .ToListAsync();
 
-    if (receiver.Role?.RoleName == "Delivery")
-    {
-        return customerOrders.Any(o =>
-            o.DeliveryId == receiverId);
-    }
+                return customerOrders.Any(o =>
+                    shopkeeperShopIds.Contains(o.ShopId));
+            }
 
-    return false;
-}
+            if (receiver.Role?.RoleName == "Delivery")
+            {
+                return customerOrders.Any(o =>
+                    o.DeliveryId == receiverId);
+            }
 
-        // =========================================================
-        // DASHBOARD
-        // =========================================================
+            return false;
+        }
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -387,11 +329,6 @@ private async Task<bool> CanCustomerChatWithUser(
             return View();
         }
 
-
-        // =========================================================
-        // SHOPS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Shops()
         {
@@ -410,10 +347,6 @@ private async Task<bool> CanCustomerChatWithUser(
             return View(shops);
         }
 
-
-        // =========================================================
-        // SHOP DETAILS
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> ShopDetails(int id)
@@ -456,11 +389,6 @@ private async Task<bool> CanCustomerChatWithUser(
             );
         }
 
-
-        // =========================================================
-        // SHOP PRODUCTS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> ShopProducts(int id)
         {
@@ -499,11 +427,6 @@ private async Task<bool> CanCustomerChatWithUser(
             return View(products);
         }
 
-
-        // =========================================================
-        // PRODUCT DETAILS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> ProductDetails(int id)
         {
@@ -538,924 +461,717 @@ private async Task<bool> CanCustomerChatWithUser(
             }
             var cartItems = GetCartItems();
 
-ViewBag.NegotiatedAlreadyInCart =
-    cartItems.Any(x =>
-        x.ProductId == product.ProductId &&
-        string.Equals(
-            x.PurchaseType,
-            "Negotiated",
-            StringComparison.OrdinalIgnoreCase));
+            ViewBag.NegotiatedAlreadyInCart =
+                cartItems.Any(x =>
+                    x.ProductId == product.ProductId &&
+                    string.Equals(
+                        x.PurchaseType,
+                        "Negotiated",
+                        StringComparison.OrdinalIgnoreCase));
 
             return View(product);
         }
-        // =========================================================
-// NEGOTIATE PRODUCT
-// =========================================================
 
-[HttpGet]
-public async Task<IActionResult> Negotiate(int productId)
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId = GetCustomerId()!.Value;
-
-    var product = await _context.Products
-        .Include(p => p.Shop)
-        .FirstOrDefaultAsync(p =>
-            p.ProductId == productId &&
-            p.Status);
-
-    if (product == null)
-    {
-        TempData["Error"] =
-            "Product not found.";
-
-        return RedirectToAction("Shops");
-    }
-
-    if (product.Shop == null ||
-        !product.Shop.Status ||
-        !product.Shop.IsApproved)
-    {
-        TempData["Error"] =
-            "This shop is currently unavailable.";
-
-        return RedirectToAction("Shops");
-    }
-
-    if (!product.AllowNegotiation)
-    {
-        TempData["Error"] =
-            "Negotiation is not available for this product.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId }
-        );
-    }
-
-    // ---------------------------------------------------------
-    // CHECK EXISTING ACTIVE NEGOTIATION
-    // ---------------------------------------------------------
-
-    var existingNegotiation =
-        await _context.Negotiations
-            .Where(n =>
-                n.ProductId == productId &&
-                n.CustomerId == customerId &&
-                (n.Status == "Pending" ||
-                 n.Status == "CounterOffer"))
-            .OrderByDescending(
-                n => n.CreatedDate)
-            .FirstOrDefaultAsync();
-
-    if (existingNegotiation != null)
-    {
-        TempData["Error"] =
-            "You already have an active negotiation for this product.";
-
-        return RedirectToAction("MyNegotiations");
-    }
-
-    ViewBag.ShopName =
-        product.Shop.ShopName;
-
-    return View(product);
-}
-        // ============================================================
-// MAKE NEGOTIATION OFFER
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> MakeNegotiation(
-    int productId,
-    decimal requestedPrice,
-    string? customerMessage)
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId = GetCustomerId()!.Value;
-
-    // --------------------------------------------------------
-    // VALIDATE PRODUCT
-    // --------------------------------------------------------
-
-    var product = await _context.Products
-        .Include(p => p.Shop)
-        .FirstOrDefaultAsync(p =>
-            p.ProductId == productId &&
-            p.Status);
-
-    if (product == null)
-    {
-        TempData["Error"] = "Product not found.";
-        return RedirectToAction("MyNegotiations");
-    }
-
-    // --------------------------------------------------------
-    // VALIDATE SHOP
-    // --------------------------------------------------------
-
-    if (product.Shop == null ||
-        !product.Shop.Status ||
-        !product.Shop.IsApproved)
-    {
-        TempData["Error"] =
-            "This shop is currently unavailable.";
-
-        return RedirectToAction("MyNegotiations");
-    }
-
-    // --------------------------------------------------------
-    // CHECK NEGOTIATION ENABLED
-    // --------------------------------------------------------
-
-    if (!product.AllowNegotiation)
-    {
-        TempData["Error"] =
-            "Negotiation is not available for this product.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-    // --------------------------------------------------------
-    // VALIDATE OFFER PRICE
-    // --------------------------------------------------------
-
-    if (requestedPrice <= 0)
-    {
-        TempData["Error"] =
-            "Please enter a valid offer price.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-    if (requestedPrice >= product.Price)
-    {
-        TempData["Error"] =
-            "Your negotiation offer must be lower than the original price.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-    // --------------------------------------------------------
-    // CHECK ACTIVE NEGOTIATION
-    // --------------------------------------------------------
-
-    var existingNegotiation =
-        await _context.Negotiations
-            .FirstOrDefaultAsync(n =>
-                n.ProductId == productId &&
-                n.CustomerId == customerId &&
-                (n.Status == "Pending" ||
-                 n.Status == "CounterOffer"));
-
-    if (existingNegotiation != null)
-    {
-        TempData["Error"] =
-            "You already have an active negotiation for this product.";
-
-        return RedirectToAction("MyNegotiations");
-    }
-
-    // --------------------------------------------------------
-    // CREATE NEGOTIATION
-    // --------------------------------------------------------
-
-    var negotiation = new Negotiation
-    {
-        ProductId = product.ProductId,
-        CustomerId = customerId,
-        ShopkeeperId = product.Shop!.ShopkeeperId,
-
-        OriginalPrice = product.Price,
-        RequestedPrice = requestedPrice,
-
-        CounterPrice = null,
-        AgreedPrice = null,
-
-        CustomerMessage =
-            string.IsNullOrWhiteSpace(customerMessage)
-                ? null
-                : customerMessage.Trim(),
-
-        ShopkeeperMessage = null,
-
-        Status = "Pending",
-
-        CreatedDate = DateTime.Now,
-        RespondedDate = null
-    };
-
-    _context.Negotiations.Add(negotiation);
-
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        $"Your offer of Rs. {requestedPrice:N0} has been sent to the shopkeeper.";
-
-    return RedirectToAction("MyNegotiations");
-}
-        // =====================================================
-// MY NEGOTIATIONS
-// =====================================================
-
-[HttpGet]
-public async Task<IActionResult> MyNegotiations()
-{
-    int? customerId = HttpContext.Session.GetInt32("CustomerId");
-
-    if (customerId == null)
-    {
-        return RedirectToAction("Login", "Account");
-    }
-
-    var negotiations = await _context.Negotiations
-        .Include(n => n.Product)
-        .Include(n => n.Shopkeeper)
-        .Where(n => n.CustomerId == customerId.Value)
-        .OrderByDescending(n => n.CreatedDate)
-        .ToListAsync();
-
-    var customer = await _context.Users
-        .FirstOrDefaultAsync(u => u.UserId == customerId.Value);
-
-    ViewBag.CustomerName = customer?.Name ?? "Customer";
-    ViewBag.ProfileImage = customer?.ProfileImage;
-
-    ViewBag.PendingCount = negotiations
-        .Count(n => n.Status == "Pending");
-
-    ViewBag.CounterOfferCount = negotiations
-        .Count(n => n.Status == "CounterOffer");
-
-    ViewBag.AcceptedCount = negotiations
-        .Count(n => n.Status == "Accepted");
-
-    ViewBag.RejectedCount = negotiations
-        .Count(n => n.Status == "Rejected");
-
-    return View(negotiations);
-}
-       // =========================================================
-// ADD TO CART
-// =========================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> AddToCart(
-    int productId,
-    int quantity = 1,
-    string? purchaseType = null)
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId = GetCustomerId()!.Value;
-
-    if (quantity < 1)
-        quantity = 1;
-
-    // ---------------------------------------------------------
-    // GET PRODUCT
-    // ---------------------------------------------------------
-
-    var product = await _context.Products
-        .Include(p => p.Shop)
-        .FirstOrDefaultAsync(p =>
-            p.ProductId == productId &&
-            p.Status);
-
-    if (product == null)
-    {
-        TempData["Error"] = "Product not found.";
-        return RedirectToAction("Shops");
-    }
-
-    // ---------------------------------------------------------
-    // SHOP VALIDATION
-    // ---------------------------------------------------------
-
-    if (product.Shop == null ||
-        !product.Shop.Status ||
-        !product.Shop.IsApproved)
-    {
-        TempData["Error"] =
-            "This shop is currently unavailable.";
-
-        return RedirectToAction("Shops");
-    }
-
-    // ---------------------------------------------------------
-    // STOCK VALIDATION
-    // ---------------------------------------------------------
-
-    if (product.StockQuantity <= 0)
-    {
-        TempData["Error"] =
-            "This product is currently out of stock.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-    if (quantity > product.StockQuantity)
-    {
-        TempData["Error"] =
-            $"Only {product.StockQuantity} item(s) are available.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-
-    // =========================================================
-    // DETERMINE PURCHASE TYPE AND PRICE
-    // =========================================================
-
-    string requestedType =
-        string.IsNullOrWhiteSpace(purchaseType)
-            ? "Buy"
-            : purchaseType.Trim();
-
-    string selectedPurchaseType = "Buy";
-    decimal selectedPrice = product.Price;
-    int? negotiationId = null;
-
-
-    // =========================================================
-    // 1. RENT
-    // =========================================================
-
-    if (requestedType.Equals(
-            "Rent",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        if (!product.IsAvailableForRent ||
-            !product.RentPrice.HasValue ||
-            product.RentPrice.Value <= 0)
+        [HttpGet]
+        public async Task<IActionResult> Negotiate(int productId)
         {
-            TempData["Error"] =
-                "This product is not available for rent.";
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+            int customerId = GetCustomerId()!.Value;
 
-        selectedPurchaseType = "Rent";
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId &&
+                    p.Status);
 
-        selectedPrice =
-            product.RentPrice.Value;
-
-        negotiationId = null;
-    }
-
-
-    // =========================================================
-    // 2. NEGOTIATED PRICE
-    // =========================================================
-
-    else if (requestedType.Equals(
-                 "Negotiated",
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        var negotiation =
-            await _context.Negotiations
-                .Where(n =>
-                    n.ProductId == productId &&
-                    n.CustomerId == customerId &&
-                    n.Status == "Accepted" &&
-                    n.AgreedPrice.HasValue &&
-                    n.AgreedPrice.Value > 0)
-                .OrderByDescending(n =>
-                    n.RespondedDate ??
-                    n.CreatedDate)
-                .FirstOrDefaultAsync();
-
-        if (negotiation == null)
-        {
-            TempData["Error"] =
-                "No accepted negotiated price is available for this product.";
-
-            return RedirectToAction(
-                "MyNegotiations");
-        }
-
-        // IMPORTANT:
-        // Use the accepted negotiated price.
-        // DO NOT change product.Price.
-
-        selectedPurchaseType = "Negotiated";
-
-        selectedPrice =
-            negotiation.AgreedPrice!.Value;
-
-        negotiationId =
-            negotiation.NegotiationId;
-    }
-
-
-    // =========================================================
-    // 3. SALE / DISCOUNT
-    // =========================================================
-
-    else if (requestedType.Equals(
-                 "Sale",
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        if (!product.IsOnSale ||
-            !product.SalePrice.HasValue ||
-            product.SalePrice.Value <= 0 ||
-            product.SalePrice.Value >= product.Price)
-        {
-            TempData["Error"] =
-                "This product is not currently available at a sale price.";
-
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-
-        selectedPurchaseType = "Sale";
-
-        selectedPrice =
-            product.SalePrice.Value;
-
-        negotiationId = null;
-    }
-
-
-    // =========================================================
-    // 4. NORMAL BUY
-    // =========================================================
-
-    else
-    {
-        selectedPurchaseType = "Buy";
-
-        selectedPrice =
-            product.Price;
-
-        negotiationId = null;
-    }
-
-
-    // =========================================================
-    // GET SESSION CART
-    // =========================================================
-
-    var cartItems = GetCartItems();
-
-
-    // =========================================================
-    // CHECK EXISTING ITEM
-    // =========================================================
-
-    var existingItem =
-        cartItems.FirstOrDefault(x =>
-            x.ProductId == productId &&
-            string.Equals(
-                x.PurchaseType ?? "Buy",
-                selectedPurchaseType,
-                StringComparison.OrdinalIgnoreCase));
-
-if (existingItem != null)
-{
-    // =====================================================
-    // NEGOTIATED PRODUCT CAN ONLY BE ADDED ONCE
-    // =====================================================
-
-    if (selectedPurchaseType.Equals(
-            "Negotiated",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "This negotiated product has already been added to your cart. It can only be added once.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-
-    // =====================================================
-    // OTHER PURCHASE TYPES
-    // =====================================================
-
-    int newQuantity =
-        existingItem.Quantity + quantity;
-
-    if (newQuantity > product.StockQuantity)
-    {
-        TempData["Error"] =
-            $"You can only add up to {product.StockQuantity} item(s) of {product.ProductName}.";
-
-        return RedirectToAction(
-            "ProductDetails",
-            new { id = productId });
-    }
-
-    existingItem.Quantity =
-        newQuantity;
-
-    existingItem.ProductName =
-        product.ProductName;
-
-    existingItem.Price =
-        selectedPrice;
-
-    existingItem.PurchaseType =
-        selectedPurchaseType;
-
-    existingItem.NegotiationId =
-        negotiationId;
-}
-
-
-    // =========================================================
-    // NEW ITEM
-    // =========================================================
-
-    else
-    {
-        cartItems.Add(
-            new CustomerCartItem
+            if (product == null)
             {
-                ProductId =
-                    product.ProductId,
+                TempData["Error"] =
+                    "Product not found.";
 
-                ProductName =
-                    product.ProductName,
+                return RedirectToAction("Shops");
+            }
 
-                Price =
-                    selectedPrice,
+            if (product.Shop == null ||
+                !product.Shop.Status ||
+                !product.Shop.IsApproved)
+            {
+                TempData["Error"] =
+                    "This shop is currently unavailable.";
 
-                Quantity =
-                    quantity,
+                return RedirectToAction("Shops");
+            }
 
-                CustomMeasurements =
-                    null,
+            if (!product.AllowNegotiation)
+            {
+                TempData["Error"] =
+                    "Negotiation is not available for this product.";
 
-                PurchaseType =
-                    selectedPurchaseType,
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId }
+                );
+            }
 
-                NegotiationId =
-                    negotiationId
-            });
-    }
+            var existingNegotiation =
+                await _context.Negotiations
+                    .Where(n =>
+                        n.ProductId == productId &&
+                        n.CustomerId == customerId &&
+                        (n.Status == "Pending" ||
+                         n.Status == "CounterOffer"))
+                    .OrderByDescending(
+                        n => n.CreatedDate)
+                    .FirstOrDefaultAsync();
 
+            if (existingNegotiation != null)
+            {
+                TempData["Error"] =
+                    "You already have an active negotiation for this product.";
 
-    // =========================================================
-    // SAVE CART
-    // =========================================================
+                return RedirectToAction("MyNegotiations");
+            }
 
-    SaveCartItems(cartItems);
+            ViewBag.ShopName =
+                product.Shop.ShopName;
 
-    TempData["Success"] =
-        $"{product.ProductName} added to cart successfully.";
-
-    return RedirectToAction("Cart");
-}
-
-
-      // =========================================================
-// CART
-// =========================================================
-
-[HttpGet]
-public async Task<IActionResult> Cart()
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId =
-        GetCustomerId()!.Value;
-
-    var cartItems =
-        GetCartItems();
-
-    // ---------------------------------------------------------
-    // EMPTY CART
-    // ---------------------------------------------------------
-
-    if (!cartItems.Any())
-    {
-        ViewBag.CartItems =
-            cartItems;
-
-        return View(
-            new List<Product>());
-    }
-
-
-    // ---------------------------------------------------------
-    // GET PRODUCT IDS
-    // ---------------------------------------------------------
-
-    var productIds =
-        cartItems
-            .Select(x => x.ProductId)
-            .Distinct()
-            .ToList();
-
-
-    // ---------------------------------------------------------
-    // GET PRODUCTS
-    // ---------------------------------------------------------
-
-    var products =
-        await _context.Products
-            .Include(p => p.Shop)
-            .Where(p =>
-                productIds.Contains(p.ProductId) &&
-                p.Status)
-            .ToListAsync();
-
-
-    // ---------------------------------------------------------
-    // REMOVE PRODUCTS THAT NO LONGER EXIST
-    // ---------------------------------------------------------
-
-    var validIds =
-        products
-            .Select(p => p.ProductId)
-            .ToHashSet();
-
-    cartItems =
-        cartItems
-            .Where(x =>
-                validIds.Contains(x.ProductId))
-            .ToList();
-
-
-    // ---------------------------------------------------------
-    // ITEMS TO REMOVE
-    // ---------------------------------------------------------
-
-    var itemsToRemove =
-        new List<CustomerCartItem>();
-
-
-    // =========================================================
-    // REFRESH CART PRICES
-    // =========================================================
-
-    foreach (var item in cartItems)
-    {
-        var product =
-            products.FirstOrDefault(p =>
-                p.ProductId == item.ProductId);
-
-        if (product == null)
-        {
-            itemsToRemove.Add(item);
-            continue;
+            return View(product);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MakeNegotiation(
+            int productId,
+            decimal requestedPrice,
+            string? customerMessage)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
 
-        // -----------------------------------------------------
-        // UPDATE PRODUCT NAME
-        // -----------------------------------------------------
-
-        item.ProductName =
-            product.ProductName;
+            int customerId = GetCustomerId()!.Value;
 
 
-        string purchaseType =
-            string.IsNullOrWhiteSpace(
-                item.PurchaseType)
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId &&
+                    p.Status);
+
+            if (product == null)
+            {
+                TempData["Error"] = "Product not found.";
+                return RedirectToAction("MyNegotiations");
+            }
+
+
+            if (product.Shop == null ||
+                !product.Shop.Status ||
+                !product.Shop.IsApproved)
+            {
+                TempData["Error"] =
+                    "This shop is currently unavailable.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            if (!product.AllowNegotiation)
+            {
+                TempData["Error"] =
+                    "Negotiation is not available for this product.";
+
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId });
+            }
+
+
+            if (requestedPrice <= 0)
+            {
+                TempData["Error"] =
+                    "Please enter a valid offer price.";
+
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId });
+            }
+
+            if (requestedPrice >= product.Price)
+            {
+                TempData["Error"] =
+                    "Your negotiation offer must be lower than the original price.";
+
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId });
+            }
+
+            var existingNegotiation =
+                await _context.Negotiations
+                    .FirstOrDefaultAsync(n =>
+                        n.ProductId == productId &&
+                        n.CustomerId == customerId &&
+                        (n.Status == "Pending" ||
+                         n.Status == "CounterOffer"));
+
+            if (existingNegotiation != null)
+            {
+                TempData["Error"] =
+                    "You already have an active negotiation for this product.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            var negotiation = new Negotiation
+            {
+                ProductId = product.ProductId,
+                CustomerId = customerId,
+                ShopkeeperId = product.Shop!.ShopkeeperId,
+
+                OriginalPrice = product.Price,
+                RequestedPrice = requestedPrice,
+
+                CounterPrice = null,
+                AgreedPrice = null,
+
+                CustomerMessage =
+                    string.IsNullOrWhiteSpace(customerMessage)
+                        ? null
+                        : customerMessage.Trim(),
+
+                ShopkeeperMessage = null,
+
+                Status = "Pending",
+
+                CreatedDate = DateTime.Now,
+                RespondedDate = null
+            };
+
+            _context.Negotiations.Add(negotiation);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"Your offer of Rs. {requestedPrice:N0} has been sent to the shopkeeper.";
+
+            return RedirectToAction("MyNegotiations");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyNegotiations()
+        {
+            int? customerId = HttpContext.Session.GetInt32("CustomerId");
+
+            if (customerId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var negotiations = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Shopkeeper)
+                .Where(n => n.CustomerId == customerId.Value)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+
+            var customer = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == customerId.Value);
+
+            ViewBag.CustomerName = customer?.Name ?? "Customer";
+            ViewBag.ProfileImage = customer?.ProfileImage;
+
+            ViewBag.PendingCount = negotiations
+                .Count(n => n.Status == "Pending");
+
+            ViewBag.CounterOfferCount = negotiations
+                .Count(n => n.Status == "CounterOffer");
+
+            ViewBag.AcceptedCount = negotiations
+                .Count(n => n.Status == "Accepted");
+
+            ViewBag.RejectedCount = negotiations
+                .Count(n => n.Status == "Rejected");
+
+            return View(negotiations);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCart(
+            int productId,
+            int quantity = 1,
+            string? purchaseType = null)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId = GetCustomerId()!.Value;
+
+            if (quantity < 1)
+                quantity = 1;
+
+
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId &&
+                    p.Status);
+
+            if (product == null)
+            {
+                TempData["Error"] = "Product not found.";
+                return RedirectToAction("Shops");
+            }
+
+            if (product.Shop == null ||
+                !product.Shop.Status ||
+                !product.Shop.IsApproved)
+            {
+                TempData["Error"] =
+                    "This shop is currently unavailable.";
+
+                return RedirectToAction("Shops");
+            }
+
+            if (product.StockQuantity <= 0)
+            {
+                TempData["Error"] =
+                    "This product is currently out of stock.";
+
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId });
+            }
+
+            if (quantity > product.StockQuantity)
+            {
+                TempData["Error"] =
+                    $"Only {product.StockQuantity} item(s) are available.";
+
+                return RedirectToAction(
+                    "ProductDetails",
+                    new { id = productId });
+            }
+
+
+            string requestedType =
+                string.IsNullOrWhiteSpace(purchaseType)
                     ? "Buy"
-                    : item.PurchaseType.Trim();
+                    : purchaseType.Trim();
 
+            string selectedPurchaseType = "Buy";
+            decimal selectedPrice = product.Price;
+            int? negotiationId = null;
 
-        // =====================================================
-        // RENT
-        // =====================================================
-
-        if (purchaseType.Equals(
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (product.IsAvailableForRent &&
-                product.RentPrice.HasValue &&
-                product.RentPrice.Value > 0)
+            if (requestedType.Equals(
+                    "Rent",
+                    StringComparison.OrdinalIgnoreCase))
             {
-                item.Price =
+                if (!product.IsAvailableForRent ||
+                    !product.RentPrice.HasValue ||
+                    product.RentPrice.Value <= 0)
+                {
+                    TempData["Error"] =
+                        "This product is not available for rent.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                selectedPurchaseType = "Rent";
+
+                selectedPrice =
                     product.RentPrice.Value;
 
-                item.PurchaseType =
-                    "Rent";
-
-                item.NegotiationId =
-                    null;
-            }
-            else
-            {
-                itemsToRemove.Add(item);
+                negotiationId = null;
             }
 
-            continue;
-        }
-
-
-        // =====================================================
-        // NEGOTIATED
-        // =====================================================
-
-        if (purchaseType.Equals(
-                "Negotiated",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            Negotiation? negotiation = null;
-
-
-            // -------------------------------------------------
-            // First try the negotiation stored in cart
-            // -------------------------------------------------
-
-            if (item.NegotiationId.HasValue)
+            else if (requestedType.Equals(
+                         "Negotiated",
+                         StringComparison.OrdinalIgnoreCase))
             {
-                negotiation =
-                    await _context.Negotiations
-                        .FirstOrDefaultAsync(n =>
-                            n.NegotiationId ==
-                                item.NegotiationId.Value &&
-
-                            n.ProductId ==
-                                product.ProductId &&
-
-                            n.CustomerId ==
-                                customerId &&
-
-                            n.Status == "Accepted" &&
-
-                            n.AgreedPrice.HasValue &&
-
-                            n.AgreedPrice.Value > 0);
-            }
-
-
-            // -------------------------------------------------
-            // If not found, get latest accepted negotiation
-            // -------------------------------------------------
-
-            if (negotiation == null)
-            {
-                negotiation =
+                var negotiation =
                     await _context.Negotiations
                         .Where(n =>
-                            n.ProductId ==
-                                product.ProductId &&
-
-                            n.CustomerId ==
-                                customerId &&
-
+                            n.ProductId == productId &&
+                            n.CustomerId == customerId &&
                             n.Status == "Accepted" &&
-
                             n.AgreedPrice.HasValue &&
-
                             n.AgreedPrice.Value > 0)
                         .OrderByDescending(n =>
                             n.RespondedDate ??
                             n.CreatedDate)
                         .FirstOrDefaultAsync();
-            }
 
+                if (negotiation == null)
+                {
+                    TempData["Error"] =
+                        "No accepted negotiated price is available for this product.";
 
-            // -------------------------------------------------
-            // ACCEPTED NEGOTIATION FOUND
-            // -------------------------------------------------
+                    return RedirectToAction(
+                        "MyNegotiations");
+                }
 
-            if (negotiation != null &&
-                negotiation.AgreedPrice.HasValue)
-            {
-                // IMPORTANT:
-                // Show the agreed negotiated price.
-                //
-                // Example:
-                // Original = Rs. 80,000
-                // Agreed   = Rs. 65,000
-                //
-                // Cart must show Rs. 65,000.
+                selectedPurchaseType = "Negotiated";
 
-                item.Price =
-                    negotiation.AgreedPrice.Value;
+                selectedPrice =
+                    negotiation.AgreedPrice!.Value;
 
-                item.PurchaseType =
-                    "Negotiated";
-
-                item.NegotiationId =
+                negotiationId =
                     negotiation.NegotiationId;
             }
-            else
+
+            else if (requestedType.Equals(
+                         "Sale",
+                         StringComparison.OrdinalIgnoreCase))
             {
-                // -------------------------------------------------
-                // Negotiation is no longer valid.
-                // Remove it rather than silently changing it
-                // into a normal Buy price.
-                // -------------------------------------------------
+                if (!product.IsOnSale ||
+                    !product.SalePrice.HasValue ||
+                    product.SalePrice.Value <= 0 ||
+                    product.SalePrice.Value >= product.Price)
+                {
+                    TempData["Error"] =
+                        "This product is not currently available at a sale price.";
 
-                itemsToRemove.Add(item);
-            }
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
 
-            continue;
-        }
+                selectedPurchaseType = "Sale";
 
-
-        // =====================================================
-        // SALE / DISCOUNT
-        // =====================================================
-
-        if (purchaseType.Equals(
-                "Sale",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (product.IsOnSale &&
-                product.SalePrice.HasValue &&
-                product.SalePrice.Value > 0 &&
-                product.SalePrice.Value < product.Price)
-            {
-                item.Price =
+                selectedPrice =
                     product.SalePrice.Value;
 
+                negotiationId = null;
+            }
+
+            else
+            {
+                selectedPurchaseType = "Buy";
+
+                selectedPrice =
+                    product.Price;
+
+                negotiationId = null;
+            }
+
+
+            var cartItems = GetCartItems();
+
+            var existingItem =
+                cartItems.FirstOrDefault(x =>
+                    x.ProductId == productId &&
+                    string.Equals(
+                        x.PurchaseType ?? "Buy",
+                        selectedPurchaseType,
+                        StringComparison.OrdinalIgnoreCase));
+
+            if (existingItem != null)
+            {
+
+                if (selectedPurchaseType.Equals(
+                        "Negotiated",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "This negotiated product has already been added to your cart. It can only be added once.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                int newQuantity =
+                    existingItem.Quantity + quantity;
+
+                if (newQuantity > product.StockQuantity)
+                {
+                    TempData["Error"] =
+                        $"You can only add up to {product.StockQuantity} item(s) of {product.ProductName}.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                existingItem.Quantity =
+                    newQuantity;
+
+                existingItem.ProductName =
+                    product.ProductName;
+
+                existingItem.Price =
+                    selectedPrice;
+
+                existingItem.PurchaseType =
+                    selectedPurchaseType;
+
+                existingItem.NegotiationId =
+                    negotiationId;
+            }
+
+
+            else
+            {
+                cartItems.Add(
+                    new CustomerCartItem
+                    {
+                        ProductId =
+                            product.ProductId,
+
+                        ProductName =
+                            product.ProductName,
+
+                        Price =
+                            selectedPrice,
+
+                        Quantity =
+                            quantity,
+
+                        CustomMeasurements =
+                            null,
+
+                        PurchaseType =
+                            selectedPurchaseType,
+
+                        NegotiationId =
+                            negotiationId
+                    });
+            }
+
+            SaveCartItems(cartItems);
+
+            TempData["Success"] =
+                $"{product.ProductName} added to cart successfully.";
+
+            return RedirectToAction("Cart");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Cart()
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId =
+                GetCustomerId()!.Value;
+
+            var cartItems =
+                GetCartItems();
+
+            if (!cartItems.Any())
+            {
+                ViewBag.CartItems =
+                    cartItems;
+
+                return View(
+                    new List<Product>());
+            }
+
+
+            var productIds =
+                cartItems
+                    .Select(x => x.ProductId)
+                    .Distinct()
+                    .ToList();
+
+            var products =
+                await _context.Products
+                    .Include(p => p.Shop)
+                    .Where(p =>
+                        productIds.Contains(p.ProductId) &&
+                        p.Status)
+                    .ToListAsync();
+
+
+            var validIds =
+                products
+                    .Select(p => p.ProductId)
+                    .ToHashSet();
+
+            cartItems =
+                cartItems
+                    .Where(x =>
+                        validIds.Contains(x.ProductId))
+                    .ToList();
+
+            var itemsToRemove =
+                new List<CustomerCartItem>();
+
+
+            foreach (var item in cartItems)
+            {
+                var product =
+                    products.FirstOrDefault(p =>
+                        p.ProductId == item.ProductId);
+
+                if (product == null)
+                {
+                    itemsToRemove.Add(item);
+                    continue;
+                }
+
+                item.ProductName =
+                    product.ProductName;
+
+
+                string purchaseType =
+                    string.IsNullOrWhiteSpace(
+                        item.PurchaseType)
+                            ? "Buy"
+                            : item.PurchaseType.Trim();
+
+                if (purchaseType.Equals(
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (product.IsAvailableForRent &&
+                        product.RentPrice.HasValue &&
+                        product.RentPrice.Value > 0)
+                    {
+                        item.Price =
+                            product.RentPrice.Value;
+
+                        item.PurchaseType =
+                            "Rent";
+
+                        item.NegotiationId =
+                            null;
+                    }
+                    else
+                    {
+                        itemsToRemove.Add(item);
+                    }
+
+                    continue;
+                }
+
+                if (purchaseType.Equals(
+                        "Negotiated",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    Negotiation? negotiation = null;
+
+
+                    if (item.NegotiationId.HasValue)
+                    {
+                        negotiation =
+                            await _context.Negotiations
+                                .FirstOrDefaultAsync(n =>
+                                    n.NegotiationId ==
+                                        item.NegotiationId.Value &&
+
+                                    n.ProductId ==
+                                        product.ProductId &&
+
+                                    n.CustomerId ==
+                                        customerId &&
+
+                                    n.Status == "Accepted" &&
+
+                                    n.AgreedPrice.HasValue &&
+
+                                    n.AgreedPrice.Value > 0);
+                    }
+
+                    if (negotiation == null)
+                    {
+                        negotiation =
+                            await _context.Negotiations
+                                .Where(n =>
+                                    n.ProductId ==
+                                        product.ProductId &&
+
+                                    n.CustomerId ==
+                                        customerId &&
+
+                                    n.Status == "Accepted" &&
+
+                                    n.AgreedPrice.HasValue &&
+
+                                    n.AgreedPrice.Value > 0)
+                                .OrderByDescending(n =>
+                                    n.RespondedDate ??
+                                    n.CreatedDate)
+                                .FirstOrDefaultAsync();
+                    }
+
+                    if (negotiation != null &&
+                        negotiation.AgreedPrice.HasValue)
+                    {
+
+                        item.Price =
+                            negotiation.AgreedPrice.Value;
+
+                        item.PurchaseType =
+                            "Negotiated";
+
+                        item.NegotiationId =
+                            negotiation.NegotiationId;
+                    }
+                    else
+                    {
+
+                        itemsToRemove.Add(item);
+                    }
+
+                    continue;
+                }
+
+                if (purchaseType.Equals(
+                        "Sale",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (product.IsOnSale &&
+                        product.SalePrice.HasValue &&
+                        product.SalePrice.Value > 0 &&
+                        product.SalePrice.Value < product.Price)
+                    {
+                        item.Price =
+                            product.SalePrice.Value;
+
+                        item.PurchaseType =
+                            "Sale";
+
+                        item.NegotiationId =
+                            null;
+                    }
+                    else
+                    {
+
+                        itemsToRemove.Add(item);
+                    }
+
+                    continue;
+                }
+
+                item.Price =
+                    product.Price;
+
                 item.PurchaseType =
-                    "Sale";
+                    "Buy";
 
                 item.NegotiationId =
                     null;
             }
-            else
-            {
-                // Sale has ended.
-                // Remove the sale item instead of charging
-                // the customer the old discounted price.
 
-                itemsToRemove.Add(item);
+            foreach (var item in itemsToRemove)
+            {
+                cartItems.Remove(item);
             }
 
-            continue;
+            SaveCartItems(cartItems);
+
+
+            ViewBag.CartItems =
+                cartItems;
+
+
+            return View(products);
         }
-
-
-        // =====================================================
-        // NORMAL BUY
-        // =====================================================
-
-        item.Price =
-            product.Price;
-
-        item.PurchaseType =
-            "Buy";
-
-        item.NegotiationId =
-            null;
-    }
-
-
-    // =========================================================
-    // REMOVE INVALID ITEMS
-    // =========================================================
-
-    foreach (var item in itemsToRemove)
-    {
-        cartItems.Remove(item);
-    }
-
-
-    // =========================================================
-    // SAVE UPDATED CART
-    // =========================================================
-
-    SaveCartItems(cartItems);
-
-
-    // =========================================================
-    // SEND CART DATA TO VIEW
-    // =========================================================
-
-    ViewBag.CartItems =
-        cartItems;
-
-
-    return View(products);
-}
-
-
-        // =========================================================
-        // UPDATE CART QUANTITY
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1518,11 +1234,6 @@ public async Task<IActionResult> Cart()
 
             item.ProductName =
                 product.ProductName;
-
-
-            // -----------------------------------------------------
-            // REFRESH PRICE
-            // -----------------------------------------------------
 
             string purchaseType =
                 item.PurchaseType ?? "Buy";
@@ -1619,11 +1330,6 @@ public async Task<IActionResult> Cart()
             return RedirectToAction("Cart");
         }
 
-
-        // =========================================================
-        // REMOVE FROM CART
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveFromCart(int id)
@@ -1647,11 +1353,6 @@ public async Task<IActionResult> Cart()
 
             return RedirectToAction("Cart");
         }
-
-
-        // =========================================================
-        // CUSTOMIZE PRODUCT
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> CustomizeProduct(
@@ -1716,11 +1417,6 @@ public async Task<IActionResult> Cart()
 
             return View(product);
         }
-
-
-        // =========================================================
-        // SAVE CUSTOM MEASUREMENTS
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1809,11 +1505,6 @@ public async Task<IActionResult> Cart()
             return RedirectToAction("Cart");
         }
 
-
-        // =========================================================
-        // REMOVE CUSTOMIZATION
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveCustomMeasurements(
@@ -1846,11 +1537,6 @@ public async Task<IActionResult> Cart()
             return RedirectToAction("Cart");
         }
 
-
-        // =========================================================
-        // CHECKOUT GET
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
@@ -1860,10 +1546,6 @@ public async Task<IActionResult> Cart()
             int customerId =
                 GetCustomerId()!.Value;
 
-
-            // -----------------------------------------------------
-            // CUSTOMER
-            // -----------------------------------------------------
 
             var customer =
                 await _context.Users
@@ -1896,11 +1578,6 @@ public async Task<IActionResult> Cart()
                 );
             }
 
-
-            // -----------------------------------------------------
-            // CART
-            // -----------------------------------------------------
-
             var cartItems =
                 GetCartItems();
 
@@ -1918,11 +1595,6 @@ public async Task<IActionResult> Cart()
                     .Select(x => x.ProductId)
                     .Distinct()
                     .ToList();
-
-
-            // -----------------------------------------------------
-            // PRODUCTS
-            // -----------------------------------------------------
 
             var products =
                 await _context.Products
@@ -1945,11 +1617,6 @@ public async Task<IActionResult> Cart()
 
                 return RedirectToAction("Cart");
             }
-
-
-            // -----------------------------------------------------
-            // STOCK
-            // -----------------------------------------------------
 
             foreach (var item in cartItems)
             {
@@ -1978,11 +1645,6 @@ public async Task<IActionResult> Cart()
                 }
             }
 
-
-            // -----------------------------------------------------
-            // SAME SHOP CHECK
-            // -----------------------------------------------------
-
             int shopId =
                 products.First().ShopId;
 
@@ -1997,11 +1659,6 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
-
-            // -----------------------------------------------------
-            // SHOP
-            // -----------------------------------------------------
-
             var shop =
                 products.First().Shop;
 
@@ -2014,15 +1671,6 @@ public async Task<IActionResult> Cart()
 
                 return RedirectToAction("Shops");
             }
-
-
-            // -----------------------------------------------------
-            // REFRESH CART PRICES
-            //
-            // IMPORTANT:
-            // Checkout does NOT trust cart Price.
-            // Price is recalculated from database.
-            // -----------------------------------------------------
 
             decimal productTotal = 0m;
 
@@ -2041,8 +1689,6 @@ public async Task<IActionResult> Cart()
 
                 decimal finalUnitPrice;
 
-
-                // RENT
                 if (purchaseType.Equals(
                         "Rent",
                         StringComparison.OrdinalIgnoreCase))
@@ -2061,8 +1707,6 @@ public async Task<IActionResult> Cart()
                         product.RentPrice.Value;
                 }
 
-
-                // NEGOTIATED
                 else if (purchaseType.Equals(
                     "Negotiated",
                     StringComparison.OrdinalIgnoreCase))
@@ -2100,8 +1744,6 @@ public async Task<IActionResult> Cart()
                         negotiation.NegotiationId;
                 }
 
-
-                // SALE
                 else if (
                     product.IsOnSale &&
                     product.SalePrice.HasValue &&
@@ -2116,8 +1758,6 @@ public async Task<IActionResult> Cart()
                         "Sale";
                 }
 
-
-                // NORMAL BUY
                 else
                 {
                     finalUnitPrice =
@@ -2146,11 +1786,6 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
-
-            // -----------------------------------------------------
-            // CHARGES
-            // -----------------------------------------------------
-
             decimal deliveryCharges =
                 DeliveryCharge;
 
@@ -2166,17 +1801,8 @@ public async Task<IActionResult> Cart()
                 deliveryCharges +
                 serviceFee;
 
-
-            // IMPORTANT:
-            // Shopkeeper receives FULL PRODUCT TOTAL.
-            // Service fee is NOT deducted from shopkeeper.
             decimal shopkeeperAmount =
                 productTotal;
-
-
-            // -----------------------------------------------------
-            // VIEW DATA
-            // -----------------------------------------------------
 
             ViewBag.CustomerName =
                 customer.Name;
@@ -2215,11 +1841,6 @@ public async Task<IActionResult> Cart()
             return View(products);
         }
 
-
-        // =========================================================
-        // PLACE ORDER
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(
@@ -2237,10 +1858,6 @@ public async Task<IActionResult> Cart()
             int customerId =
                 GetCustomerId()!.Value;
 
-
-            // -----------------------------------------------------
-            // CUSTOMER
-            // -----------------------------------------------------
 
             var customer =
                 await _context.Users
@@ -2270,149 +1887,114 @@ public async Task<IActionResult> Cart()
                     "Dashboard"
                 );
             }
-            // -----------------------------------------------------
-// CUSTOMER NAME VALIDATION
-// -----------------------------------------------------
 
-if (string.IsNullOrWhiteSpace(customer.Name))
-{
-    TempData["Error"] =
-        "Your account name is missing. Please update your profile before placing an order.";
+            if (string.IsNullOrWhiteSpace(customer.Name))
+            {
+                TempData["Error"] =
+                    "Your account name is missing. Please update your profile before placing an order.";
 
-    return RedirectToAction(
-        "Profile",
-        "Account"
-    );
-}
+                return RedirectToAction(
+                    "Profile",
+                    "Account"
+                );
+            }
 
-// -----------------------------------------------------
-// CUSTOMER PHONE VALIDATION
-// -----------------------------------------------------
+            if (string.IsNullOrWhiteSpace(customer.Phone))
+            {
+                TempData["Error"] =
+                    "Your phone number is required before placing an order. Please update your profile.";
 
-if (string.IsNullOrWhiteSpace(customer.Phone))
-{
-    TempData["Error"] =
-        "Your phone number is required before placing an order. Please update your profile.";
+                return RedirectToAction(
+                    "Profile",
+                    "Account"
+                );
+            }
 
-    return RedirectToAction(
-        "Profile",
-        "Account"
-    );
-}
+            if (string.IsNullOrWhiteSpace(customer.Address))
+            {
+                TempData["Error"] =
+                    "Your account address is required before placing an order. Please update your profile.";
+
+                return RedirectToAction(
+                    "Profile",
+                    "Account"
+                );
+            }
+
+            string customerAddress =
+                customer.Address.Trim();
+
+            if (!customerAddress.Contains(
+                    "Rawalpindi",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Orders can currently be placed only by customers based in Rawalpindi.";
+
+                return RedirectToAction("Checkout");
+            }
+
+            if (string.IsNullOrWhiteSpace(deliveryCity))
+            {
+                TempData["Error"] =
+                    "Please select your delivery city.";
+
+                return RedirectToAction("Checkout");
+            }
+
+            deliveryCity = deliveryCity.Trim();
+
+            if (!deliveryCity.Equals(
+                    "Rawalpindi",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Orders can currently be placed only for delivery within Rawalpindi.";
+
+                return RedirectToAction("Checkout");
+            }
 
 
-// -----------------------------------------------------
-// CUSTOMER ADDRESS VALIDATION
-// -----------------------------------------------------
+            deliveryCity = "Rawalpindi";
 
-if (string.IsNullOrWhiteSpace(customer.Address))
-{
-    TempData["Error"] =
-        "Your account address is required before placing an order. Please update your profile.";
+            if (string.IsNullOrWhiteSpace(deliveryAddress))
+            {
+                TempData["Error"] =
+                    "Please enter your complete delivery address.";
 
-    return RedirectToAction(
-        "Profile",
-        "Account"
-    );
-}
-// -----------------------------------------------------
-// CUSTOMER RAWALPINDI VALIDATION
-// -----------------------------------------------------
-//
-// Customer's registered address must be based in Rawalpindi.
-// This prevents customers registered with another city
-// from placing an order.
-//
+                return RedirectToAction("Checkout");
+            }
 
-string customerAddress =
-    customer.Address.Trim();
+            deliveryAddress = deliveryAddress.Trim();
 
-if (!customerAddress.Contains(
-        "Rawalpindi",
-        StringComparison.OrdinalIgnoreCase))
-{
-    TempData["Error"] =
-        "Orders can currently be placed only by customers based in Rawalpindi.";
+            if (deliveryAddress.Length < 10)
+            {
+                TempData["Error"] =
+                    "Please enter a complete delivery address.";
 
-    return RedirectToAction("Checkout");
-}
+                return RedirectToAction("Checkout");
+            }
 
-// -----------------------------------------------------
-// DELIVERY CITY VALIDATION
-// -----------------------------------------------------
-//
-// Only Rawalpindi is currently supported.
-//
+            if (deliveryAddress.Length > 500)
+            {
+                TempData["Error"] =
+                    "Delivery address cannot exceed 500 characters.";
 
-if (string.IsNullOrWhiteSpace(deliveryCity))
-{
-    TempData["Error"] =
-        "Please select your delivery city.";
-
-    return RedirectToAction("Checkout");
-}
-
-deliveryCity = deliveryCity.Trim();
-
-if (!deliveryCity.Equals(
-        "Rawalpindi",
-        StringComparison.OrdinalIgnoreCase))
-{
-    TempData["Error"] =
-        "Orders can currently be placed only for delivery within Rawalpindi.";
-
-    return RedirectToAction("Checkout");
-}
-
-// Always save the official city name.
-deliveryCity = "Rawalpindi";
-
-           // -----------------------------------------------------
-// DELIVERY ADDRESS
-// -----------------------------------------------------
-
-if (string.IsNullOrWhiteSpace(deliveryAddress))
-{
-    TempData["Error"] =
-        "Please enter your complete delivery address.";
-
-    return RedirectToAction("Checkout");
-}
-
-deliveryAddress = deliveryAddress.Trim();
-
-if (deliveryAddress.Length < 10)
-{
-    TempData["Error"] =
-        "Please enter a complete delivery address.";
-
-    return RedirectToAction("Checkout");
-}
-
-if (deliveryAddress.Length > 500)
-{
-    TempData["Error"] =
-        "Delivery address cannot exceed 500 characters.";
-
-    return RedirectToAction("Checkout");
-}
+                return RedirectToAction("Checkout");
+            }
 
 
 
 
-if (!deliveryAddress.Contains(
-        "Rawalpindi",
-        StringComparison.OrdinalIgnoreCase))
-{
-    TempData["Error"] =
-        "Please enter a delivery address located in Rawalpindi.";
+            if (!deliveryAddress.Contains(
+                    "Rawalpindi",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Please enter a delivery address located in Rawalpindi.";
 
-    return RedirectToAction("Checkout");
-}
-
-            // -----------------------------------------------------
-            // PAYMENT METHOD
-            // -----------------------------------------------------
+                return RedirectToAction("Checkout");
+            }
 
             if (string.IsNullOrWhiteSpace(
                 paymentMethod))
@@ -2442,14 +2024,6 @@ if (!deliveryAddress.Contains(
                 return RedirectToAction("Checkout");
             }
 
-
-            // -----------------------------------------------------
-            // SESSION CART
-            //
-            // cartData is deliberately ignored.
-            // Browser values are not trusted.
-            // -----------------------------------------------------
-
             var cartItems =
                 GetCartItems();
 
@@ -2460,11 +2034,6 @@ if (!deliveryAddress.Contains(
 
                 return RedirectToAction("Cart");
             }
-
-
-            // -----------------------------------------------------
-            // PRODUCTS
-            // -----------------------------------------------------
 
             var productIds =
                 cartItems
@@ -2494,11 +2063,6 @@ if (!deliveryAddress.Contains(
                 return RedirectToAction("Cart");
             }
 
-
-            // -----------------------------------------------------
-            // SAME SHOP
-            // -----------------------------------------------------
-
             int shopId =
                 products.First().ShopId;
 
@@ -2513,11 +2077,6 @@ if (!deliveryAddress.Contains(
                 return RedirectToAction("Cart");
             }
 
-
-            // -----------------------------------------------------
-            // SHOP
-            // -----------------------------------------------------
-
             var shop =
                 products.First().Shop;
 
@@ -2530,11 +2089,6 @@ if (!deliveryAddress.Contains(
 
                 return RedirectToAction("Shops");
             }
-
-
-            // -----------------------------------------------------
-            // STOCK + FINAL PRICE
-            // -----------------------------------------------------
 
             decimal productTotal = 0m;
 
@@ -2582,11 +2136,6 @@ if (!deliveryAddress.Contains(
                 decimal finalUnitPrice;
                 int? negotiationId = null;
 
-
-                // -------------------------------------------------
-                // RENT
-                // -------------------------------------------------
-
                 if (purchaseType.Equals(
                         "Rent",
                         StringComparison.OrdinalIgnoreCase))
@@ -2604,11 +2153,6 @@ if (!deliveryAddress.Contains(
                     finalUnitPrice =
                         product.RentPrice.Value;
                 }
-
-
-                // -------------------------------------------------
-                // NEGOTIATED
-                // -------------------------------------------------
 
                 else if (purchaseType.Equals(
                     "Negotiated",
@@ -2647,11 +2191,6 @@ if (!deliveryAddress.Contains(
                         negotiation.NegotiationId;
                 }
 
-
-                // -------------------------------------------------
-                // SALE
-                // -------------------------------------------------
-
                 else if (
                     product.IsOnSale &&
                     product.SalePrice.HasValue &&
@@ -2666,10 +2205,6 @@ if (!deliveryAddress.Contains(
                         "Sale";
                 }
 
-
-                // -------------------------------------------------
-                // NORMAL BUY
-                // -------------------------------------------------
 
                 else
                 {
@@ -2707,11 +2242,6 @@ if (!deliveryAddress.Contains(
                 return RedirectToAction("Cart");
             }
 
-
-            // -----------------------------------------------------
-            // CHARGES
-            // -----------------------------------------------------
-
             decimal deliveryCharges =
                 DeliveryCharge;
 
@@ -2727,17 +2257,9 @@ if (!deliveryAddress.Contains(
                 deliveryCharges +
                 serviceFee;
 
-
-            // IMPORTANT:
-            // Admin keeps service fee.
-            // Shopkeeper receives full product total.
             decimal shopkeeperAmount =
                 productTotal;
 
-
-            // -----------------------------------------------------
-            // PAYMENT
-            // -----------------------------------------------------
 
             bool paymentReceived =
                 false;
@@ -2748,10 +2270,6 @@ if (!deliveryAddress.Contains(
             string? savedTransactionImage =
                 null;
 
-
-            // =====================================================
-            // COD
-            // =====================================================
 
             if (paymentMethod.Equals(
                 "Cash on Delivery",
@@ -2767,10 +2285,6 @@ if (!deliveryAddress.Contains(
                     null;
             }
 
-
-            // =====================================================
-            // ONLINE PAYMENT
-            // =====================================================
 
             else
             {
@@ -2797,9 +2311,6 @@ if (!deliveryAddress.Contains(
                 }
 
 
-                // -------------------------------------------------
-                // PAYMENT IMAGE VALIDATION
-                // -------------------------------------------------
 
                 string extension =
                     Path.GetExtension(
@@ -2825,9 +2336,6 @@ if (!deliveryAddress.Contains(
                 }
 
 
-                // -------------------------------------------------
-                // SAVE PAYMENT SCREENSHOT
-                // -------------------------------------------------
 
                 string uploadsFolder =
                     Path.Combine(
@@ -2877,10 +2385,6 @@ if (!deliveryAddress.Contains(
             }
 
 
-            // =====================================================
-            // CREATE ORDER
-            // =====================================================
-
             var order =
                 new Order
                 {
@@ -2920,7 +2424,7 @@ if (!deliveryAddress.Contains(
                     TotalAmount =
                         totalAmount,
 
-                    // FULL PRODUCT PRICE
+
                     ShopkeeperAmount =
                         shopkeeperAmount,
 
@@ -2987,11 +2491,6 @@ if (!deliveryAddress.Contains(
 
             await _context.SaveChangesAsync();
 
-
-            // =====================================================
-            // CREATE ORDER DETAILS
-            // =====================================================
-
             foreach (var cartItem in cartItems)
             {
                 var product =
@@ -3030,7 +2529,7 @@ if (!deliveryAddress.Contains(
                         Quantity =
                             cartItem.Quantity,
 
-                        // HISTORICAL FINAL PRICE
+
                         UnitPrice =
                             unitPrice,
 
@@ -3070,11 +2569,6 @@ if (!deliveryAddress.Contains(
                     orderDetail
                 );
 
-
-                // -------------------------------------------------
-                // REDUCE STOCK
-                // -------------------------------------------------
-
                 product.StockQuantity -=
                     cartItem.Quantity;
             }
@@ -3083,10 +2577,6 @@ if (!deliveryAddress.Contains(
             await _context.SaveChangesAsync();
 
 
-            // =====================================================
-            // CUSTOMER NOTIFICATION
-            // =====================================================
-
             await CreateNotification(
                 customerId,
                 "Order Placed",
@@ -3094,11 +2584,6 @@ if (!deliveryAddress.Contains(
                 "Order",
                 order.OrderId
             );
-
-
-            // =====================================================
-            // SHOPKEEPER NOTIFICATION
-            // =====================================================
 
             if (shop.ShopkeeperId > 0)
             {
@@ -3110,11 +2595,6 @@ if (!deliveryAddress.Contains(
                     order.OrderId
                 );
             }
-
-
-            // =====================================================
-            // ADMIN NOTIFICATION
-            // =====================================================
 
             var admin =
                 await _context.Users
@@ -3139,11 +2619,6 @@ if (!deliveryAddress.Contains(
 
             await _context.SaveChangesAsync();
 
-
-            // =====================================================
-            // CLEAR CART
-            // =====================================================
-
             ClearCart();
 
 
@@ -3155,11 +2630,6 @@ if (!deliveryAddress.Contains(
                 new { id = order.OrderId }
             );
         }
-
-
-        // =========================================================
-        // MY ORDERS
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> MyOrders()
@@ -3190,11 +2660,6 @@ if (!deliveryAddress.Contains(
 
             return View(orders);
         }
-
-
-        // =========================================================
-        // ORDER DETAILS
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> OrderDetails(
@@ -3236,11 +2701,6 @@ if (!deliveryAddress.Contains(
             return View(order);
         }
 
-
-        // =========================================================
-        // NOTIFICATIONS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Notifications()
         {
@@ -3265,11 +2725,6 @@ if (!deliveryAddress.Contains(
 
             return View(notifications);
         }
-
-
-        // =========================================================
-        // MARK ALL NOTIFICATIONS READ
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -3309,11 +2764,6 @@ if (!deliveryAddress.Contains(
             );
         }
 
-
-        // =========================================================
-        // MARK SINGLE NOTIFICATION READ
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult>
@@ -3348,574 +2798,432 @@ if (!deliveryAddress.Contains(
             );
         }
 
-
-        // =========================================================
-// FEEDBACK
-// =========================================================
-
-[HttpGet]
-public async Task<IActionResult> Feedback()
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId =
-        GetCustomerId()!.Value;
-
-    // -----------------------------------------------------
-    // PREVIOUS REVIEWS
-    // -----------------------------------------------------
-
-    var reviews = await _context.Reviews
-        .Include(r => r.Product)
-        .Include(r => r.Shop)
-        .Where(r => r.UserId == customerId)
-        .OrderByDescending(r => r.CreatedAt)
-        .ToListAsync();
-
-    // -----------------------------------------------------
-    // COMPLETED / DELIVERED ORDERS
-    // -----------------------------------------------------
-
-    var completedOrders = await _context.Orders
-        .Where(o =>
-            o.CustomerId == customerId &&
-            (o.OrderStatus == "Delivered" ||
-             o.OrderStatus == "Completed"))
-        .Include(o => o.Shop)
-        .Include(o => o.OrderDetails)
-            .ThenInclude(od => od.Product)
-        .OrderByDescending(o => o.CreatedDate)
-        .ToListAsync();
-
-    // -----------------------------------------------------
-    // SEND COMPLETED ORDERS TO VIEW
-    // -----------------------------------------------------
-
-    // Your Razor view reads ViewBag.CompletedOrders.
-    ViewBag.CompletedOrders = completedOrders;
-
-    // Optional lists, if other parts of your view use them.
-    ViewBag.Products = completedOrders
-        .SelectMany(o => o.OrderDetails)
-        .Where(od => od.Product != null)
-        .Select(od => new
+        [HttpGet]
+        public async Task<IActionResult> Feedback()
         {
-            ProductId = od.ProductId,
-            ProductName = od.Product!.ProductName,
-            ShopId = od.OrderId
-        })
-        .ToList();
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
 
-    ViewBag.Shops = completedOrders
-        .Where(o => o.Shop != null)
-        .Select(o => new
-        {
-            ShopId = o.ShopId,
-            ShopName = o.Shop!.ShopName
-        })
-        .GroupBy(x => x.ShopId)
-        .Select(g => g.First())
-        .ToList();
+            int customerId =
+                GetCustomerId()!.Value;
 
-    return View(reviews);
-}
+            var reviews = await _context.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.Shop)
+                .Where(r => r.UserId == customerId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
 
-
-  
-// =========================================================
-// SUBMIT FEEDBACK
-// =========================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> SubmitFeedback(
-    int? orderId,
-    int? productId,
-    int? shopId,
-    int rating,
-    string? comment,
-    string? reviewType)
-{
-    // -----------------------------------------------------
-    // CUSTOMER LOGIN
-    // -----------------------------------------------------
-
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
-
-    int customerId =
-        GetCustomerId()!.Value;
-
-
-    // -----------------------------------------------------
-    // ORDER
-    // -----------------------------------------------------
-
-    if (!orderId.HasValue ||
-        orderId.Value <= 0)
-    {
-        TempData["Error"] =
-            "Please select a completed order.";
-
-        return RedirectToAction("Feedback");
-    }
-
-
-    // -----------------------------------------------------
-    // FIND SELECTED ORDER
-    // -----------------------------------------------------
-
-    var selectedOrder =
-        await _context.Orders
-            .Include(o => o.Shop)
-            .FirstOrDefaultAsync(
-                o =>
-                    o.OrderId == orderId.Value &&
+            var completedOrders = await _context.Orders
+                .Where(o =>
                     o.CustomerId == customerId &&
-                    (
-                        o.OrderStatus == "Delivered" ||
-                        o.OrderStatus == "Completed"
-                    ));
-
-    if (selectedOrder == null)
-    {
-        TempData["Error"] =
-            "The selected order was not found or is not a completed order.";
-
-        return RedirectToAction("Feedback");
-    }
+                    (o.OrderStatus == "Delivered" ||
+                     o.OrderStatus == "Completed"))
+                .Include(o => o.Shop)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
 
 
-    // -----------------------------------------------------
-    // RATING
-    // -----------------------------------------------------
-
-    if (rating < 1 ||
-        rating > 5)
-    {
-        TempData["Error"] =
-            "Please select a rating between 1 and 5.";
-
-        return RedirectToAction("Feedback");
-    }
+            ViewBag.CompletedOrders = completedOrders;
 
 
-    // -----------------------------------------------------
-    // COMMENT
-    // -----------------------------------------------------
+            ViewBag.Products = completedOrders
+                .SelectMany(o => o.OrderDetails)
+                .Where(od => od.Product != null)
+                .Select(od => new
+                {
+                    ProductId = od.ProductId,
+                    ProductName = od.Product!.ProductName,
+                    ShopId = od.OrderId
+                })
+                .ToList();
 
-    if (string.IsNullOrWhiteSpace(comment))
-    {
-        TempData["Error"] =
-            "Please enter your feedback.";
+            ViewBag.Shops = completedOrders
+                .Where(o => o.Shop != null)
+                .Select(o => new
+                {
+                    ShopId = o.ShopId,
+                    ShopName = o.Shop!.ShopName
+                })
+                .GroupBy(x => x.ShopId)
+                .Select(g => g.First())
+                .ToList();
 
-        return RedirectToAction("Feedback");
-    }
-
-    comment = comment.Trim();
-
-
-    // -----------------------------------------------------
-    // REVIEW TYPE
-    // -----------------------------------------------------
-
-    if (string.IsNullOrWhiteSpace(reviewType))
-    {
-        TempData["Error"] =
-            "Please select whether your feedback is for a shop or product.";
-
-        return RedirectToAction("Feedback");
-    }
-
-    reviewType =
-        reviewType.Trim();
-
-
-    // =====================================================
-    // SHOP REVIEW
-    // =====================================================
-
-    if (reviewType.Equals(
-        "Shop",
-        StringComparison.OrdinalIgnoreCase))
-    {
-        // -------------------------------------------------
-        // VERIFY SHOP
-        // -------------------------------------------------
-
-        if (!shopId.HasValue ||
-            shopId.Value <= 0)
-        {
-            TempData["Error"] =
-                "Please select a shop.";
-
-            return RedirectToAction("Feedback");
+            return View(reviews);
         }
 
-
-        // -------------------------------------------------
-        // SHOP MUST MATCH SELECTED ORDER
-        // -------------------------------------------------
-
-        if (selectedOrder.ShopId != shopId.Value)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitFeedback(
+            int? orderId,
+            int? productId,
+            int? shopId,
+            int rating,
+            string? comment,
+            string? reviewType)
         {
-            TempData["Error"] =
-                "The selected shop does not belong to this order.";
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
 
-            return RedirectToAction("Feedback");
-        }
+            int customerId =
+                GetCustomerId()!.Value;
 
+            if (!orderId.HasValue ||
+                orderId.Value <= 0)
+            {
+                TempData["Error"] =
+                    "Please select a completed order.";
 
-        var shop =
-            selectedOrder.Shop;
+                return RedirectToAction("Feedback");
+            }
 
-        if (shop == null)
-        {
-            shop =
-                await _context.Shops
+            var selectedOrder =
+                await _context.Orders
+                    .Include(o => o.Shop)
                     .FirstOrDefaultAsync(
-                        s =>
-                            s.ShopId ==
-                            shopId.Value);
-        }
+                        o =>
+                            o.OrderId == orderId.Value &&
+                            o.CustomerId == customerId &&
+                            (
+                                o.OrderStatus == "Delivered" ||
+                                o.OrderStatus == "Completed"
+                            ));
 
-        if (shop == null)
-        {
-            TempData["Error"] =
-                "Shop not found.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // CHECK EXISTING SHOP REVIEW
-        // -------------------------------------------------
-
-        bool alreadyReviewedShop =
-            await _context.Reviews
-                .AnyAsync(
-                    r =>
-                        r.UserId == customerId &&
-                        r.ShopId == shopId.Value &&
-                        r.ReviewType == "Shop");
-
-        if (alreadyReviewedShop)
-        {
-            TempData["Error"] =
-                "You have already submitted a review for this shop.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // CREATE SHOP REVIEW
-        // -------------------------------------------------
-
-        var shopReview =
-            new Review
+            if (selectedOrder == null)
             {
-                UserId =
-                    customerId,
+                TempData["Error"] =
+                    "The selected order was not found or is not a completed order.";
 
-                ShopId =
-                    shopId.Value,
-
-                Rating =
-                    rating,
-
-                Comment =
-                    comment,
-
-                ReviewType =
-                    "Shop",
-
-                IsApproved =
-                    false,
-
-                CreatedAt =
-                    DateTime.Now
-            };
-
-        _context.Reviews.Add(
-            shopReview);
+                return RedirectToAction("Feedback");
+            }
 
 
-        // -------------------------------------------------
-        // NOTIFY SHOPKEEPER
-        // -------------------------------------------------
-
-        await CreateNotification(
-            shop.ShopkeeperId,
-            "New Customer Review",
-            $"A customer submitted a {rating}-star review for your shop: {shop.ShopName}.",
-            "Review"
-        );
-
-
-        // -------------------------------------------------
-        // NOTIFY ADMIN
-        // -------------------------------------------------
-
-        var admin =
-            await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(
-                    u =>
-                        u.Role != null &&
-                        u.Role.RoleName == "Admin" &&
-                        u.Status);
-
-        if (admin != null)
-        {
-            await CreateNotification(
-                admin.UserId,
-                "New Review Pending Approval",
-                $"A customer submitted a {rating}-star review for shop '{shop.ShopName}'. The review is waiting for approval.",
-                "Review"
-            );
-        }
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        await _context.SaveChangesAsync();
-
-
-        TempData["Success"] =
-            "Thank you! Your shop feedback has been submitted and is waiting for admin approval.";
-
-        return RedirectToAction("Feedback");
-    }
-
-
-    // =====================================================
-    // PRODUCT REVIEW
-    // =====================================================
-
-    if (reviewType.Equals(
-        "Product",
-        StringComparison.OrdinalIgnoreCase))
-    {
-        // -------------------------------------------------
-        // PRODUCT REQUIRED
-        // -------------------------------------------------
-
-        if (!productId.HasValue ||
-            productId.Value <= 0)
-        {
-            TempData["Error"] =
-                "Please select a product.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // PRODUCT MUST EXIST
-        // -------------------------------------------------
-
-        var product =
-            await _context.Products
-                .FirstOrDefaultAsync(
-                    p =>
-                        p.ProductId ==
-                        productId.Value);
-
-        if (product == null)
-        {
-            TempData["Error"] =
-                "Product not found.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // PRODUCT MUST BELONG TO SELECTED ORDER
-        // -------------------------------------------------
-
-        bool productBelongsToOrder =
-            await _context.OrderDetails
-                .AnyAsync(
-                    od =>
-                        od.OrderId ==
-                            orderId.Value &&
-                        od.ProductId ==
-                            productId.Value &&
-                        od.Order != null &&
-                        od.Order.CustomerId ==
-                            customerId &&
-                        (
-                            od.Order.OrderStatus ==
-                                "Delivered" ||
-                            od.Order.OrderStatus ==
-                                "Completed"
-                        ));
-
-        if (!productBelongsToOrder)
-        {
-            TempData["Error"] =
-                "The selected product does not belong to the selected completed order.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // GET SHOP FROM SELECTED ORDER
-        // -------------------------------------------------
-
-        int productShopId =
-            selectedOrder.ShopId;
-
-
-        var shop =
-            await _context.Shops
-                .FirstOrDefaultAsync(
-                    s =>
-                        s.ShopId ==
-                        productShopId);
-
-        if (shop == null)
-        {
-            TempData["Error"] =
-                "The shop associated with this product could not be found.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // CHECK EXISTING PRODUCT REVIEW
-        // -------------------------------------------------
-
-        bool alreadyReviewedProduct =
-            await _context.Reviews
-                .AnyAsync(
-                    r =>
-                        r.UserId ==
-                            customerId &&
-                        r.ProductId ==
-                            productId.Value &&
-                        r.ReviewType ==
-                            "Product");
-
-        if (alreadyReviewedProduct)
-        {
-            TempData["Error"] =
-                "You have already submitted a review for this product.";
-
-            return RedirectToAction("Feedback");
-        }
-
-
-        // -------------------------------------------------
-        // CREATE PRODUCT REVIEW
-        // -------------------------------------------------
-
-        var productReview =
-            new Review
+            if (rating < 1 ||
+                rating > 5)
             {
-                UserId =
-                    customerId,
+                TempData["Error"] =
+                    "Please select a rating between 1 and 5.";
 
-                ProductId =
-                    productId.Value,
+                return RedirectToAction("Feedback");
+            }
 
-                ShopId =
-                    productShopId,
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                TempData["Error"] =
+                    "Please enter your feedback.";
 
-                Rating =
-                    rating,
+                return RedirectToAction("Feedback");
+            }
 
-                Comment =
-                    comment,
+            comment = comment.Trim();
 
-                ReviewType =
-                    "Product",
+            if (string.IsNullOrWhiteSpace(reviewType))
+            {
+                TempData["Error"] =
+                    "Please select whether your feedback is for a shop or product.";
 
-                IsApproved =
-                    false,
+                return RedirectToAction("Feedback");
+            }
 
-                CreatedAt =
-                    DateTime.Now
-            };
+            reviewType =
+                reviewType.Trim();
 
-        _context.Reviews.Add(
-            productReview);
+            if (reviewType.Equals(
+                "Shop",
+                StringComparison.OrdinalIgnoreCase))
+            {
+
+                if (!shopId.HasValue ||
+                    shopId.Value <= 0)
+                {
+                    TempData["Error"] =
+                        "Please select a shop.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+                if (selectedOrder.ShopId != shopId.Value)
+                {
+                    TempData["Error"] =
+                        "The selected shop does not belong to this order.";
+
+                    return RedirectToAction("Feedback");
+                }
 
 
-        // -------------------------------------------------
-        // NOTIFY SHOPKEEPER
-        // -------------------------------------------------
+                var shop =
+                    selectedOrder.Shop;
 
-        await CreateNotification(
-            shop.ShopkeeperId,
-            "New Customer Review",
-            $"A customer submitted a {rating}-star review for your product: {product.ProductName}.",
-            "Review"
-        );
+                if (shop == null)
+                {
+                    shop =
+                        await _context.Shops
+                            .FirstOrDefaultAsync(
+                                s =>
+                                    s.ShopId ==
+                                    shopId.Value);
+                }
+
+                if (shop == null)
+                {
+                    TempData["Error"] =
+                        "Shop not found.";
+
+                    return RedirectToAction("Feedback");
+                }
 
 
-        // -------------------------------------------------
-        // NOTIFY ADMIN
-        // -------------------------------------------------
+                bool alreadyReviewedShop =
+                    await _context.Reviews
+                        .AnyAsync(
+                            r =>
+                                r.UserId == customerId &&
+                                r.ShopId == shopId.Value &&
+                                r.ReviewType == "Shop");
 
-        var admin =
-            await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(
-                    u =>
-                        u.Role != null &&
-                        u.Role.RoleName == "Admin" &&
-                        u.Status);
+                if (alreadyReviewedShop)
+                {
+                    TempData["Error"] =
+                        "You have already submitted a review for this shop.";
 
-        if (admin != null)
-        {
-            await CreateNotification(
-                admin.UserId,
-                "New Review Pending Approval",
-                $"A customer submitted a {rating}-star review for product '{product.ProductName}'. The review is waiting for approval.",
-                "Review"
-            );
+                    return RedirectToAction("Feedback");
+                }
+
+
+
+                var shopReview =
+                    new Review
+                    {
+                        UserId =
+                            customerId,
+
+                        ShopId =
+                            shopId.Value,
+
+                        Rating =
+                            rating,
+
+                        Comment =
+                            comment,
+
+                        ReviewType =
+                            "Shop",
+
+                        IsApproved =
+                            false,
+
+                        CreatedAt =
+                            DateTime.Now
+                    };
+
+                _context.Reviews.Add(
+                    shopReview);
+
+                await CreateNotification(
+                    shop.ShopkeeperId,
+                    "New Customer Review",
+                    $"A customer submitted a {rating}-star review for your shop: {shop.ShopName}.",
+                    "Review"
+                );
+
+                var admin =
+                    await _context.Users
+                        .Include(u => u.Role)
+                        .FirstOrDefaultAsync(
+                            u =>
+                                u.Role != null &&
+                                u.Role.RoleName == "Admin" &&
+                                u.Status);
+
+                if (admin != null)
+                {
+                    await CreateNotification(
+                        admin.UserId,
+                        "New Review Pending Approval",
+                        $"A customer submitted a {rating}-star review for shop '{shop.ShopName}'. The review is waiting for approval.",
+                        "Review"
+                    );
+                }
+
+                await _context.SaveChangesAsync();
+
+
+                TempData["Success"] =
+                    "Thank you! Your shop feedback has been submitted and is waiting for admin approval.";
+
+                return RedirectToAction("Feedback");
+            }
+
+
+            if (reviewType.Equals(
+                "Product",
+                StringComparison.OrdinalIgnoreCase))
+            {
+
+                if (!productId.HasValue ||
+                    productId.Value <= 0)
+                {
+                    TempData["Error"] =
+                        "Please select a product.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+                var product =
+                    await _context.Products
+                        .FirstOrDefaultAsync(
+                            p =>
+                                p.ProductId ==
+                                productId.Value);
+
+                if (product == null)
+                {
+                    TempData["Error"] =
+                        "Product not found.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+                bool productBelongsToOrder =
+                    await _context.OrderDetails
+                        .AnyAsync(
+                            od =>
+                                od.OrderId ==
+                                    orderId.Value &&
+                                od.ProductId ==
+                                    productId.Value &&
+                                od.Order != null &&
+                                od.Order.CustomerId ==
+                                    customerId &&
+                                (
+                                    od.Order.OrderStatus ==
+                                        "Delivered" ||
+                                    od.Order.OrderStatus ==
+                                        "Completed"
+                                ));
+
+                if (!productBelongsToOrder)
+                {
+                    TempData["Error"] =
+                        "The selected product does not belong to the selected completed order.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+
+                int productShopId =
+                    selectedOrder.ShopId;
+
+
+                var shop =
+                    await _context.Shops
+                        .FirstOrDefaultAsync(
+                            s =>
+                                s.ShopId ==
+                                productShopId);
+
+                if (shop == null)
+                {
+                    TempData["Error"] =
+                        "The shop associated with this product could not be found.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+
+                bool alreadyReviewedProduct =
+                    await _context.Reviews
+                        .AnyAsync(
+                            r =>
+                                r.UserId ==
+                                    customerId &&
+                                r.ProductId ==
+                                    productId.Value &&
+                                r.ReviewType ==
+                                    "Product");
+
+                if (alreadyReviewedProduct)
+                {
+                    TempData["Error"] =
+                        "You have already submitted a review for this product.";
+
+                    return RedirectToAction("Feedback");
+                }
+
+                var productReview =
+                    new Review
+                    {
+                        UserId =
+                            customerId,
+
+                        ProductId =
+                            productId.Value,
+
+                        ShopId =
+                            productShopId,
+
+                        Rating =
+                            rating,
+
+                        Comment =
+                            comment,
+
+                        ReviewType =
+                            "Product",
+
+                        IsApproved =
+                            false,
+
+                        CreatedAt =
+                            DateTime.Now
+                    };
+
+                _context.Reviews.Add(
+                    productReview);
+
+                await CreateNotification(
+                    shop.ShopkeeperId,
+                    "New Customer Review",
+                    $"A customer submitted a {rating}-star review for your product: {product.ProductName}.",
+                    "Review"
+                );
+
+                var admin =
+                    await _context.Users
+                        .Include(u => u.Role)
+                        .FirstOrDefaultAsync(
+                            u =>
+                                u.Role != null &&
+                                u.Role.RoleName == "Admin" &&
+                                u.Status);
+
+                if (admin != null)
+                {
+                    await CreateNotification(
+                        admin.UserId,
+                        "New Review Pending Approval",
+                        $"A customer submitted a {rating}-star review for product '{product.ProductName}'. The review is waiting for approval.",
+                        "Review"
+                    );
+                }
+
+                await _context.SaveChangesAsync();
+
+
+                TempData["Success"] =
+                    "Thank you! Your product feedback has been submitted and is waiting for admin approval.";
+
+                return RedirectToAction("Feedback");
+            }
+
+
+            TempData["Error"] =
+                "Invalid feedback type.";
+
+            return RedirectToAction("Feedback");
         }
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        await _context.SaveChangesAsync();
-
-
-        TempData["Success"] =
-            "Thank you! Your product feedback has been submitted and is waiting for admin approval.";
-
-        return RedirectToAction("Feedback");
-    }
-
-
-    // =====================================================
-    // INVALID REVIEW TYPE
-    // =====================================================
-
-    TempData["Error"] =
-        "Invalid feedback type.";
-
-    return RedirectToAction("Feedback");
-}
-
-
-
-
-        // =========================================================
-        // CREATE NOTIFICATION
-        // =========================================================
 
         private async Task CreateNotification(
             int userId,
@@ -3966,11 +3274,6 @@ public async Task<IActionResult> SubmitFeedback(
                 notification);
         }
 
-
-        // =========================================================
-        // CHAT
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Chat()
         {
@@ -3979,11 +3282,6 @@ public async Task<IActionResult> SubmitFeedback(
 
             int customerId =
                 GetCustomerId()!.Value;
-
-
-            // -----------------------------------------------------
-            // ADMIN
-            // -----------------------------------------------------
 
             var admin =
                 await _context.Users
@@ -3995,10 +3293,6 @@ public async Task<IActionResult> SubmitFeedback(
                             u.Role.RoleName ==
                                 "Admin");
 
-
-            // -----------------------------------------------------
-            // SHOPKEEPERS FROM CUSTOMER ORDERS
-            // -----------------------------------------------------
 
             var shopkeeperIds =
                 await _context.Orders
@@ -4036,10 +3330,6 @@ public async Task<IActionResult> SubmitFeedback(
                     .ToListAsync();
 
 
-            // -----------------------------------------------------
-            // DELIVERY BOYS
-            // -----------------------------------------------------
-
             var deliveryIds =
                 await _context.Orders
                     .Where(
@@ -4071,10 +3361,6 @@ public async Task<IActionResult> SubmitFeedback(
                     .ToListAsync();
 
 
-            // -----------------------------------------------------
-            // CONTACT IDS
-            // -----------------------------------------------------
-
             var contactIds =
                 new List<int>();
 
@@ -4092,10 +3378,6 @@ public async Task<IActionResult> SubmitFeedback(
                     x =>
                         x.UserId));
 
-
-            // -----------------------------------------------------
-            // UNREAD COUNTS
-            // -----------------------------------------------------
 
             var unreadCounts =
                 await _context.ChatMessages
@@ -4148,11 +3430,6 @@ public async Task<IActionResult> SubmitFeedback(
                 new List<ChatMessage>());
         }
 
-
-        // =========================================================
-        // CUSTOMER CHAT CONVERSATION
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult>
             Conversation(int userId)
@@ -4162,11 +3439,6 @@ public async Task<IActionResult> SubmitFeedback(
 
             int customerId =
                 GetCustomerId()!.Value;
-
-
-            // -----------------------------------------------------
-            // SELECTED USER
-            // -----------------------------------------------------
 
             var selectedUser =
                 await _context.Users
@@ -4190,24 +3462,17 @@ public async Task<IActionResult> SubmitFeedback(
                 selectedUser.Role?.RoleName ??
                 "";
 
-
-            // -----------------------------------------------------
-            // CHECK CHAT PERMISSION
-            // -----------------------------------------------------
-
             bool allowed =
                 false;
 
 
-            // ADMIN
+
             if (role == "Admin")
             {
                 allowed =
                     true;
             }
 
-
-            // SHOPKEEPER
             else if (role == "Shopkeeper")
             {
                 allowed =
@@ -4233,7 +3498,6 @@ public async Task<IActionResult> SubmitFeedback(
             }
 
 
-            // DELIVERY
             else if (role == "Delivery")
             {
                 allowed =
@@ -4255,11 +3519,6 @@ public async Task<IActionResult> SubmitFeedback(
                 return RedirectToAction(
                     "Chat");
             }
-
-
-            // -----------------------------------------------------
-            // GET MESSAGES
-            // -----------------------------------------------------
 
             var messages =
                 await _context.ChatMessages
@@ -4286,10 +3545,6 @@ public async Task<IActionResult> SubmitFeedback(
                     .ToListAsync();
 
 
-            // -----------------------------------------------------
-            // MARK RECEIVED MESSAGES AS READ
-            // -----------------------------------------------------
-
             var unreadMessages =
                 messages
                     .Where(
@@ -4311,11 +3566,6 @@ public async Task<IActionResult> SubmitFeedback(
                 await _context.SaveChangesAsync();
             }
 
-
-            // -----------------------------------------------------
-            // ADMIN
-            // -----------------------------------------------------
-
             var admin =
                 await _context.Users
                     .Include(u => u.Role)
@@ -4326,10 +3576,6 @@ public async Task<IActionResult> SubmitFeedback(
                             u.Role.RoleName ==
                                 "Admin");
 
-
-            // -----------------------------------------------------
-            // SHOPKEEPERS
-            // -----------------------------------------------------
 
             var shopkeeperIds =
                 await _context.Orders
@@ -4366,10 +3612,6 @@ public async Task<IActionResult> SubmitFeedback(
                     .ToListAsync();
 
 
-            // -----------------------------------------------------
-            // DELIVERY BOYS
-            // -----------------------------------------------------
-
             var deliveryIds =
                 await _context.Orders
                     .Where(
@@ -4400,10 +3642,6 @@ public async Task<IActionResult> SubmitFeedback(
                             u.Name)
                     .ToListAsync();
 
-
-            // -----------------------------------------------------
-            // UNREAD COUNTS
-            // -----------------------------------------------------
 
             var unreadCounts =
                 await _context.ChatMessages
@@ -4461,189 +3699,179 @@ public async Task<IActionResult> SubmitFeedback(
                 messages);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendMessage(
+            int receiverId,
+            string? message)
+        {
+            int? customerId =
+                HttpContext.Session.GetInt32("CustomerId");
 
-      // =========================================================
-// SEND MESSAGE (TEXT ONLY)
-// =========================================================
+            if (!customerId.HasValue)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> SendMessage(
-    int receiverId,
-    string? message)
-{
-    int? customerId =
-        HttpContext.Session.GetInt32("CustomerId");
 
-    if (!customerId.HasValue)
-    {
-        return RedirectToAction("Login", "Account");
-    }
+            if (receiverId == customerId.Value)
+            {
+                TempData["Error"] =
+                    "You cannot send a message to yourself.";
 
-    // Customer cannot message themselves
-    if (receiverId == customerId.Value)
-    {
-        TempData["Error"] =
-            "You cannot send a message to yourself.";
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+            var receiver = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == receiverId);
 
-    // Check receiver
-    var receiver = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(u => u.UserId == receiverId);
+            if (receiver == null)
+            {
+                TempData["Error"] =
+                    "The selected user was not found.";
 
-    if (receiver == null)
-    {
-        TempData["Error"] =
-            "The selected user was not found.";
+                return RedirectToAction(nameof(Chat));
+            }
 
-        return RedirectToAction(nameof(Chat));
-    }
+            bool canChat = await CanCustomerChatWithUser(
+                customerId.Value,
+                receiverId);
 
-    // Check chat permission
-    bool canChat = await CanCustomerChatWithUser(
-        customerId.Value,
-        receiverId);
+            if (!canChat)
+            {
+                TempData["Error"] =
+                    "You are not allowed to chat with this user.";
 
-    if (!canChat)
-    {
-        TempData["Error"] =
-            "You are not allowed to chat with this user.";
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
 
-    // Clean message
-    string cleanMessage = message?.Trim() ?? "";
+            string cleanMessage = message?.Trim() ?? "";
 
-    if (string.IsNullOrWhiteSpace(cleanMessage))
-    {
-        TempData["Error"] =
-            "Please enter a message.";
+            if (string.IsNullOrWhiteSpace(cleanMessage))
+            {
+                TempData["Error"] =
+                    "Please enter a message.";
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-    if (cleanMessage.Length > 2000)
-    {
-        TempData["Error"] =
-            "Message cannot exceed 2000 characters.";
+            if (cleanMessage.Length > 2000)
+            {
+                TempData["Error"] =
+                    "Message cannot exceed 2000 characters.";
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-    // Get customer name from database
-    string? customerName = await _context.Users
-        .Where(u => u.UserId == customerId.Value)
-        .Select(u => u.Name)
-        .FirstOrDefaultAsync();
 
-    customerName ??= "Customer";
+            string? customerName = await _context.Users
+                .Where(u => u.UserId == customerId.Value)
+                .Select(u => u.Name)
+                .FirstOrDefaultAsync();
 
-    // Create message
-    var chatMessage = new ChatMessage
-    {
-        SenderId = customerId.Value,
-        ReceiverId = receiverId,
-        Message = cleanMessage,
-        SentDate = DateTime.Now,
-        IsRead = false,
-        IsDeleted = false
-    };
+            customerName ??= "Customer";
 
-    _context.ChatMessages.Add(chatMessage);
 
-    await _context.SaveChangesAsync();
+            var chatMessage = new ChatMessage
+            {
+                SenderId = customerId.Value,
+                ReceiverId = receiverId,
+                Message = cleanMessage,
+                SentDate = DateTime.Now,
+                IsRead = false,
+                IsDeleted = false
+            };
 
-    // Send notification
-    try
-    {
-        await CreateNotification(
-            receiverId,
-            "New Chat Message",
-            $"You received a new message from {customerName}",
-            "Chat",
-            customerId.Value);
-    }
-    catch
-    {
-        // Message remains saved even if notification fails.
-    }
+            _context.ChatMessages.Add(chatMessage);
 
-    TempData["Success"] =
-        "Message sent successfully.";
+            await _context.SaveChangesAsync();
 
-    return RedirectToAction(
-        nameof(Conversation),
-        new { userId = receiverId });
-}
-        
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteMessage(
-    int messageId,
-    int receiverId)
-{
-    int? customerId =
-        HttpContext.Session.GetInt32("CustomerId");
 
-    if (!customerId.HasValue)
-    {
-        return RedirectToAction("Login", "Account");
-    }
+            try
+            {
+                await CreateNotification(
+                    receiverId,
+                    "New Chat Message",
+                    $"You received a new message from {customerName}",
+                    "Chat",
+                    customerId.Value);
+            }
+            catch
+            {
 
-    var chatMessage = await _context.ChatMessages
-        .FirstOrDefaultAsync(m =>
-            m.ChatMessageId == messageId);
+            }
 
-    if (chatMessage == null)
-    {
-        TempData["Error"] = "Message not found.";
+            TempData["Success"] =
+                "Message sent successfully.";
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+            return RedirectToAction(
+                nameof(Conversation),
+                new { userId = receiverId });
+        }
 
-    // Only the sender can delete their message.
-    if (chatMessage.SenderId != customerId.Value ||
-        chatMessage.ReceiverId != receiverId)
-    {
-        TempData["Error"] =
-            "You are not allowed to delete this message.";
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMessage(
+            int messageId,
+            int receiverId)
+        {
+            int? customerId =
+                HttpContext.Session.GetInt32("CustomerId");
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+            if (!customerId.HasValue)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-    if (!chatMessage.IsDeleted)
-    {
-        chatMessage.IsDeleted = true;
-        chatMessage.Message = "This message was deleted.";
+            var chatMessage = await _context.ChatMessages
+                .FirstOrDefaultAsync(m =>
+                    m.ChatMessageId == messageId);
 
-        await _context.SaveChangesAsync();
-    }
+            if (chatMessage == null)
+            {
+                TempData["Error"] = "Message not found.";
 
-    TempData["Success"] = "Message deleted successfully.";
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-    return RedirectToAction(
-        nameof(Conversation),
-        new { userId = receiverId });
-}
-        // =========================================================
-        // LOGOUT
-        // =========================================================
+
+            if (chatMessage.SenderId != customerId.Value ||
+                chatMessage.ReceiverId != receiverId)
+            {
+                TempData["Error"] =
+                    "You are not allowed to delete this message.";
+
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
+
+            if (!chatMessage.IsDeleted)
+            {
+                chatMessage.IsDeleted = true;
+                chatMessage.Message = "This message was deleted.";
+
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Success"] = "Message deleted successfully.";
+
+            return RedirectToAction(
+                nameof(Conversation),
+                new { userId = receiverId });
+        }
 
         [HttpGet]
         public IActionResult Logout()
@@ -4658,10 +3886,6 @@ public async Task<IActionResult> DeleteMessage(
     }
 
 
-    // =============================================================
-    // CUSTOMER CART ITEM
-    // =============================================================
-
     public class CustomerCartItem
     {
         public int ProductId { get; set; }
@@ -4674,17 +3898,7 @@ public async Task<IActionResult> DeleteMessage(
 
         public string? CustomMeasurements { get; set; }
 
-        // =========================================================
-        // NEW
-        // Buy / Sale / Negotiated / Rent
-        // =========================================================
-
         public string PurchaseType { get; set; } = "Buy";
-
-        // =========================================================
-        // NEW
-        // Accepted negotiation associated with this cart item
-        // =========================================================
 
         public int? NegotiationId { get; set; }
     }

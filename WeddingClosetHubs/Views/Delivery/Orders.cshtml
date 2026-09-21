@@ -1,14 +1,14 @@
 ﻿@model IEnumerable<WeddingClosetHubs.Models.Order>
 
 @{
-ViewData["Title"] = "My Orders";
-Layout = null;
+    ViewData["Title"] = "My Orders";
+    Layout = null;
 
 
-var orders = Model?.ToList() ?? new List<WeddingClosetHubs.Models.Order>();
+    var orders = Model?.ToList() ?? new List<WeddingClosetHubs.Models.Order>();
 
-string deliveryName = ViewBag.DeliveryName ?? "Delivery Boy";
-string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
+    string deliveryName = ViewBag.DeliveryName ?? "Delivery Boy";
+    string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 
 
 }
@@ -18,945 +18,991 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 <html lang="en">
 <head>
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Delivery Orders - Wedding Closet Hubs</title>
+    <title>Delivery Orders - Wedding Closet Hubs</title>
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-<style>
+    <style>
 
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        font-family: 'Poppins', sans-serif;
-        background: #f7f5f2;
-        color: #333;
-    }
-
-    /* =========================
-       SIDEBAR
-    ========================== */
-
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 250px;
-        height: 100vh;
-        background: #800020;
-        color: white;
-        padding-top: 20px;
-        z-index: 1000;
-        box-shadow: 3px 0 15px rgba(0,0,0,0.12);
-    }
-
-    .brand {
-        text-align: center;
-        padding: 15px 10px 25px;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-    }
-
-    .brand-icon {
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        background: #d4af37;
-        color: #800020;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 10px;
-        font-size: 24px;
-    }
-
-    .brand h4 {
-        margin: 0;
-        font-weight: 700;
-        color: #fff;
-    }
-
-    .brand small {
-        color: #eadfb8;
-    }
-
-    .nav-menu {
-        padding: 20px 12px;
-    }
-
-    .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 13px;
-        color: #fff;
-        text-decoration: none;
-        padding: 13px 15px;
-        margin-bottom: 7px;
-        border-radius: 8px;
-        transition: 0.25s;
-        font-size: 14px;
-    }
-
-    .nav-link i {
-        width: 20px;
-        text-align: center;
-    }
-
-    .nav-link:hover,
-    .nav-link.active {
-        background: #d4af37;
-        color: #800020;
-    }
-
-    .logout-link {
-        margin-top: 20px;
-        border-top: 1px solid rgba(255,255,255,0.15);
-        padding-top: 20px;
-    }
-
-    /* =========================
-       MAIN
-    ========================== */
-
-    .main-content {
-        margin-left: 250px;
-        min-height: 100vh;
-    }
-
-    /* =========================
-       TOPBAR
-    ========================== */
-
-    .topbar {
-        height: 75px;
-        background: #fff;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 30px;
-        border-bottom: 1px solid #e7e2dc;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    }
-
-    .page-title h2 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 700;
-        color: #800020;
-    }
-
-    .page-title p {
-        margin: 3px 0 0;
-        color: #888;
-        font-size: 12px;
-    }
-
-    .profile-area {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .profile-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: #800020;
-        color: #d4af37;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-    }
-
-    .profile-info strong {
-        display: block;
-        font-size: 14px;
-        color: #333;
-    }
-
-    .profile-info span {
-        font-size: 11px;
-        color: #888;
-    }
-
-    /* =========================
-       CONTENT
-    ========================== */
-
-    .content {
-        padding: 30px;
-    }
-
-    /* =========================
-       PAGE HEADER
-    ========================== */
-
-    .page-header {
-        background: #fff;
-        border-radius: 14px;
-        padding: 22px 25px;
-        margin-bottom: 25px;
-        border: 1px solid #eee7df;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .page-header h3 {
-        margin: 0;
-        color: #800020;
-        font-size: 20px;
-        font-weight: 700;
-    }
-
-    .page-header p {
-        margin: 5px 0 0;
-        color: #888;
-        font-size: 12px;
-    }
-
-    .zone-badge {
-        background: #f8f0d9;
-        color: #806300;
-        padding: 9px 15px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    /* =========================
-       ALERTS
-    ========================== */
-
-    .alert {
-        border-radius: 10px;
-        font-size: 13px;
-    }
-
-    /* =========================
-       ORDER CARD
-    ========================== */
-
-    .order-card {
-        background: #fff;
-        border: 1px solid #eee7df;
-        border-radius: 14px;
-        margin-bottom: 18px;
-        overflow: hidden;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-        transition: 0.25s;
-    }
-
-    .order-card:hover {
-        box-shadow: 0 7px 20px rgba(0,0,0,0.07);
-        transform: translateY(-2px);
-    }
-
-    .order-header {
-        padding: 17px 20px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .order-number {
-        color: #800020;
-        font-weight: 700;
-        font-size: 15px;
-    }
-
-    .order-date {
-        color: #999;
-        font-size: 11px;
-        margin-top: 3px;
-    }
-
-    /* =========================
-       STATUS
-    ========================== */
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 12px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .status-ready {
-        background: #fff4d6;
-        color: #967000;
-    }
-
-    .status-assigned {
-        background: #e9e4f8;
-        color: #6046a0;
-    }
-
-    .status-picked {
-        background: #e5f0fa;
-        color: #1769aa;
-    }
-
-    .status-out {
-        background: #fce9dc;
-        color: #c65c17;
-    }
-
-    .status-delivered {
-        background: #e5f6ec;
-        color: #198754;
-    }
-
-    .status-default {
-        background: #eeeeee;
-        color: #666;
-    }
-
-    /* =========================
-       ORDER BODY
-    ========================== */
-
-    .order-body {
-        padding: 20px;
-    }
-
-    .info-box {
-        height: 100%;
-        background: #faf9f7;
-        border-radius: 10px;
-        padding: 15px;
-    }
-
-    .info-title {
-        color: #800020;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .info-row {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 9px;
-        font-size: 12px;
-    }
-
-    .info-row:last-child {
-        margin-bottom: 0;
-    }
-
-    .info-row i {
-        color: #d4af37;
-        width: 17px;
-        text-align: center;
-        margin-top: 2px;
-    }
-
-    .info-row span {
-        color: #777;
-    }
-
-    .info-row strong {
-        color: #333;
-    }
-
-    /* =========================
-       PAYMENT
-    ========================== */
-
-    .payment-box {
-        margin-top: 18px;
-        padding: 15px;
-        border-radius: 10px;
-        background: #fffaf0;
-        border: 1px solid #f1e4bd;
-    }
-
-    .payment-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        font-size: 12px;
-    }
-
-    .payment-row:last-child {
-        margin-bottom: 0;
-    }
-
-    .payment-row span {
-        color: #777;
-    }
-
-    .payment-row strong {
-        color: #333;
-    }
-
-    .cod-label {
-        color: #a16f00 !important;
-        font-weight: 700;
-    }
-
-    .online-label {
-        color: #198754 !important;
-        font-weight: 700;
-    }
-
-    /* =========================
-       ACTIONS
-    ========================== */
-
-    .order-actions {
-        padding: 16px 20px;
-        border-top: 1px solid #eee;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .btn-maroon {
-        background: #800020;
-        border-color: #800020;
-        color: white;
-        font-size: 12px;
-        padding: 8px 14px;
-        border-radius: 7px;
-    }
-
-    .btn-maroon:hover {
-        background: #650018;
-        border-color: #650018;
-        color: white;
-    }
-
-    .btn-gold {
-        background: #d4af37;
-        border-color: #d4af37;
-        color: #800020;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 8px 14px;
-        border-radius: 7px;
-    }
-
-    .btn-gold:hover {
-        background: #b99522;
-        border-color: #b99522;
-        color: #800020;
-    }
-
-    .btn-success-custom {
-        background: #198754;
-        border-color: #198754;
-        color: white;
-        font-size: 12px;
-        padding: 8px 14px;
-        border-radius: 7px;
-    }
-
-    .btn-success-custom:hover {
-        background: #146c43;
-        color: white;
-    }
-
-    .btn-outline-custom {
-        border: 1px solid #800020;
-        color: #800020;
-        background: white;
-        font-size: 12px;
-        padding: 8px 14px;
-        border-radius: 7px;
-    }
-
-    .btn-outline-custom:hover {
-        background: #800020;
-        color: white;
-    }
-
-    /* =========================
-       EMPTY STATE
-    ========================== */
-
-    .empty-state {
-        background: white;
-        border: 1px solid #eee7df;
-        border-radius: 14px;
-        padding: 60px 20px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 70px;
-        height: 70px;
-        background: #f5e6eb;
-        color: #800020;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 18px;
-        font-size: 28px;
-    }
-
-    .empty-state h4 {
-        color: #800020;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .empty-state p {
-        color: #888;
-        font-size: 13px;
-        margin: 0;
-    }
-
-    /* =========================
-       MOBILE
-    ========================== */
-
-    @@media (max-width: 767px) {
-
-        .sidebar {
-            width: 70px;
+        * {
+            box-sizing: border-box;
         }
 
-        .brand h4,
-        .brand small,
-        .nav-link span {
-            display: none;
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f7f5f2;
+            color: #333;
+        }
+
+
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: #800020;
+            color: white;
+            padding-top: 20px;
+            z-index: 1000;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.12);
         }
 
         .brand {
-            padding: 15px 5px;
+            text-align: center;
+            padding: 15px 10px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
         }
 
         .brand-icon {
-            width: 42px;
-            height: 42px;
-            font-size: 17px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #d4af37;
+            color: #800020;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 24px;
+        }
+
+        .brand h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .brand small {
+            color: #eadfb8;
+        }
+
+        .nav-menu {
+            padding: 20px 12px;
         }
 
         .nav-link {
-            justify-content: center;
-            padding: 13px 5px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            color: #fff;
+            text-decoration: none;
+            padding: 13px 15px;
+            margin-bottom: 7px;
+            border-radius: 8px;
+            transition: 0.25s;
+            font-size: 14px;
         }
+
+            .nav-link i {
+                width: 20px;
+                text-align: center;
+            }
+
+            .nav-link:hover,
+            .nav-link.active {
+                background: #d4af37;
+                color: #800020;
+            }
+
+        .logout-link {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 20px;
+        }
+
+
 
         .main-content {
-            margin-left: 70px;
+            margin-left: 250px;
+            min-height: 100vh;
         }
+
+
 
         .topbar {
-            padding: 0 15px;
+            height: 75px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            border-bottom: 1px solid #e7e2dc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
 
-        .profile-info {
-            display: none;
+        .page-title h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #800020;
         }
+
+        .page-title p {
+            margin: 3px 0 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #800020;
+            color: #d4af37;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .profile-info strong {
+            display: block;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .profile-info span {
+            font-size: 11px;
+            color: #888;
+        }
+
+
 
         .content {
+            padding: 30px;
+        }
+
+
+
+        .page-header {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 25px;
+            margin-bottom: 25px;
+            border: 1px solid #eee7df;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+            .page-header h3 {
+                margin: 0;
+                color: #800020;
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .page-header p {
+                margin: 5px 0 0;
+                color: #888;
+                font-size: 12px;
+            }
+
+        .zone-badge {
+            background: #f8f0d9;
+            color: #806300;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+
+
+        .alert {
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+
+
+        .order-card {
+            background: #fff;
+            border: 1px solid #eee7df;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+            transition: 0.25s;
+        }
+
+            .order-card:hover {
+                box-shadow: 0 7px 20px rgba(0,0,0,0.07);
+                transform: translateY(-2px);
+            }
+
+        .order-header {
+            padding: 17px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .order-number {
+            color: #800020;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .order-date {
+            color: #999;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-ready {
+            background: #fff4d6;
+            color: #967000;
+        }
+
+        .status-assigned {
+            background: #e9e4f8;
+            color: #6046a0;
+        }
+
+        .status-picked {
+            background: #e5f0fa;
+            color: #1769aa;
+        }
+
+        .status-out {
+            background: #fce9dc;
+            color: #c65c17;
+        }
+
+        .status-delivered {
+            background: #e5f6ec;
+            color: #198754;
+        }
+
+        .status-default {
+            background: #eeeeee;
+            color: #666;
+        }
+
+
+
+        .order-body {
+            padding: 20px;
+        }
+
+        .info-box {
+            height: 100%;
+            background: #faf9f7;
+            border-radius: 10px;
             padding: 15px;
         }
 
-        .page-header {
-            align-items: flex-start;
-            flex-direction: column;
+        .info-title {
+            color: #800020;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
 
-        .order-header {
-            align-items: flex-start;
-            flex-direction: column;
+        .info-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 9px;
+            font-size: 12px;
         }
+
+            .info-row:last-child {
+                margin-bottom: 0;
+            }
+
+            .info-row i {
+                color: #d4af37;
+                width: 17px;
+                text-align: center;
+                margin-top: 2px;
+            }
+
+            .info-row span {
+                color: #777;
+            }
+
+            .info-row strong {
+                color: #333;
+            }
+
+
+        .payment-box {
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fffaf0;
+            border: 1px solid #f1e4bd;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+            .payment-row:last-child {
+                margin-bottom: 0;
+            }
+
+            .payment-row span {
+                color: #777;
+            }
+
+            .payment-row strong {
+                color: #333;
+            }
+
+        .cod-label {
+            color: #a16f00 !important;
+            font-weight: 700;
+        }
+
+        .online-label {
+            color: #198754 !important;
+            font-weight: 700;
+        }
+
+
 
         .order-actions {
-            justify-content: flex-start;
+            padding: 16px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-    }
 
-</style>
+        .btn-maroon {
+            background: #800020;
+            border-color: #800020;
+            color: white;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 7px;
+        }
+
+            .btn-maroon:hover {
+                background: #650018;
+                border-color: #650018;
+                color: white;
+            }
+
+        .btn-gold {
+            background: #d4af37;
+            border-color: #d4af37;
+            color: #800020;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 7px;
+        }
+
+            .btn-gold:hover {
+                background: #b99522;
+                border-color: #b99522;
+                color: #800020;
+            }
+
+        .btn-success-custom {
+            background: #198754;
+            border-color: #198754;
+            color: white;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 7px;
+        }
+
+            .btn-success-custom:hover {
+                background: #146c43;
+                color: white;
+            }
+
+        .btn-outline-custom {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 7px;
+        }
+
+            .btn-outline-custom:hover {
+                background: #800020;
+                color: white;
+            }
+
+
+
+        .empty-state {
+            background: white;
+            border: 1px solid #eee7df;
+            border-radius: 14px;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 70px;
+            height: 70px;
+            background: #f5e6eb;
+            color: #800020;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 28px;
+        }
+
+        .empty-state h4 {
+            color: #800020;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #888;
+            font-size: 13px;
+            margin: 0;
+        }
+
+
+        @@media (max-width: 767px) {
+
+            .sidebar {
+                width: 70px;
+            }
+
+            .brand h4,
+            .brand small,
+            .nav-link span {
+                display: none;
+            }
+
+            .brand {
+                padding: 15px 5px;
+            }
+
+            .brand-icon {
+                width: 42px;
+                height: 42px;
+                font-size: 17px;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 13px 5px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .order-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .order-actions {
+                justify-content: flex-start;
+            }
+        }
+
+    </style>
 
 
 </head>
 
 <body>
 
-<!-- =====================================================
-     SIDEBAR
-====================================================== -->
 
-<aside class="sidebar">
 
-    <div class="brand">
+    <aside class="sidebar">
 
-        <div class="brand-icon">
-            <i class="fa-solid fa-motorcycle"></i>
+        <div class="brand">
+
+            <div class="brand-icon">
+                <i class="fa-solid fa-motorcycle"></i>
+            </div>
+
+            <h4>Wedding Closet</h4>
+
+            <small>Delivery Panel</small>
+
         </div>
 
-        <h4>Wedding Closet</h4>
 
-        <small>Delivery Panel</small>
+        <div class="nav-menu">
 
-    </div>
-
-
-    <div class="nav-menu">
-
-        <a asp-controller="Delivery"
-           asp-action="Dashboard"
-           class="nav-link">
-
-            <i class="fa-solid fa-gauge-high"></i>
-
-            <span>Dashboard</span>
-
-        </a>
-
-
-        <a asp-controller="Delivery"
-           asp-action="Orders"
-           class="nav-link active">
-
-            <i class="fa-solid fa-box"></i>
-
-            <span>Orders</span>
-
-        </a>
-
-
-        <a asp-controller="Delivery"
-           asp-action="Payments"
-           class="nav-link">
-
-            <i class="fa-solid fa-money-bill-wave"></i>
-
-            <span>Payments</span>
-
-        </a>
-
-
-        <a asp-controller="Delivery"
-           asp-action="Notifications"
-           class="nav-link">
-
-            <i class="fa-solid fa-bell"></i>
-
-            <span>Notifications</span>
-
-        </a>
-
-
-        <a asp-controller="Delivery"
-           asp-action="Chat"
-           class="nav-link">
-
-            <i class="fa-solid fa-comments"></i>
-
-            <span>Chat</span>
-
-        </a>
-
-
-        <div class="logout-link">
-
-            <a asp-controller="Account"
-               asp-action="Logout"
+            <a asp-controller="Delivery"
+               asp-action="Dashboard"
                class="nav-link">
 
-                <i class="fa-solid fa-right-from-bracket"></i>
+                <i class="fa-solid fa-gauge-high"></i>
 
-                <span>Logout</span>
+                <span>Dashboard</span>
 
             </a>
 
-        </div>
 
-    </div>
+            <a asp-controller="Delivery"
+               asp-action="Orders"
+               class="nav-link active">
 
-</aside>
+                <i class="fa-solid fa-box"></i>
 
+                <span>Orders</span>
 
-<!-- =====================================================
-     MAIN CONTENT
-====================================================== -->
-
-<main class="main-content">
+            </a>
 
 
-    <!-- TOPBAR -->
+            <a asp-controller="Delivery"
+               asp-action="Payments"
+               class="nav-link">
 
-    <header class="topbar">
+                <i class="fa-solid fa-money-bill-wave"></i>
 
-        <div class="page-title">
+                <span>Payments</span>
 
-            <h2>My Orders</h2>
-
-            <p>
-                View and manage your delivery orders
-            </p>
-
-        </div>
+            </a>
 
 
-        <div class="profile-area">
+            <a asp-controller="Delivery"
+               asp-action="Notifications"
+               class="nav-link">
 
-            <div class="profile-icon">
+                <i class="fa-solid fa-bell"></i>
 
-                <i class="fa-solid fa-user"></i>
+                <span>Notifications</span>
+
+            </a>
+
+
+            <a asp-controller="Delivery"
+               asp-action="Chat"
+               class="nav-link">
+
+                <i class="fa-solid fa-comments"></i>
+
+                <span>Chat</span>
+
+            </a>
+
+
+            <div class="logout-link">
+
+                <a asp-controller="Account"
+                   asp-action="Logout"
+                   class="nav-link">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    <span>Logout</span>
+
+                </a>
 
             </div>
 
-
-            <div class="profile-info">
-
-                <strong>@deliveryName</strong>
-
-                <span>Delivery Boy</span>
-
-            </div>
-
         </div>
 
-    </header>
+    </aside>
 
 
-    <!-- =================================================
-         CONTENT
-    ================================================== -->
-
-    <div class="content">
+    <main class="main-content">
 
 
-        <!-- PAGE HEADER -->
 
-        <div class="page-header">
 
-            <div>
+        <header class="topbar">
 
-                <h3>
-                    <i class="fa-solid fa-box me-2"></i>
-                    Delivery Orders
-                </h3>
+            <div class="page-title">
+
+                <h2>My Orders</h2>
 
                 <p>
-                    Orders assigned to you and orders available
-                    in your delivery zone.
+                    View and manage your delivery orders
                 </p>
 
             </div>
 
 
-            <div class="zone-badge">
+            <div class="profile-area">
 
-                <i class="fa-solid fa-location-dot me-1"></i>
+                <div class="profile-icon">
 
-                Zone:
-                @assignedZone
+                    <i class="fa-solid fa-user"></i>
+
+                </div>
+
+
+                <div class="profile-info">
+
+                    <strong>@deliveryName</strong>
+
+                    <span>Delivery Boy</span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+
+        <div class="content">
+
+
+
+            <div class="page-header">
+
+                <div>
+
+                    <h3>
+                        <i class="fa-solid fa-box me-2"></i>
+                        Delivery Orders
+                    </h3>
+
+                    <p>
+                        Orders assigned to you and orders available
+                        in your delivery zone.
+                    </p>
+
+                </div>
+
+
+                <div class="zone-badge">
+
+                    <i class="fa-solid fa-location-dot me-1"></i>
+
+                    Zone:
+                    @assignedZone
+
+                </div>
 
             </div>
 
-        </div>
 
 
-        <!-- =================================================
-             TEMP DATA SUCCESS
-        ================================================== -->
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
 
-                <i class="fa-solid fa-circle-check me-2"></i>
+                    <i class="fa-solid fa-circle-check me-2"></i>
 
-                @TempData["Success"]
+                    @TempData["Success"]
 
-            </div>
-        }
+                </div>
+            }
 
 
-        <!-- =================================================
-             TEMP DATA ERROR
-        ================================================== -->
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">
-
-                <i class="fa-solid fa-circle-exclamation me-2"></i>
-
-                @TempData["Error"]
-
-            </div>
-        }
 
 
-        <!-- =================================================
-             ORDERS
-        ================================================== -->
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
 
-        @if (orders.Any())
-        {
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
 
-            foreach (var order in orders)
+                    @TempData["Error"]
+
+                </div>
+            }
+
+
+
+
+            @if (orders.Any())
             {
 
-                string status = order.OrderStatus ?? "Pending";
+                foreach (var order in orders)
+                {
 
-                string statusClass =
+                    string status = order.OrderStatus ?? "Pending";
+
+                    string statusClass =
                     status.Equals("Ready",
-                        StringComparison.OrdinalIgnoreCase)
-                        ? "status-ready"
-                        : status.Equals("Assigned",
-                            StringComparison.OrdinalIgnoreCase)
-                                ? "status-assigned"
-                                : status.Equals("Picked Up",
-                                    StringComparison.OrdinalIgnoreCase)
-                                        ? "status-picked"
-                                        : status.Equals("Out for Delivery",
-                                            StringComparison.OrdinalIgnoreCase)
-                                                ? "status-out"
-                                                : status.Equals("Delivered",
-                                                    StringComparison.OrdinalIgnoreCase)
-                                                        || status.Equals("Completed",
-                                                            StringComparison.OrdinalIgnoreCase)
-                                                            ? "status-delivered"
-                                                            : "status-default";
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "status-ready"
+                    : status.Equals("Assigned",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "status-assigned"
+                    : status.Equals("Picked Up",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "status-picked"
+                    : status.Equals("Out for Delivery",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "status-out"
+                    : status.Equals("Delivered",
+                    StringComparison.OrdinalIgnoreCase)
+                    || status.Equals("Completed",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "status-delivered"
+                    : "status-default";
 
 
-                string statusIcon =
+                    string statusIcon =
                     status.Equals("Ready",
-                        StringComparison.OrdinalIgnoreCase)
-                        ? "fa-box"
-                        : status.Equals("Assigned",
-                            StringComparison.OrdinalIgnoreCase)
-                                ? "fa-user-check"
-                                : status.Equals("Picked Up",
-                                    StringComparison.OrdinalIgnoreCase)
-                                        ? "fa-box-open"
-                                        : status.Equals("Out for Delivery",
-                                            StringComparison.OrdinalIgnoreCase)
-                                                ? "fa-motorcycle"
-                                                : status.Equals("Delivered",
-                                                    StringComparison.OrdinalIgnoreCase)
-                                                        || status.Equals("Completed",
-                                                            StringComparison.OrdinalIgnoreCase)
-                                                            ? "fa-circle-check"
-                                                            : "fa-clock";
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-box"
+                    : status.Equals("Assigned",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-user-check"
+                    : status.Equals("Picked Up",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-box-open"
+                    : status.Equals("Out for Delivery",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-motorcycle"
+                    : status.Equals("Delivered",
+                    StringComparison.OrdinalIgnoreCase)
+                    || status.Equals("Completed",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-circle-check"
+                    : "fa-clock";
 
 
-                bool isAssigned =
+                    bool isAssigned =
                     order.DeliveryId.HasValue &&
                     order.DeliveryId.Value ==
                     (ViewBag.CurrentUserId ?? 0);
 
 
-                bool isCod =
+                    bool isCod =
                     !string.IsNullOrWhiteSpace(order.PaymentMethod) &&
                     (
-                        order.PaymentMethod.Equals("COD",
-                            StringComparison.OrdinalIgnoreCase)
-                        ||
-                        order.PaymentMethod.Contains("Cash",
-                            StringComparison.OrdinalIgnoreCase)
+                    order.PaymentMethod.Equals("COD",
+                    StringComparison.OrdinalIgnoreCase)
+                    ||
+                    order.PaymentMethod.Contains("Cash",
+                    StringComparison.OrdinalIgnoreCase)
                     );
 
 
-                bool codCollected =
+                    bool codCollected =
                     order.DeliveryCollectedAmount > 0;
 
 
-                <div class="order-card">
+                    <div class="order-card">
 
 
-                    <!-- ORDER HEADER -->
 
-                    <div class="order-header">
 
-                        <div>
+                        <div class="order-header">
 
-                            <div class="order-number">
+                            <div>
 
-                                Order #@order.OrderId
+                                <div class="order-number">
+
+                                    Order #@order.OrderId
+
+                                </div>
+
+                                <div class="order-date">
+
+                                    <i class="fa-regular fa-calendar me-1"></i>
+
+                                    @order.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+
+                                </div>
 
                             </div>
 
-                            <div class="order-date">
 
-                                <i class="fa-regular fa-calendar me-1"></i>
+                            <span class="status-badge @statusClass">
 
-                                @order.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+                                <i class="fa-solid @statusIcon"></i>
 
-                            </div>
+                                @status
+
+                            </span>
 
                         </div>
 
 
-                        <span class="status-badge @statusClass">
 
-                            <i class="fa-solid @statusIcon"></i>
+                        <div class="order-body">
 
-                            @status
-
-                        </span>
-
-                    </div>
+                            <div class="row g-3">
 
 
-                    <!-- ORDER BODY -->
-
-                    <div class="order-body">
-
-                        <div class="row g-3">
 
 
-                            <!-- CUSTOMER -->
+                                <div class="col-lg-4 col-md-6">
 
-                            <div class="col-lg-4 col-md-6">
+                                    <div class="info-box">
 
-                                <div class="info-box">
+                                        <div class="info-title">
 
-                                    <div class="info-title">
+                                            <i class="fa-solid fa-user me-1"></i>
+                                            Customer
 
-                                        <i class="fa-solid fa-user me-1"></i>
-                                        Customer
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-user"></i>
+
+                                            <span>
+                                                @(order.Customer?.Name ?? "Customer")
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-phone"></i>
+
+                                            <span>
+                                                @(order.Customer?.Phone ?? "N/A")
+                                            </span>
+
+                                        </div>
 
                                     </div>
 
+                                </div>
 
-                                    <div class="info-row">
 
-                                        <i class="fa-solid fa-user"></i>
 
-                                        <span>
-                                            @(order.Customer?.Name ?? "Customer")
-                                        </span>
+
+                                <div class="col-lg-5 col-md-6">
+
+                                    <div class="info-box">
+
+                                        <div class="info-title">
+
+                                            <i class="fa-solid fa-location-dot me-1"></i>
+                                            Delivery Address
+
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-map-location-dot"></i>
+
+                                            <span>
+
+                                                @(string.IsNullOrWhiteSpace(order.DeliveryAddress)
+                                                                                        ? "Address not available"
+                                                                                        : order.DeliveryAddress)
+
+                                    </span>
+
+                                        </div>
 
                                     </div>
 
+                                </div>
 
-                                    <div class="info-row">
 
-                                        <i class="fa-solid fa-phone"></i>
 
-                                        <span>
-                                            @(order.Customer?.Phone ?? "N/A")
-                                        </span>
+
+                                <div class="col-lg-3 col-md-12">
+
+                                    <div class="info-box">
+
+                                        <div class="info-title">
+
+                                            <i class="fa-solid fa-receipt me-1"></i>
+                                            Order Amount
+
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-cart-shopping"></i>
+
+                                            <strong>
+                                                Rs. @order.ProductTotal.ToString("N2")
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-truck"></i>
+
+                                            <span>
+                                                Delivery:
+                                            </span>
+
+                                            <strong>
+                                                Rs. @order.DeliveryCharges.ToString("N2")
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="info-row">
+
+                                            <i class="fa-solid fa-money-bill"></i>
+
+                                            <strong>
+                                                Rs. @order.TotalAmount.ToString("N2")
+                                            </strong>
+
+                                        </div>
 
                                     </div>
 
@@ -965,82 +1011,50 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
                             </div>
 
 
-                            <!-- DELIVERY ADDRESS -->
-
-                            <div class="col-lg-5 col-md-6">
-
-                                <div class="info-box">
-
-                                    <div class="info-title">
-
-                                        <i class="fa-solid fa-location-dot me-1"></i>
-                                        Delivery Address
-
-                                    </div>
 
 
-                                    <div class="info-row">
+                            <div class="payment-box">
 
-                                        <i class="fa-solid fa-map-location-dot"></i>
+                                <div class="payment-row">
 
-                                        <span>
+                                    <span>
+                                        <i class="fa-solid fa-credit-card me-1"></i>
+                                        Payment Method
+                                    </span>
 
-                                            @(string.IsNullOrWhiteSpace(order.DeliveryAddress)
-                                                ? "Address not available"
-                                                : order.DeliveryAddress)
 
-                                        </span>
+                            @if (isCod)
+                                    {
+                                        <strong class="cod-label">
 
-                                    </div>
+                                            <i class="fa-solid fa-money-bill-wave me-1"></i>
+
+                                            Cash on Delivery
+
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <strong class="online-label">
+
+                                            <i class="fa-solid fa-circle-check me-1"></i>
+
+                                            @(order.PaymentMethod ?? "Online Payment")
+
+                                        </strong>
+                                    }
 
                                 </div>
 
-                            </div>
 
+                                @if (isCod)
+                                {
 
-                            <!-- ORDER AMOUNT -->
-
-                            <div class="col-lg-3 col-md-12">
-
-                                <div class="info-box">
-
-                                    <div class="info-title">
-
-                                        <i class="fa-solid fa-receipt me-1"></i>
-                                        Order Amount
-
-                                    </div>
-
-
-                                    <div class="info-row">
-
-                                        <i class="fa-solid fa-cart-shopping"></i>
-
-                                        <strong>
-                                            Rs. @order.ProductTotal.ToString("N2")
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="info-row">
-
-                                        <i class="fa-solid fa-truck"></i>
+                                    <div class="payment-row">
 
                                         <span>
-                                            Delivery:
+                                            COD Amount
                                         </span>
-
-                                        <strong>
-                                            Rs. @order.DeliveryCharges.ToString("N2")
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="info-row">
-
-                                        <i class="fa-solid fa-money-bill"></i>
 
                                         <strong>
                                             Rs. @order.TotalAmount.ToString("N2")
@@ -1048,60 +1062,50 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 
                                     </div>
 
-                                </div>
 
-                            </div>
+                                    <div class="payment-row">
 
-                        </div>
-
-
-                        <!-- PAYMENT -->
-
-                        <div class="payment-box">
-
-                            <div class="payment-row">
-
-                                <span>
-                                    <i class="fa-solid fa-credit-card me-1"></i>
-                                    Payment Method
-                                </span>
+                                        <span>
+                                            COD Collection
+                                        </span>
 
 
-                                @if (isCod)
-                                {
-                                    <strong class="cod-label">
+                                        @if (codCollected)
+                                        {
+                                            <strong class="online-label">
 
-                                        <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                                <i class="fa-solid fa-circle-check me-1"></i>
 
-                                        Cash on Delivery
+                                                Collected:
+                                                Rs.
+                                                @order.DeliveryCollectedAmount.ToString("N2")
 
-                                    </strong>
-                                }
-                                else
-                                {
-                                    <strong class="online-label">
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="cod-label">
 
-                                        <i class="fa-solid fa-circle-check me-1"></i>
+                                                <i class="fa-solid fa-clock me-1"></i>
 
-                                        @(order.PaymentMethod ?? "Online Payment")
+                                                Not Collected
 
-                                    </strong>
+                                            </strong>
+                                        }
+
+                                    </div>
+
                                 }
 
-                            </div>
-
-
-                            @if (isCod)
-                            {
 
                                 <div class="payment-row">
 
                                     <span>
-                                        COD Amount
+                                        Delivery Charges
                                     </span>
 
                                     <strong>
-                                        Rs. @order.TotalAmount.ToString("N2")
+                                        Rs. @order.DeliveryCharges.ToString("N2")
                                     </strong>
 
                                 </div>
@@ -1110,230 +1114,66 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
                                 <div class="payment-row">
 
                                     <span>
-                                        COD Collection
+                                        Your Payment
                                     </span>
 
+                                    <strong>
 
-                                    @if (codCollected)
-                                    {
-                                        <strong class="online-label">
+                                        @if ((order.DeliveryPaymentStatus ?? "")
+                                                                        .Equals("Paid",
+                                                                        StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="text-success">
+                                                Paid
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-warning">
+                                                Pending
+                                            </span>
+                                        }
 
-                                            <i class="fa-solid fa-circle-check me-1"></i>
-
-                                            Collected:
-                                            Rs.
-                                            @order.DeliveryCollectedAmount.ToString("N2")
-
-                                        </strong>
-                                    }
-                                    else
-                                    {
-                                        <strong class="cod-label">
-
-                                            <i class="fa-solid fa-clock me-1"></i>
-
-                                            Not Collected
-
-                                        </strong>
-                                    }
+                                    </strong>
 
                                 </div>
-
-                            }
-
-
-                            <div class="payment-row">
-
-                                <span>
-                                    Delivery Charges
-                                </span>
-
-                                <strong>
-                                    Rs. @order.DeliveryCharges.ToString("N2")
-                                </strong>
-
-                            </div>
-
-
-                            <div class="payment-row">
-
-                                <span>
-                                    Your Payment
-                                </span>
-
-                                <strong>
-
-                                    @if ((order.DeliveryPaymentStatus ?? "")
-                                        .Equals("Paid",
-                                            StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        <span class="text-success">
-                                            Paid
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-warning">
-                                            Pending
-                                        </span>
-                                    }
-
-                                </strong>
 
                             </div>
 
                         </div>
 
-                    </div>
 
 
-                    <!-- =================================================
-                         ACTIONS
-                    ================================================== -->
 
-                    <div class="order-actions">
+                        <div class="order-actions">
 
 
-                        <!-- VIEW DETAILS -->
-
-                        <a asp-controller="Delivery"
-                           asp-action="OrderDetails"
-                           asp-route-id="@order.OrderId"
-                           class="btn btn-outline-custom">
-
-                            <i class="fa-solid fa-eye me-1"></i>
-
-                            View Details
-
-                        </a>
 
 
-                        <!-- AVAILABLE ORDER -->
+                            <a asp-controller="Delivery"
+                               asp-action="OrderDetails"
+                               asp-route-id="@order.OrderId"
+                               class="btn btn-outline-custom">
 
-                        @if (!isAssigned &&
-                             (status.Equals("Ready",
-                                 StringComparison.OrdinalIgnoreCase)
-                              ||
-                              status.Equals("Confirmed",
-                                 StringComparison.OrdinalIgnoreCase)))
-                        {
+                                <i class="fa-solid fa-eye me-1"></i>
 
-                            <form asp-controller="Delivery"
-                                  asp-action="AcceptOrder"
-                                  method="post"
-                                  class="d-inline">
+                                View Details
 
-                                @Html.AntiForgeryToken()
-
-                                <input type="hidden"
-                                       name="id"
-                                       value="@order.OrderId" />
-
-                                <button type="submit"
-                                        class="btn btn-gold"
-                                        onclick="return confirm('Do you want to accept this delivery order?');">
-
-                                    <i class="fa-solid fa-hand-pointer me-1"></i>
-
-                                    Pick Order
-
-                                </button>
-
-                            </form>
-
-                        }
+                            </a>
 
 
-                        <!-- ASSIGNED ORDER -->
 
-                        @if (isAssigned)
-                        {
 
-                            <!-- PICKED UP -->
-
-                            @if (status.Equals("Assigned",
-                                StringComparison.OrdinalIgnoreCase))
+                            @if (!isAssigned &&
+                                                (status.Equals("Ready",
+                                                StringComparison.OrdinalIgnoreCase)
+                                                ||
+                                                status.Equals("Confirmed",
+                                                StringComparison.OrdinalIgnoreCase)))
                             {
 
                                 <form asp-controller="Delivery"
-                                      asp-action="UpdateDeliveryStatus"
-                                      method="post"
-                                      class="d-inline">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="id"
-                                           value="@order.OrderId" />
-
-                                    <input type="hidden"
-                                           name="status"
-                                           value="Picked Up" />
-
-                                    <button type="submit"
-                                            class="btn btn-maroon">
-
-                                        <i class="fa-solid fa-box-open me-1"></i>
-
-                                        Picked Up
-
-                                    </button>
-
-                                </form>
-
-                            }
-
-
-                            <!-- OUT FOR DELIVERY -->
-
-                            @if (status.Equals("Picked Up",
-                                StringComparison.OrdinalIgnoreCase))
-                            {
-
-                                <form asp-controller="Delivery"
-                                      asp-action="UpdateDeliveryStatus"
-                                      method="post"
-                                      class="d-inline">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="id"
-                                           value="@order.OrderId" />
-
-                                    <input type="hidden"
-                                           name="status"
-                                           value="Out for Delivery" />
-
-                                    <button type="submit"
-                                            class="btn btn-maroon">
-
-                                        <i class="fa-solid fa-motorcycle me-1"></i>
-
-                                        Out for Delivery
-
-                                    </button>
-
-                                </form>
-
-                            }
-
-
-                            <!-- COLLECT COD -->
-
-                            @if (isCod &&
-                                 !codCollected &&
-                                 (
-                                     status.Equals("Out for Delivery",
-                                         StringComparison.OrdinalIgnoreCase)
-                                     ||
-                                     status.Equals("Picked Up",
-                                         StringComparison.OrdinalIgnoreCase)
-                                 ))
-                            {
-
-                                <form asp-controller="Delivery"
-                                      asp-action="CollectCOD"
+                                      asp-action="AcceptOrder"
                                       method="post"
                                       class="d-inline">
 
@@ -1345,11 +1185,11 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 
                                     <button type="submit"
                                             class="btn btn-gold"
-                                            onclick="return confirm('Confirm that you collected Rs. @order.TotalAmount.ToString("N2") from the customer?');">
+                                            onclick="return confirm('Do you want to accept this delivery order?');">
 
-                                        <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                        <i class="fa-solid fa-hand-pointer me-1"></i>
 
-                                        Collect COD
+                                        Pick Order
 
                                     </button>
 
@@ -1358,20 +1198,15 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
                             }
 
 
-                            <!-- DELIVER -->
 
-                            @if (status.Equals("Out for Delivery",
-                                StringComparison.OrdinalIgnoreCase)
-                                ||
-                                status.Equals("Picked Up",
-                                StringComparison.OrdinalIgnoreCase))
+
+                            @if (isAssigned)
                             {
 
-                                bool canDeliver =
-                                    !isCod || codCollected;
 
 
-                                @if (canDeliver)
+                                @if (status.Equals("Assigned",
+                                                    StringComparison.OrdinalIgnoreCase))
                                 {
 
                                     <form asp-controller="Delivery"
@@ -1387,15 +1222,14 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 
                                         <input type="hidden"
                                                name="status"
-                                               value="Delivered" />
+                                               value="Picked Up" />
 
                                         <button type="submit"
-                                                class="btn btn-success-custom"
-                                                onclick="return confirm('Confirm that this order has been delivered?');">
+                                                class="btn btn-maroon">
 
-                                            <i class="fa-solid fa-circle-check me-1"></i>
+                                            <i class="fa-solid fa-box-open me-1"></i>
 
-                                            Delivered
+                                            Picked Up
 
                                         </button>
 
@@ -1403,70 +1237,188 @@ string assignedZone = ViewBag.AssignedZone ?? "Not Assigned";
 
                                 }
 
+
+
+
+                                @if (status.Equals("Picked Up",
+                                                    StringComparison.OrdinalIgnoreCase))
+                                {
+
+                                    <form asp-controller="Delivery"
+                                          asp-action="UpdateDeliveryStatus"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@order.OrderId" />
+
+                                        <input type="hidden"
+                                               name="status"
+                                               value="Out for Delivery" />
+
+                                        <button type="submit"
+                                                class="btn btn-maroon">
+
+                                            <i class="fa-solid fa-motorcycle me-1"></i>
+
+                                            Out for Delivery
+
+                                        </button>
+
+                                    </form>
+
+                                }
+
+
+
+
+                                @if (isCod &&
+                                                    !codCollected &&
+                                                    (
+                                                    status.Equals("Out for Delivery",
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                    ||
+                                                    status.Equals("Picked Up",
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                    ))
+                                {
+
+                                    <form asp-controller="Delivery"
+                                          asp-action="CollectCOD"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@order.OrderId" />
+
+                                        <button type="submit"
+                                                class="btn btn-gold"
+                                                onclick="return confirm('Confirm that you collected Rs. @order.TotalAmount.ToString("N2") from the customer?');">
+
+                                            <i class="fa-solid fa-money-bill-wave me-1"></i>
+
+                                            Collect COD
+
+                                        </button>
+
+                                    </form>
+
+                                }
+
+
+
+
+                                @if (status.Equals("Out for Delivery",
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                    ||
+                                                    status.Equals("Picked Up",
+                                                    StringComparison.OrdinalIgnoreCase))
+                                {
+
+                                    bool canDeliver =
+                                    !isCod || codCollected;
+
+
+                                    @if (canDeliver)
+                                    {
+
+                                        <form asp-controller="Delivery"
+                                              asp-action="UpdateDeliveryStatus"
+                                              method="post"
+                                              class="d-inline">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@order.OrderId" />
+
+                                            <input type="hidden"
+                                                   name="status"
+                                                   value="Delivered" />
+
+                                            <button type="submit"
+                                                    class="btn btn-success-custom"
+                                                    onclick="return confirm('Confirm that this order has been delivered?');">
+
+                                                <i class="fa-solid fa-circle-check me-1"></i>
+
+                                                Delivered
+
+                                            </button>
+
+                                        </form>
+
+                                    }
+
+                                }
+
                             }
 
-                        }
 
 
-                        <!-- COMPLETED -->
 
-                        @if (status.Equals("Delivered",
-                            StringComparison.OrdinalIgnoreCase)
-                            ||
-                            status.Equals("Completed",
-                            StringComparison.OrdinalIgnoreCase))
-                        {
+                            @if (status.Equals("Delivered",
+                                                StringComparison.OrdinalIgnoreCase)
+                                                ||
+                                                status.Equals("Completed",
+                                                StringComparison.OrdinalIgnoreCase))
+                            {
 
-                            <span class="btn btn-success-custom disabled">
+                                <span class="btn btn-success-custom disabled">
 
-                                <i class="fa-solid fa-check me-1"></i>
+                                    <i class="fa-solid fa-check me-1"></i>
 
-                                Delivery Completed
+                                    Delivery Completed
 
-                            </span>
+                                </span>
 
-                        }
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            }
+            else
+            {
+
+
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+
+                        <i class="fa-solid fa-box-open"></i>
 
                     </div>
 
+                    <h4>No Orders Available</h4>
+
+                    <p>
+                        There are currently no orders assigned to you
+                        or available in your assigned zone.
+                    </p>
+
                 </div>
+
             }
 
-        }
-        else
-        {
+        </div>
 
-            <!-- =================================================
-                 EMPTY STATE
-            ================================================== -->
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-
-                    <i class="fa-solid fa-box-open"></i>
-
-                </div>
-
-                <h4>No Orders Available</h4>
-
-                <p>
-                    There are currently no orders assigned to you
-                    or available in your assigned zone.
-                </p>
-
-            </div>
-
-        }
-
-    </div>
-
-</main>
+    </main>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
-```
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
 
 </body>
 </html>

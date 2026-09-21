@@ -10,7 +10,7 @@ ViewData["Title"] = "Login";
 
         <div class="card shadow">
 
-            <!-- LOGIN HEADER -->
+            
 
             <div class="card-header bg-primary text-white text-center">
 
@@ -22,9 +22,7 @@ ViewData["Title"] = "Login";
 
             <div class="card-body">
 
-               
-
-                <!-- ERROR MESSAGE -->
+              
 
                 @if (ViewBag.Error != null)
                 {
@@ -41,8 +39,6 @@ ViewData["Title"] = "Login";
                 }
 
 
-                <!-- LOGIN FORM -->
-
                 <form asp-controller="Account"
                       asp-action="Login"
                       method="post">
@@ -50,7 +46,6 @@ ViewData["Title"] = "Login";
                     @Html.AntiForgeryToken()
 
 
-                    <!-- EMAIL -->
 
                     <div class="mb-3">
 
@@ -68,7 +63,6 @@ ViewData["Title"] = "Login";
                     </div>
 
 
-                    <!-- PASSWORD -->
 
                     <div class="mb-3">
 
@@ -102,8 +96,6 @@ ViewData["Title"] = "Login";
                     </div>
 
 
-                    <!-- FORGOT PASSWORD -->
-
                     <div class="text-end mb-4">
 
                         <a asp-controller="Account"
@@ -117,7 +109,6 @@ ViewData["Title"] = "Login";
                     </div>
 
 
-                    <!-- LOGIN AS -->
 
                     <div class="mb-4">
 
@@ -154,7 +145,6 @@ ViewData["Title"] = "Login";
                     </div>
 
 
-                    <!-- LOGIN BUTTON -->
 
                     <button type="submit"
                             class="btn btn-primary w-100">
@@ -167,8 +157,6 @@ ViewData["Title"] = "Login";
 
                 </form>
 
-
-                <!-- REGISTER -->
 
                 <div class="text-center mt-4">
 
@@ -197,7 +185,7 @@ ViewData["Title"] = "Login";
 
 </div>
 
-<!-- PASSWORD SHOW / HIDE SCRIPT -->
+
 
 <script>
 

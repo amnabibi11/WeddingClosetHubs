@@ -98,9 +98,7 @@
             box-shadow: 0 0 0 0.15rem rgba(128, 0, 32, 0.12);
         }
 
-        /* =========================================
-           ORDER INFORMATION
-        ========================================= */
+       
 
         .order-info {
             background: #fff8f8;
@@ -122,9 +120,7 @@
             color: #800020;
         }
 
-        /* =========================================
-           STAR RATING
-        ========================================= */
+       
 
         .rating-container {
             display: flex;
@@ -156,9 +152,7 @@
             margin-top: 5px;
         }
 
-        /* =========================================
-           SUBMIT BUTTON
-        ========================================= */
+       
 
         .submit-button {
             padding: 11px 25px;
@@ -178,9 +172,6 @@
             opacity: 0.65;
         }
 
-        /* =========================================
-           REVIEW LIST
-        ========================================= */
 
         .review-item {
             border: 1px solid #e5e5e5;
@@ -239,9 +230,7 @@
             color: #555;
         }
 
-        /* =========================================
-           INFORMATION BOX
-        ========================================= */
+        
 
         .info-box {
             background: #fff8f8;
@@ -256,9 +245,7 @@
             margin-right: 6px;
         }
 
-        /* =========================================
-           NO ORDERS
-        ========================================= */
+      
 
         .no-orders {
             background: #f8f9fa;
@@ -275,9 +262,7 @@
             margin-bottom: 10px;
         }
 
-        /* =========================================
-           MOBILE
-        ========================================= */
+      
 
         @@media (max-width: 768px) {
 
@@ -312,10 +297,7 @@
 
 <div class="page-wrapper">
 
-    <!-- =========================================
-         BACK BUTTON
-    ========================================= -->
-
+   
     <div class="back-button">
 
         <a asp-controller="Customer"
@@ -331,9 +313,7 @@
     </div>
 
 
-    <!-- =========================================
-         PAGE HEADER
-    ========================================= -->
+    
 
     <div class="page-header">
 
@@ -354,10 +334,7 @@
     </div>
 
 
-    <!-- =========================================
-         SUCCESS MESSAGE
-    ========================================= -->
-
+    
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
@@ -375,10 +352,6 @@
     }
 
 
-    <!-- =========================================
-         ERROR MESSAGE
-    ========================================= -->
-
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show">
@@ -395,10 +368,6 @@
         </div>
     }
 
-
-    <!-- =========================================
-         FEEDBACK FORM
-    ========================================= -->
 
     <div class="feedback-card">
 
@@ -431,10 +400,6 @@
 
                 @Html.AntiForgeryToken()
 
-
-                <!-- =====================================
-                     SELECT ORDER
-                ====================================== -->
 
                 <div class="mb-4">
 
@@ -480,10 +445,7 @@
                 </div>
 
 
-                <!-- =====================================
-                     SELECT FEEDBACK TYPE
-                ====================================== -->
-
+              
                 <div class="mb-4">
 
                     <label for="reviewType"
@@ -516,10 +478,6 @@
                 </div>
 
 
-                <!-- =====================================
-                     SELECTED SHOP INFORMATION
-                ====================================== -->
-
                 <div id="shopSection"
                      class="order-info">
 
@@ -544,10 +502,6 @@
 
                 </div>
 
-
-                <!-- =====================================
-                     SELECT PRODUCT
-                ====================================== -->
 
                 <div id="productSection"
                      class="order-info">
@@ -578,10 +532,6 @@
 
                 </div>
 
-
-                <!-- =====================================
-                     RATING
-                ====================================== -->
 
                 <div class="mb-4 mt-4">
 
@@ -656,10 +606,6 @@
                 </div>
 
 
-                <!-- =====================================
-                     COMMENT
-                ====================================== -->
-
                 <div class="mb-4">
 
                     <label for="comment"
@@ -679,10 +625,6 @@
 
                 </div>
 
-
-                <!-- =====================================
-                     SUBMIT
-                ====================================== -->
 
                 <button type="submit"
                         id="submitButton"
@@ -722,10 +664,6 @@
 
     </div>
 
-
-    <!-- =========================================
-         PREVIOUS REVIEWS
-    ========================================= -->
 
     <div class="feedback-card">
 
@@ -774,7 +712,7 @@
                         </div>
 
 
-                        <!-- RATING -->
+                      
 
                         <div class="stars">
 
@@ -795,7 +733,7 @@
                     </div>
 
 
-                    <!-- COMMENT -->
+                    
 
                     <div class="mt-2">
 
@@ -804,7 +742,7 @@
                     </div>
 
 
-                    <!-- DATE -->
+                    
 
                     <div class="text-muted small mt-2">
 
@@ -816,7 +754,7 @@
                     </div>
 
 
-                    <!-- APPROVAL -->
+                    
 
                     <div class="mt-2">
 
@@ -872,10 +810,6 @@
 </div>
 
 
-<!-- =========================================
-     JAVASCRIPT
-========================================= -->
-
 <script>
 
     document.addEventListener(
@@ -910,10 +844,6 @@
                 document.getElementById("feedbackForm");
 
 
-            // -------------------------------------------------
-            // CHECK REQUIRED ELEMENTS
-            // -------------------------------------------------
-
             if (
                 !orderSelect ||
                 !reviewType ||
@@ -933,10 +863,7 @@
             }
 
 
-            // -------------------------------------------------
-            // PRODUCTS FOR EACH COMPLETED ORDER
-            // -------------------------------------------------
-
+            
             const orderProducts = {};
 
             @foreach (var order in completedOrders)
@@ -974,13 +901,9 @@
             }
 
 
-            // -------------------------------------------------
-            // ENABLE/DISABLE SUBMIT BUTTON
-            // -------------------------------------------------
-
             function updateSubmitButton() {
 
-                // No order
+                
                 if (!orderSelect.value) {
 
                     submitButton.disabled = true;
@@ -989,7 +912,7 @@
                 }
 
 
-                // No review type
+               
                 if (!reviewType.value) {
 
                     submitButton.disabled = true;
@@ -998,7 +921,7 @@
                 }
 
 
-                // Product review requires product
+               
                 if (
                     reviewType.value === "Product" &&
                     !productSelect.value
@@ -1010,14 +933,10 @@
                 }
 
 
-                // Shop review or valid product review
+                
                 submitButton.disabled = false;
             }
 
-
-            // -------------------------------------------------
-            // RESET PRODUCT SELECT
-            // -------------------------------------------------
 
             function resetProductSelect() {
 
@@ -1028,10 +947,7 @@
             }
 
 
-            // -------------------------------------------------
-            // ORDER CHANGED
-            // -------------------------------------------------
-
+            
             orderSelect.addEventListener(
                 "change",
                 function () {
@@ -1045,14 +961,14 @@
                         ];
 
 
-                    // Reset feedback type
+                    
                     reviewType.value = "";
 
                     reviewType.disabled =
                         selectedOrderId === "";
 
 
-                    // Hide sections
+                    
                     shopSection.style.display =
                         "none";
 
@@ -1060,18 +976,17 @@
                         "none";
 
 
-                    // Clear shop
+                   
                     shopId.value = "";
 
                     shopNameDisplay.textContent =
                         "-";
 
 
-                    // Reset product
+                    
                     resetProductSelect();
 
 
-                    // Disable submit
                     submitButton.disabled =
                         true;
 
@@ -1081,7 +996,7 @@
                     }
 
 
-                    // Get shop information
+                    
                     shopId.value =
                         selectedOption.getAttribute(
                             "data-shop-id"
@@ -1099,10 +1014,6 @@
             );
 
 
-            // -------------------------------------------------
-            // REVIEW TYPE CHANGED
-            // -------------------------------------------------
-
             reviewType.addEventListener(
                 "change",
                 function () {
@@ -1111,7 +1022,7 @@
                         this.value;
 
 
-                    // Hide both sections first
+                    
                     shopSection.style.display =
                         "none";
 
@@ -1130,10 +1041,6 @@
                     }
 
 
-                    // -------------------------------------------------
-                    // SHOP REVIEW
-                    // -------------------------------------------------
-
                     if (selectedType === "Shop") {
 
                         shopSection.style.display =
@@ -1144,10 +1051,6 @@
                         return;
                     }
 
-
-                    // -------------------------------------------------
-                    // PRODUCT REVIEW
-                    // -------------------------------------------------
 
                     if (selectedType === "Product") {
 
@@ -1216,10 +1119,6 @@
             );
 
 
-            // -------------------------------------------------
-            // PRODUCT CHANGED
-            // -------------------------------------------------
-
             productSelect.addEventListener(
                 "change",
                 function () {
@@ -1230,15 +1129,11 @@
             );
 
 
-            // -------------------------------------------------
-            // FORM SUBMIT VALIDATION
-            // -------------------------------------------------
-
             feedbackForm.addEventListener(
                 "submit",
                 function (event) {
 
-                    // Order
+                    
                     if (!orderSelect.value) {
 
                         event.preventDefault();
@@ -1251,7 +1146,7 @@
                     }
 
 
-                    // Review type
+                   
                     if (!reviewType.value) {
 
                         event.preventDefault();
@@ -1264,7 +1159,7 @@
                     }
 
 
-                    // Product
+                  
                     if (
                         reviewType.value === "Product" &&
                         !productSelect.value
@@ -1280,7 +1175,7 @@
                     }
 
 
-                    // Rating
+                    
                     const selectedRating =
                         document.querySelector(
                             'input[name="rating"]:checked'
@@ -1298,7 +1193,7 @@
                     }
 
 
-                    // Comment
+                    
                     const comment =
                         document.getElementById(
                             "comment"
@@ -1319,7 +1214,7 @@
                     }
 
 
-                    // Make sure button cannot be clicked twice
+                    
                     submitButton.disabled = true;
 
                     submitButton.innerHTML =

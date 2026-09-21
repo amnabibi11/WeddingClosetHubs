@@ -47,17 +47,11 @@
     </title>
 
 
-    <!-- =====================================================
-         BOOTSTRAP
-    ====================================================== -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
 
-    <!-- =====================================================
-         BOOTSTRAP ICONS
-    ====================================================== -->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -73,9 +67,6 @@
         }
 
 
-        /* =====================================================
-           HEADER
-        ====================================================== */
 
         .page-header {
             background-color: #800020;
@@ -84,20 +75,17 @@
             margin-bottom: 25px;
         }
 
-        .page-header h2 {
-            margin: 0;
-            font-weight: 600;
-        }
+            .page-header h2 {
+                margin: 0;
+                font-weight: 600;
+            }
 
-        .page-header p {
-            margin: 5px 0 0;
-            opacity: 0.85;
-        }
+            .page-header p {
+                margin: 5px 0 0;
+                opacity: 0.85;
+            }
 
 
-        /* =====================================================
-           CARDS
-        ====================================================== */
 
         .card {
             border: none;
@@ -115,9 +103,6 @@
         }
 
 
-        /* =====================================================
-           INFORMATION
-        ====================================================== */
 
         .info-row {
             display: flex;
@@ -127,9 +112,9 @@
             border-bottom: 1px solid #eeeeee;
         }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+            .info-row:last-child {
+                border-bottom: none;
+            }
 
         .info-label {
             font-weight: 600;
@@ -143,9 +128,6 @@
         }
 
 
-        /* =====================================================
-           STATUS
-        ====================================================== */
 
         .status-badge {
             display: inline-block;
@@ -191,9 +173,6 @@
         }
 
 
-        /* =====================================================
-           PRODUCT
-        ====================================================== */
 
         .product-img {
             width: 65px;
@@ -204,19 +183,16 @@
         }
 
 
-        /* =====================================================
-           TABLE
-        ====================================================== */
 
         .table thead {
             background-color: #800020;
             color: white;
         }
 
-        .table thead th {
-            border: none;
-            padding: 13px;
-        }
+            .table thead th {
+                border: none;
+                padding: 13px;
+            }
 
         .table tbody td {
             vertical-align: middle;
@@ -224,9 +200,6 @@
         }
 
 
-        /* =====================================================
-           TOTAL
-        ====================================================== */
 
         .total-box {
             background-color: #fafafa;
@@ -250,9 +223,6 @@
         }
 
 
-        /* =====================================================
-           PAYMENT
-        ====================================================== */
 
         .payment-box {
             border-left: 4px solid #d4af37;
@@ -261,11 +231,6 @@
             border-radius: 8px;
         }
 
-
-        /* =====================================================
-           EMPTY
-        ====================================================== */
-
         .empty-box {
             text-align: center;
             padding: 25px;
@@ -273,9 +238,6 @@
         }
 
 
-        /* =====================================================
-           NOTES
-        ====================================================== */
 
         .notes-box {
             background-color: #fafafa;
@@ -284,10 +246,6 @@
             color: #555555;
         }
 
-
-        /* =====================================================
-           BUTTONS
-        ====================================================== */
 
         .back-btn {
             background-color: #800020;
@@ -299,10 +257,10 @@
             display: inline-block;
         }
 
-        .back-btn:hover {
-            background-color: #650019;
-            color: white;
-        }
+            .back-btn:hover {
+                background-color: #650019;
+                color: white;
+            }
 
         .print-btn {
             background-color: #d4af37;
@@ -312,14 +270,11 @@
             border-radius: 7px;
         }
 
-        .print-btn:hover {
-            background-color: #c39d25;
-        }
+            .print-btn:hover {
+                background-color: #c39d25;
+            }
 
 
-        /* =====================================================
-           STATUS UPDATE
-        ====================================================== */
 
         .status-update-box {
             background-color: #fffaf0;
@@ -328,10 +283,10 @@
             padding: 20px;
         }
 
-        .status-update-box h5 {
-            color: #800020;
-            font-weight: 600;
-        }
+            .status-update-box h5 {
+                color: #800020;
+                font-weight: 600;
+            }
 
         .status-select {
             height: 45px;
@@ -349,15 +304,12 @@
             font-weight: 600;
         }
 
-        .update-status-btn:hover {
-            background-color: #650019;
-            color: white;
-        }
+            .update-status-btn:hover {
+                background-color: #650019;
+                color: white;
+            }
 
 
-        /* =====================================================
-           STATUS FLOW
-        ====================================================== */
 
         .flow-container {
             display: flex;
@@ -382,9 +334,6 @@
         }
 
 
-        /* =====================================================
-           PRINT
-        ====================================================== */
 
         @@media print {
 
@@ -410,57 +359,56 @@
 <body>
 
 
-<!-- =========================================================
-     PAGE HEADER
-========================================================= -->
 
-<div class="page-header">
+    <div class="page-header">
 
-    <div class="container-fluid">
+        <div class="container-fluid">
 
-        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
 
-            <div>
+                <div>
 
-                <h2>
+                    <h2>
 
-                    <i class="bi bi-receipt"></i>
+                        <i class="bi bi-receipt"></i>
 
-                    Order Details
+                        Order Details
 
-                </h2>
+                    </h2>
 
-                <p>
+                    <p>
 
-                    Order #@Model.OrderId
+                        Order #@Model.OrderId
 
-                </p>
+                    </p>
 
-            </div>
+                </div>
 
 
-            <div class="no-print">
+                <div class="no-print">
 
-                <button type="button"
-                        onclick="window.print()"
-                        class="print-btn me-2">
+                    <button type="button"
+                            onclick="window.print()"
+                            class="print-btn me-2">
 
-                    <i class="bi bi-printer"></i>
+                        <i class="bi bi-printer"></i>
 
-                    Print
+                        Print
 
-                </button>
+                    </button>
 
 
-                <a asp-controller="Shopkeeper"
-                   asp-action="Orders"
-                   class="back-btn">
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Orders"
+                       class="back-btn">
 
-                    <i class="bi bi-arrow-left"></i>
+                        <i class="bi bi-arrow-left"></i>
 
-                    Back to Orders
+                        Back to Orders
 
-                </a>
+                    </a>
+
+                </div>
 
             </div>
 
@@ -468,861 +416,826 @@
 
     </div>
 
-</div>
+
+    <div class="container-fluid">
 
 
-<div class="container-fluid">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show no-print">
+
+                <i class="bi bi-check-circle"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
 
 
-<!-- =========================================================
-     SUCCESS / ERROR MESSAGE
-========================================================= -->
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show no-print">
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show no-print">
+                <i class="bi bi-exclamation-triangle"></i>
 
-        <i class="bi bi-check-circle"></i>
+                @TempData["Error"]
 
-        @TempData["Success"]
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
 
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert">
-        </button>
-
-    </div>
-}
+            </div>
+        }
 
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show no-print">
 
-        <i class="bi bi-exclamation-triangle"></i>
+        <div class="card">
 
-        @TempData["Error"]
+            <div class="card-header">
 
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert">
-        </button>
+                <i class="bi bi-info-circle"></i>
 
-    </div>
-}
+                Order Summary
+
+            </div>
 
 
-<!-- =========================================================
-     ORDER SUMMARY
-========================================================= -->
+            <div class="card-body">
 
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-info-circle"></i>
-
-        Order Summary
-
-    </div>
+                <div class="row">
 
 
-    <div class="card-body">
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Order ID
+                            </span>
+
+                            <span class="info-value">
+
+                                #@Model.OrderId
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Order Date
+                            </span>
+
+                            <span class="info-value">
+
+                                @Model.CreatedDate.ToString(
+                                "dd MMM yyyy hh:mm tt")
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Payment Method
+                            </span>
+
+                            <span class="info-value">
+
+                                @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
+                                                                ? "Not specified"
+                                                                : Model.PaymentMethod)
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Order Status
+                            </span>
+
+                            <span class="info-value">
+
+                                <span class="status-badge @statusClass">
+
+                                    @orderStatus
+
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card no-print">
+
+            <div class="card-header">
+
+                <i class="bi bi-arrow-repeat"></i>
+
+                Update Order Status
+
+            </div>
+
+
+            <div class="card-body">
+
+                @if (canUpdateStatus && nextStatuses.Any())
+                {
+
+                    <div class="status-update-box">
+
+                        <h5>
+
+                            <i class="bi bi-pencil-square"></i>
+
+                            Change Order Status
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Current status:
+
+                            <strong>
+                                @orderStatus
+                            </strong>
+
+                        </p>
+
+
+                        <form asp-controller="Shopkeeper"
+                              asp-action="UpdateOrderStatus"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.OrderId" />
+
+
+                            <div class="row align-items-end">
+
+                                <div class="col-md-8">
+
+                                    <label for="status"
+                                           class="form-label fw-semibold">
+
+                                        Select New Status
+
+                                    </label>
+
+
+                                    <select name="status"
+                                            id="status"
+                                            class="form-select status-select"
+                                            required>
+
+                                        <option value="">
+                                            -- Select Status --
+                                        </option>
+
+
+                                        @foreach (var nextStatus in nextStatuses)
+                                        {
+
+                                            <option value="@nextStatus">
+
+                                                @nextStatus
+
+                                            </option>
+
+                                        }
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-4 mt-3 mt-md-0">
+
+                                    <button type="submit"
+                                            class="update-status-btn w-100">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Update Status
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+
+
+
+                        <div class="flow-container">
+
+                            <span class="flow-item">
+                                Pending
+                            </span>
+
+                            <span class="flow-arrow">
+                                →
+                            </span>
+
+                            <span class="flow-item">
+                                Confirmed
+                            </span>
+
+                            <span class="flow-arrow">
+                                →
+                            </span>
+
+                            <span class="flow-item">
+                                Processing
+                            </span>
+
+                            <span class="flow-arrow">
+                                →
+                            </span>
+
+                            <span class="flow-item">
+                                Ready
+                            </span>
+
+                            <span class="flow-arrow">
+                                →
+                            </span>
+
+                            <span class="flow-item">
+                                Admin / Delivery
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                }
+                else if (orderStatus == "Ready")
+                {
+
+                    <div class="alert alert-info mb-0">
+
+                        <i class="bi bi-truck"></i>
+
+                        <strong>
+                            Order is Ready.
+                        </strong>
+
+                        The order is now ready for the admin to assign a
+                        delivery boy. The shopkeeper cannot change the
+                        status further.
+
+                    </div>
+
+                }
+                else if (orderStatus == "Delivered")
+                {
+
+                    <div class="alert alert-success mb-0">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        <strong>
+                            Order Delivered.
+                        </strong>
+
+                        This order has been completed.
+
+                    </div>
+
+                }
+                else if (orderStatus == "Cancelled")
+                {
+
+                    <div class="alert alert-danger mb-0">
+
+                        <i class="bi bi-x-circle"></i>
+
+                        <strong>
+                            Order Cancelled.
+                        </strong>
+
+                        This order cannot be updated again.
+
+                    </div>
+
+                }
+                else
+                {
+
+                    <div class="alert alert-secondary mb-0">
+
+                        No status update is currently available.
+
+                    </div>
+
+                }
+
+            </div>
+
+        </div>
+
+
 
         <div class="row">
 
 
-            <!-- ORDER ID -->
 
-            <div class="col-md-3">
+            <div class="col-lg-4">
 
-                <div class="info-row">
+                <div class="card">
 
-                    <span class="info-label">
-                        Order ID
-                    </span>
+                    <div class="card-header">
 
-                    <span class="info-value">
+                        <i class="bi bi-person"></i>
 
-                        #@Model.OrderId
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- CREATED DATE -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        Order Date
-                    </span>
-
-                    <span class="info-value">
-
-                        @Model.CreatedDate.ToString(
-                            "dd MMM yyyy hh:mm tt")
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- PAYMENT METHOD -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        Payment Method
-                    </span>
-
-                    <span class="info-value">
-
-                        @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
-                            ? "Not specified"
-                            : Model.PaymentMethod)
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- ORDER STATUS -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        Order Status
-                    </span>
-
-                    <span class="info-value">
-
-                        <span class="status-badge @statusClass">
-
-                            @orderStatus
-
-                        </span>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     STATUS UPDATE
-========================================================= -->
-
-<div class="card no-print">
-
-    <div class="card-header">
-
-        <i class="bi bi-arrow-repeat"></i>
-
-        Update Order Status
-
-    </div>
-
-
-    <div class="card-body">
-
-        @if (canUpdateStatus && nextStatuses.Any())
-        {
-
-            <div class="status-update-box">
-
-                <h5>
-
-                    <i class="bi bi-pencil-square"></i>
-
-                    Change Order Status
-
-                </h5>
-
-                <p class="text-muted">
-
-                    Current status:
-
-                    <strong>
-                        @orderStatus
-                    </strong>
-
-                </p>
-
-
-                <form asp-controller="Shopkeeper"
-                      asp-action="UpdateOrderStatus"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-
-                    <input type="hidden"
-                           name="id"
-                           value="@Model.OrderId" />
-
-
-                    <div class="row align-items-end">
-
-                        <div class="col-md-8">
-
-                            <label for="status"
-                                   class="form-label fw-semibold">
-
-                                Select New Status
-
-                            </label>
-
-
-                            <select name="status"
-                                    id="status"
-                                    class="form-select status-select"
-                                    required>
-
-                                <option value="">
-                                    -- Select Status --
-                                </option>
-
-
-                                @foreach (var nextStatus in nextStatuses)
-                                {
-
-                                    <option value="@nextStatus">
-
-                                        @nextStatus
-
-                                    </option>
-
-                                }
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-md-4 mt-3 mt-md-0">
-
-                            <button type="submit"
-                                    class="update-status-btn w-100">
-
-                                <i class="bi bi-check-circle"></i>
-
-                                Update Status
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </form>
-
-
-                <!-- STATUS FLOW -->
-
-                <div class="flow-container">
-
-                    <span class="flow-item">
-                        Pending
-                    </span>
-
-                    <span class="flow-arrow">
-                        →
-                    </span>
-
-                    <span class="flow-item">
-                        Confirmed
-                    </span>
-
-                    <span class="flow-arrow">
-                        →
-                    </span>
-
-                    <span class="flow-item">
-                        Processing
-                    </span>
-
-                    <span class="flow-arrow">
-                        →
-                    </span>
-
-                    <span class="flow-item">
-                        Ready
-                    </span>
-
-                    <span class="flow-arrow">
-                        →
-                    </span>
-
-                    <span class="flow-item">
-                        Admin / Delivery
-                    </span>
-
-                </div>
-
-            </div>
-
-        }
-        else if (orderStatus == "Ready")
-        {
-
-            <div class="alert alert-info mb-0">
-
-                <i class="bi bi-truck"></i>
-
-                <strong>
-                    Order is Ready.
-                </strong>
-
-                The order is now ready for the admin to assign a
-                delivery boy. The shopkeeper cannot change the
-                status further.
-
-            </div>
-
-        }
-        else if (orderStatus == "Delivered")
-        {
-
-            <div class="alert alert-success mb-0">
-
-                <i class="bi bi-check-circle"></i>
-
-                <strong>
-                    Order Delivered.
-                </strong>
-
-                This order has been completed.
-
-            </div>
-
-        }
-        else if (orderStatus == "Cancelled")
-        {
-
-            <div class="alert alert-danger mb-0">
-
-                <i class="bi bi-x-circle"></i>
-
-                <strong>
-                    Order Cancelled.
-                </strong>
-
-                This order cannot be updated again.
-
-            </div>
-
-        }
-        else
-        {
-
-            <div class="alert alert-secondary mb-0">
-
-                No status update is currently available.
-
-            </div>
-
-        }
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     CUSTOMER / SHOP / DELIVERY
-========================================================= -->
-
-<div class="row">
-
-
-    <!-- =====================================================
-         CUSTOMER
-    ====================================================== -->
-
-    <div class="col-lg-4">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <i class="bi bi-person"></i>
-
-                Customer Information
-
-            </div>
-
-
-            <div class="card-body">
-
-                @if (Model.Customer != null)
-                {
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Name
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Customer.Name
-
-                        </span>
+                        Customer Information
 
                     </div>
 
 
-                    <div class="info-row">
+                    <div class="card-body">
 
-                        <span class="info-label">
-                            Email
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Customer.Email
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Phone
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Customer.Phone
-
-                        </span>
-
-                    </div>
-
-                }
-                else
-                {
-
-                    <div class="empty-box">
-
-                        <i class="bi bi-person-x fs-2"></i>
-
-                        <p class="mt-2 mb-0">
-
-                            Customer information not available.
-
-                        </p>
-
-                    </div>
-
-                }
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         SHOP
-    ====================================================== -->
-
-    <div class="col-lg-4">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <i class="bi bi-shop"></i>
-
-                Shop Information
-
-            </div>
-
-
-            <div class="card-body">
-
-                @if (Model.Shop != null)
-                {
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Shop Name
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Shop.ShopName
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Phone
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Shop.ShopPhone
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Email
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Shop.Email
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Address
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Shop.ShopAddress
-
-                        </span>
-
-                    </div>
-
-                }
-                else
-                {
-
-                    <div class="empty-box">
-
-                        <i class="bi bi-shop fs-2"></i>
-
-                        <p class="mt-2 mb-0">
-
-                            Shop information not available.
-
-                        </p>
-
-                    </div>
-
-                }
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         DELIVERY BOY
-    ====================================================== -->
-
-    <div class="col-lg-4">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <i class="bi bi-truck"></i>
-
-                Delivery Information
-
-            </div>
-
-
-            <div class="card-body">
-
-                @if (Model.Delivery != null)
-                {
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Delivery Boy
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Delivery.Name
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Email
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Delivery.Email
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Phone
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.Delivery.Phone
-
-                        </span>
-
-                    </div>
-
-                }
-                else
-                {
-
-                    <div class="empty-box">
-
-                        <i class="bi bi-truck fs-2"></i>
-
-                        <p class="mt-2 mb-0">
-
-                            No delivery boy assigned yet.
-
-                        </p>
-
-                    </div>
-
-                }
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     DELIVERY ADDRESS
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-geo-alt"></i>
-
-        Delivery Address
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="info-row">
-
-            <span class="info-label">
-                Address
-            </span>
-
-            <span class="info-value">
-
-                @Model.DeliveryAddress
-
-            </span>
-
-        </div>
-
-
-        @if (!string.IsNullOrWhiteSpace(Model.Notes))
-        {
-
-            <div class="mt-3">
-
-                <strong>
-                    Customer Notes
-                </strong>
-
-
-                <div class="notes-box mt-2">
-
-                    @Model.Notes
-
-                </div>
-
-            </div>
-
-        }
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     ORDERED PRODUCTS
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-bag"></i>
-
-        Ordered Products
-
-    </div>
-
-
-    <div class="card-body p-0">
-
-        <div class="table-responsive">
-
-            <table class="table table-hover mb-0">
-
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            #
-                        </th>
-
-                        <th>
-                            Product
-                        </th>
-
-                        <th>
-                            Price
-                        </th>
-
-                        <th>
-                            Quantity
-                        </th>
-
-                        <th class="text-end">
-                            Subtotal
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    @if (Model.OrderDetails != null &&
-                         Model.OrderDetails.Any())
-                    {
-
-                        int number = 1;
-
-
-                        foreach (var detail in Model.OrderDetails)
+                        @if (Model.Customer != null)
                         {
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Name
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Customer.Name
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Email
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Customer.Email
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Phone
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Customer.Phone
+
+                                </span>
+
+                            </div>
+
+                        }
+                        else
+                        {
+
+                            <div class="empty-box">
+
+                                <i class="bi bi-person-x fs-2"></i>
+
+                                <p class="mt-2 mb-0">
+
+                                    Customer information not available.
+
+                                </p>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="col-lg-4">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-shop"></i>
+
+                        Shop Information
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        @if (Model.Shop != null)
+                        {
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Shop Name
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Shop.ShopName
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Phone
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Shop.ShopPhone
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Email
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Shop.Email
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Address
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Shop.ShopAddress
+
+                                </span>
+
+                            </div>
+
+                        }
+                        else
+                        {
+
+                            <div class="empty-box">
+
+                                <i class="bi bi-shop fs-2"></i>
+
+                                <p class="mt-2 mb-0">
+
+                                    Shop information not available.
+
+                                </p>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-truck"></i>
+
+                        Delivery Information
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        @if (Model.Delivery != null)
+                        {
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Delivery Boy
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Delivery.Name
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Email
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Delivery.Email
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Phone
+                                </span>
+
+                                <span class="info-value">
+
+                                    @Model.Delivery.Phone
+
+                                </span>
+
+                            </div>
+
+                        }
+                        else
+                        {
+
+                            <div class="empty-box">
+
+                                <i class="bi bi-truck fs-2"></i>
+
+                                <p class="mt-2 mb-0">
+
+                                    No delivery boy assigned yet.
+
+                                </p>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <i class="bi bi-geo-alt"></i>
+
+                Delivery Address
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="info-row">
+
+                    <span class="info-label">
+                        Address
+                    </span>
+
+                    <span class="info-value">
+
+                        @Model.DeliveryAddress
+
+                    </span>
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+
+                    <div class="mt-3">
+
+                        <strong>
+                            Customer Notes
+                        </strong>
+
+
+                        <div class="notes-box mt-2">
+
+                            @Model.Notes
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <i class="bi bi-bag"></i>
+
+                Ordered Products
+
+            </div>
+
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0">
+
+
+                        <thead>
 
                             <tr>
 
-                                <td>
+                                <th>
+                                    #
+                                </th>
 
-                                    @number
+                                <th>
+                                    Product
+                                </th>
 
-                                </td>
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th class="text-end">
+                                    Subtotal
+                                </th>
+
+                            </tr>
+
+                        </thead>
 
 
-                                <td>
+                        <tbody>
 
-                                    @if (detail.Product != null)
-                                    {
+                            @if (Model.OrderDetails != null &&
+                                                        Model.OrderDetails.Any())
+                            {
 
-                                        <div class="d-flex align-items-center">
+                                int number = 1;
 
 
-                                            @if (!string.IsNullOrEmpty(
-                                                detail.Product.Image))
+                                foreach (var detail in Model.OrderDetails)
+                                {
+
+                                    <tr>
+
+                                        <td>
+
+                                            @number
+
+                                        </td>
+
+
+                                        <td>
+
+                                            @if (detail.Product != null)
                                             {
 
-                                                <img src="@detail.Product.Image"
-                                                     class="product-img me-3"
-                                                     alt="Product" />
+                                                <div class="d-flex align-items-center">
+
+
+                                                    @if (!string.IsNullOrEmpty(
+                                                                                            detail.Product.Image))
+                                                    {
+
+                                                        <img src="@detail.Product.Image"
+                                                             class="product-img me-3"
+                                                             alt="Product" />
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <div class="product-img me-3 d-flex align-items-center justify-content-center">
+
+                                                            <i class="bi bi-image text-muted"></i>
+
+                                                        </div>
+
+                                                    }
+
+
+                                                    <strong>
+
+                                                        @detail.Product.ProductName
+
+                                                    </strong>
+
+                                                </div>
 
                                             }
                                             else
                                             {
 
-                                                <div class="product-img me-3 d-flex align-items-center justify-content-center">
+                                                <span class="text-muted">
 
-                                                    <i class="bi bi-image text-muted"></i>
+                                                    Product information not available.
 
-                                                </div>
+                                                </span>
 
                                             }
-
-
-                                            <strong>
-
-                                                @detail.Product.ProductName
-
-                                            </strong>
-
-                                        </div>
-
-                                    }
-                                    else
-                                    {
-
-                                        <span class="text-muted">
-
-                                            Product information not available.
-
-                                        </span>
-
-                                    }
 
                                 </td>
 
@@ -1348,178 +1261,46 @@
                                     Rs.
 
                                     @(
-                                        (detail.UnitPrice *
-                                         detail.Quantity)
-                                        .ToString("N2")
-                                    )
+                                                                        (detail.UnitPrice *
+                                                                        detail.Quantity)
+                                                                        .ToString("N2")
+                                                                        )
 
                                 </td>
 
-                            </tr>
+                                    </tr>
 
 
-                            number++;
+                                                        number++;
 
-                        }
-
-                    }
-                    else
-                    {
-
-                        <tr>
-
-                            <td colspan="5"
-                                class="text-center text-muted py-4">
-
-                                <i class="bi bi-bag-x fs-3"></i>
-
-                                <p class="mt-2 mb-0">
-
-                                    No products found for this order.
-
-                                </p>
-
-                            </td>
-
-                        </tr>
-
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     PAYMENT + ORDER AMOUNT
-========================================================= -->
-
-<div class="row">
-
-
-    <!-- =====================================================
-         PAYMENT INFORMATION
-    ====================================================== -->
-
-    <div class="col-lg-6">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <i class="bi bi-credit-card"></i>
-
-                Payment Information
-
-            </div>
-
-
-            <div class="card-body">
-
-                <div class="payment-box">
-
-
-                    <!-- PAYMENT METHOD -->
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Payment Method
-                        </span>
-
-                        <span class="info-value">
-
-                            @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
-                                ? "Not specified"
-                                : Model.PaymentMethod)
-
-                        </span>
-
-                    </div>
-
-
-                    <!-- PAYMENT STATUS -->
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Payment Status
-                        </span>
-
-                        <span class="info-value">
-
-                            @(string.IsNullOrWhiteSpace(Model.PaymentStatus)
-                                ? "Pending"
-                                : Model.PaymentStatus)
-
-                        </span>
-
-                    </div>
-
-
-                    <!-- PAYMENT RECEIVED -->
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Payment Received
-                        </span>
-
-                        <span class="info-value">
-
-                            @if (Model.PaymentReceived)
-                            {
-
-                                <span class="badge bg-success">
-
-                                    Yes
-
-                                </span>
+                                }
 
                             }
                             else
                             {
 
-                                <span class="badge bg-warning text-dark">
+                                <tr>
 
-                                    No
+                                    <td colspan="5"
+                                        class="text-center text-muted py-4">
 
-                                </span>
+                                        <i class="bi bi-bag-x fs-3"></i>
+
+                                        <p class="mt-2 mb-0">
+
+                                            No products found for this order.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
 
                             }
 
-                        </span>
+                        </tbody>
 
-                    </div>
-
-
-                    <!-- PAYMENT DATE -->
-
-                    @if (Model.PaymentDate.HasValue)
-                    {
-
-                        <div class="info-row">
-
-                            <span class="info-label">
-                                Payment Date
-                            </span>
-
-                            <span class="info-value">
-
-                                @Model.PaymentDate.Value.ToString(
-                                    "dd MMM yyyy hh:mm tt")
-
-                            </span>
-
-                        </div>
-
-                    }
+                    </table>
 
                 </div>
 
@@ -1527,377 +1308,334 @@
 
         </div>
 
-    </div>
 
 
-    <!-- =====================================================
-         ORDER AMOUNT
-    ====================================================== -->
+        <div class="row">
 
-    <div class="col-lg-6">
+
+
+            <div class="col-lg-6">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-credit-card"></i>
+
+                        Payment Information
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="payment-box">
+
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Payment Method
+                                </span>
+
+                                <span class="info-value">
+
+                                    @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
+                                                                        ? "Not specified"
+                                                                        : Model.PaymentMethod)
+
+                                </span>
+
+                            </div>
+
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Payment Status
+                                </span>
+
+                                <span class="info-value">
+
+                                    @(string.IsNullOrWhiteSpace(Model.PaymentStatus)
+                                                                        ? "Pending"
+                                                                        : Model.PaymentStatus)
+
+                                </span>
+
+                            </div>
+
+
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Payment Received
+                                </span>
+
+                                <span class="info-value">
+
+                                    @if (Model.PaymentReceived)
+                                    {
+
+                                        <span class="badge bg-success">
+
+                                            Yes
+
+                                        </span>
+
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            No
+
+                                        </span>
+
+                                    }
+
+                                </span>
+
+                            </div>
+
+
+
+                            @if (Model.PaymentDate.HasValue)
+                            {
+
+                                <div class="info-row">
+
+                                    <span class="info-label">
+                                        Payment Date
+                                    </span>
+
+                                    <span class="info-value">
+
+                                        @Model.PaymentDate.Value.ToString(
+                                        "dd MMM yyyy hh:mm tt")
+
+                                </span>
+
+                            </div>
+
+                                                        }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="col-lg-6">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <i class="bi bi-calculator"></i>
+
+                        Order Amount
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="total-box">
+
+
+
+                            <div class="total-row">
+
+                                <span>
+                                    Product Total
+                                </span>
+
+                                <strong>
+
+                                    Rs.
+
+                                    @Model.ProductTotal.ToString("N2")
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="total-row">
+
+                                <span>
+                                    Delivery Charges
+                                </span>
+
+                                <strong>
+
+                                    Rs.
+
+                                    @Model.DeliveryCharges.ToString("N2")
+
+                                </strong>
+
+                            </div>
+
+
+
+                            <div class="total-row">
+
+                                <span>
+                                    Service Fee
+                                </span>
+
+                                <strong>
+
+                                    Rs.
+
+                                    @Model.ServiceFee.ToString("N2")
+
+                                </strong>
+
+                            </div>
+
+
+
+                            <div class="total-row grand-total">
+
+                                <span>
+                                    Total Amount
+                                </span>
+
+                                <span>
+
+                                    Rs.
+
+                                    @Model.TotalAmount.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
 
         <div class="card">
 
             <div class="card-header">
 
-                <i class="bi bi-calculator"></i>
+                <i class="bi bi-wallet2"></i>
 
-                Order Amount
+                Shopkeeper Payment
 
             </div>
 
 
             <div class="card-body">
 
-                <div class="total-box">
+                <div class="row">
 
 
-                    <!-- PRODUCT TOTAL -->
 
-                    <div class="total-row">
+                    <div class="col-md-4">
 
-                        <span>
-                            Product Total
-                        </span>
+                        <div class="info-row">
 
-                        <strong>
+                            <span class="info-label">
 
-                            Rs.
-
-                            @Model.ProductTotal.ToString("N2")
-
-                        </strong>
-
-                    </div>
-
-
-                    <!-- DELIVERY CHARGES -->
-
-                    <div class="total-row">
-
-                        <span>
-                            Delivery Charges
-                        </span>
-
-                        <strong>
-
-                            Rs.
-
-                            @Model.DeliveryCharges.ToString("N2")
-
-                        </strong>
-
-                    </div>
-
-
-                    <!-- SERVICE FEE -->
-
-                    <div class="total-row">
-
-                        <span>
-                            Service Fee
-                        </span>
-
-                        <strong>
-
-                            Rs.
-
-                            @Model.ServiceFee.ToString("N2")
-
-                        </strong>
-
-                    </div>
-
-
-                    <!-- TOTAL -->
-
-                    <div class="total-row grand-total">
-
-                        <span>
-                            Total Amount
-                        </span>
-
-                        <span>
-
-                            Rs.
-
-                            @Model.TotalAmount.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     SHOPKEEPER PAYMENT
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-wallet2"></i>
-
-        Shopkeeper Payment
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="row">
-
-
-            <!-- SHOPKEEPER AMOUNT -->
-
-            <div class="col-md-4">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Shopkeeper Amount
-
-                    </span>
-
-                    <span class="info-value">
-
-                        Rs.
-
-                        @Model.ShopkeeperAmount.ToString("N2")
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- PAYMENT STATUS -->
-
-            <div class="col-md-4">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Payment Status
-
-                    </span>
-
-                    <span class="info-value">
-
-                        @(string.IsNullOrWhiteSpace(
-                            Model.ShopkeeperPaymentStatus)
-                            ? "Pending"
-                            : Model.ShopkeeperPaymentStatus)
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- PAYMENT DATE -->
-
-            <div class="col-md-4">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Payment Date
-
-                    </span>
-
-                    <span class="info-value">
-
-                        @if (Model.ShopkeeperPaymentDate.HasValue)
-                        {
-
-                            @Model.ShopkeeperPaymentDate.Value.ToString(
-                                "dd MMM yyyy hh:mm tt")
-
-                        }
-                        else
-                        {
-
-                            <span class="text-muted">
-
-                                Not paid yet
+                                Shopkeeper Amount
 
                             </span>
 
-                        }
+                            <span class="info-value">
 
-                    </span>
+                                Rs.
 
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     DELIVERY BOY / COD PAYMENT
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-cash-stack"></i>
-
-        Delivery & COD Collection
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="row">
-
-
-            <!-- DELIVERY PAYMENT STATUS -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Payment Status
-
-                    </span>
-
-                    <span class="info-value">
-
-                        @(string.IsNullOrWhiteSpace(
-                            Model.DeliveryPaymentStatus)
-                            ? "Pending"
-                            : Model.DeliveryPaymentStatus)
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- COLLECTED AMOUNT -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Collected Amount
-
-                    </span>
-
-                    <span class="info-value">
-
-                        Rs.
-
-                        @Model.DeliveryCollectedAmount.ToString("N2")
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- COLLECTION DATE -->
-
-            <div class="col-md-3">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-
-                        Collection Date
-
-                    </span>
-
-                    <span class="info-value">
-
-                        @if (Model.DeliveryCollectionDate.HasValue)
-                        {
-
-                            @Model.DeliveryCollectionDate.Value.ToString(
-                                "dd MMM yyyy hh:mm tt")
-
-                        }
-                        else
-                        {
-
-                            <span class="text-muted">
-
-                                Not collected
+                                @Model.ShopkeeperAmount.ToString("N2")
 
                             </span>
 
-                        }
+                        </div>
 
-                    </span>
-
-                </div>
-
-            </div>
+                    </div>
 
 
-            <!-- ADMIN PAYMENT DATE -->
 
-            <div class="col-md-3">
 
-                <div class="info-row">
+                    <div class="col-md-4">
 
-                    <span class="info-label">
+                        <div class="info-row">
 
-                        Admin Payment Date
+                            <span class="info-label">
 
-                    </span>
-
-                    <span class="info-value">
-
-                        @if (Model.DeliveryPaymentDate.HasValue)
-                        {
-
-                            @Model.DeliveryPaymentDate.Value.ToString(
-                                "dd MMM yyyy hh:mm tt")
-
-                        }
-                        else
-                        {
-
-                            <span class="text-muted">
-
-                                Not received
+                                Payment Status
 
                             </span>
 
-                        }
+                            <span class="info-value">
 
-                    </span>
+                                @(string.IsNullOrWhiteSpace(
+                                                                Model.ShopkeeperPaymentStatus)
+                                                                ? "Pending"
+                                                                : Model.ShopkeeperPaymentStatus)
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-4">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+
+                                Payment Date
+
+                            </span>
+
+                            <span class="info-value">
+
+                                @if (Model.ShopkeeperPaymentDate.HasValue)
+                                {
+
+                                    @Model.ShopkeeperPaymentDate.Value.ToString(
+                                    "dd MMM yyyy hh:mm tt")
+
+                                                                }
+                                else
+                                {
+
+                                    <span class="text-muted">
+
+                                        Not paid yet
+
+                                    </span>
+
+                                }
+
+                            </span>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -1905,106 +1643,241 @@
 
         </div>
 
-    </div>
-
-</div>
 
 
-<!-- =========================================================
-     CURRENT ORDER STATUS
-========================================================= -->
+        <div class="card">
 
-<div class="card">
+            <div class="card-header">
 
-    <div class="card-header">
+                <i class="bi bi-cash-stack"></i>
 
-        <i class="bi bi-arrow-repeat"></i>
-
-        Current Order Status
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="row align-items-center">
-
-
-            <div class="col-md-8">
-
-                <h5>
-
-                    Order #@Model.OrderId
-
-                </h5>
-
-                <p class="text-muted mb-0">
-
-                    Current processing status of this order.
-
-                </p>
+                Delivery & COD Collection
 
             </div>
 
 
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <div class="card-body">
 
-                <span class="status-badge @statusClass">
+                <div class="row">
 
-                    @orderStatus
 
-                </span>
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+
+                                Payment Status
+
+                            </span>
+
+                            <span class="info-value">
+
+                                @(string.IsNullOrWhiteSpace(
+                                                                Model.DeliveryPaymentStatus)
+                                                                ? "Pending"
+                                                                : Model.DeliveryPaymentStatus)
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+
+                                Collected Amount
+
+                            </span>
+
+                            <span class="info-value">
+
+                                Rs.
+
+                                @Model.DeliveryCollectedAmount.ToString("N2")
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+
+                                Collection Date
+
+                            </span>
+
+                            <span class="info-value">
+
+                                @if (Model.DeliveryCollectionDate.HasValue)
+                                {
+
+                                    @Model.DeliveryCollectionDate.Value.ToString(
+                                    "dd MMM yyyy hh:mm tt")
+
+                                                                }
+                                else
+                                {
+
+                                    <span class="text-muted">
+
+                                        Not collected
+
+                                    </span>
+
+                                }
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-md-3">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+
+                                Admin Payment Date
+
+                            </span>
+
+                            <span class="info-value">
+
+                                @if (Model.DeliveryPaymentDate.HasValue)
+                                {
+
+                                    @Model.DeliveryPaymentDate.Value.ToString(
+                                    "dd MMM yyyy hh:mm tt")
+
+                                                                }
+                                else
+                                {
+
+                                    <span class="text-muted">
+
+                                        Not received
+
+                                    </span>
+
+                                }
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <i class="bi bi-arrow-repeat"></i>
+
+                Current Order Status
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row align-items-center">
+
+
+                    <div class="col-md-8">
+
+                        <h5>
+
+                            Order #@Model.OrderId
+
+                        </h5>
+
+                        <p class="text-muted mb-0">
+
+                            Current processing status of this order.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                        <span class="status-badge @statusClass">
+
+                            @orderStatus
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="d-flex justify-content-between mb-4 no-print">
+
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Orders"
+               class="btn btn-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Orders
+
+            </a>
+
+
+            <button type="button"
+                    onclick="window.print()"
+                    class="btn btn-warning">
+
+                <i class="bi bi-printer"></i>
+
+                Print Order
+
+            </button>
+
+
+        </div>
+
+
     </div>
 
-</div>
 
 
-<!-- =========================================================
-     FOOTER BUTTONS
-========================================================= -->
-
-<div class="d-flex justify-content-between mb-4 no-print">
-
-
-    <a asp-controller="Shopkeeper"
-       asp-action="Orders"
-       class="btn btn-secondary">
-
-        <i class="bi bi-arrow-left"></i>
-
-        Back to Orders
-
-    </a>
-
-
-    <button type="button"
-            onclick="window.print()"
-            class="btn btn-warning">
-
-        <i class="bi bi-printer"></i>
-
-        Print Order
-
-    </button>
-
-
-</div>
-
-
-</div>
-
-
-<!-- =========================================================
-     BOOTSTRAP JS
-========================================================= -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 
 </body>

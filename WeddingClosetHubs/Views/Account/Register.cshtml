@@ -35,20 +35,10 @@
 
                         @Html.AntiForgeryToken()
 
-
-                        <!-- ===================================================== -->
-                        <!-- VALIDATION SUMMARY -->
-                        <!-- ===================================================== -->
-
                         <div asp-validation-summary="ModelOnly"
                              class="alert alert-danger"
                              role="alert">
                         </div>
-
-
-                        <!-- ===================================================== -->
-                        <!-- PERSONAL INFORMATION -->
-                        <!-- ===================================================== -->
 
                         <h5 class="border-bottom pb-2 mb-3">
 
@@ -57,7 +47,6 @@
                         </h5>
 
 
-                        <!-- NAME -->
 
                         <div class="mb-3">
 
@@ -85,7 +74,6 @@
                         </div>
 
 
-                        <!-- EMAIL -->
 
                         <div class="mb-3">
 
@@ -112,7 +100,7 @@
                         </div>
 
 
-                        <!-- PASSWORD -->
+                        
 
                         <div class="mb-3">
 
@@ -157,9 +145,6 @@
 
                         </div>
 
-
-                        <!-- PHONE -->
-
                         <div class="mb-3">
 
                             <label asp-for="Phone"
@@ -185,9 +170,6 @@
                            
 
                         </div>
-
-
-                        <!-- ADDRESS -->
 
                         <div class="mb-3">
 
@@ -215,11 +197,6 @@
                             </small>
 
                         </div>
-
-
-                        <!-- ===================================================== -->
-                        <!-- ACCOUNT TYPE -->
-                        <!-- ===================================================== -->
 
                         <h5 class="border-bottom pb-2 mb-3 mt-4">
 
@@ -267,11 +244,6 @@
 
                         </div>
 
-
-                        <!-- ===================================================== -->
-                        <!-- CUSTOMER -->
-                        <!-- ===================================================== -->
-
                         <div id="customerSection"
                              style="display:none;">
 
@@ -287,10 +259,6 @@
 
                         </div>
 
-
-                        <!-- ===================================================== -->
-                        <!-- SHOPKEEPER -->
-                        <!-- ===================================================== -->
 
                         <div id="shopkeeperSection"
                              style="display:none;">
@@ -311,16 +279,11 @@
                                 <div class="card-body">
 
 
-                                    <!-- SHOP INFORMATION -->
-
                                     <h6 class="border-bottom pb-2 mb-3">
 
                                         Shop Information
 
                                     </h6>
-
-
-                                    <!-- SHOP NAME -->
 
                                     <div class="mb-3">
 
@@ -344,8 +307,6 @@
 
                                     </div>
 
-
-                                    <!-- SHOP CATEGORY -->
 
                                     <div class="mb-3">
 
@@ -394,9 +355,6 @@
 
                                     </div>
 
-
-                                    <!-- SHOP PHONE -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -418,9 +376,6 @@
                                         </span>
 
                                     </div>
-
-
-                                    <!-- SHOP ADDRESS -->
 
                                     <div class="mb-3">
 
@@ -445,8 +400,6 @@
                                     </div>
 
 
-                                    <!-- SHOP DESCRIPTION -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -469,8 +422,6 @@
 
                                     </div>
 
-
-                                    <!-- SHOP VERIFICATION -->
 
                                     <h6 class="border-bottom pb-2 mb-3 mt-4">
 
@@ -499,9 +450,6 @@
 
                                     </div>
 
-
-                                    <!-- FRONT -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -523,9 +471,6 @@
 
                                     </div>
 
-
-                                    <!-- INSIDE -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -546,9 +491,6 @@
                                         </span>
 
                                     </div>
-
-
-                                    <!-- SIGNBOARD -->
 
                                     <div class="mb-3">
 
@@ -594,10 +536,6 @@
                         </div>
 
 
-                        <!-- ===================================================== -->
-                        <!-- DELIVERY -->
-                        <!-- ===================================================== -->
-
                         <div id="deliverySection"
                              style="display:none;">
 
@@ -616,8 +554,6 @@
 
                                 <div class="card-body">
 
-
-                                    <!-- CNIC -->
 
                                     <div class="mb-3">
 
@@ -650,9 +586,6 @@
 
                                     </div>
 
-
-                                    <!-- CNIC FRONT -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -675,7 +608,6 @@
                                     </div>
 
 
-                                    <!-- CNIC BACK -->
 
                                     <div class="mb-3">
 
@@ -699,7 +631,7 @@
                                     </div>
 
 
-                                    <!-- VEHICLE -->
+                                    
 
                                     <div class="mb-3">
 
@@ -721,7 +653,6 @@
                                     </div>
 
 
-                                    <!-- MOTORBIKE NUMBER -->
 
                                     <div class="mb-3">
 
@@ -745,8 +676,6 @@
 
                                     </div>
 
-
-                                    <!-- PREFERRED ZONE -->
 
                                     <div class="mb-3">
 
@@ -785,9 +714,6 @@
 
                                     </div>
 
-
-                                    <!-- ASSIGNED ZONE -->
-
                                     <div class="mb-3">
 
                                         <label class="form-label">
@@ -825,10 +751,6 @@
                         </div>
 
 
-                        <!-- ===================================================== -->
-                        <!-- GENERAL MESSAGE -->
-                        <!-- ===================================================== -->
-
                         <div id="generalMessage"
                              class="alert alert-info">
 
@@ -842,11 +764,6 @@
                             registration requirements.
 
                         </div>
-
-
-                        <!-- ===================================================== -->
-                        <!-- REGISTER -->
-                        <!-- ===================================================== -->
 
                         <button type="submit"
                                 class="btn btn-primary w-100"
@@ -862,7 +779,7 @@
                     </form>
 
 
-                    <!-- LOGIN -->
+                    
 
                     <div class="text-center mt-3">
 
@@ -898,10 +815,6 @@
 
         document.addEventListener("DOMContentLoaded", function () {
 
-            // =====================================================
-            // ELEMENTS
-            // =====================================================
-
             const form =
                 document.getElementById("registerForm");
 
@@ -920,10 +833,6 @@
             const generalMessage =
                 document.getElementById("generalMessage");
 
-
-            // =====================================================
-            // SHOW ROLE SECTION
-            // =====================================================
 
             function showSection() {
 
@@ -985,10 +894,6 @@
             showSection();
 
 
-            // =====================================================
-            // PASSWORD SHOW / HIDE
-            // =====================================================
-
             const registerPassword =
                 document.getElementById("registerPassword");
 
@@ -1046,11 +951,6 @@
 
             }
 
-
-            // =====================================================
-            // CNIC FORMAT
-            // =====================================================
-
             const cnic =
                 document.getElementById("CNIC");
 
@@ -1068,7 +968,6 @@
                             );
 
 
-                        // Maximum 13 digits
 
                         if (value.length > 13) {
 
@@ -1081,7 +980,6 @@
                         }
 
 
-                        // XXXXX-XXXXXXX-X
 
                         if (value.length > 12) {
 
@@ -1111,9 +1009,6 @@
             }
 
 
-            // =====================================================
-            // PHONE FORMAT
-            // =====================================================
 
             function formatPhone(input) {
 
@@ -1133,8 +1028,6 @@
                             );
 
 
-                        // Convert +92XXXXXXXXXX
-                        // to 03XXXXXXXXX
 
                         if (
                             value.startsWith("+92")
@@ -1147,7 +1040,7 @@
                         }
 
 
-                        // Remove spaces and hyphens
+                       
 
                         value =
                             value.replace(
@@ -1156,7 +1049,7 @@
                             );
 
 
-                        // Maximum 11 digits
+                      
 
                         if (value.length > 11) {
 
@@ -1169,7 +1062,7 @@
                         }
 
 
-                        // Format 0300-1234567
+                        
 
                         if (value.length > 4) {
 
@@ -1198,10 +1091,6 @@
                 document.getElementById("shopPhone")
             );
 
-
-            // =====================================================
-            // IMAGE VALIDATION
-            // =====================================================
 
             const maxFileSize =
                 5 * 1024 * 1024;
@@ -1301,7 +1190,7 @@
             }
 
 
-            // Shop images
+           
 
             document
                 .getElementById("shopFrontPhoto")
@@ -1348,7 +1237,7 @@
                 );
 
 
-            // CNIC images
+           
 
             document
                 .getElementById("cnicFrontImage")
@@ -1379,10 +1268,6 @@
                     }
                 );
 
-
-            // =====================================================
-            // BASIC CLIENT-SIDE VALIDATION
-            // =====================================================
 
             function isValidPhone(phone) {
 
@@ -1454,11 +1339,6 @@
 
             }
 
-
-            // =====================================================
-            // FORM SUBMIT
-            // =====================================================
-
             form.addEventListener(
                 "submit",
                 function (event) {
@@ -1469,10 +1349,6 @@
                     let valid = true;
 
 
-                    // ---------------------------------------------
-                    // ACCOUNT TYPE
-                    // ---------------------------------------------
-
                     if (!roleSelect.value) {
 
                         valid = false;
@@ -1482,11 +1358,6 @@
                         );
 
                     }
-
-
-                    // ---------------------------------------------
-                    // SHOPKEEPER VALIDATION
-                    // ---------------------------------------------
 
                     const selectedOption =
                         roleSelect.options[
@@ -1632,9 +1503,6 @@
 
                         }
 
-
-                        // Required shop images
-
                         const shopFront =
                             document
                                 .getElementById(
@@ -1698,11 +1566,6 @@
                         }
 
                     }
-
-
-                    // ---------------------------------------------
-                    // DELIVERY VALIDATION
-                    // ---------------------------------------------
 
                     if (
                         selectedRole ===
@@ -1822,10 +1685,6 @@
 
                     }
 
-
-                    // ---------------------------------------------
-                    // STOP SUBMISSION
-                    // ---------------------------------------------
 
                     if (!valid) {
 

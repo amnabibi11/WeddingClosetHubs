@@ -9,9 +9,7 @@ namespace WeddingClosetHubs.Controllers
     {
         private readonly WeddingClosetHubsContext _context;
 
-        // =====================================================
-        // CONSTANTS
-        // =====================================================
+        
 
         private const string AdminRole = "Admin";
         private const string ShopkeeperRole = "Shopkeeper";
@@ -22,21 +20,16 @@ namespace WeddingClosetHubs.Controllers
         {
             "Saddar",
             "6th Road",
-            "Askari 7"
+            "Liaqat Bagh"
         };
 
-        // =====================================================
-        // CONSTRUCTOR
-        // =====================================================
+       
 
         public AdminController(WeddingClosetHubsContext context)
         {
             _context = context;
         }
 
-        // =====================================================
-        // ADMIN AUTHORIZATION
-        // =====================================================
 
         private bool IsAdmin()
         {
@@ -50,9 +43,7 @@ namespace WeddingClosetHubs.Controllers
                    roleName == AdminRole;
         }
 
-        // =====================================================
-        // ADMIN LOGIN REDIRECT
-        // =====================================================
+       
 
         private IActionResult AdminLoginRedirect()
         {
@@ -61,9 +52,7 @@ namespace WeddingClosetHubs.Controllers
                 "Account");
         }
 
-        // =====================================================
-        // ORDER HELPERS
-        // =====================================================
+       
 
         private static bool IsCancelledOrder(Order order)
         {
@@ -91,11 +80,8 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        
 
-        // =====================================================
-        // DASHBOARD
-        // =====================================================
+
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -108,29 +94,24 @@ namespace WeddingClosetHubs.Controllers
             int adminId =
                 HttpContext.Session.GetInt32("UserId") ?? 0;
 
-            // =================================================
-            // UNREAD CHAT MESSAGES
-            // =================================================
+           
 
             ViewBag.UnreadChats =
                 await _context.ChatMessages
                     .CountAsync(c =>
                         c.ReceiverId == adminId &&
                         !c.IsRead);
-            ViewBag.UnreadNotifications=
+            ViewBag.UnreadNotifications =
                 await _context.Notifications
                      .CountAsync(n =>
                           n.UserId == adminId &&
                           !n.IsRead);
-            
+
             ViewBag.UnreadFeedback =
                    await _context.Reviews
                          .CountAsync(r =>
                          !r.IsRead);
 
-            // =================================================
-            // USERS
-            // =================================================
 
             ViewBag.TotalUsers =
                 await _context.Users.CountAsync();
@@ -143,9 +124,7 @@ namespace WeddingClosetHubs.Controllers
                 await _context.Users
                     .CountAsync(u => !u.Status);
 
-            // =================================================
-            // SHOPKEEPERS
-            // =================================================
+            
 
             ViewBag.TotalShopkeepers =
                 await _context.Users
@@ -171,9 +150,6 @@ namespace WeddingClosetHubs.Controllers
                         u.Status)
                     .CountAsync();
 
-            // =================================================
-            // CUSTOMERS
-            // =================================================
 
             ViewBag.TotalCustomers =
                 await _context.Users
@@ -190,9 +166,6 @@ namespace WeddingClosetHubs.Controllers
                         u.Status)
                     .CountAsync();
 
-            // =================================================
-            // DELIVERY
-            // =================================================
 
             ViewBag.TotalDeliveryBoys =
                 await _context.DeliveryBoys.CountAsync();
@@ -212,9 +185,7 @@ namespace WeddingClosetHubs.Controllers
                         d.User.Status)
                     .CountAsync();
 
-            // =================================================
-            // SHOPS
-            // =================================================
+            
 
             ViewBag.TotalShops =
                 await _context.Shops.CountAsync();
@@ -235,12 +206,7 @@ namespace WeddingClosetHubs.Controllers
                         s.IsApproved &&
                         !s.Status);
 
-            // =================================================
-            // ORDERS
-            // =================================================
-
-            // IMPORTANT:
-            // Cancelled orders are not counted as active orders.
+            
 
             ViewBag.TotalOrders =
                 await _context.Orders
@@ -262,12 +228,7 @@ namespace WeddingClosetHubs.Controllers
                     .CountAsync(o =>
                         o.OrderStatus == "Cancelled");
 
-            // =================================================
-            // PAYMENTS
-            // =================================================
-
-            // Cancelled orders are completely excluded
-            // from payment calculations.
+            
 
             ViewBag.TotalPayments =
                 await _context.Orders
@@ -289,9 +250,6 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
-        // =====================================================
-        // SHOPKEEPERS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> Shopkeepers()
@@ -314,10 +272,7 @@ namespace WeddingClosetHubs.Controllers
             return View(shopkeepers);
         }
 
-        // =====================================================
-        // SHOPKEEPER DETAILS
-        // =====================================================
-
+       
         [HttpGet]
         public async Task<IActionResult> ShopkeeperDetails(int id)
         {
@@ -345,10 +300,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(shopkeeper);
         }
-
-        // =====================================================
-        // APPROVE SHOPKEEPER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -395,9 +346,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-        // =====================================================
-        // REJECT SHOPKEEPER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -444,9 +392,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-        // =====================================================
-        // ENABLE SHOPKEEPER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -491,9 +436,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-        // =====================================================
-        // DISABLE SHOPKEEPER
-        // =====================================================
+       
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -530,9 +473,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-        // =====================================================
-        // SHOPS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> Shops()
@@ -550,10 +490,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(shops);
         }
-
-        // =====================================================
-        // SHOP DETAILS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> ShopDetails(int id)
@@ -579,10 +515,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(shop);
         }
-
-        // =====================================================
-        // APPROVE SHOP
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -631,9 +563,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-        // =====================================================
-        // REJECT SHOP
-        // =====================================================
+       
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -677,9 +607,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-        // =====================================================
-        // ENABLE SHOP
-        // =====================================================
+      
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -721,9 +649,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-        // =====================================================
-        // DISABLE SHOP
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -757,9 +682,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-        // =====================================================
-        // CUSTOMERS
-        // =====================================================
+       
 
         [HttpGet]
         public async Task<IActionResult> Customers()
@@ -781,9 +704,6 @@ namespace WeddingClosetHubs.Controllers
             return View(customers);
         }
 
-        // =====================================================
-        // CUSTOMER DETAILS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> CustomerDetails(int id)
@@ -812,9 +732,6 @@ namespace WeddingClosetHubs.Controllers
             return View(customer);
         }
 
-        // =====================================================
-        // ENABLE CUSTOMER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -851,9 +768,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Customers");
         }
 
-        // =====================================================
-        // DISABLE CUSTOMER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -890,9 +804,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Customers");
         }
 
-        // =====================================================
-        // DELIVERY BOYS
-        // =====================================================
+       
 
         [HttpGet]
         public async Task<IActionResult> DeliveryBoys()
@@ -912,10 +824,7 @@ namespace WeddingClosetHubs.Controllers
             return View(deliveryBoys);
         }
 
-        // =====================================================
-        // DELIVERY DETAILS
-        // id = DeliveryBoyId
-        // =====================================================
+        
 
         [HttpGet]
         public async Task<IActionResult> DeliveryDetails(int id)
@@ -943,10 +852,6 @@ namespace WeddingClosetHubs.Controllers
             return View(delivery);
         }
 
-        // =====================================================
-        // APPROVE DELIVERY
-        // id = UserId
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -998,10 +903,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("DeliveryBoys");
         }
 
-        // =====================================================
-        // REJECT DELIVERY
-        // id = UserId
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1070,10 +971,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("DeliveryBoys");
         }
 
-        // =====================================================
-        // ASSIGN DELIVERY ZONE + ADMIN NOTES
-        // id = DeliveryBoyId
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1159,9 +1056,6 @@ namespace WeddingClosetHubs.Controllers
                 });
         }
 
-        // =====================================================
-        // UPDATE DELIVERY DETAILS
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1240,11 +1134,6 @@ namespace WeddingClosetHubs.Controllers
                 });
         }
 
-        // =====================================================
-        // ENABLE DELIVERY
-        // id = UserId
-        // =====================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableDelivery(int id)
@@ -1288,10 +1177,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("DeliveryBoys");
         }
 
-        // =====================================================
-        // DISABLE DELIVERY
-        // id = UserId
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1328,9 +1213,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("DeliveryBoys");
         }
 
-        // =====================================================
-        // ORDERS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> Orders()
@@ -1340,8 +1222,6 @@ namespace WeddingClosetHubs.Controllers
                 return AdminLoginRedirect();
             }
 
-            // IMPORTANT:
-            // Cancelled orders are not shown on Admin Orders page.
 
             var orders =
                 await _context.Orders
@@ -1355,10 +1235,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(orders);
         }
-
-        // =====================================================
-        // ORDER DETAILS
-        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> OrderDetails(int id)
@@ -1387,9 +1263,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Orders");
             }
 
-            // =================================================
-            // APPROVED + ACTIVE DELIVERY BOYS
-            // =================================================
 
             var deliveryBoys =
                 await _context.Users
@@ -1413,9 +1286,6 @@ namespace WeddingClosetHubs.Controllers
             return View(order);
         }
 
-        // =====================================================
-        // ASSIGN DELIVERY BOY TO ORDER
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1428,9 +1298,6 @@ namespace WeddingClosetHubs.Controllers
                 return AdminLoginRedirect();
             }
 
-            // =================================================
-            // FIND ORDER
-            // =================================================
 
             var order =
                 await _context.Orders
@@ -1445,9 +1312,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Orders");
             }
 
-            // =================================================
-            // CANCELLED ORDER CHECK
-            // =================================================
 
             if (IsCancelledOrder(order))
             {
@@ -1457,9 +1321,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Orders");
             }
 
-            // =================================================
-            // FIND DELIVERY BOY
-            // =================================================
 
             var deliveryBoy =
                 await _context.Users
@@ -1484,9 +1345,6 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            // =================================================
-            // CHECK DELIVERY ZONE
-            // =================================================
 
             if (deliveryBoy.DeliveryBoy == null ||
                 string.IsNullOrWhiteSpace(
@@ -1500,17 +1358,10 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            // =================================================
-            // ASSIGN DELIVERY BOY
-            // =================================================
-
             order.DeliveryId =
                 deliveryBoy.UserId;
 
-            // =================================================
-            // UPDATE STATUS
-            // =================================================
-
+            
             if (string.Equals(
                     order.OrderStatus,
                     "Ready for Delivery",
@@ -1528,9 +1379,6 @@ namespace WeddingClosetHubs.Controllers
                     "Assigned";
             }
 
-            // =================================================
-            // CREATE DELIVERY NOTIFICATION
-            // =================================================
 
             await CreateNotification(
                 deliveryBoy.UserId,
@@ -1549,1292 +1397,1066 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-  
-  // =====================================================
-// PAYMENTS
-// =====================================================
-
-[HttpGet]
-public async Task<IActionResult> Payments()
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    // -------------------------------------------------
-    // IMPORTANT:
-    // Cancelled orders are NOT payment records.
-    // -------------------------------------------------
-
-    var payments = await _context.Orders
-        .Include(o => o.Customer)
-        .Include(o => o.Shop)
-            .ThenInclude(s => s.Shopkeeper)
-        .Include(o => o.Delivery)
-        .Where(o =>o.OrderStatus!="Cancelled")
-               
-        .OrderByDescending(o => o.CreatedDate)
-        .ToListAsync();
-
-    return View(payments);
-}
 
 
-// =====================================================
-// PAYMENT DETAILS
-// =====================================================
-
-[HttpGet]
-public async Task<IActionResult> PaymentDetails(int id)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    // -------------------------------------------------
-    // Get order and related information
-    // -------------------------------------------------
-
-    var order = await _context.Orders
-        .Include(o => o.Customer)
-
-        .Include(o => o.Shop)
-            .ThenInclude(s => s.Shopkeeper)
-
-        .Include(o => o.Delivery)
-
-        .Include(o => o.OrderDetails)
-            .ThenInclude(od => od.Product)
-
-        .FirstOrDefaultAsync(o =>
-            o.OrderId == id &&
-            o.OrderStatus != "Cancelled");
-
-    // -------------------------------------------------
-    // Order not found
-    // -------------------------------------------------
-
-    if (order == null)
-    {
-        TempData["Error"] =
-            "Payment record not found or the order has been cancelled.";
-
-        return RedirectToAction(nameof(Payments));
-    }
-
-    // -------------------------------------------------
-    // GET DELIVERY BOY PAYMENT SETTINGS
-    //
-    // Order.DeliveryId points to User.UserId.
-    // The actual delivery payment settings are stored
-    // in DeliveryBoy.PaymentMethod and
-    // DeliveryBoy.PaymentAccount.
-    // -------------------------------------------------
-
-    if (order.DeliveryId.HasValue)
-    {
-        var deliveryBoy = await _context.DeliveryBoys
-            .FirstOrDefaultAsync(d =>
-                d.UserId == order.DeliveryId.Value);
-
-        if (deliveryBoy != null)
+        [HttpGet]
+        public async Task<IActionResult> Payments()
         {
-            ViewBag.DeliveryPaymentMethod =
-                deliveryBoy.PaymentMethod;
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-            ViewBag.DeliveryPaymentAccount =
-                deliveryBoy.PaymentAccount;
-        }
-        else
-        {
-            ViewBag.DeliveryPaymentMethod = null;
-            ViewBag.DeliveryPaymentAccount = null;
-        }
-    }
-    else
-    {
-        ViewBag.DeliveryPaymentMethod = null;
-        ViewBag.DeliveryPaymentAccount = null;
-    }
+         
 
-    // -------------------------------------------------
-    // RETURN PAYMENT DETAILS VIEW
-    // -------------------------------------------------
+            var payments = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                    .ThenInclude(s => s.Shopkeeper)
+                .Include(o => o.Delivery)
+                .Where(o => o.OrderStatus != "Cancelled")
 
-    return View(order);
-}
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
 
-// =====================================================
-// RECEIVE CUSTOMER PAYMENT
-// =====================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ReceivePayment(int id)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    var order = await _context.Orders
-        .Include(o => o.Delivery)
-        .FirstOrDefaultAsync(o => o.OrderId == id);
-
-    if (order == null)
-    {
-        TempData["Error"] = "Order not found.";
-
-        return RedirectToAction(nameof(Payments));
-    }
-
-    // -------------------------------------------------
-    // CANCELLED ORDER
-    // -------------------------------------------------
-
-    if (IsCancelledOrder(order))
-    {
-        TempData["Error"] =
-            "Customer payment cannot be received for a cancelled order.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // DUPLICATE PAYMENT
-    // -------------------------------------------------
-
-    if (order.PaymentReceived)
-    {
-        TempData["Error"] =
-            "Customer payment has already been received.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE TOTAL
-    // -------------------------------------------------
-
-    if (order.TotalAmount <= 0)
-    {
-        TempData["Error"] =
-            "Customer payment amount must be greater than zero.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // =================================================
-    // COD PAYMENT
-    // =================================================
-
-    if (IsCodOrder(order))
-    {
-        // -------------------------------------------------
-        // COD MUST BE COLLECTED
-        // -------------------------------------------------
-
-        if (order.DeliveryCollectedAmount < order.TotalAmount)
-        {
-            TempData["Error"] =
-                "The full COD amount has not been recorded as collected by the delivery boy.";
-
-            return RedirectToAction(
-                nameof(PaymentDetails),
-                new { id });
+            return View(payments);
         }
 
-        // -------------------------------------------------
-        // COD CASH MUST BE HANDED TO ADMIN
-        // -------------------------------------------------
 
-        if (!order.DeliveryCashHandedToAdmin)
+        [HttpGet]
+        public async Task<IActionResult> PaymentDetails(int id)
         {
-            TempData["Error"] =
-                "COD cash has been collected by the delivery boy, but it has not yet been handed over to Admin.";
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-            return RedirectToAction(
-                nameof(PaymentDetails),
-                new { id });
+           
+
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+
+                .Include(o => o.Shop)
+                    .ThenInclude(s => s.Shopkeeper)
+
+                .Include(o => o.Delivery)
+
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.OrderStatus != "Cancelled");
+
+
+            if (order == null)
+            {
+                TempData["Error"] =
+                    "Payment record not found or the order has been cancelled.";
+
+                return RedirectToAction(nameof(Payments));
+            }
+
+
+            if (order.DeliveryId.HasValue)
+            {
+                var deliveryBoy = await _context.DeliveryBoys
+                    .FirstOrDefaultAsync(d =>
+                        d.UserId == order.DeliveryId.Value);
+
+                if (deliveryBoy != null)
+                {
+                    ViewBag.DeliveryPaymentMethod =
+                        deliveryBoy.PaymentMethod;
+
+                    ViewBag.DeliveryPaymentAccount =
+                        deliveryBoy.PaymentAccount;
+                }
+                else
+                {
+                    ViewBag.DeliveryPaymentMethod = null;
+                    ViewBag.DeliveryPaymentAccount = null;
+                }
+            }
+            else
+            {
+                ViewBag.DeliveryPaymentMethod = null;
+                ViewBag.DeliveryPaymentAccount = null;
+            }
+
+           
+
+            return View(order);
         }
 
-        // -------------------------------------------------
-        // COD HANDOVER IS ALREADY THE CONFIRMATION
-        // -------------------------------------------------
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReceivePayment(int id)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-        order.PaymentReceived = true;
-        order.PaymentStatus = "Paid";
-        order.PaymentDate =
-            order.DeliveryCashHandoverDate ?? DateTime.Now;
+            var order = await _context.Orders
+                .Include(o => o.Delivery)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
-        await _context.SaveChangesAsync();
+            if (order == null)
+            {
+                TempData["Error"] = "Order not found.";
 
-        TempData["Success"] =
-            "COD customer payment confirmed successfully after cash handover.";
+                return RedirectToAction(nameof(Payments));
+            }
 
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
+            if (IsCancelledOrder(order))
+            {
+                TempData["Error"] =
+                    "Customer payment cannot be received for a cancelled order.";
 
-    // =================================================
-    // ONLINE PAYMENT
-    // =================================================
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
 
-    bool hasTransactionId =
-        !string.IsNullOrWhiteSpace(order.TransactionId);
+            if (order.PaymentReceived)
+            {
+                TempData["Error"] =
+                    "Customer payment has already been received.";
 
-    bool hasTransactionImage =
-        !string.IsNullOrWhiteSpace(order.TransactionImage);
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
 
-    if (!hasTransactionId && !hasTransactionImage)
-    {
-        TempData["Error"] =
-            "A transaction ID or payment screenshot is required before confirming online payment.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // Admin manually verifies the online transaction
-    // before confirming payment.
-
-    order.PaymentReceived = true;
-    order.PaymentStatus = "Paid";
-    order.PaymentDate = DateTime.Now;
-
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        "Customer online payment confirmed successfully.";
-
-    return RedirectToAction(
-        nameof(PaymentDetails),
-        new { id });
-}
-        // =====================================================
-// CONFIRM COD CASH HANDOVER
-// =====================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ConfirmCODHandover(
-    int id,
-    string? notes)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    var order = await _context.Orders
-        .Include(o => o.Delivery)
             
-        .Include(o => o.Customer)
-        .FirstOrDefaultAsync(o => o.OrderId == id);
-
-    if (order == null)
-    {
-        TempData["Error"] = "Order not found.";
-
-        return RedirectToAction(nameof(Payments));
-    }
-
-    // -------------------------------------------------
-    // CANCELLED ORDER
-    // -------------------------------------------------
-
-    if (IsCancelledOrder(order))
-    {
-        TempData["Error"] =
-            "COD cash cannot be confirmed for a cancelled order.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // MUST BE COD
-    // -------------------------------------------------
-
-    if (!IsCodOrder(order))
-    {
-        TempData["Error"] =
-            "This order is not a Cash on Delivery order.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // MUST HAVE COLLECTION
-    // -------------------------------------------------
-
-    if (order.DeliveryCollectedAmount <= 0)
-    {
-        TempData["Error"] =
-            "The delivery boy has not recorded any COD cash collection yet.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // FULL AMOUNT MUST BE COLLECTED
-    // -------------------------------------------------
-
-    if (order.DeliveryCollectedAmount < order.TotalAmount)
-    {
-        TempData["Error"] =
-            "The full COD amount has not been collected.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // PREVENT DUPLICATE HANDOVER
-    // -------------------------------------------------
-
-    if (order.DeliveryCashHandedToAdmin)
-    {
-        TempData["Error"] =
-            "This COD cash handover has already been confirmed.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // =================================================
-    // CONFIRM CASH HANDOVER
-    // =================================================
-
-    order.DeliveryCashHandedToAdmin = true;
-
-    order.DeliveryCashHandoverDate =
-        DateTime.Now;
-
-    order.DeliveryCashHandoverNotes =
-        string.IsNullOrWhiteSpace(notes)
-            ? null
-            : notes.Trim();
-
-    // -------------------------------------------------
-    // NOW CUSTOMER PAYMENT BECOMES PAID
-    // -------------------------------------------------
-
-    order.PaymentReceived = true;
-    order.PaymentStatus = "Paid";
-    order.PaymentDate = DateTime.Now;
-
-    await _context.SaveChangesAsync();
-
-    // =================================================
-    // NOTIFY CUSTOMER
-    // =================================================
-
-    if (order.Customer != null)
-    {
-        await CreateNotification(
-            order.CustomerId,
-            "COD Payment Confirmed",
-            $"Your COD payment of Rs. {order.TotalAmount:N0} for Order #{order.OrderId} has been received and confirmed by Admin.",
-            "Payment",
-            order.OrderId);
-    }
-
-    // =================================================
-    // NOTIFY DELIVERY BOY
-    // =================================================
-
-    if (order.Delivery != null)
-    {
-        await CreateNotification(
-            order.Delivery.UserId,
-            "COD Cash Handover Confirmed",
-            $"Admin has confirmed receipt of the COD cash of Rs. {order.DeliveryCollectedAmount:N0} for Order #{order.OrderId}.",
-            "Payment",
-            order.OrderId);
-    }
-
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        $"COD cash of Rs. {order.DeliveryCollectedAmount:N0} has been received and customer payment is now marked Paid.";
-
-    return RedirectToAction(
-        nameof(PaymentDetails),
-        new { id });
-}
-// =====================================================
-// RECORD SHOPKEEPER MANUAL PAYMENT
-// =====================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> RecordShopkeeperPayment(
-    int id,
-    string transactionId,
-    string? paymentMethod,
-    string? paymentAccount,
-    string? paymentNotes)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    // -------------------------------------------------
-    // LOAD ORDER
-    // -------------------------------------------------
-
-    var order = await _context.Orders
-        .Include(o => o.Shop)
-            .ThenInclude(s => s.Shopkeeper)
-        .FirstOrDefaultAsync(o => o.OrderId == id);
-
-    if (order == null)
-    {
-        TempData["Error"] = "Order not found.";
-
-        return RedirectToAction(nameof(Payments));
-    }
-
-    // -------------------------------------------------
-    // CANCELLED ORDER
-    // -------------------------------------------------
-
-    if (IsCancelledOrder(order))
-    {
-        TempData["Error"] =
-            "Shopkeeper payment cannot be recorded for a cancelled order.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // CUSTOMER PAYMENT MUST BE RECEIVED
-    // -------------------------------------------------
-
-    if (!order.PaymentReceived)
-    {
-        TempData["Error"] =
-            "Customer payment must be received before recording the shopkeeper payout.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // ORDER MUST BE DELIVERED
-    // -------------------------------------------------
-
-    bool isDeliveryCompleted =
-        string.Equals(
-            order.OrderStatus,
-            "Delivered",
-            StringComparison.OrdinalIgnoreCase)
-        ||
-        string.Equals(
-            order.OrderStatus,
-            "Completed",
-            StringComparison.OrdinalIgnoreCase);
-
-    if (!isDeliveryCompleted)
-    {
-        TempData["Error"] =
-            "Shopkeeper payout can only be recorded after the order has been delivered.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // SHOP VALIDATION
-    // -------------------------------------------------
-
-    if (order.Shop == null)
-    {
-        TempData["Error"] =
-            "This order is not associated with a valid shop.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // SHOPKEEPER VALIDATION
-    // -------------------------------------------------
-
-    var shopkeeper = order.Shop.Shopkeeper;
-
-    if (shopkeeper == null)
-    {
-        TempData["Error"] =
-            "Shopkeeper information is not available.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // PREVENT DUPLICATE PAYMENT
-    // -------------------------------------------------
-
-    if (string.Equals(
-        order.ShopkeeperPaymentStatus,
-        "Paid",
-        StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "Shopkeeper payment has already been recorded as paid.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE PRODUCT AMOUNT
-    // -------------------------------------------------
-
-    if (order.ProductTotal <= 0)
-    {
-        TempData["Error"] =
-            "Shopkeeper payment amount must be greater than zero.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE PAYMENT METHOD
-    // -------------------------------------------------
-
-    string selectedPaymentMethod =
-        paymentMethod?.Trim() ?? "";
-
-    bool validPaymentMethod =
-        string.Equals(
-            selectedPaymentMethod,
-            "Easypaisa",
-            StringComparison.OrdinalIgnoreCase)
-        ||
-        string.Equals(
-            selectedPaymentMethod,
-            "JazzCash",
-            StringComparison.OrdinalIgnoreCase);
-
-    if (!validPaymentMethod)
-    {
-        TempData["Error"] =
-            "Select either Easypaisa or JazzCash.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE PAYMENT ACCOUNT
-    // -------------------------------------------------
-
-    string selectedAccount =
-        paymentAccount?.Trim() ?? "";
-
-    if (string.IsNullOrWhiteSpace(selectedAccount))
-    {
-        TempData["Error"] =
-            "Shopkeeper payment account is required.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE TRANSACTION ID
-    // -------------------------------------------------
-
-    string manualTransactionId =
-        transactionId?.Trim() ?? "";
-
-    if (string.IsNullOrWhiteSpace(manualTransactionId))
-    {
-        TempData["Error"] =
-            "Enter the Easypaisa/JazzCash transaction or reference ID.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // SHOPKEEPER AMOUNT
-    // -------------------------------------------------
-    //
-    // ProductTotal is the final agreed product price.
-    //
-    // ServiceFee is a separate platform fee.
-    //
-    // Shopkeeper receives the FULL ProductTotal.
-    // -------------------------------------------------
-
-    decimal shopkeeperAmount =
-        order.ProductTotal;
-
-    // -------------------------------------------------
-    // RECORD MANUAL PAYOUT
-    // -------------------------------------------------
-
-    order.ShopkeeperAmount =
-        shopkeeperAmount;
-
-    order.ShopkeeperPaidAmount =
-        shopkeeperAmount;
-
-    order.ShopkeeperPaymentStatus =
-        "Paid";
-
-    order.ShopkeeperPaymentMethod =
-        selectedPaymentMethod;
-
-    order.ShopkeeperPaymentAccount =
-        selectedAccount;
-
-    order.ShopkeeperTransactionId =
-        manualTransactionId;
-
-    order.ShopkeeperPaymentNotes =
-        string.IsNullOrWhiteSpace(paymentNotes)
-            ? null
-            : paymentNotes.Trim();
-
-    order.ShopkeeperPaymentDate =
-        DateTime.Now;
-
-    // -------------------------------------------------
-    // SAVE
-    // -------------------------------------------------
-
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        $"Manual shopkeeper payment of Rs. {shopkeeperAmount:N2} has been recorded successfully.";
-
-    return RedirectToAction(
-        nameof(PaymentDetails),
-        new { id });
-}
-
-// =====================================================
-// =====================================================
-// RECORD DELIVERY BOY MANUAL PAYMENT
-// =====================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> RecordDeliveryPayment(
-    int id,
-    string transactionId,
-    string? paymentNotes)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    // -------------------------------------------------
-    // LOAD ORDER + DELIVERY USER
-    // -------------------------------------------------
-
-    var order = await _context.Orders
-        .Include(o => o.Delivery)
-        .FirstOrDefaultAsync(o => o.OrderId == id);
-
-    if (order == null)
-    {
-        TempData["Error"] = "Order not found.";
-
-        return RedirectToAction(nameof(Payments));
-    }
-
-    // -------------------------------------------------
-    // CANCELLED ORDER
-    // -------------------------------------------------
-
-    if (IsCancelledOrder(order))
-    {
-        TempData["Error"] =
-            "Delivery payment cannot be recorded for a cancelled order.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // DELIVERY BOY MUST BE ASSIGNED
-    // -------------------------------------------------
-
-    if (order.DeliveryId == null ||
-        order.Delivery == null)
-    {
-        TempData["Error"] =
-            "A delivery person must be assigned before recording the delivery payout.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // LOAD DELIVERY BOY DETAILS
-    // -------------------------------------------------
-
-    var deliveryBoy = await _context.DeliveryBoys
-        .FirstOrDefaultAsync(d =>
-            d.UserId == order.Delivery.UserId);
-
-    if (deliveryBoy == null)
-    {
-        TempData["Error"] =
-            "Delivery person payment settings were not found.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // CUSTOMER PAYMENT MUST BE RECEIVED
-    // -------------------------------------------------
-
-    if (!order.PaymentReceived)
-    {
-        TempData["Error"] =
-            "Customer payment must be received before recording the delivery payout.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // ORDER MUST BE DELIVERED
-    // -------------------------------------------------
-
-    bool isDeliveryCompleted =
-        string.Equals(
-            order.OrderStatus,
-            "Delivered",
-            StringComparison.OrdinalIgnoreCase)
-        ||
-        string.Equals(
-            order.OrderStatus,
-            "Completed",
-            StringComparison.OrdinalIgnoreCase);
-
-    if (!isDeliveryCompleted)
-    {
-        TempData["Error"] =
-            "Delivery payout can only be recorded after the order has been delivered.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // PREVENT DUPLICATE PAYMENT
-    // -------------------------------------------------
-
-    if (string.Equals(
-        order.DeliveryPaymentStatus,
-        "Paid",
-        StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "Delivery person payment has already been recorded as paid.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE DELIVERY CHARGES
-    // -------------------------------------------------
-
-    if (order.DeliveryCharges <= 0)
-    {
-        TempData["Error"] =
-            "Delivery charges must be greater than zero.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // GET SAVED DELIVERY BOY PAYMENT METHOD
-    // -------------------------------------------------
-    //
-    // DeliveryBoy.PaymentMethod is saved when the
-    // delivery person sets their payment settings.
-    //
-    // Example:
-    // Easypaisa
-    // JazzCash
-    // -------------------------------------------------
-
-    string selectedPaymentMethod =
-        deliveryBoy.PaymentMethod?.Trim() ?? "";
-
-    bool validPaymentMethod =
-        string.Equals(
-            selectedPaymentMethod,
-            "Easypaisa",
-            StringComparison.OrdinalIgnoreCase)
-        ||
-        string.Equals(
-            selectedPaymentMethod,
-            "JazzCash",
-            StringComparison.OrdinalIgnoreCase);
-
-    if (!validPaymentMethod)
-    {
-        TempData["Error"] =
-            "The delivery person has not set a valid Easypaisa or JazzCash payment method.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // GET SAVED DELIVERY BOY PAYMENT ACCOUNT
-    // -------------------------------------------------
-
-    string selectedAccount =
-        deliveryBoy.PaymentAccount?.Trim() ?? "";
-
-    if (string.IsNullOrWhiteSpace(selectedAccount))
-    {
-        TempData["Error"] =
-            "The delivery person has not added a payment account.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // VALIDATE TRANSACTION ID
-    // -------------------------------------------------
-
-    string manualTransactionId =
-        transactionId?.Trim() ?? "";
-
-    if (string.IsNullOrWhiteSpace(manualTransactionId))
-    {
-        TempData["Error"] =
-            "Enter the Easypaisa/JazzCash transaction or reference ID.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // COD VALIDATION
-    // -------------------------------------------------
-
-    if (IsCodOrder(order) &&
-        order.DeliveryCollectedAmount < order.TotalAmount)
-    {
-        TempData["Error"] =
-            "The full COD amount must be recorded as collected before recording the delivery payout.";
-
-        return RedirectToAction(
-            nameof(PaymentDetails),
-            new { id });
-    }
-
-    // -------------------------------------------------
-    // DELIVERY PAYOUT
-    // -------------------------------------------------
-    //
-    // Delivery person receives the fixed delivery charge.
-    // Example:
-    // DeliveryCharges = Rs.300
-    // DeliveryPaidAmount = Rs.300
-    // -------------------------------------------------
-
-    decimal deliveryAmount =
-        order.DeliveryCharges;
-
-    // -------------------------------------------------
-    // RECORD MANUAL PAYOUT
-    // -------------------------------------------------
-
-    order.DeliveryPaidAmount =
-        deliveryAmount;
-
-    order.DeliveryPaymentStatus =
-        "Paid";
-
-    // IMPORTANT:
-    // Save the payment method/account that was actually
-    // used for this particular payout.
-    //
-    // This creates a historical record even if the
-    // delivery person changes their payment settings later.
-
-    order.DeliveryPaymentMethod =
-        selectedPaymentMethod;
-
-    order.DeliveryPaymentAccount =
-        selectedAccount;
-
-    order.DeliveryTransactionId =
-        manualTransactionId;
-
-    order.DeliveryPaymentNotes =
-        string.IsNullOrWhiteSpace(paymentNotes)
-            ? null
-            : paymentNotes.Trim();
-
-    order.DeliveryPaymentDate =
-        DateTime.Now;
-
-    // -------------------------------------------------
-    // SAVE
-    // -------------------------------------------------
-
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        $"Manual delivery payment of Rs. {deliveryAmount:N2} has been recorded successfully through {selectedPaymentMethod}.";
-
-    return RedirectToAction(
-        nameof(PaymentDetails),
-        new { id });
-}
-      
-// =====================================================
-// REPORTS
-// =====================================================
-
-[HttpGet]
-public async Task<IActionResult> Reports()
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    // =====================================================
-    // USERS
-    // =====================================================
-
-    ViewBag.TotalUsers =
-        await _context.Users.CountAsync();
-
-    ViewBag.ActiveUsers =
-        await _context.Users
-            .CountAsync(u => u.Status);
-
-    ViewBag.DisabledUsers =
-        await _context.Users
-            .CountAsync(u => !u.Status);
-
-
-    // =====================================================
-    // SHOPKEEPERS
-    // =====================================================
-
-    ViewBag.TotalShopkeepers =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == ShopkeeperRole)
-            .CountAsync();
-
-    ViewBag.ApprovedShopkeepers =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == ShopkeeperRole &&
-                u.IsApproved)
-            .CountAsync();
-
-    ViewBag.PendingShopkeepers =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == ShopkeeperRole &&
-                !u.IsApproved)
-            .CountAsync();
-
-
-    // =====================================================
-    // CUSTOMERS
-    // =====================================================
-
-    ViewBag.TotalCustomers =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == CustomerRole)
-            .CountAsync();
-
-    ViewBag.ActiveCustomers =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == CustomerRole &&
-                u.Status)
-            .CountAsync();
-
-
-    // =====================================================
-    // DELIVERY
-    // =====================================================
-
-    ViewBag.TotalDelivery =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == DeliveryRole)
-            .CountAsync();
-
-    ViewBag.ApprovedDelivery =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == DeliveryRole &&
-                u.IsApproved)
-            .CountAsync();
-
-    ViewBag.PendingDelivery =
-        await _context.Users
-            .Where(u =>
-                u.Role != null &&
-                u.Role.RoleName == DeliveryRole &&
-                !u.IsApproved)
-            .CountAsync();
-
-
-    // =====================================================
-    // SHOPS
-    // =====================================================
-
-    ViewBag.TotalShops =
-        await _context.Shops.CountAsync();
-
-    ViewBag.ApprovedShops =
-        await _context.Shops
-            .CountAsync(s => s.IsApproved);
-
-    ViewBag.PendingShops =
-        await _context.Shops
-            .CountAsync(s => !s.IsApproved);
-
-    ViewBag.ActiveShops =
-        await _context.Shops
-            .CountAsync(s =>
-                s.IsApproved &&
-                s.Status);
-
-    ViewBag.DisabledShops =
-        await _context.Shops
-            .CountAsync(s =>
-                s.IsApproved &&
-                !s.Status);
-
-
-    // =====================================================
-    // ORDERS
-    // =====================================================
-
-    var allOrders =
-        _context.Orders.AsQueryable();
-
-    var activeOrders =
-        allOrders.Where(o =>
-            o.OrderStatus != "Cancelled");
-
-
-    ViewBag.TotalOrders =
-        await activeOrders.CountAsync();
-
-    ViewBag.PendingOrders =
-        await activeOrders
-            .CountAsync(o =>
-                o.OrderStatus == "Pending");
-
-    ViewBag.CompletedOrders =
-        await activeOrders
-            .CountAsync(o =>
-                o.OrderStatus == "Completed");
-
-    ViewBag.CancelledOrders =
-        await allOrders
-            .CountAsync(o =>
-                o.OrderStatus == "Cancelled");
-
-
-    // =====================================================
-    // CUSTOMER PAYMENTS
-    // =====================================================
-
-    ViewBag.TotalPayments =
-        await activeOrders.CountAsync();
-
-    ViewBag.ReceivedPayments =
-        await activeOrders
-            .CountAsync(o =>
-                o.PaymentReceived);
-
-    ViewBag.PendingPayments =
-        await activeOrders
-            .CountAsync(o =>
-                !o.PaymentReceived);
-
-
-    // =====================================================
-    // FINANCIAL TOTALS
-    // =====================================================
-
-    ViewBag.TotalProductAmount =
-        await activeOrders
-            .SumAsync(o =>
-                (decimal?)o.ProductTotal) ?? 0m;
-
-
-    ViewBag.TotalDeliveryCharges =
-        await activeOrders
-            .SumAsync(o =>
-                (decimal?)o.DeliveryCharges) ?? 0m;
-
-
-    ViewBag.TotalServiceFee =
-        await activeOrders
-            .SumAsync(o =>
-                (decimal?)o.ServiceFee) ?? 0m;
-
-
-    ViewBag.TotalRevenue =
-        await activeOrders
-            .SumAsync(o =>
-                (decimal?)o.TotalAmount) ?? 0m;
-
-
-    // =====================================================
-    // SHOPKEEPER FINANCIALS
-    // =====================================================
-
-    ViewBag.TotalShopkeeperAmount =
-        await activeOrders
-            .SumAsync(o =>
-                (decimal?)o.ShopkeeperAmount) ?? 0m;
-
-
-    ViewBag.TotalShopkeeperPaid =
-        await activeOrders
-            .Where(o =>
-                o.ShopkeeperPaymentStatus == "Paid")
-            .SumAsync(o =>
-                (decimal?)o.ShopkeeperPaidAmount) ?? 0m;
-
-
-    ViewBag.PendingShopkeeperPayments =
-        await activeOrders
-            .Where(o =>
-                o.PaymentReceived &&
-                o.ShopkeeperPaymentStatus != "Paid")
-            .SumAsync(o =>
-                (decimal?)o.ProductTotal) ?? 0m;
-
-
-    // =====================================================
-    // DELIVERY FINANCIALS
-    // =====================================================
-
-    ViewBag.TotalDeliveryPaid =
-        await activeOrders
-            .Where(o =>
-                o.DeliveryPaymentStatus == "Paid")
-            .SumAsync(o =>
-                (decimal?)o.DeliveryPaidAmount) ?? 0m;
-
-
-    ViewBag.PendingDeliveryPayments =
-        await activeOrders
-            .Where(o =>
-                o.PaymentReceived &&
-                o.DeliveryId != null &&
-                o.DeliveryPaymentStatus != "Paid")
-            .SumAsync(o =>
-                (decimal?)o.DeliveryCharges) ?? 0m;
-
-
-    // =====================================================
-    // PAYMENT METHODS
-    // =====================================================
-
-    ViewBag.CODPayments =
-        await activeOrders
-            .CountAsync(o =>
-                o.PaymentMethod == "COD" ||
-                o.PaymentMethod == "Cash on Delivery");
-
-
-    ViewBag.JazzCashPayments =
-        await activeOrders
-            .CountAsync(o =>
-                o.PaymentMethod == "JazzCash");
-
-
-    ViewBag.EasypaisaPayments =
-        await activeOrders
-            .CountAsync(o =>
-                o.PaymentMethod == "Easypaisa");
-
-
-    // =====================================================
-    // RETURN VIEW
-    // =====================================================
-
-    return View();
-}
-
-
-        // =====================================================
-        // USER ACCOUNTS
-        // =====================================================
+            if (order.TotalAmount <= 0)
+            {
+                TempData["Error"] =
+                    "Customer payment amount must be greater than zero.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            if (IsCodOrder(order))
+            {
+                if (order.DeliveryCollectedAmount < order.TotalAmount)
+                {
+                    TempData["Error"] =
+                        "The full COD amount has not been recorded as collected by the delivery boy.";
+
+                    return RedirectToAction(
+                        nameof(PaymentDetails),
+                        new { id });
+                }
+
+                if (!order.DeliveryCashHandedToAdmin)
+                {
+                    TempData["Error"] =
+                        "COD cash has been collected by the delivery boy, but it has not yet been handed over to Admin.";
+
+                    return RedirectToAction(
+                        nameof(PaymentDetails),
+                        new { id });
+                }
+
+                order.PaymentReceived = true;
+                order.PaymentStatus = "Paid";
+                order.PaymentDate =
+                    order.DeliveryCashHandoverDate ?? DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] =
+                    "COD customer payment confirmed successfully after cash handover.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            bool hasTransactionId =
+                !string.IsNullOrWhiteSpace(order.TransactionId);
+
+            bool hasTransactionImage =
+                !string.IsNullOrWhiteSpace(order.TransactionImage);
+
+            if (!hasTransactionId && !hasTransactionImage)
+            {
+                TempData["Error"] =
+                    "A transaction ID or payment screenshot is required before confirming online payment.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            order.PaymentReceived = true;
+            order.PaymentStatus = "Paid";
+            order.PaymentDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Customer online payment confirmed successfully.";
+
+            return RedirectToAction(
+                nameof(PaymentDetails),
+                new { id });
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmCODHandover(
+            int id,
+            string? notes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.Delivery)
+
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Order not found.";
+
+                return RedirectToAction(nameof(Payments));
+            }
+
+            if (IsCancelledOrder(order))
+            {
+                TempData["Error"] =
+                    "COD cash cannot be confirmed for a cancelled order.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            if (!IsCodOrder(order))
+            {
+                TempData["Error"] =
+                    "This order is not a Cash on Delivery order.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            if (order.DeliveryCollectedAmount <= 0)
+            {
+                TempData["Error"] =
+                    "The delivery boy has not recorded any COD cash collection yet.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            
+
+            if (order.DeliveryCollectedAmount < order.TotalAmount)
+            {
+                TempData["Error"] =
+                    "The full COD amount has not been collected.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (order.DeliveryCashHandedToAdmin)
+            {
+                TempData["Error"] =
+                    "This COD cash handover has already been confirmed.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            order.DeliveryCashHandedToAdmin = true;
+
+            order.DeliveryCashHandoverDate =
+                DateTime.Now;
+
+            order.DeliveryCashHandoverNotes =
+                string.IsNullOrWhiteSpace(notes)
+                    ? null
+                    : notes.Trim();
+
+
+            order.PaymentReceived = true;
+            order.PaymentStatus = "Paid";
+            order.PaymentDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+
+            if (order.Customer != null)
+            {
+                await CreateNotification(
+                    order.CustomerId,
+                    "COD Payment Confirmed",
+                    $"Your COD payment of Rs. {order.TotalAmount:N0} for Order #{order.OrderId} has been received and confirmed by Admin.",
+                    "Payment",
+                    order.OrderId);
+            }
+
+            
+
+            if (order.Delivery != null)
+            {
+                await CreateNotification(
+                    order.Delivery.UserId,
+                    "COD Cash Handover Confirmed",
+                    $"Admin has confirmed receipt of the COD cash of Rs. {order.DeliveryCollectedAmount:N0} for Order #{order.OrderId}.",
+                    "Payment",
+                    order.OrderId);
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"COD cash of Rs. {order.DeliveryCollectedAmount:N0} has been received and customer payment is now marked Paid.";
+
+            return RedirectToAction(
+                nameof(PaymentDetails),
+                new { id });
+        }
+       
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecordShopkeeperPayment(
+            int id,
+            string transactionId,
+            string? paymentMethod,
+            string? paymentAccount,
+            string? paymentNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+            
+
+            var order = await _context.Orders
+                .Include(o => o.Shop)
+                    .ThenInclude(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Order not found.";
+
+                return RedirectToAction(nameof(Payments));
+            }
+
+          
+
+            if (IsCancelledOrder(order))
+            {
+                TempData["Error"] =
+                    "Shopkeeper payment cannot be recorded for a cancelled order.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (!order.PaymentReceived)
+            {
+                TempData["Error"] =
+                    "Customer payment must be received before recording the shopkeeper payout.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+            bool isDeliveryCompleted =
+                string.Equals(
+                    order.OrderStatus,
+                    "Delivered",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                string.Equals(
+                    order.OrderStatus,
+                    "Completed",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!isDeliveryCompleted)
+            {
+                TempData["Error"] =
+                    "Shopkeeper payout can only be recorded after the order has been delivered.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (order.Shop == null)
+            {
+                TempData["Error"] =
+                    "This order is not associated with a valid shop.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            var shopkeeper = order.Shop.Shopkeeper;
+
+            if (shopkeeper == null)
+            {
+                TempData["Error"] =
+                    "Shopkeeper information is not available.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (string.Equals(
+                order.ShopkeeperPaymentStatus,
+                "Paid",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Shopkeeper payment has already been recorded as paid.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (order.ProductTotal <= 0)
+            {
+                TempData["Error"] =
+                    "Shopkeeper payment amount must be greater than zero.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            string selectedPaymentMethod =
+                paymentMethod?.Trim() ?? "";
+
+            bool validPaymentMethod =
+                string.Equals(
+                    selectedPaymentMethod,
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                string.Equals(
+                    selectedPaymentMethod,
+                    "JazzCash",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!validPaymentMethod)
+            {
+                TempData["Error"] =
+                    "Select either Easypaisa or JazzCash.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            string selectedAccount =
+                paymentAccount?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(selectedAccount))
+            {
+                TempData["Error"] =
+                    "Shopkeeper payment account is required.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            string manualTransactionId =
+                transactionId?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(manualTransactionId))
+            {
+                TempData["Error"] =
+                    "Enter the Easypaisa/JazzCash transaction or reference ID.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            decimal shopkeeperAmount =
+                order.ProductTotal;
+
+
+
+            order.ShopkeeperAmount =
+                shopkeeperAmount;
+
+            order.ShopkeeperPaidAmount =
+                shopkeeperAmount;
+
+            order.ShopkeeperPaymentStatus =
+                "Paid";
+
+            order.ShopkeeperPaymentMethod =
+                selectedPaymentMethod;
+
+            order.ShopkeeperPaymentAccount =
+                selectedAccount;
+
+            order.ShopkeeperTransactionId =
+                manualTransactionId;
+
+            order.ShopkeeperPaymentNotes =
+                string.IsNullOrWhiteSpace(paymentNotes)
+                    ? null
+                    : paymentNotes.Trim();
+
+            order.ShopkeeperPaymentDate =
+                DateTime.Now;
+
+
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"Manual shopkeeper payment of Rs. {shopkeeperAmount:N2} has been recorded successfully.";
+
+            return RedirectToAction(
+                nameof(PaymentDetails),
+                new { id });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecordDeliveryPayment(
+            int id,
+            string transactionId,
+            string? paymentNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+
+
+            var order = await _context.Orders
+                .Include(o => o.Delivery)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Order not found.";
+
+                return RedirectToAction(nameof(Payments));
+            }
+
+
+
+            if (IsCancelledOrder(order))
+            {
+                TempData["Error"] =
+                    "Delivery payment cannot be recorded for a cancelled order.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            if (order.DeliveryId == null ||
+                order.Delivery == null)
+            {
+                TempData["Error"] =
+                    "A delivery person must be assigned before recording the delivery payout.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            var deliveryBoy = await _context.DeliveryBoys
+                .FirstOrDefaultAsync(d =>
+                    d.UserId == order.Delivery.UserId);
+
+            if (deliveryBoy == null)
+            {
+                TempData["Error"] =
+                    "Delivery person payment settings were not found.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            if (!order.PaymentReceived)
+            {
+                TempData["Error"] =
+                    "Customer payment must be received before recording the delivery payout.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            bool isDeliveryCompleted =
+                string.Equals(
+                    order.OrderStatus,
+                    "Delivered",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                string.Equals(
+                    order.OrderStatus,
+                    "Completed",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!isDeliveryCompleted)
+            {
+                TempData["Error"] =
+                    "Delivery payout can only be recorded after the order has been delivered.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            if (string.Equals(
+                order.DeliveryPaymentStatus,
+                "Paid",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Delivery person payment has already been recorded as paid.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+            if (order.DeliveryCharges <= 0)
+            {
+                TempData["Error"] =
+                    "Delivery charges must be greater than zero.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            string selectedPaymentMethod =
+                deliveryBoy.PaymentMethod?.Trim() ?? "";
+
+            bool validPaymentMethod =
+                string.Equals(
+                    selectedPaymentMethod,
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                string.Equals(
+                    selectedPaymentMethod,
+                    "JazzCash",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!validPaymentMethod)
+            {
+                TempData["Error"] =
+                    "The delivery person has not set a valid Easypaisa or JazzCash payment method.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            string selectedAccount =
+                deliveryBoy.PaymentAccount?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(selectedAccount))
+            {
+                TempData["Error"] =
+                    "The delivery person has not added a payment account.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            string manualTransactionId =
+                transactionId?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(manualTransactionId))
+            {
+                TempData["Error"] =
+                    "Enter the Easypaisa/JazzCash transaction or reference ID.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            if (IsCodOrder(order) &&
+                order.DeliveryCollectedAmount < order.TotalAmount)
+            {
+                TempData["Error"] =
+                    "The full COD amount must be recorded as collected before recording the delivery payout.";
+
+                return RedirectToAction(
+                    nameof(PaymentDetails),
+                    new { id });
+            }
+
+
+
+            decimal deliveryAmount =
+                order.DeliveryCharges;
+
+
+            order.DeliveryPaidAmount =
+                deliveryAmount;
+
+            order.DeliveryPaymentStatus =
+                "Paid";
+
+
+
+            order.DeliveryPaymentMethod =
+                selectedPaymentMethod;
+
+            order.DeliveryPaymentAccount =
+                selectedAccount;
+
+            order.DeliveryTransactionId =
+                manualTransactionId;
+
+            order.DeliveryPaymentNotes =
+                string.IsNullOrWhiteSpace(paymentNotes)
+                    ? null
+                    : paymentNotes.Trim();
+
+            order.DeliveryPaymentDate =
+                DateTime.Now;
+
+
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"Manual delivery payment of Rs. {deliveryAmount:N2} has been recorded successfully through {selectedPaymentMethod}.";
+
+            return RedirectToAction(
+                nameof(PaymentDetails),
+                new { id });
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Reports()
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+
+
+            ViewBag.TotalUsers =
+                await _context.Users.CountAsync();
+
+            ViewBag.ActiveUsers =
+                await _context.Users
+                    .CountAsync(u => u.Status);
+
+            ViewBag.DisabledUsers =
+                await _context.Users
+                    .CountAsync(u => !u.Status);
+
+
+
+
+            ViewBag.TotalShopkeepers =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == ShopkeeperRole)
+                    .CountAsync();
+
+            ViewBag.ApprovedShopkeepers =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == ShopkeeperRole &&
+                        u.IsApproved)
+                    .CountAsync();
+
+            ViewBag.PendingShopkeepers =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == ShopkeeperRole &&
+                        !u.IsApproved)
+                    .CountAsync();
+
+
+
+
+            ViewBag.TotalCustomers =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == CustomerRole)
+                    .CountAsync();
+
+            ViewBag.ActiveCustomers =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == CustomerRole &&
+                        u.Status)
+                    .CountAsync();
+
+
+
+            ViewBag.TotalDelivery =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == DeliveryRole)
+                    .CountAsync();
+
+            ViewBag.ApprovedDelivery =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == DeliveryRole &&
+                        u.IsApproved)
+                    .CountAsync();
+
+            ViewBag.PendingDelivery =
+                await _context.Users
+                    .Where(u =>
+                        u.Role != null &&
+                        u.Role.RoleName == DeliveryRole &&
+                        !u.IsApproved)
+                    .CountAsync();
+
+
+
+
+            ViewBag.TotalShops =
+                await _context.Shops.CountAsync();
+
+            ViewBag.ApprovedShops =
+                await _context.Shops
+                    .CountAsync(s => s.IsApproved);
+
+            ViewBag.PendingShops =
+                await _context.Shops
+                    .CountAsync(s => !s.IsApproved);
+
+            ViewBag.ActiveShops =
+                await _context.Shops
+                    .CountAsync(s =>
+                        s.IsApproved &&
+                        s.Status);
+
+            ViewBag.DisabledShops =
+                await _context.Shops
+                    .CountAsync(s =>
+                        s.IsApproved &&
+                        !s.Status);
+
+
+
+
+            var allOrders =
+                _context.Orders.AsQueryable();
+
+            var activeOrders =
+                allOrders.Where(o =>
+                    o.OrderStatus != "Cancelled");
+
+
+            ViewBag.TotalOrders =
+                await activeOrders.CountAsync();
+
+            ViewBag.PendingOrders =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.OrderStatus == "Pending");
+
+            ViewBag.CompletedOrders =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.OrderStatus == "Completed");
+
+            ViewBag.CancelledOrders =
+                await allOrders
+                    .CountAsync(o =>
+                        o.OrderStatus == "Cancelled");
+
+
+
+
+            ViewBag.TotalPayments =
+                await activeOrders.CountAsync();
+
+            ViewBag.ReceivedPayments =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.PaymentReceived);
+
+            ViewBag.PendingPayments =
+                await activeOrders
+                    .CountAsync(o =>
+                        !o.PaymentReceived);
+
+
+
+            ViewBag.TotalProductAmount =
+                await activeOrders
+                    .SumAsync(o =>
+                        (decimal?)o.ProductTotal) ?? 0m;
+
+
+            ViewBag.TotalDeliveryCharges =
+                await activeOrders
+                    .SumAsync(o =>
+                        (decimal?)o.DeliveryCharges) ?? 0m;
+
+
+            ViewBag.TotalServiceFee =
+                await activeOrders
+                    .SumAsync(o =>
+                        (decimal?)o.ServiceFee) ?? 0m;
+
+
+            ViewBag.TotalRevenue =
+                await activeOrders
+                    .SumAsync(o =>
+                        (decimal?)o.TotalAmount) ?? 0m;
+
+
+
+
+            ViewBag.TotalShopkeeperAmount =
+                await activeOrders
+                    .SumAsync(o =>
+                        (decimal?)o.ShopkeeperAmount) ?? 0m;
+
+
+            ViewBag.TotalShopkeeperPaid =
+                await activeOrders
+                    .Where(o =>
+                        o.ShopkeeperPaymentStatus == "Paid")
+                    .SumAsync(o =>
+                        (decimal?)o.ShopkeeperPaidAmount) ?? 0m;
+
+
+            ViewBag.PendingShopkeeperPayments =
+                await activeOrders
+                    .Where(o =>
+                        o.PaymentReceived &&
+                        o.ShopkeeperPaymentStatus != "Paid")
+                    .SumAsync(o =>
+                        (decimal?)o.ProductTotal) ?? 0m;
+
+
+
+            ViewBag.TotalDeliveryPaid =
+                await activeOrders
+                    .Where(o =>
+                        o.DeliveryPaymentStatus == "Paid")
+                    .SumAsync(o =>
+                        (decimal?)o.DeliveryPaidAmount) ?? 0m;
+
+
+            ViewBag.PendingDeliveryPayments =
+                await activeOrders
+                    .Where(o =>
+                        o.PaymentReceived &&
+                        o.DeliveryId != null &&
+                        o.DeliveryPaymentStatus != "Paid")
+                    .SumAsync(o =>
+                        (decimal?)o.DeliveryCharges) ?? 0m;
+
+
+
+
+            ViewBag.CODPayments =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.PaymentMethod == "COD" ||
+                        o.PaymentMethod == "Cash on Delivery");
+
+
+            ViewBag.JazzCashPayments =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.PaymentMethod == "JazzCash");
+
+
+            ViewBag.EasypaisaPayments =
+                await activeOrders
+                    .CountAsync(o =>
+                        o.PaymentMethod == "Easypaisa");
+
+
+
+
+            return View();
+        }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> UserAccounts()
@@ -2853,9 +2475,7 @@ public async Task<IActionResult> Reports()
             return View(users);
         }
 
-        // =====================================================
-        // USER DETAILS
-        // =====================================================
+
 
         [HttpGet]
         public async Task<IActionResult> UserDetails(int id)
@@ -2884,9 +2504,7 @@ public async Task<IActionResult> Reports()
             return View(user);
         }
 
-        // =====================================================
-        // DISABLE USER
-        // =====================================================
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2935,9 +2553,7 @@ public async Task<IActionResult> Reports()
                 new { id });
         }
 
-        // =====================================================
-        // ENABLE USER
-        // =====================================================
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2987,9 +2603,7 @@ public async Task<IActionResult> Reports()
                 new { id });
         }
 
-        // =====================================================
-        // ADMIN PROFILE
-        // =====================================================
+
 
         [HttpGet]
         public async Task<IActionResult> AdminProfile()
@@ -3026,9 +2640,6 @@ public async Task<IActionResult> Reports()
             return View(admin);
         }
 
-        // =====================================================
-        // UPLOAD ADMIN PROFILE IMAGE
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -3129,9 +2740,6 @@ public async Task<IActionResult> Reports()
                 await profileImage.CopyToAsync(stream);
             }
 
-            // =================================================
-            // DELETE OLD IMAGE
-            // =================================================
 
             if (!string.IsNullOrWhiteSpace(
                     admin.ProfileImage))
@@ -3155,7 +2763,7 @@ public async Task<IActionResult> Reports()
                     }
                     catch
                     {
-                        // Ignore old image deletion errors
+
                     }
                 }
             }
@@ -3171,405 +2779,362 @@ public async Task<IActionResult> Reports()
             return RedirectToAction("AdminProfile");
         }
 
-       // =====================================================
-// CHAT
-// =====================================================
 
-[HttpGet]
-public async Task<IActionResult> Chat()
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
-
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
-
-    if (adminId <= 0)
-    {
-        return AdminLoginRedirect();
-    }
-
-    // -------------------------------------------------
-    // GET USERS WHO HAVE A CHAT WITH ADMIN
-    // -------------------------------------------------
-
-    var userIds =
-        await _context.ChatMessages
-            .Where(c =>
-                c.SenderId == adminId ||
-                c.ReceiverId == adminId)
-            .Select(c =>
-                c.SenderId == adminId
-                    ? c.ReceiverId
-                    : c.SenderId)
-            .Distinct()
-            .ToListAsync();
-
-    var users =
-        await _context.Users
-            .Include(u => u.Role)
-            .Where(u =>
-                u.UserId != adminId &&
-                userIds.Contains(u.UserId) &&
-                u.Status)
-            .ToListAsync();
-
-    // -------------------------------------------------
-    // CONVERSATIONS
-    // -------------------------------------------------
-
-    var conversations = new List<object>();
-
-    foreach (var user in users)
-    {
-        var lastMessage =
-            await _context.ChatMessages
-                .Where(c =>
-                    (c.SenderId == adminId &&
-                     c.ReceiverId == user.UserId) ||
-
-                    (c.SenderId == user.UserId &&
-                     c.ReceiverId == adminId))
-                .OrderByDescending(c => c.SentDate)
-                .FirstOrDefaultAsync();
-
-        int unreadCount =
-            await _context.ChatMessages
-                .CountAsync(c =>
-                    c.SenderId == user.UserId &&
-                    c.ReceiverId == adminId &&
-                    !c.IsRead);
-
-        conversations.Add(new
+        [HttpGet]
+        public async Task<IActionResult> Chat()
         {
-            UserId = user.UserId,
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-            UserName = user.Name,
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-            Role = user.Role != null
-                ? user.Role.RoleName
-                : "User",
+            if (adminId <= 0)
+            {
+                return AdminLoginRedirect();
+            }
 
-            LastMessage =
-                lastMessage?.Message ?? "",
 
-            LastMessageDate =
-                lastMessage?.SentDate,
 
-            UnreadCount =
-                unreadCount
-        });
-    }
+            var userIds =
+                await _context.ChatMessages
+                    .Where(c =>
+                        c.SenderId == adminId ||
+                        c.ReceiverId == adminId)
+                    .Select(c =>
+                        c.SenderId == adminId
+                            ? c.ReceiverId
+                            : c.SenderId)
+                    .Distinct()
+                    .ToListAsync();
 
-    ViewBag.Conversations =
-        conversations
-            .OrderByDescending(c =>
-                ((dynamic)c).LastMessageDate
-                ?? DateTime.MinValue)
-            .ToList();
+            var users =
+                await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u =>
+                        u.UserId != adminId &&
+                        userIds.Contains(u.UserId) &&
+                        u.Status)
+                    .ToListAsync();
 
-    ViewBag.SelectedUserId = null;
-    ViewBag.SelectedUserName = null;
-    ViewBag.SelectedUserRole = null;
-    ViewBag.CurrentUserId = adminId;
 
-    // -------------------------------------------------
-    // BOTH COUNTS
-    // -------------------------------------------------
 
-    ViewBag.UnreadChatCount =
-        await GetAdminUnreadChatCount();
+            var conversations = new List<object>();
 
-    ViewBag.UnreadNotificationCount =
-        await GetAdminUnreadNotificationCount();
+            foreach (var user in users)
+            {
+                var lastMessage =
+                    await _context.ChatMessages
+                        .Where(c =>
+                            (c.SenderId == adminId &&
+                             c.ReceiverId == user.UserId) ||
 
-    return View(new List<ChatMessage>());
-}     
-        // =====================================================
-// OPEN CONVERSATION
-// =====================================================
+                            (c.SenderId == user.UserId &&
+                             c.ReceiverId == adminId))
+                        .OrderByDescending(c => c.SentDate)
+                        .FirstOrDefaultAsync();
 
-[HttpGet]
-public async Task<IActionResult> Conversation(int userId)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
+                int unreadCount =
+                    await _context.ChatMessages
+                        .CountAsync(c =>
+                            c.SenderId == user.UserId &&
+                            c.ReceiverId == adminId &&
+                            !c.IsRead);
 
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
+                conversations.Add(new
+                {
+                    UserId = user.UserId,
 
-    if (adminId <= 0)
-    {
-        return AdminLoginRedirect();
-    }
+                    UserName = user.Name,
 
-    // -------------------------------------------------
-    // FIND SELECTED USER
-    // -------------------------------------------------
+                    Role = user.Role != null
+                        ? user.Role.RoleName
+                        : "User",
 
-    var selectedUser =
-        await _context.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u =>
-                u.UserId == userId &&
-                u.UserId != adminId &&
-                u.Status);
+                    LastMessage =
+                        lastMessage?.Message ?? "",
 
-    if (selectedUser == null)
-    {
-        TempData["Error"] =
-            "User not found.";
+                    LastMessageDate =
+                        lastMessage?.SentDate,
 
-        return RedirectToAction(nameof(Chat));
-    }
+                    UnreadCount =
+                        unreadCount
+                });
+            }
 
-    // -------------------------------------------------
-    // GET CONVERSATION MESSAGES
-    // -------------------------------------------------
+            ViewBag.Conversations =
+                conversations
+                    .OrderByDescending(c =>
+                        ((dynamic)c).LastMessageDate
+                        ?? DateTime.MinValue)
+                    .ToList();
 
-    var messages =
-        await _context.ChatMessages
-            .Include(c => c.Sender)
-                .ThenInclude(u => u.Role)
-            .Include(c => c.Receiver)
-                .ThenInclude(u => u.Role)
-            .Where(c =>
-                (c.SenderId == adminId &&
-                 c.ReceiverId == userId) ||
+            ViewBag.SelectedUserId = null;
+            ViewBag.SelectedUserName = null;
+            ViewBag.SelectedUserRole = null;
+            ViewBag.CurrentUserId = adminId;
 
-                (c.SenderId == userId &&
-                 c.ReceiverId == adminId))
-            .OrderBy(c => c.SentDate)
-            .ToListAsync();
 
-    // -------------------------------------------------
-    // MARK ONLY RECEIVED MESSAGES AS READ
-    // -------------------------------------------------
 
-    var unreadMessages =
-        messages
-            .Where(c =>
-                c.SenderId == userId &&
-                c.ReceiverId == adminId &&
-                !c.IsRead)
-            .ToList();
+            ViewBag.UnreadChatCount =
+                await GetAdminUnreadChatCount();
 
-    if (unreadMessages.Any())
-    {
-        foreach (var message in unreadMessages)
-        {
-            message.IsRead = true;
+            ViewBag.UnreadNotificationCount =
+                await GetAdminUnreadNotificationCount();
+
+            return View(new List<ChatMessage>());
         }
 
-        await _context.SaveChangesAsync();
-    }
 
-    // -------------------------------------------------
-    // REBUILD CONVERSATIONS
-    // -------------------------------------------------
-
-    var userIds =
-        await _context.ChatMessages
-            .Where(c =>
-                c.SenderId == adminId ||
-                c.ReceiverId == adminId)
-            .Select(c =>
-                c.SenderId == adminId
-                    ? c.ReceiverId
-                    : c.SenderId)
-            .Distinct()
-            .ToListAsync();
-
-    var users =
-        await _context.Users
-            .Include(u => u.Role)
-            .Where(u =>
-                u.UserId != adminId &&
-                userIds.Contains(u.UserId) &&
-                u.Status)
-            .ToListAsync();
-
-    var conversations = new List<object>();
-
-    foreach (var user in users)
-    {
-        var lastMessage =
-            await _context.ChatMessages
-                .Where(c =>
-                    (c.SenderId == adminId &&
-                     c.ReceiverId == user.UserId) ||
-
-                    (c.SenderId == user.UserId &&
-                     c.ReceiverId == adminId))
-                .OrderByDescending(c => c.SentDate)
-                .FirstOrDefaultAsync();
-
-        int unreadCount =
-            await _context.ChatMessages
-                .CountAsync(c =>
-                    c.SenderId == user.UserId &&
-                    c.ReceiverId == adminId &&
-                    !c.IsRead);
-
-        conversations.Add(new
+        [HttpGet]
+        public async Task<IActionResult> Conversation(int userId)
         {
-            UserId = user.UserId,
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-            UserName = user.Name,
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-            Role = user.Role != null
-                ? user.Role.RoleName
-                : "User",
+            if (adminId <= 0)
+            {
+                return AdminLoginRedirect();
+            }
 
-            LastMessage =
-                lastMessage?.Message ?? "",
 
-            LastMessageDate =
-                lastMessage?.SentDate,
 
-            UnreadCount =
-                unreadCount
-        });
-    }
+            var selectedUser =
+                await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u =>
+                        u.UserId == userId &&
+                        u.UserId != adminId &&
+                        u.Status);
 
-    ViewBag.Conversations =
-        conversations
-            .OrderByDescending(c =>
-                ((dynamic)c).LastMessageDate
-                ?? DateTime.MinValue)
-            .ToList();
+            if (selectedUser == null)
+            {
+                TempData["Error"] =
+                    "User not found.";
 
-    // -------------------------------------------------
-    // SELECTED USER
-    // -------------------------------------------------
+                return RedirectToAction(nameof(Chat));
+            }
 
-    ViewBag.SelectedUserId =
-        userId;
 
-    ViewBag.SelectedUserName =
-        selectedUser.Name;
 
-    ViewBag.SelectedUserRole =
-        selectedUser.Role?.RoleName;
+            var messages =
+                await _context.ChatMessages
+                    .Include(c => c.Sender)
+                        .ThenInclude(u => u.Role)
+                    .Include(c => c.Receiver)
+                        .ThenInclude(u => u.Role)
+                    .Where(c =>
+                        (c.SenderId == adminId &&
+                         c.ReceiverId == userId) ||
 
-    ViewBag.CurrentUserId =
-        adminId;
+                        (c.SenderId == userId &&
+                         c.ReceiverId == adminId))
+                    .OrderBy(c => c.SentDate)
+                    .ToListAsync();
 
-    // -------------------------------------------------
-    // BOTH COUNTS AFTER MARKING CHAT AS READ
-    // -------------------------------------------------
 
-    ViewBag.UnreadChatCount =
-        await GetAdminUnreadChatCount();
 
-    ViewBag.UnreadNotificationCount =
-        await GetAdminUnreadNotificationCount();
+            var unreadMessages =
+                messages
+                    .Where(c =>
+                        c.SenderId == userId &&
+                        c.ReceiverId == adminId &&
+                        !c.IsRead)
+                    .ToList();
 
-    return View(
-        "Chat",
-        messages);
-}
-        // =====================================================
-// SEND MESSAGE
-// =====================================================
+            if (unreadMessages.Any())
+            {
+                foreach (var message in unreadMessages)
+                {
+                    message.IsRead = true;
+                }
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> SendMessage(
-    int receiverId,
-    string message)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
+                await _context.SaveChangesAsync();
+            }
 
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
 
-    if (adminId <= 0)
-    {
-        return AdminLoginRedirect();
-    }
 
-    if (receiverId == adminId)
-    {
-        TempData["Error"] =
-            "You cannot send a message to yourself.";
+            var userIds =
+                await _context.ChatMessages
+                    .Where(c =>
+                        c.SenderId == adminId ||
+                        c.ReceiverId == adminId)
+                    .Select(c =>
+                        c.SenderId == adminId
+                            ? c.ReceiverId
+                            : c.SenderId)
+                    .Distinct()
+                    .ToListAsync();
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+            var users =
+                await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u =>
+                        u.UserId != adminId &&
+                        userIds.Contains(u.UserId) &&
+                        u.Status)
+                    .ToListAsync();
 
-    if (string.IsNullOrWhiteSpace(message))
-    {
-        TempData["Error"] =
-            "Message cannot be empty.";
+            var conversations = new List<object>();
 
-        return RedirectToAction(
-            nameof(Conversation),
-            new { userId = receiverId });
-    }
+            foreach (var user in users)
+            {
+                var lastMessage =
+                    await _context.ChatMessages
+                        .Where(c =>
+                            (c.SenderId == adminId &&
+                             c.ReceiverId == user.UserId) ||
 
-    var receiver =
-        await _context.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u =>
-                u.UserId == receiverId &&
-                u.Status);
+                            (c.SenderId == user.UserId &&
+                             c.ReceiverId == adminId))
+                        .OrderByDescending(c => c.SentDate)
+                        .FirstOrDefaultAsync();
 
-    if (receiver == null)
-    {
-        TempData["Error"] =
-            "User not found or disabled.";
+                int unreadCount =
+                    await _context.ChatMessages
+                        .CountAsync(c =>
+                            c.SenderId == user.UserId &&
+                            c.ReceiverId == adminId &&
+                            !c.IsRead);
 
-        return RedirectToAction(nameof(Chat));
-    }
+                conversations.Add(new
+                {
+                    UserId = user.UserId,
 
-    // -------------------------------------------------
-    // CHAT MESSAGE
-    // -------------------------------------------------
+                    UserName = user.Name,
 
-    var chatMessage =
-        new ChatMessage
+                    Role = user.Role != null
+                        ? user.Role.RoleName
+                        : "User",
+
+                    LastMessage =
+                        lastMessage?.Message ?? "",
+
+                    LastMessageDate =
+                        lastMessage?.SentDate,
+
+                    UnreadCount =
+                        unreadCount
+                });
+            }
+
+            ViewBag.Conversations =
+                conversations
+                    .OrderByDescending(c =>
+                        ((dynamic)c).LastMessageDate
+                        ?? DateTime.MinValue)
+                    .ToList();
+
+            ViewBag.SelectedUserId =
+                userId;
+
+            ViewBag.SelectedUserName =
+                selectedUser.Name;
+
+            ViewBag.SelectedUserRole =
+                selectedUser.Role?.RoleName;
+
+            ViewBag.CurrentUserId =
+                adminId;
+
+
+            ViewBag.UnreadChatCount =
+                await GetAdminUnreadChatCount();
+
+            ViewBag.UnreadNotificationCount =
+                await GetAdminUnreadNotificationCount();
+
+            return View(
+                "Chat",
+                messages);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendMessage(
+            int receiverId,
+            string message)
         {
-            SenderId = adminId,
-            ReceiverId = receiverId,
-            Message = message.Trim(),
-            IsRead = false,
-            SentDate = DateTime.Now
-        };
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-    _context.ChatMessages.Add(chatMessage);
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-    // -------------------------------------------------
-    // NOTIFICATION
-    // -------------------------------------------------
+            if (adminId <= 0)
+            {
+                return AdminLoginRedirect();
+            }
 
-    await CreateNotification(
-        receiverId,
-        "New Message from Admin",
-        $"Admin sent you a new message: {message.Trim()}",
-        "Chat");
+            if (receiverId == adminId)
+            {
+                TempData["Error"] =
+                    "You cannot send a message to yourself.";
 
-    // -------------------------------------------------
-    // SAVE BOTH TO DATABASE
-    // -------------------------------------------------
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
 
-    await _context.SaveChangesAsync();
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                TempData["Error"] =
+                    "Message cannot be empty.";
 
-    return RedirectToAction(
-        nameof(Conversation),
-        new { userId = receiverId });
-}
-        // =====================================================
-        // DELETE CHAT MESSAGE
-        // =====================================================
+                return RedirectToAction(
+                    nameof(Conversation),
+                    new { userId = receiverId });
+            }
+
+            var receiver =
+                await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u =>
+                        u.UserId == receiverId &&
+                        u.Status);
+
+            if (receiver == null)
+            {
+                TempData["Error"] =
+                    "User not found or disabled.";
+
+                return RedirectToAction(nameof(Chat));
+            }
+
+            var chatMessage =
+                new ChatMessage
+                {
+                    SenderId = adminId,
+                    ReceiverId = receiverId,
+                    Message = message.Trim(),
+                    IsRead = false,
+                    SentDate = DateTime.Now
+                };
+
+            _context.ChatMessages.Add(chatMessage);
+
+
+            await CreateNotification(
+                receiverId,
+                "New Message from Admin",
+                $"Admin sent you a new message: {message.Trim()}",
+                "Chat");
+
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(Conversation),
+                new { userId = receiverId });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -3605,57 +3170,43 @@ public async Task<IActionResult> SendMessage(
             return RedirectToAction("Chat");
         }
 
-    [HttpGet]
-public async Task<IActionResult> Notifications()
-{
-    if (!IsAdmin())
-        return AdminLoginRedirect();
+        [HttpGet]
+        public async Task<IActionResult> Notifications()
+        {
+            if (!IsAdmin())
+                return AdminLoginRedirect();
 
-    int adminId = HttpContext.Session.GetInt32("UserId") ?? 0;
+            int adminId = HttpContext.Session.GetInt32("UserId") ?? 0;
 
-    if (adminId <= 0)
-        return AdminLoginRedirect();
+            if (adminId <= 0)
+                return AdminLoginRedirect();
 
-    // =====================================================
-    // GET ADMIN NOTIFICATIONS
-    // =====================================================
 
-    var notifications = await _context.Notifications
-        .Include(n => n.User)
-            .ThenInclude(u => u.Role)
-        .Include(n => n.Order)
-        .Where(n => n.UserId == adminId)
-        .OrderByDescending(n => n.CreatedDate)
-        .ToListAsync();
+            var notifications = await _context.Notifications
+                .Include(n => n.User)
+                    .ThenInclude(u => u.Role)
+                .Include(n => n.Order)
+                .Where(n => n.UserId == adminId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
 
-    // =====================================================
-    // GET CURRENT UNREAD COUNT FROM DATABASE
-    // =====================================================
+            int unreadCount = await GetAdminUnreadNotificationCount();
 
-    int unreadCount = await GetAdminUnreadNotificationCount();
+            ViewBag.UnreadNotificationCount = unreadCount;
 
-    ViewBag.UnreadNotificationCount = unreadCount;
 
-    // =====================================================
-    // USERS FOR SEND NOTIFICATION
-    // =====================================================
+            ViewBag.Users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    u.UserId != adminId &&
+                    u.Role != null &&
+                    u.Role.RoleName != AdminRole &&
+                    u.Status)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
 
-    ViewBag.Users = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            u.UserId != adminId &&
-            u.Role != null &&
-            u.Role.RoleName != AdminRole &&
-            u.Status)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    return View(notifications);
-}
-        // =====================================================
-        // SEND NOTIFICATION FROM ADMIN
-        // =====================================================
-
+            return View(notifications);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendNotification(
@@ -3738,9 +3289,6 @@ public async Task<IActionResult> Notifications()
                 nameof(Notifications));
         }
 
-        // =====================================================
-        // DELETE NOTIFICATION
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -3777,176 +3325,155 @@ public async Task<IActionResult> Notifications()
             return RedirectToAction(
                 nameof(Notifications));
         }
-// =====================================================
-// ADMIN UNREAD NOTIFICATION COUNT
-// =====================================================
 
-private async Task<int> GetAdminUnreadNotificationCount()
-{
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
+        private async Task<int> GetAdminUnreadNotificationCount()
+        {
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-    if (adminId <= 0)
-    {
-        return 0;
-    }
+            if (adminId <= 0)
+            {
+                return 0;
+            }
 
-    return await _context.Notifications
-        .CountAsync(n =>
-            n.UserId == adminId &&
-            !n.IsRead);
-}
+            return await _context.Notifications
+                .CountAsync(n =>
+                    n.UserId == adminId &&
+                    !n.IsRead);
+        }
 
 
-// =====================================================
-// ADMIN UNREAD CHAT COUNT
-// =====================================================
 
-private async Task<int> GetAdminUnreadChatCount()
-{
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
+        private async Task<int> GetAdminUnreadChatCount()
+        {
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-    if (adminId <= 0)
-    {
-        return 0;
-    }
+            if (adminId <= 0)
+            {
+                return 0;
+            }
 
-    return await _context.ChatMessages
-        .CountAsync(c =>
-            c.ReceiverId == adminId &&
-            !c.IsRead);
-}
-        // =====================================================
-// CREATE NOTIFICATION
-// =====================================================
+            return await _context.ChatMessages
+                .CountAsync(c =>
+                    c.ReceiverId == adminId &&
+                    !c.IsRead);
+        }
+        private async Task CreateNotification(
+            int userId,
+            string title,
+            string message,
+            string type = "General",
+            int? orderId = null)
+        {
+            if (userId <= 0)
+                return;
 
-private async Task CreateNotification(
-    int userId,
-    string title,
-    string message,
-    string type = "General",
-    int? orderId = null)
-{
-    if (userId <= 0)
-        return;
+            if (string.IsNullOrWhiteSpace(title))
+                return;
 
-    if (string.IsNullOrWhiteSpace(title))
-        return;
+            if (string.IsNullOrWhiteSpace(message))
+                return;
 
-    if (string.IsNullOrWhiteSpace(message))
-        return;
+            bool userExists = await _context.Users
+                .AnyAsync(u => u.UserId == userId);
 
-    bool userExists = await _context.Users
-        .AnyAsync(u => u.UserId == userId);
+            if (!userExists)
+                return;
 
-    if (!userExists)
-        return;
+            var notification = new Notification
+            {
+                UserId = userId,
+                Title = title.Trim(),
+                Message = message.Trim(),
+                Type = string.IsNullOrWhiteSpace(type)
+                    ? "General"
+                    : type.Trim(),
+                OrderId = orderId,
+                IsRead = false,
+                CreatedDate = DateTime.Now
+            };
 
-    var notification = new Notification
-    {
-        UserId = userId,
-        Title = title.Trim(),
-        Message = message.Trim(),
-        Type = string.IsNullOrWhiteSpace(type)
-            ? "General"
-            : type.Trim(),
-        OrderId = orderId,
-        IsRead = false,
-        CreatedDate = DateTime.Now
-    };
+            _context.Notifications.Add(notification);
+        }
 
-    _context.Notifications.Add(notification);
-}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkNotificationRead(int id)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-       // =====================================================
-// MARK SINGLE NOTIFICATION AS READ
-// =====================================================
+            int adminId =
+                HttpContext.Session.GetInt32("UserId") ?? 0;
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> MarkNotificationRead(int id)
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
+            if (adminId <= 0)
+            {
+                return AdminLoginRedirect();
+            }
 
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
+            var notification =
+                await _context.Notifications
+                    .FirstOrDefaultAsync(n =>
+                        n.NotificationId == id &&
+                        n.UserId == adminId);
 
-    if (adminId <= 0)
-    {
-        return AdminLoginRedirect();
-    }
+            if (notification == null)
+            {
+                TempData["Error"] =
+                    "Notification not found.";
 
-    var notification =
-        await _context.Notifications
-            .FirstOrDefaultAsync(n =>
-                n.NotificationId == id &&
-                n.UserId == adminId);
+                return RedirectToAction(
+                    nameof(Notifications));
+            }
 
-    if (notification == null)
-    {
-        TempData["Error"] =
-            "Notification not found.";
+            notification.IsRead = true;
 
-        return RedirectToAction(
-            nameof(Notifications));
-    }
+            await _context.SaveChangesAsync();
 
-    notification.IsRead = true;
+            return RedirectToAction(
+                nameof(Notifications));
+        }
 
-    await _context.SaveChangesAsync();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllNotificationsRead()
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
-    return RedirectToAction(
-        nameof(Notifications));
-}
-        // =====================================================
-// MARK ALL ADMIN NOTIFICATIONS AS READ
-// =====================================================
+            int adminId =
+            HttpContext.Session.GetInt32("UserId") ?? 0;
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> MarkAllNotificationsRead()
-{
-    if (!IsAdmin())
-    {
-        return AdminLoginRedirect();
-    }
+            if (adminId <= 0)
+            {
+                return AdminLoginRedirect();
+            }
 
-    int adminId =
-        HttpContext.Session.GetInt32("UserId") ?? 0;
+            var unreadNotifications =
+              await _context.Notifications
+              .Where(n =>
+              n.UserId == adminId &&
+              !n.IsRead)
+             .ToListAsync();
 
-    if (adminId <= 0)
-    {
-        return AdminLoginRedirect();
-    }
+            foreach (var notification in unreadNotifications)
+            {
+                notification.IsRead = true;
+            }
 
-    var unreadNotifications =
-        await _context.Notifications
-            .Where(n =>
-                n.UserId == adminId &&
-                !n.IsRead)
-            .ToListAsync();
+            await _context.SaveChangesAsync();
 
-    foreach (var notification in unreadNotifications)
-    {
-        notification.IsRead = true;
-    }
+            TempData["Success"] =
+                "All notifications marked as read.";
 
-    await _context.SaveChangesAsync();
-
-    TempData["Success"] =
-        "All notifications marked as read.";
-
-    return RedirectToAction(
-        nameof(Notifications));
-}
-        // =====================================================
-        // FEEDBACK / REVIEWS
-        // =====================================================
-
+            return RedirectToAction(
+                nameof(Notifications));
+        }
         [HttpGet]
         public async Task<IActionResult> Feedback()
         {
@@ -3966,9 +3493,6 @@ public async Task<IActionResult> MarkAllNotificationsRead()
             return View(feedback);
         }
 
-        // =====================================================
-        // APPROVE FEEDBACK
-        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -4003,10 +3527,6 @@ public async Task<IActionResult> MarkAllNotificationsRead()
             return RedirectToAction("Feedback");
         }
 
-        // =====================================================
-        // REJECT / HIDE FEEDBACK
-        // =====================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectFeedback(
@@ -4040,10 +3560,6 @@ public async Task<IActionResult> MarkAllNotificationsRead()
             return RedirectToAction("Feedback");
         }
 
-
-        // =====================================================
-        // LOGOUT
-        // =====================================================
 
         [HttpGet]
         public IActionResult Logout()

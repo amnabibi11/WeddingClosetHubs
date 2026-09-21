@@ -22,13 +22,12 @@
     <title>Customer Feedback - Wedding Closet Hub</title>
 
 
-    <!-- Bootstrap -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
 
-    <!-- Bootstrap Icons -->
+
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -43,9 +42,6 @@
         }
 
 
-        /* =====================================================
-           HEADER
-        ===================================================== */
 
         .page-header {
             background: #800020;
@@ -54,20 +50,17 @@
             margin-bottom: 25px;
         }
 
-        .page-header h2 {
-            margin: 0;
-            font-weight: 600;
-        }
+            .page-header h2 {
+                margin: 0;
+                font-weight: 600;
+            }
 
-        .page-header p {
-            margin: 5px 0 0;
-            opacity: .85;
-        }
+            .page-header p {
+                margin: 5px 0 0;
+                opacity: .85;
+            }
 
 
-        /* =====================================================
-           SUMMARY CARDS
-        ===================================================== */
 
         .summary-card {
             background: white;
@@ -102,9 +95,6 @@
         }
 
 
-        /* =====================================================
-           MAIN CARD
-        ===================================================== */
 
         .card {
             border: none;
@@ -122,20 +112,17 @@
         }
 
 
-        /* =====================================================
-           TABLE
-        ===================================================== */
 
         .table thead {
             background: #800020;
             color: white;
         }
 
-        .table thead th {
-            border: none;
-            padding: 14px;
-            font-size: 14px;
-        }
+            .table thead th {
+                border: none;
+                padding: 14px;
+                font-size: 14px;
+            }
 
         .table tbody td {
             vertical-align: middle;
@@ -143,9 +130,6 @@
         }
 
 
-        /* =====================================================
-           RATING
-        ===================================================== */
 
         .stars {
             color: #d4af37;
@@ -160,9 +144,6 @@
         }
 
 
-        /* =====================================================
-           CUSTOMER
-        ===================================================== */
 
         .customer-box {
             display: flex;
@@ -187,9 +168,6 @@
         }
 
 
-        /* =====================================================
-           PRODUCT
-        ===================================================== */
 
         .product-name {
             font-weight: 600;
@@ -197,9 +175,6 @@
         }
 
 
-        /* =====================================================
-           COMMENT
-        ===================================================== */
 
         .comment {
             max-width: 350px;
@@ -208,9 +183,7 @@
         }
 
 
-        /* =====================================================
-           BADGES
-        ===================================================== */
+
 
         .status-badge {
             padding: 6px 12px;
@@ -243,9 +216,6 @@
         }
 
 
-        /* =====================================================
-           EMPTY STATE
-        ===================================================== */
 
         .empty-state {
             padding: 70px 20px;
@@ -253,15 +223,12 @@
             color: #888;
         }
 
-        .empty-state i {
-            font-size: 60px;
-            color: #ccc;
-        }
+            .empty-state i {
+                font-size: 60px;
+                color: #ccc;
+            }
 
 
-        /* =====================================================
-           FILTER
-        ===================================================== */
 
         .filter-box {
             background: #fafafa;
@@ -275,23 +242,21 @@
             border: 1px solid #ddd;
         }
 
-        .search-input:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 .15rem rgba(128,32,0,.10);
-        }
+            .search-input:focus {
+                border-color: #800020;
+                box-shadow: 0 0 0 .15rem rgba(128,32,0,.10);
+            }
 
 
-        /* =====================================================
-           UNREAD FEEDBACK
-        ===================================================== */
+
 
         .unread-row {
             background: #fff8e1 !important;
         }
 
-        .unread-row td {
-            font-weight: 500;
-        }
+            .unread-row td {
+                font-weight: 500;
+            }
 
         .unread-badge {
             background: #800020;
@@ -302,9 +267,7 @@
         }
 
 
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+
 
         @@media (max-width: 768px) {
 
@@ -312,14 +275,13 @@
                 padding: 18px;
             }
 
-            .page-header .btn {
-                margin-top: 10px;
-            }
+                .page-header .btn {
+                    margin-top: 10px;
+                }
 
             .comment {
                 max-width: 250px;
             }
-
         }
 
     </style>
@@ -330,9 +292,7 @@
 <body>
 
 
-    <!-- =========================================================
-         PAGE HEADER
-    ========================================================= -->
+
 
     <div class="page-header">
 
@@ -383,14 +343,11 @@
     <div class="container-fluid">
 
 
-        <!-- =====================================================
-             SUMMARY
-        ===================================================== -->
 
         <div class="row g-3 mb-4">
 
 
-            <!-- TOTAL REVIEWS -->
+
 
             <div class="col-md-4">
 
@@ -427,7 +384,7 @@
             </div>
 
 
-            <!-- APPROVED -->
+
 
             <div class="col-md-4">
 
@@ -464,7 +421,7 @@
             </div>
 
 
-            <!-- AVERAGE RATING -->
+
 
             <div class="col-md-4">
 
@@ -483,8 +440,8 @@
                             <div class="summary-number">
 
                                 @(reviews.Any()
-                                    ? reviews.Average(x => x.Rating).ToString("0.0")
-                                    : "0.0")
+                                                                ? reviews.Average(x => x.Rating).ToString("0.0")
+                                                                : "0.0")
 
                             </div>
 
@@ -506,9 +463,7 @@
         </div>
 
 
-        <!-- =====================================================
-             FEEDBACK TABLE
-        ===================================================== -->
+
 
         <div class="card">
 
@@ -584,13 +539,13 @@
 
 
                                 @foreach (var review in reviews
-                                    .OrderByDescending(x => x.CreatedAt))
+                                                            .OrderByDescending(x => x.CreatedAt))
                                 {
 
                                     <tr class="@(review.IsRead ? "" : "unread-row")">
 
 
-                                        <!-- NUMBER -->
+
 
                                         <td>
 
@@ -599,7 +554,7 @@
                                         </td>
 
 
-                                        <!-- CUSTOMER -->
+
 
                                         <td>
 
@@ -623,27 +578,27 @@
                                         </td>
 
 
-                                        <!-- PRODUCT -->
+
 
                                         <td>
 
                                             <div class="product-name">
 
                                                 @(review.Product?.ProductName
-                                                    ?? "Product")
+                                                                                        ?? "Product")
 
-                                            </div>
+                                    </div>
 
                                         </td>
 
 
-                                        <!-- RATING -->
+
 
                                         <td>
 
                                             <div class="stars">
 
-                                                @for (int i = 1; i <= 5; i++)
+                                        @for (int i = 1; i <= 5; i++)
                                                 {
 
                                                     if (i <= review.Rating)
@@ -662,48 +617,48 @@
                                                 }
 
 
-                                                <span class="rating-number">
+                                            <span class="rating-number">
 
-                                                    (@review.Rating/5)
-
-                                                </span>
-
-                                            </div>
-
-                                        </td>
-
-
-                                        <!-- COMMENT -->
-
-                                        <td>
-
-                                            <div class="comment">
-
-                                                @(string.IsNullOrWhiteSpace(review.Comment)
-                                                    ? "No comment provided."
-                                                    : review.Comment)
-
-                                            </div>
-
-                                        </td>
-
-
-                                        <!-- TYPE -->
-
-                                        <td>
-
-                                            <span class="type-badge">
-
-                                                @(string.IsNullOrWhiteSpace(review.ReviewType)
-                                                    ? "General"
-                                                    : review.ReviewType)
+                                                (@review.Rating/5)
 
                                             </span>
 
+                                        </div>
+
+                                    </td>
+
+
+
+
+                                    <td>
+
+                                        <div class="comment">
+
+                                            @(string.IsNullOrWhiteSpace(review.Comment)
+                                                                                    ? "No comment provided."
+                                                                                    : review.Comment)
+
+                                        </div>
+
+                                    </td>
+
+
+
+
+                                    <td>
+
+                                        <span class="type-badge">
+
+                                            @(string.IsNullOrWhiteSpace(review.ReviewType)
+                                                                                    ? "General"
+                                                                                    : review.ReviewType)
+
+                                    </span>
+
                                         </td>
 
 
-                                        <!-- DATE -->
+
 
                                         <td>
 
@@ -718,11 +673,11 @@
                                         </td>
 
 
-                                        <!-- STATUS -->
+
 
                                         <td>
 
-                                            @if (review.IsApproved)
+                                    @if (review.IsApproved)
                                             {
 
                                                 <span class="status-badge approved">
@@ -750,7 +705,7 @@
                                         </td>
 
 
-                                        <!-- READ STATUS -->
+
 
                                         <td>
 
@@ -828,9 +783,7 @@
         </div>
 
 
-        <!-- =====================================================
-             INFORMATION
-        ===================================================== -->
+
 
         <div class="alert alert-light border mb-4">
 

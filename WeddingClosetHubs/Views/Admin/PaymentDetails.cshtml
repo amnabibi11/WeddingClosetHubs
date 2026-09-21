@@ -42,12 +42,6 @@
             StringComparison.OrdinalIgnoreCase);
 
 
-    // =========================================================
-    // DELIVERY BOY SAVED PAYMENT SETTINGS
-    // These values come from DeliveryBoy table through
-    // AdminController.PaymentDetails()
-    // =========================================================
-
     string deliveryPaymentMethod =
         ViewBag.DeliveryPaymentMethod as string ?? "";
 
@@ -499,10 +493,6 @@
 
 <div class="page-wrapper">
 
-    <!-- ================================================= -->
-    <!-- HEADER -->
-    <!-- ================================================= -->
-
     <div class="page-header">
 
         <div class="row align-items-center">
@@ -545,10 +535,6 @@
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- SUCCESS MESSAGE -->
-    <!-- ================================================= -->
-
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
@@ -564,11 +550,6 @@
 
         </div>
     }
-
-
-    <!-- ================================================= -->
-    <!-- ERROR MESSAGE -->
-    <!-- ================================================= -->
 
     @if (TempData["Error"] != null)
     {
@@ -586,11 +567,6 @@
         </div>
     }
 
-
-    <!-- ================================================= -->
-    <!-- CANCELLED ORDER WARNING -->
-    <!-- ================================================= -->
-
     @if (isCancelled)
     {
         <div class="alert alert-danger">
@@ -605,10 +581,6 @@
         </div>
     }
 
-
-    <!-- ================================================= -->
-    <!-- ORDER INFORMATION -->
-    <!-- ================================================= -->
 
     <div class="custom-card">
 
@@ -724,11 +696,6 @@
 
     </div>
 
-
-    <!-- ================================================= -->
-    <!-- CUSTOMER PAYMENT -->
-    <!-- ================================================= -->
-
     <div class="custom-card">
 
         <div class="custom-card-header header-warning">
@@ -743,7 +710,6 @@
 
             <div class="row">
 
-                <!-- PAYMENT METHOD -->
 
                 <div class="col-md-6">
 
@@ -805,7 +771,7 @@
                 </div>
 
 
-                <!-- PAYMENT STATUS -->
+              
 
                 <div class="col-md-6">
 
@@ -855,7 +821,6 @@
                 </div>
 
 
-                <!-- PAYMENT DATE -->
 
                 <div class="col-md-6">
 
@@ -877,8 +842,6 @@
 
                 </div>
 
-
-                <!-- CUSTOMER TRANSACTION ID -->
 
                 @if (!string.IsNullOrWhiteSpace(Model.TransactionId))
                 {
@@ -902,7 +865,6 @@
                 }
 
 
-                <!-- TRANSACTION IMAGE -->
 
                 @if (!string.IsNullOrWhiteSpace(Model.TransactionImage))
                 {
@@ -934,7 +896,6 @@
                 }
 
 
-                <!-- ORDER STATUS -->
 
                 <div class="col-md-6">
 
@@ -956,10 +917,6 @@
 
             </div>
 
-
-            <!-- ================================================= -->
-            <!-- COD COLLECTION INFORMATION -->
-            <!-- ================================================= -->
 
             @if (isCod)
             {
@@ -1207,10 +1164,6 @@
             }
 
 
-            <!-- ================================================= -->
-            <!-- GENERAL PAYMENT INFORMATION -->
-            <!-- ================================================= -->
-
             @if (!customerPaymentReceived)
             {
                 <div class="payment-instruction">
@@ -1260,11 +1213,6 @@
         </div>
 
     </div>
-
-
-    <!-- ================================================= -->
-    <!-- AMOUNT BREAKDOWN -->
-    <!-- ================================================= -->
 
     <div class="custom-card">
 
@@ -1398,10 +1346,6 @@
 
     </div>
 
-
-    <!-- ================================================= -->
-    <!-- SHOPKEEPER SETTLEMENT -->
-    <!-- ================================================= -->
 
     <div class="custom-card">
 
@@ -1542,7 +1486,6 @@
                 <hr />
 
 
-                <!-- SHOPKEEPER STATUS -->
 
                 <div class="row align-items-center">
 
@@ -1595,8 +1538,6 @@
 
                 </div>
 
-
-                <!-- ALREADY PAID DETAILS -->
 
                 @if (shopkeeperPaid)
                 {
@@ -1694,7 +1635,7 @@
                 }
 
 
-                <!-- MANUAL SHOPKEEPER PAYMENT -->
+                
 
                 @if (customerPaymentReceived &&
                      !shopkeeperPaid)
@@ -1924,10 +1865,6 @@
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- DELIVERY BOY SETTLEMENT -->
-    <!-- ================================================= -->
-
     <div class="custom-card">
 
         <div class="custom-card-header header-primary">
@@ -1978,10 +1915,6 @@
 
                             </p>
 
-                            <!-- ================================================= -->
-                            <!-- CORRECT DELIVERY BOY PAYMENT METHOD -->
-                            <!-- ================================================= -->
-
                             <p class="mb-0">
 
                                 Saved Payment Method:
@@ -2012,10 +1945,6 @@
 
                                 </div>
 
-
-                                <!-- ================================================= -->
-                                <!-- CORRECT DELIVERY BOY ACCOUNT -->
-                                <!-- ================================================= -->
 
                                 @if (!string.IsNullOrWhiteSpace(
                                     deliveryPaymentMethod) &&
@@ -2072,10 +2001,6 @@
                     <hr />
 
 
-                    <!-- ================================================= -->
-                    <!-- DELIVERY PAYMENT STATUS -->
-                    <!-- ================================================= -->
-
                     <div class="row align-items-center">
 
                         <div class="col-md-8">
@@ -2127,10 +2052,6 @@
 
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- ACTUAL DELIVERY PAYMENT RECORD -->
-                    <!-- ================================================= -->
 
                     @if (deliveryPaid)
                     {
@@ -2264,10 +2185,6 @@
                     }
 
 
-                    <!-- ================================================= -->
-                    <!-- MANUAL DELIVERY PAYMENT -->
-                    <!-- ================================================= -->
-
                     @if (customerPaymentReceived &&
                          !deliveryPaid)
                     {
@@ -2301,11 +2218,6 @@
 
                                 </div>
 
-
-                                <!-- ================================================= -->
-                                <!-- RECORD DELIVERY PAYMENT -->
-                                <!-- ================================================= -->
-
                                 <form asp-controller="Admin"
                                       asp-action="RecordDeliveryPayment"
                                       method="post">
@@ -2319,7 +2231,6 @@
 
                                     <div class="row g-3">
 
-                                        <!-- PAYMENT AMOUNT -->
 
                                         <div class="col-md-6">
 
@@ -2344,10 +2255,6 @@
                                         </div>
 
 
-                                        <!-- ================================================= -->
-                                        <!-- PAYMENT METHOD - READONLY -->
-                                        <!-- ================================================= -->
-
                                         <div class="col-md-6">
 
                                             <label class="form-label">
@@ -2369,11 +2276,6 @@
                                             </small>
 
                                         </div>
-
-
-                                        <!-- ================================================= -->
-                                        <!-- PAYMENT ACCOUNT - READONLY -->
-                                        <!-- ================================================= -->
 
                                         <div class="col-md-6">
 
@@ -2397,11 +2299,6 @@
 
                                         </div>
 
-
-                                        <!-- ================================================= -->
-                                        <!-- TRANSACTION ID -->
-                                        <!-- ================================================= -->
-
                                         <div class="col-md-6">
 
                                             <label class="form-label">
@@ -2421,11 +2318,6 @@
 
                                         </div>
 
-
-                                        <!-- ================================================= -->
-                                        <!-- PAYMENT NOTES -->
-                                        <!-- ================================================= -->
-
                                         <div class="col-md-12">
 
                                             <label class="form-label">
@@ -2440,10 +2332,6 @@
 
                                         </div>
 
-
-                                        <!-- ================================================= -->
-                                        <!-- WARNING -->
-                                        <!-- ================================================= -->
 
                                         <div class="col-md-12">
 
@@ -2474,10 +2362,6 @@
 
                                         </div>
 
-
-                                        <!-- ================================================= -->
-                                        <!-- RECORD BUTTON -->
-                                        <!-- ================================================= -->
 
                                         <div class="col-md-12">
 
@@ -2515,9 +2399,7 @@
                     }
 
 
-                    <!-- ================================================= -->
-                    <!-- COD SEPARATION -->
-                    <!-- ================================================= -->
+                    
 
                     @if (isCod && codCollected)
                     {
@@ -2581,9 +2463,7 @@
 
     
 
-    <!-- ================================================= -->
-    <!-- MANUAL PAYMENT PROCEDURE -->
-    <!-- ================================================= -->
+  
 
     <div class="custom-card">
 
@@ -2690,9 +2570,7 @@
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- ACTION BUTTONS -->
-    <!-- ================================================= -->
+    
 
     <div class="custom-card">
 

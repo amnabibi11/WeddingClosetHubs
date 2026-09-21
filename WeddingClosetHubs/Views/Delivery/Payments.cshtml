@@ -13,11 +13,7 @@
     string assignedZone =
         ViewBag.AssignedZone as string ?? "Not Assigned";
 
-    // -------------------------------------------------
-    // DELIVERY BOY CURRENT PAYMENT SETTINGS
-    // These come from DeliveryBoy.PaymentMethod
-    // and DeliveryBoy.PaymentAccount.
-    // -------------------------------------------------
+
 
     string paymentMethod =
         ViewBag.PaymentMethod as string ?? "";
@@ -29,9 +25,7 @@
         !string.IsNullOrWhiteSpace(paymentMethod) &&
         !string.IsNullOrWhiteSpace(paymentAccount);
 
-    // -------------------------------------------------
-    // EXCLUDE CANCELLED ORDERS
-    // -------------------------------------------------
+
 
     var paymentOrders = orders
         .Where(o => !string.Equals(
@@ -40,9 +34,7 @@
             StringComparison.OrdinalIgnoreCase))
         .ToList();
 
-    // -------------------------------------------------
-    // DELIVERY BOY PAYOUT SUMMARY
-    // -------------------------------------------------
+
 
     decimal totalCharges =
         paymentOrders.Sum(o => o.DeliveryCharges);
@@ -77,10 +69,7 @@
             "Paid",
             StringComparison.OrdinalIgnoreCase));
 
-    // -------------------------------------------------
-    // COD TRACKING
-    // COD collection is separate from delivery payout.
-    // -------------------------------------------------
+
 
     var codOrders = paymentOrders
         .Where(o => string.Equals(
@@ -103,16 +92,7 @@
                         !o.DeliveryCashHandedToAdmin)
             .Sum(o => o.DeliveryCollectedAmount);
 
-    // -------------------------------------------------
-    // PAYMENT HISTORY
-    //
-    // Only actual Admin delivery payouts are shown here.
-    //
-    // DeliveryPaymentStatus = Paid
-    // OR DeliveryPaidAmount > 0
-    //
-    // COD collection remains shown separately above.
-    // -------------------------------------------------
+
 
     var paymentHistory = paymentOrders
         .Where(o =>
@@ -154,7 +134,7 @@
             color: #333;
         }
 
-        /* SIDEBAR */
+
         .sidebar {
             position: fixed;
             top: 0;
@@ -214,16 +194,16 @@
             font-size: 14px;
         }
 
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-        }
+            .nav-link i {
+                width: 20px;
+                text-align: center;
+            }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: #d4af37;
-            color: #800020;
-        }
+            .nav-link:hover,
+            .nav-link.active {
+                background: #d4af37;
+                color: #800020;
+            }
 
         .logout-link {
             margin-top: 20px;
@@ -231,13 +211,13 @@
             padding-top: 20px;
         }
 
-        /* MAIN */
+
         .main-content {
             margin-left: 250px;
             min-height: 100vh;
         }
 
-        /* TOPBAR */
+
         .topbar {
             min-height: 75px;
             background: #fff;
@@ -292,7 +272,7 @@
             color: #888;
         }
 
-        /* CONTENT */
+
         .content {
             padding: 30px;
         }
@@ -309,18 +289,18 @@
             gap: 20px;
         }
 
-        .page-header h3 {
-            margin: 0;
-            color: #800020;
-            font-size: 20px;
-            font-weight: 700;
-        }
+            .page-header h3 {
+                margin: 0;
+                color: #800020;
+                font-size: 20px;
+                font-weight: 700;
+            }
 
-        .page-header p {
-            margin: 5px 0 0;
-            color: #888;
-            font-size: 12px;
-        }
+            .page-header p {
+                margin: 5px 0 0;
+                color: #888;
+                font-size: 12px;
+            }
 
         .zone-badge {
             background: #f8f0d9;
@@ -332,7 +312,7 @@
             white-space: nowrap;
         }
 
-        /* PAYMENT SETTINGS */
+
         .settings-card {
             background: #fff;
             border: 1px solid #eee7df;
@@ -396,11 +376,11 @@
             transition: .2s;
         }
 
-        .custom-input:focus,
-        .custom-select:focus {
-            border-color: #d4af37;
-            box-shadow: 0 0 0 3px rgba(212,175,55,.12);
-        }
+            .custom-input:focus,
+            .custom-select:focus {
+                border-color: #d4af37;
+                box-shadow: 0 0 0 3px rgba(212,175,55,.12);
+            }
 
         .account-help {
             display: block;
@@ -421,11 +401,11 @@
             transition: .25s;
         }
 
-        .save-payment-btn:hover {
-            background: #d4af37;
-            color: #800020;
-            transform: translateY(-1px);
-        }
+            .save-payment-btn:hover {
+                background: #d4af37;
+                color: #800020;
+                transform: translateY(-1px);
+            }
 
         .saved-payment {
             margin-top: 20px;
@@ -457,11 +437,11 @@
             color: #555;
         }
 
-        .saved-payment-item strong {
-            color: #800020;
-        }
+            .saved-payment-item strong {
+                color: #800020;
+            }
 
-        /* SUMMARY CARDS */
+
         .summary-card {
             background: #fff;
             border: 1px solid #eee7df;
@@ -472,10 +452,10 @@
             transition: .25s;
         }
 
-        .summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(0,0,0,.07);
-        }
+            .summary-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 7px 20px rgba(0,0,0,.07);
+            }
 
         .summary-icon {
             width: 47px;
@@ -534,7 +514,7 @@
             margin-top: 5px;
         }
 
-        /* HISTORY */
+
         .history-card {
             background: #fff;
             border: 1px solid #eee7df;
@@ -553,18 +533,18 @@
             gap: 10px;
         }
 
-        .history-header h4 {
-            margin: 0;
-            color: #800020;
-            font-size: 16px;
-            font-weight: 700;
-        }
+            .history-header h4 {
+                margin: 0;
+                color: #800020;
+                font-size: 16px;
+                font-weight: 700;
+            }
 
-        .history-header p {
-            margin: 4px 0 0;
-            color: #999;
-            font-size: 10px;
-        }
+            .history-header p {
+                margin: 4px 0 0;
+                color: #999;
+                font-size: 10px;
+            }
 
         .history-count {
             background: #f8f0d9;
@@ -586,26 +566,26 @@
             border-collapse: collapse;
         }
 
-        .history-table th {
-            background: #faf7f3;
-            color: #800020;
-            padding: 13px 15px;
-            font-size: 10px;
-            font-weight: 700;
-            text-align: left;
-            white-space: nowrap;
-        }
+            .history-table th {
+                background: #faf7f3;
+                color: #800020;
+                padding: 13px 15px;
+                font-size: 10px;
+                font-weight: 700;
+                text-align: left;
+                white-space: nowrap;
+            }
 
-        .history-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 11px;
-            vertical-align: middle;
-        }
+            .history-table td {
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+                font-size: 11px;
+                vertical-align: middle;
+            }
 
-        .history-table tbody tr:hover {
-            background: #fffcf8;
-        }
+            .history-table tbody tr:hover {
+                background: #fffcf8;
+            }
 
         .order-number {
             color: #800020;
@@ -652,9 +632,9 @@
             white-space: nowrap;
         }
 
-        .method i {
-            color: #d4af37;
-        }
+            .method i {
+                color: #d4af37;
+            }
 
         .account {
             color: #666;
@@ -673,9 +653,9 @@
             white-space: nowrap;
         }
 
-        .transaction-id i {
-            color: #d4af37;
-        }
+            .transaction-id i {
+                color: #d4af37;
+            }
 
         .not-set {
             display: inline-flex;
@@ -843,7 +823,7 @@
 
 <body>
 
-    <!-- SIDEBAR -->
+
     <aside class="sidebar">
 
         <div class="brand">
@@ -929,10 +909,10 @@
     </aside>
 
 
-    <!-- MAIN CONTENT -->
+
     <main class="main-content">
 
-        <!-- TOPBAR -->
+
         <header class="topbar">
 
             <div class="page-title">
@@ -968,7 +948,7 @@
 
         <div class="content">
 
-            <!-- PAGE HEADER -->
+
             <div class="page-header">
 
                 <div>
@@ -999,7 +979,6 @@
             </div>
 
 
-            <!-- TEMP DATA MESSAGES -->
 
             @if (TempData["Success"] != null)
             {
@@ -1024,7 +1003,7 @@
             }
 
 
-            <!-- PAYMENT SETTINGS -->
+
             <div class="settings-card">
 
                 <div class="settings-header">
@@ -1074,8 +1053,8 @@
 
                                 <option value="Easypaisa"
                                         selected="@(paymentMethod.Equals(
-                                            "Easypaisa",
-                                            StringComparison.OrdinalIgnoreCase))">
+                                                                                                                            "Easypaisa",
+                                                                                                                            StringComparison.OrdinalIgnoreCase))">
 
                                     Easypaisa
 
@@ -1083,8 +1062,8 @@
 
                                 <option value="JazzCash"
                                         selected="@(paymentMethod.Equals(
-                                            "JazzCash",
-                                            StringComparison.OrdinalIgnoreCase))">
+                                                                                                                            "JazzCash",
+                                                                                                                            StringComparison.OrdinalIgnoreCase))">
 
                                     JazzCash
 
@@ -1177,11 +1156,11 @@
             </div>
 
 
-            <!-- DELIVERY PAYMENT SUMMARY -->
+
 
             <div class="row g-4">
 
-                <!-- TOTAL DELIVERY CHARGES -->
+
                 <div class="col-xl-3 col-md-6">
 
                     <div class="summary-card">
@@ -1207,7 +1186,7 @@
                 </div>
 
 
-                <!-- PAID BY ADMIN -->
+
                 <div class="col-xl-3 col-md-6">
 
                     <div class="summary-card">
@@ -1233,7 +1212,7 @@
                 </div>
 
 
-                <!-- PENDING -->
+
                 <div class="col-xl-3 col-md-6">
 
                     <div class="summary-card">
@@ -1259,7 +1238,7 @@
                 </div>
 
 
-                <!-- COD COLLECTED -->
+
                 <div class="col-xl-3 col-md-6">
 
                     <div class="summary-card">
@@ -1285,7 +1264,7 @@
                 </div>
 
 
-                <!-- COD HANDED OVER -->
+
                 <div class="col-xl-6 col-md-6">
 
                     <div class="summary-card">
@@ -1311,7 +1290,7 @@
                 </div>
 
 
-                <!-- COD AWAITING -->
+
                 <div class="col-xl-6 col-md-6">
 
                     <div class="summary-card">
@@ -1342,7 +1321,6 @@
             </div>
 
 
-            <!-- PAYMENT HISTORY -->
 
             <div class="history-card">
 
@@ -1415,14 +1393,14 @@
                                 {
 
                                     bool isPaid =
-                                        string.Equals(
-                                            order.DeliveryPaymentStatus,
-                                            "Paid",
-                                            StringComparison.OrdinalIgnoreCase);
+                                    string.Equals(
+                                    order.DeliveryPaymentStatus,
+                                    "Paid",
+                                    StringComparison.OrdinalIgnoreCase);
 
                                     <tr>
 
-                                        <!-- ORDER -->
+
                                         <td>
 
                                             <div class="order-number">
@@ -1431,58 +1409,58 @@
 
                                             <span class="order-date">
                                                 @order.CreatedDate.ToString(
-                                                    "dd MMM yyyy")
-                                            </span>
+                                                "dd MMM yyyy")
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="customer-name">
+
+                                        @(order.Customer?.Name
+                                                                                ?? "N/A")
+
+                                    </span>
 
                                         </td>
 
 
-                                        <!-- CUSTOMER -->
-                                        <td>
 
-                                            <span class="customer-name">
-
-                                                @(order.Customer?.Name
-                                                    ?? "N/A")
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <!-- ORDER AMOUNT -->
                                         <td>
 
                                             <span class="amount">
 
                                                 Rs.
                                                 @order.TotalAmount.ToString(
-                                                    "N2")
+                                                                                "N2")
 
-                                            </span>
+                                    </span>
 
-                                        </td>
-
-
-                                        <!-- DELIVERY CHARGE -->
-                                        <td>
-
-                                            <span class="delivery-charge">
-
-                                                Rs.
-                                                @order.DeliveryCharges.ToString(
-                                                    "N2")
-
-                                            </span>
-
-                                        </td>
+                                </td>
 
 
-                                        <!-- PAYMENT METHOD -->
-                                        <td>
 
-                                            @if (!string.IsNullOrWhiteSpace(
-                                                order.DeliveryPaymentMethod))
+                                <td>
+
+                                    <span class="delivery-charge">
+
+                                        Rs.
+                                        @order.DeliveryCharges.ToString(
+                                                                                "N2")
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                        order.DeliveryPaymentMethod))
                                             {
 
                                                 <span class="method">
@@ -1510,11 +1488,11 @@
                                         </td>
 
 
-                                        <!-- PAYMENT ACCOUNT -->
+
                                         <td>
 
                                             @if (!string.IsNullOrWhiteSpace(
-                                                order.DeliveryPaymentAccount))
+                                                                                order.DeliveryPaymentAccount))
                                             {
 
                                                 <span class="account">
@@ -1536,12 +1514,12 @@
                                         </td>
 
 
-                                        <!-- TRANSACTION ID -->
+
                                         <td>
 
                                             @if (isPaid &&
-                                                !string.IsNullOrWhiteSpace(
-                                                    order.DeliveryTransactionId))
+                                                                                !string.IsNullOrWhiteSpace(
+                                                                                order.DeliveryTransactionId))
                                             {
 
                                                 <span class="transaction-id">
@@ -1569,7 +1547,7 @@
                                         </td>
 
 
-                                        <!-- AMOUNT PAID -->
+
                                         <td>
 
                                             @if (order.DeliveryPaidAmount > 0)
@@ -1579,11 +1557,11 @@
 
                                                     Rs.
                                                     @order.DeliveryPaidAmount.ToString(
-                                                        "N2")
+                                                    "N2")
 
-                                                </span>
+                                    </span>
 
-                                            }
+                                                                        }
                                             else
                                             {
 
@@ -1598,7 +1576,7 @@
                                         </td>
 
 
-                                        <!-- PAYOUT STATUS -->
+
                                         <td>
 
                                             @if (isPaid)
@@ -1629,16 +1607,16 @@
                                         </td>
 
 
-                                        <!-- PAYMENT DATE -->
+
                                         <td>
 
                                             @if (order.DeliveryPaymentDate.HasValue)
                                             {
 
                                                 @order.DeliveryPaymentDate.Value.ToString(
-                                                    "dd MMM yyyy")
+                                                "dd MMM yyyy")
 
-                                            }
+                                                                        }
                                             else
                                             {
 

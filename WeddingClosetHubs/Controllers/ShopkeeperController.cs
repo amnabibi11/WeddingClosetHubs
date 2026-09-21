@@ -20,9 +20,6 @@ namespace WeddingClosetHubs.Controllers
             _environment = environment;
         }
 
-        // ============================================================
-        // CONSTANTS
-        // ============================================================
 
         private const string ShopkeeperRole = "Shopkeeper";
         private const string AdminRole = "Admin";
@@ -39,10 +36,6 @@ namespace WeddingClosetHubs.Controllers
             ".png",
             ".webp"
         };
-
-        // ============================================================
-        // AUTHENTICATION HELPERS
-        // ============================================================
 
         private bool IsShopkeeper()
         {
@@ -76,10 +69,6 @@ namespace WeddingClosetHubs.Controllers
                 .FirstOrDefaultAsync(
                     s => s.ShopkeeperId == shopkeeperId.Value);
         }
-
-        // ============================================================
-        // ORDER HELPERS
-        // ============================================================
 
         private static bool IsCancelledOrder(Order order)
         {
@@ -125,9 +114,6 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        // ============================================================
-        // CATEGORY DATA
-        // ============================================================
 
         private Dictionary<string, List<string>> GetCategoryData()
         {
@@ -211,9 +197,6 @@ namespace WeddingClosetHubs.Controllers
             };
         }
 
-        // ============================================================
-        // GET ALLOWED CATEGORY DATA FOR CURRENT SHOP
-        // ============================================================
 
         private Dictionary<string, List<string>> GetAllowedCategoryDataForShop(
             string? shopCategory)
@@ -292,9 +275,6 @@ namespace WeddingClosetHubs.Controllers
             return result;
         }
 
-        // ============================================================
-        // PREPARE PRODUCT FORM
-        // ============================================================
 
         private void PrepareProductForm(Shop shop)
         {
@@ -338,9 +318,6 @@ namespace WeddingClosetHubs.Controllers
                 JsonSerializer.Serialize(allowedData);
         }
 
-        // ============================================================
-        // SET PRODUCT TYPE AUTOMATICALLY
-        // ============================================================
 
         private void SetProductType(
             Product product,
@@ -388,335 +365,247 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-// ============================================================
-// DASHBOARD
-// ============================================================
 
-public async Task<IActionResult> Dashboard()
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
+        public async Task<IActionResult> Dashboard()
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId = GetShopkeeperId()!.Value;
+
+            
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s =>
+                    s.ShopkeeperId == shopkeeperId);
+
+            if (shop == null)
+            {
+                TempData["Error"] =
+                    "Your shop profile could not be found.";
+
+                return RedirectToAction("Profile");
+            }
+
+            
+            var shopkeeper = shop.Shopkeeper;
+
+            if (shopkeeper == null)
+            {
+                TempData["Error"] =
+                    "Your shopkeeper profile could not be found.";
+
+                return RedirectToAction("Profile");
+            }
+
+           
+            var shopProducts = _context.Products
+                .Where(p => p.ShopId == shop.ShopId);
+
+            var shopOrders = _context.Orders
+                .Where(o => o.ShopId == shop.ShopId);
+
+            
+            var activeOrders = shopOrders
+                .Where(o => o.OrderStatus != "Cancelled");
+
+           
+            int totalProducts =
+                await shopProducts.CountAsync();
+
+            int activeProducts =
+                await shopProducts.CountAsync(p => p.Status);
+
+            int disabledProducts =
+                await shopProducts.CountAsync(p => !p.Status);
+
+            
+            int totalOrders =
+                await activeOrders.CountAsync();
+
+            int pendingOrders =
+                await activeOrders.CountAsync(
+                    o => o.OrderStatus == "Pending");
+
+            int confirmedOrders =
+                await activeOrders.CountAsync(
+                    o => o.OrderStatus == "Confirmed");
+
+            int processingOrders =
+                await activeOrders.CountAsync(
+                    o => o.OrderStatus == "Processing");
+
+            int readyOrders =
+                await activeOrders.CountAsync(
+                    o => o.OrderStatus == "Ready");
+
+            int completedOrders =
+                await activeOrders.CountAsync(
+                    o =>
+                        o.OrderStatus == "Delivered" ||
+                        o.OrderStatus == "Completed");
 
-    int shopkeeperId = GetShopkeeperId()!.Value;
+            
+            int cancelledOrders =
+                await shopOrders.CountAsync(
+                    o => o.OrderStatus == "Cancelled");
 
-    // ============================================================
-    // GET SHOP + SHOPKEEPER
-    // ============================================================
+            decimal totalSales =
+                await activeOrders
+                    .Where(o =>
+                        o.OrderStatus == "Delivered" ||
+                        o.OrderStatus == "Completed")
+                    .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-    var shop = await _context.Shops
-        .Include(s => s.Shopkeeper)
-        .FirstOrDefaultAsync(s =>
-            s.ShopkeeperId == shopkeeperId);
+           
+            decimal paidPayments =
+                await activeOrders
+                    .Where(o =>
+                        o.ShopkeeperPaymentStatus == "Paid")
+                    .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-    if (shop == null)
-    {
-        TempData["Error"] =
-            "Your shop profile could not be found.";
+            decimal pendingPayments =
+                await activeOrders
+                    .Where(o =>
+                        o.ShopkeeperPaymentStatus != "Paid")
+                    .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-        return RedirectToAction("Profile");
-    }
+           
+            var reviews = await _context.Reviews
+                .Where(r => r.ShopId == shop.ShopId)
+                .ToListAsync();
 
-    // ============================================================
-    // CHECK SHOPKEEPER
-    // ============================================================
+            
 
-    var shopkeeper = shop.Shopkeeper;
+            int reviewCount =
+                reviews.Count;
 
-    if (shopkeeper == null)
-    {
-        TempData["Error"] =
-            "Your shopkeeper profile could not be found.";
+           
 
-        return RedirectToAction("Profile");
-    }
-
-    // ============================================================
-    // PRODUCTS
-    // ============================================================
-
-    var shopProducts = _context.Products
-        .Where(p => p.ShopId == shop.ShopId);
+            double averageRating =
+                reviews.Any()
+                    ? reviews.Average(r => r.Rating)
+                    : 0;
 
-    // ============================================================
-    // ORDERS
-    // ============================================================
+            int unreadFeedback =
+                await _context.Reviews
+                    .CountAsync(r =>
+                        r.ShopId == shop.ShopId &&
+                        !r.IsRead);
 
-    var shopOrders = _context.Orders
-        .Where(o => o.ShopId == shop.ShopId);
+            
+            int unreadNotifications =
+                await _context.Notifications
+                    .CountAsync(n =>
+                        n.UserId == shopkeeperId &&
+                        !n.IsRead);
 
-    // Cancelled orders are excluded from active calculations.
-    // IMPORTANT:
-    // Do not use StringComparison.OrdinalIgnoreCase here.
-    // EF Core translates this comparison to SQL correctly.
+            int unreadMessages =
+                await _context.ChatMessages
+                    .CountAsync(m =>
+                        m.ReceiverId == shopkeeperId &&
+                        !m.IsRead);
 
-    var activeOrders = shopOrders
-        .Where(o => o.OrderStatus != "Cancelled");
+            ViewBag.ShopkeeperName =
+                shopkeeper.Name ?? "Shopkeeper";
 
-    // ============================================================
-    // PRODUCT COUNTS
-    // ============================================================
+            ViewBag.ShopkeeperEmail =
+                shopkeeper.Email ?? "Email not available";
 
-    int totalProducts =
-        await shopProducts.CountAsync();
+            ViewBag.ShopkeeperPhone =
+                shopkeeper.Phone ?? "Phone not available";
 
-    int activeProducts =
-        await shopProducts.CountAsync(p => p.Status);
+            ViewBag.ShopkeeperAddress =
+                shopkeeper.Address ?? "Address not available";
 
-    int disabledProducts =
-        await shopProducts.CountAsync(p => !p.Status);
+            ViewBag.ShopkeeperProfileImage =
+                shopkeeper.ProfileImage;
 
-    // ============================================================
-    // ORDER COUNTS
-    // ============================================================
+            
+            ViewBag.ShopName =
+                shop.ShopName ?? "My Shop";
 
-    int totalOrders =
-        await activeOrders.CountAsync();
+            ViewBag.ShopCategory =
+                shop.ShopCategory ?? "Not Selected";
 
-    int pendingOrders =
-        await activeOrders.CountAsync(
-            o => o.OrderStatus == "Pending");
+            
+            ViewBag.ShopApproved =
+                shop.IsApproved;
 
-    int confirmedOrders =
-        await activeOrders.CountAsync(
-            o => o.OrderStatus == "Confirmed");
-
-    int processingOrders =
-        await activeOrders.CountAsync(
-            o => o.OrderStatus == "Processing");
-
-    int readyOrders =
-        await activeOrders.CountAsync(
-            o => o.OrderStatus == "Ready");
+            
 
-    int completedOrders =
-        await activeOrders.CountAsync(
-            o =>
-                o.OrderStatus == "Delivered" ||
-                o.OrderStatus == "Completed");
-
-    // Cancelled orders are counted separately.
-
-    int cancelledOrders =
-        await shopOrders.CountAsync(
-            o => o.OrderStatus == "Cancelled");
-
-    // ============================================================
-    // SALES
-    // ============================================================
-
-    decimal totalSales =
-        await activeOrders
-            .Where(o =>
-                o.OrderStatus == "Delivered" ||
-                o.OrderStatus == "Completed")
-            .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
-
-    // ============================================================
-    // SHOPKEEPER PAYMENTS
-    // ============================================================
-
-    // Shopkeeper payment is based on ProductTotal.
-    // ServiceFee is separate and is retained by the admin.
-
-    decimal paidPayments =
-        await activeOrders
-            .Where(o =>
-                o.ShopkeeperPaymentStatus == "Paid")
-            .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
+            ViewBag.ShopStatus =
+                shop.Status;
 
-    decimal pendingPayments =
-        await activeOrders
-            .Where(o =>
-                o.ShopkeeperPaymentStatus != "Paid")
-            .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
+            
+            ViewBag.TotalProducts =
+                totalProducts;
 
-    // ============================================================
-    // REVIEWS
-    // ============================================================
+            ViewBag.ActiveProducts =
+                activeProducts;
 
-    var reviews = await _context.Reviews
-        .Where(r => r.ShopId == shop.ShopId)
-        .ToListAsync();
+            ViewBag.DisabledProducts =
+                disabledProducts;
 
-    // Total feedback/reviews
+            ViewBag.TotalOrders =
+                totalOrders;
 
-    int reviewCount =
-        reviews.Count;
+            ViewBag.PendingOrders =
+                pendingOrders;
 
-    // Average rating
+            ViewBag.ConfirmedOrders =
+                confirmedOrders;
 
-    double averageRating =
-        reviews.Any()
-            ? reviews.Average(r => r.Rating)
-            : 0;
+            ViewBag.AcceptedOrders =
+                confirmedOrders;
 
-    // ============================================================
-    // UNREAD FEEDBACK
-    // ============================================================
+            ViewBag.ProcessingOrders =
+                processingOrders;
 
-    int unreadFeedback =
-        await _context.Reviews
-            .CountAsync(r =>
-                r.ShopId == shop.ShopId &&
-                !r.IsRead);
+            ViewBag.ReadyOrders =
+                readyOrders;
 
-    // ============================================================
-    // NOTIFICATIONS
-    // ============================================================
+            ViewBag.CompletedOrders =
+                completedOrders;
 
-    int unreadNotifications =
-        await _context.Notifications
-            .CountAsync(n =>
-                n.UserId == shopkeeperId &&
-                !n.IsRead);
+            ViewBag.CancelledOrders =
+                cancelledOrders;
 
-    // ============================================================
-    // CHAT MESSAGES
-    // ============================================================
+            ViewBag.TotalSales =
+                totalSales;
 
-    int unreadMessages =
-        await _context.ChatMessages
-            .CountAsync(m =>
-                m.ReceiverId == shopkeeperId &&
-                !m.IsRead);
+            ViewBag.PaidPayments =
+                paidPayments;
 
-    // ============================================================
-    // SHOPKEEPER PROFILE DATA
-    // ============================================================
+            ViewBag.PendingPayments =
+                pendingPayments;
 
-    ViewBag.ShopkeeperName =
-        shopkeeper.Name ?? "Shopkeeper";
+           
+            ViewBag.ReviewCount =
+                reviewCount;
 
-    ViewBag.ShopkeeperEmail =
-        shopkeeper.Email ?? "Email not available";
+            ViewBag.TotalReviews =
+                reviewCount;
 
-    ViewBag.ShopkeeperPhone =
-        shopkeeper.Phone ?? "Phone not available";
+           
+            ViewBag.UnreadFeedback =
+                unreadFeedback;
 
-    ViewBag.ShopkeeperAddress =
-        shopkeeper.Address ?? "Address not available";
+            
 
-    ViewBag.ShopkeeperProfileImage =
-        shopkeeper.ProfileImage;
+            ViewBag.AverageRating =
+                averageRating;
 
-    // ============================================================
-    // SHOP DATA
-    // ============================================================
+            ViewBag.UnreadNotifications =
+                unreadNotifications;
 
-    ViewBag.ShopName =
-        shop.ShopName ?? "My Shop";
+            ViewBag.UnreadMessages =
+                unreadMessages;
 
-    ViewBag.ShopCategory =
-        shop.ShopCategory ?? "Not Selected";
+            return View();
+        }
 
-    // ============================================================
-    // SHOP APPROVAL / STATUS
-    // ============================================================
 
-    // The Dashboard view checks ViewBag.ShopApproved.
-    // Therefore it MUST be assigned here.
-
-    ViewBag.ShopApproved =
-        shop.IsApproved;
-
-    // If Shop.Status is a BOOL in your Shop model:
-
-    ViewBag.ShopStatus =
-        shop.Status;
-
-    // ============================================================
-    // DASHBOARD STATISTICS
-    // ============================================================
-
-    ViewBag.TotalProducts =
-        totalProducts;
-
-    ViewBag.ActiveProducts =
-        activeProducts;
-
-    ViewBag.DisabledProducts =
-        disabledProducts;
-
-    ViewBag.TotalOrders =
-        totalOrders;
-
-    ViewBag.PendingOrders =
-        pendingOrders;
-
-    ViewBag.ConfirmedOrders =
-        confirmedOrders;
-
-    // Your previous Dashboard view used AcceptedOrders.
-    // Keep this also so it does not display 0 accidentally.
-
-    ViewBag.AcceptedOrders =
-        confirmedOrders;
-
-    ViewBag.ProcessingOrders =
-        processingOrders;
-
-    ViewBag.ReadyOrders =
-        readyOrders;
-
-    ViewBag.CompletedOrders =
-        completedOrders;
-
-    ViewBag.CancelledOrders =
-        cancelledOrders;
-
-    ViewBag.TotalSales =
-        totalSales;
-
-    ViewBag.PaidPayments =
-        paidPayments;
-
-    ViewBag.PendingPayments =
-        pendingPayments;
-
-    // ============================================================
-    // REVIEW STATISTICS
-    // ============================================================
-
-    // Total number of reviews
-
-    ViewBag.ReviewCount =
-        reviewCount;
-
-    ViewBag.TotalReviews =
-        reviewCount;
-
-    // Number of unread reviews
-
-    ViewBag.UnreadFeedback =
-        unreadFeedback;
-
-    // Average rating
-
-    ViewBag.AverageRating =
-        averageRating;
-
-    // ============================================================
-    // NOTIFICATION / CHAT COUNTS
-    // ============================================================
-
-    ViewBag.UnreadNotifications =
-        unreadNotifications;
-
-    ViewBag.UnreadMessages =
-        unreadMessages;
-
-    // ============================================================
-    // RETURN DASHBOARD
-    // ============================================================
-
-    return View();
-}
-
-
-
-        // ============================================================
-        // MY SHOP
-        // ============================================================
 
         public async Task<IActionResult> MyShop()
         {
@@ -731,10 +620,7 @@ public async Task<IActionResult> Dashboard()
             return View(shop);
         }
 
-        // ============================================================
-        // EDIT SHOP - GET
-        // ============================================================
-
+        
         [HttpGet]
         public async Task<IActionResult> EditShop()
         {
@@ -749,10 +635,7 @@ public async Task<IActionResult> Dashboard()
             return View(shop);
         }
 
-        // ============================================================
-        // EDIT SHOP - POST
-        // ============================================================
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditShop(
@@ -842,10 +725,7 @@ public async Task<IActionResult> Dashboard()
             }
         }
 
-        // ============================================================
-        // PRODUCTS
-        // ============================================================
-
+       
         public async Task<IActionResult> Products()
         {
             if (!IsShopkeeper())
@@ -878,1171 +758,931 @@ public async Task<IActionResult> Dashboard()
 
             return View(products);
         }
-        // ============================================================
-// NEGOTIATIONS
-// ============================================================
-
-public async Task<IActionResult> Negotiations()
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId = GetShopkeeperId()!.Value;
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    var negotiations = await _context.Negotiations
-        .Include(n => n.Product)
-        .Include(n => n.Customer)
-        .Where(n =>
-            n.ShopkeeperId == shopkeeperId &&
-            n.Product != null &&
-            n.Product.ShopId == shop.ShopId)
-        .OrderByDescending(n => n.CreatedDate)
-        .ToListAsync();
-
-    ViewBag.ShopkeeperName =
-        shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-    ViewBag.ShopName =
-        shop.ShopName;
-
-    ViewBag.ProfileImage =
-        shop.Shopkeeper?.ProfileImage;
-
-    ViewBag.PendingCount =
-        negotiations.Count(n =>
-            string.Equals(
-                n.Status,
-                "Pending",
-                StringComparison.OrdinalIgnoreCase));
-
-    ViewBag.CounterOfferCount =
-        negotiations.Count(n =>
-            string.Equals(
-                n.Status,
-                "CounterOffer",
-                StringComparison.OrdinalIgnoreCase));
-
-    ViewBag.AcceptedCount =
-        negotiations.Count(n =>
-            string.Equals(
-                n.Status,
-                "Accepted",
-                StringComparison.OrdinalIgnoreCase));
-
-    return View(negotiations);
-}
-
-
-// ============================================================
-// ACCEPT CUSTOMER OFFER
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> AcceptNegotiation(int id)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId = GetShopkeeperId()!.Value;
-
-    var negotiation = await _context.Negotiations
-        .Include(n => n.Product)
-        .Include(n => n.Customer)
-        .FirstOrDefaultAsync(
-            n => n.NegotiationId == id &&
-                 n.ShopkeeperId == shopkeeperId);
-
-    if (negotiation == null ||
-        negotiation.Product == null)
-    {
-        TempData["Error"] =
-            "Negotiation not found.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (!negotiation.Product.AllowNegotiation)
-    {
-        TempData["Error"] =
-            "Negotiation is disabled for this product.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (!string.Equals(
-            negotiation.Status,
-            "Pending",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "This negotiation is no longer pending.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (negotiation.RequestedPrice <= 0)
-    {
-        TempData["Error"] =
-            "Invalid requested price.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    // Customer's requested price becomes final agreed price.
-    negotiation.AgreedPrice =
-        negotiation.RequestedPrice;
-
-    negotiation.Status =
-        "Accepted";
-
-    negotiation.RespondedDate =
-        DateTime.Now;
-
-    negotiation.ShopkeeperMessage =
-        "Your offer has been accepted.";
-
-    await _context.SaveChangesAsync();
-
-    // --------------------------------------------------------
-    // CUSTOMER NOTIFICATION
-    // --------------------------------------------------------
-
-    await CreateNotification(
-        negotiation.CustomerId,
-        "Negotiation Accepted",
-        $"Your offer of Rs. {negotiation.AgreedPrice:N0} for {negotiation.Product.ProductName} has been accepted by the shopkeeper.",
-        "Negotiation",
-        null);
-
-    TempData["Success"] =
-        "Customer offer accepted successfully.";
-
-    return RedirectToAction("Negotiations");
-}
-
-
-// ============================================================
-// REJECT CUSTOMER OFFER
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> RejectNegotiation(
-    int id,
-    string? shopkeeperMessage)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId = GetShopkeeperId()!.Value;
-
-    var negotiation = await _context.Negotiations
-        .Include(n => n.Product)
-        .FirstOrDefaultAsync(
-            n => n.NegotiationId == id &&
-                 n.ShopkeeperId == shopkeeperId);
-
-    if (negotiation == null)
-    {
-        TempData["Error"] =
-            "Negotiation not found.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (!string.Equals(
-            negotiation.Status,
-            "Pending",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "This negotiation is no longer pending.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    negotiation.Status =
-        "Rejected";
-
-    negotiation.RespondedDate =
-        DateTime.Now;
-
-    negotiation.ShopkeeperMessage =
-        string.IsNullOrWhiteSpace(shopkeeperMessage)
-            ? "Your offer has been rejected."
-            : shopkeeperMessage.Trim();
-
-    await _context.SaveChangesAsync();
-
-    // --------------------------------------------------------
-    // CUSTOMER NOTIFICATION
-    // --------------------------------------------------------
-
-    string productName =
-        negotiation.Product?.ProductName
-        ?? "product";
-
-    await CreateNotification(
-        negotiation.CustomerId,
-        "Negotiation Rejected",
-        $"Your offer for {productName} has been rejected by the shopkeeper.",
-        "Negotiation",
-        null);
-
-    TempData["Success"] =
-        "Negotiation rejected successfully.";
-
-    return RedirectToAction("Negotiations");
-}
-
-
-// ============================================================
-// SEND COUNTER OFFER
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> CounterNegotiation(
-    int id,
-    decimal counterPrice,
-    string? shopkeeperMessage)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId = GetShopkeeperId()!.Value;
-
-    var negotiation = await _context.Negotiations
-        .Include(n => n.Product)
-        .FirstOrDefaultAsync(
-            n => n.NegotiationId == id &&
-                 n.ShopkeeperId == shopkeeperId);
-
-    if (negotiation == null ||
-        negotiation.Product == null)
-    {
-        TempData["Error"] =
-            "Negotiation not found.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (!string.Equals(
-            negotiation.Status,
-            "Pending",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        TempData["Error"] =
-            "This negotiation is no longer pending.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    if (counterPrice <= 0)
-    {
-        TempData["Error"] =
-            "Counter offer must be greater than zero.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    // Counter price must be below original product price.
-    if (counterPrice >= negotiation.OriginalPrice)
-    {
-        TempData["Error"] =
-            "Counter offer must be lower than the original product price.";
-
-        return RedirectToAction("Negotiations");
-    }
-
-    negotiation.CounterPrice =
-        counterPrice;
-
-    negotiation.Status =
-        "CounterOffer";
-
-    negotiation.RespondedDate =
-        DateTime.Now;
-
-    negotiation.ShopkeeperMessage =
-        string.IsNullOrWhiteSpace(shopkeeperMessage)
-            ? $"Shopkeeper offered Rs. {counterPrice:N0}."
-            : shopkeeperMessage.Trim();
-
-    await _context.SaveChangesAsync();
-
-    // --------------------------------------------------------
-    // CUSTOMER NOTIFICATION
-    // --------------------------------------------------------
-
-    await CreateNotification(
-        negotiation.CustomerId,
-        "New Counter Offer",
-        $"The shopkeeper has made a counter offer of Rs. {counterPrice:N0} for {negotiation.Product.ProductName}.",
-        "Negotiation",
-        null);
-
-    TempData["Success"] =
-        "Counter offer sent successfully.";
-
-    return RedirectToAction("Negotiations");
-}
-        // ============================================================
- // ADD PRODUCT - GET
- // ============================================================
-
- [HttpGet]
- public async Task<IActionResult> AddProduct()
- {
-     if (!IsShopkeeper())
-         return RedirectToAction("Login", "Account");
-
-     var shop = await GetMyShop();
-
-     if (shop == null)
-         return NotFound();
-
-     if (!shop.IsApproved || !shop.Status)
-     {
-         TempData["Error"] =
-             "Your shop must be approved and active before adding products.";
-
-         return RedirectToAction("Products");
-     }
-
-     PrepareProductForm(shop);
-
-     return View(new Product());
- }
-
-
- // ============================================================
- // ADD PRODUCT - POST
- // ============================================================
-
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> AddProduct(
-     Product product,
-     IFormFile? productImage)
- {
-     // =========================================================
-     // CHECK SHOPKEEPER
-     // =========================================================
-
-     if (!IsShopkeeper())
-         return RedirectToAction("Login", "Account");
-
-
-     // =========================================================
-     // GET SHOP
-     // =========================================================
-
-     var shop = await GetMyShop();
-
-     if (shop == null)
-         return NotFound();
-
-
-     // =========================================================
-     // SHOP APPROVAL / STATUS
-     // =========================================================
-
-     if (!shop.IsApproved || !shop.Status)
-     {
-         TempData["Error"] =
-             "Your shop must be approved and active before adding products.";
-
-         return RedirectToAction("Products");
-     }
-
-
-     // =========================================================
-     // ALLOWED CATEGORY DATA
-     // =========================================================
-
-     var allowedData =
-         GetAllowedCategoryDataForShop(
-             shop.ShopCategory);
-
-
-     // =========================================================
-     // CATEGORY VALIDATION
-     // =========================================================
-
-     if (string.IsNullOrWhiteSpace(product.Category) ||
-         !allowedData.Keys.Any(c =>
-             string.Equals(
-                 c,
-                 product.Category.Trim(),
-                 StringComparison.OrdinalIgnoreCase)))
-     {
-         ModelState.AddModelError(
-             "Category",
-             "Please select a valid category for your shop.");
-     }
-
-
-     // =========================================================
-     // SUBCATEGORY VALIDATION
-     // =========================================================
-
-     string selectedCategory =
-         product.Category?.Trim() ?? string.Empty;
-
-
-     var matchingCategory =
-         allowedData.Keys.FirstOrDefault(c =>
-             string.Equals(
-                 c,
-                 selectedCategory,
-                 StringComparison.OrdinalIgnoreCase));
-
-
-     if (matchingCategory != null &&
-         allowedData.TryGetValue(
-             matchingCategory,
-             out var allowedSubcategories))
-     {
-         if (string.IsNullOrWhiteSpace(product.Subcategory) ||
-             !allowedSubcategories.Any(s =>
-                 string.Equals(
-                     s,
-                     product.Subcategory?.Trim(),
-                     StringComparison.OrdinalIgnoreCase)))
-         {
-             ModelState.AddModelError(
-                 "Subcategory",
-                 "Please select a valid subcategory.");
-         }
-     }
-
-
-     // =========================================================
-     // BASIC PRICE VALIDATION
-     // =========================================================
-
-     if (product.Price < 0)
-     {
-         ModelState.AddModelError(
-             "Price",
-             "Price cannot be negative.");
-     }
-
-
-     // =========================================================
-     // STOCK VALIDATION
-     // =========================================================
-
-     if (product.StockQuantity < 0)
-     {
-         ModelState.AddModelError(
-             "StockQuantity",
-             "Stock quantity cannot be negative.");
-     }
-
-
-     // =========================================================
-     // SALE / DISCOUNT VALIDATION
-     // =========================================================
-
-     if (product.IsOnSale)
-     {
-         // Sale price is required
-         if (!product.SalePrice.HasValue ||
-             product.SalePrice.Value <= 0)
-         {
-             ModelState.AddModelError(
-                 "SalePrice",
-                 "Please enter a valid sale price.");
-         }
-         else if (product.SalePrice.Value >= product.Price)
-         {
-             ModelState.AddModelError(
-                 "SalePrice",
-                 "Sale price must be lower than the original price.");
-         }
-
-
-         // Sale details are optional.
-         // We do not require them because the shopkeeper
-         // may simply want to offer a discounted price.
-     }
-     else
-     {
-         // -----------------------------------------------------
-         // SALE IS DISABLED
-         // Therefore these values must not remain saved.
-         // -----------------------------------------------------
-
-         product.SalePrice = null;
-         product.SaleDetails = null;
-     }
-
-
-     // =========================================================
-     // RENTAL VALIDATION
-     // =========================================================
-
-     if (product.IsAvailableForRent)
-     {
-         // -----------------------------------------------------
-         // RENT PRICE
-         // -----------------------------------------------------
-
-         if (!product.RentPrice.HasValue ||
-             product.RentPrice.Value <= 0)
-         {
-             ModelState.AddModelError(
-                 "RentPrice",
-                 "Please enter a valid rental price.");
-         }
-
-
-         // -----------------------------------------------------
-         // REFUNDABLE SECURITY
-         // -----------------------------------------------------
-
-         if (!product.RentalSecurity.HasValue ||
-             product.RentalSecurity.Value < 0)
-         {
-             ModelState.AddModelError(
-                 "RentalSecurity",
-                 "Please enter a valid refundable security amount.");
-         }
-
-
-         // -----------------------------------------------------
-         // RENTAL DURATION
-         // -----------------------------------------------------
-
-         if (string.IsNullOrWhiteSpace(
-                 product.RentalDuration))
-         {
-             ModelState.AddModelError(
-                 "RentalDuration",
-                 "Rental duration is required.");
-         }
-
-
-         // -----------------------------------------------------
-         // RENTAL CONDITIONS
-         // -----------------------------------------------------
-
-         if (string.IsNullOrWhiteSpace(
-                 product.RentalConditions))
-         {
-             ModelState.AddModelError(
-                 "RentalConditions",
-                 "Rental conditions are required.");
-         }
-     }
-     else
-     {
-         // -----------------------------------------------------
-         // RENTAL IS DISABLED
-         // Therefore clear all rental values.
-         // -----------------------------------------------------
-
-         product.RentPrice = null;
-         product.RentalSecurity = null;
-         product.RentalDuration = null;
-         product.RentalConditions = null;
-     }
-
-
-     // =========================================================
-     // PRODUCT IMAGE VALIDATION
-     // =========================================================
-
-     if (productImage != null &&
-         productImage.Length > 0)
-     {
-         string extension =
-             Path.GetExtension(
-                 productImage.FileName)
-             .ToLowerInvariant();
-
-
-         // -----------------------------------------------------
-         // EXTENSION
-         // -----------------------------------------------------
-
-         if (!AllowedProductImageExtensions.Contains(
-                 extension))
-         {
-             ModelState.AddModelError(
-                 "productImage",
-                 "Only JPG, JPEG, PNG and WEBP images are allowed.");
-         }
-
-
-         // -----------------------------------------------------
-         // FILE SIZE
-         // -----------------------------------------------------
-
-         if (productImage.Length > 5 * 1024 * 1024)
-         {
-             ModelState.AddModelError(
-                 "productImage",
-                 "Product image must be 5 MB or smaller.");
-         }
-     }
-     else
-     {
-         ModelState.AddModelError(
-             "productImage",
-             "Please select a product image.");
-     }
-
-
-     // =========================================================
-     // MODEL VALIDATION
-     // =========================================================
-
-     if (!ModelState.IsValid)
-     {
-         PrepareProductForm(shop);
-
-         return View(product);
-     }
-
-
-     // =========================================================
-     // ASSIGN SHOP
-     // =========================================================
-
-     product.ShopId =
-         shop.ShopId;
-
-
-     // =========================================================
-     // TRIM TEXT VALUES
-     // =========================================================
-
-     product.Category =
-         product.Category?.Trim();
-
-     product.Subcategory =
-         product.Subcategory?.Trim();
-
-     product.ProductName =
-         product.ProductName?.Trim();
-
-     product.Description =
-         product.Description?.Trim();
-
-     product.Color =
-         product.Color?.Trim();
-
-     product.Size =
-         product.Size?.Trim();
-
-     product.Occasion =
-         product.Occasion?.Trim();
-
-
-     // =========================================================
-     // TRIM NEW RENTAL VALUES
-     // =========================================================
-
-     if (product.IsAvailableForRent)
-     {
-         product.RentalDuration =
-             product.RentalDuration?.Trim();
-
-         product.RentalConditions =
-             product.RentalConditions?.Trim();
-     }
-
-
-     // =========================================================
-     // TRIM SALE DETAILS
-     // =========================================================
-
-     if (product.IsOnSale)
-     {
-         product.SaleDetails =
-             product.SaleDetails?.Trim();
-     }
-
-
-     // =========================================================
-     // SET PRODUCT TYPE
-     //
-     // ProductType is controlled by the server.
-     // The readonly value from the Razor page is NOT trusted.
-     // =========================================================
-
-     SetProductType(
-         product,
-         shop.ShopCategory);
-
-
-     // =========================================================
-     // SAVE PRODUCT IMAGE
-     // =========================================================
-
-     if (productImage != null &&
-         productImage.Length > 0)
-     {
-         product.Image =
-             await SaveFile(
-                 productImage,
-                 "products");
-     }
-
-
-     // =========================================================
-     // DEFAULT VALUES
-     // =========================================================
-
-     product.CreatedDate =
-         DateTime.Now;
-
-     product.Status =
-         true;
-
-
-     // =========================================================
-     // ADD PRODUCT
-     // =========================================================
-
-     _context.Products.Add(product);
-
-     await _context.SaveChangesAsync();
-
-
-     // =========================================================
-     // SUCCESS
-     // =========================================================
-
-     TempData["Success"] =
-         "Product added successfully.";
-
-     return RedirectToAction("Products");
- }
-
-        // ============================================================
-// EDIT PRODUCT - GET
-// ============================================================
-
-[HttpGet]
-public async Task<IActionResult> EditProduct(int id)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    var product = await _context.Products
-        .FirstOrDefaultAsync(
-            p => p.ProductId == id &&
-                 p.ShopId == shop.ShopId);
-
-    if (product == null)
-        return NotFound();
-
-    PrepareProductForm(shop);
-
-    return View(product);
-}
-
-
-// ============================================================
-// EDIT PRODUCT - POST
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> EditProduct(
-    Product model,
-    IFormFile? productImage)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-
-    // ========================================================
-    // FIND PRODUCT
-    // ========================================================
-
-    var product = await _context.Products
-        .FirstOrDefaultAsync(
-            p => p.ProductId == model.ProductId &&
-                 p.ShopId == shop.ShopId);
-
-    if (product == null)
-        return NotFound();
-
-
-    // ========================================================
-    // REMOVE NAVIGATION PROPERTY VALIDATION
-    // ========================================================
-
-    ModelState.Remove("Shop");
-
-
-    // ========================================================
-    // CATEGORY VALIDATION
-    // ========================================================
-
-    var allowedData =
-        GetAllowedCategoryDataForShop(
-            shop.ShopCategory);
-
-    string selectedCategory =
-        model.Category?.Trim() ?? string.Empty;
-
-
-    var matchingCategory =
-        allowedData.Keys.FirstOrDefault(c =>
-            string.Equals(
-                c,
-                selectedCategory,
-                StringComparison.OrdinalIgnoreCase));
-
-
-    if (matchingCategory == null)
-    {
-        ModelState.AddModelError(
-            "Category",
-            "Please select a valid category for your shop.");
-    }
-
-
-    // ========================================================
-    // SUBCATEGORY VALIDATION
-    // ========================================================
-
-    if (matchingCategory != null &&
-        allowedData.TryGetValue(
-            matchingCategory,
-            out var allowedSubcategories))
-    {
-        if (string.IsNullOrWhiteSpace(model.Subcategory) ||
-            !allowedSubcategories.Any(s =>
-                string.Equals(
-                    s,
-                    model.Subcategory?.Trim(),
-                    StringComparison.OrdinalIgnoreCase)))
+       
+        public async Task<IActionResult> Negotiations()
         {
-            ModelState.AddModelError(
-                "Subcategory",
-                "Please select a valid subcategory.");
-        }
-    }
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
+            int shopkeeperId = GetShopkeeperId()!.Value;
 
-    // ========================================================
-    // PRICE VALIDATION
-    // ========================================================
+            var shop = await GetMyShop();
 
-    if (model.Price < 0)
-    {
-        ModelState.AddModelError(
-            "Price",
-            "Price cannot be negative.");
-    }
+            if (shop == null)
+                return NotFound();
 
+            var negotiations = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Customer)
+                .Where(n =>
+                    n.ShopkeeperId == shopkeeperId &&
+                    n.Product != null &&
+                    n.Product.ShopId == shop.ShopId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
 
-    // ========================================================
-    // STOCK VALIDATION
-    // ========================================================
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
 
-    if (model.StockQuantity < 0)
-    {
-        ModelState.AddModelError(
-            "StockQuantity",
-            "Stock quantity cannot be negative.");
-    }
+            ViewBag.ShopName =
+                shop.ShopName;
 
+            ViewBag.ProfileImage =
+                shop.Shopkeeper?.ProfileImage;
 
-    // ========================================================
-    // SALE / DISCOUNT VALIDATION
-    // ========================================================
+            ViewBag.PendingCount =
+                negotiations.Count(n =>
+                    string.Equals(
+                        n.Status,
+                        "Pending",
+                        StringComparison.OrdinalIgnoreCase));
 
-    if (model.IsOnSale)
-    {
-        if (!model.SalePrice.HasValue ||
-            model.SalePrice.Value <= 0)
-        {
-            ModelState.AddModelError(
-                "SalePrice",
-                "Please enter a valid sale price.");
-        }
-        else if (model.SalePrice.Value >= model.Price)
-        {
-            ModelState.AddModelError(
-                "SalePrice",
-                "Sale price must be lower than the original price.");
-        }
-    }
-    else
-    {
-        // If sale is disabled, remove old sale information.
-        model.SalePrice = null;
-        model.SaleDetails = null;
-    }
+            ViewBag.CounterOfferCount =
+                negotiations.Count(n =>
+                    string.Equals(
+                        n.Status,
+                        "CounterOffer",
+                        StringComparison.OrdinalIgnoreCase));
 
+            ViewBag.AcceptedCount =
+                negotiations.Count(n =>
+                    string.Equals(
+                        n.Status,
+                        "Accepted",
+                        StringComparison.OrdinalIgnoreCase));
 
-    // ========================================================
-    // RENTAL VALIDATION
-    // ========================================================
-
-    if (model.IsAvailableForRent)
-    {
-        // Rental Price
-        if (!model.RentPrice.HasValue ||
-            model.RentPrice.Value <= 0)
-        {
-            ModelState.AddModelError(
-                "RentPrice",
-                "Please enter a valid rental price.");
+            return View(negotiations);
         }
 
 
-        // Refundable Security
-        if (!model.RentalSecurity.HasValue ||
-            model.RentalSecurity.Value < 0)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptNegotiation(int id)
         {
-            ModelState.AddModelError(
-                "RentalSecurity",
-                "Please enter a valid refundable security amount.");
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId = GetShopkeeperId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Customer)
+                .FirstOrDefaultAsync(
+                    n => n.NegotiationId == id &&
+                         n.ShopkeeperId == shopkeeperId);
+
+            if (negotiation == null ||
+                negotiation.Product == null)
+            {
+                TempData["Error"] =
+                    "Negotiation not found.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (!negotiation.Product.AllowNegotiation)
+            {
+                TempData["Error"] =
+                    "Negotiation is disabled for this product.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (!string.Equals(
+                    negotiation.Status,
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This negotiation is no longer pending.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (negotiation.RequestedPrice <= 0)
+            {
+                TempData["Error"] =
+                    "Invalid requested price.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+          
+            negotiation.AgreedPrice =
+                negotiation.RequestedPrice;
+
+            negotiation.Status =
+                "Accepted";
+
+            negotiation.RespondedDate =
+                DateTime.Now;
+
+            negotiation.ShopkeeperMessage =
+                "Your offer has been accepted.";
+
+            await _context.SaveChangesAsync();
+
+           
+            await CreateNotification(
+                negotiation.CustomerId,
+                "Negotiation Accepted",
+                $"Your offer of Rs. {negotiation.AgreedPrice:N0} for {negotiation.Product.ProductName} has been accepted by the shopkeeper.",
+                "Negotiation",
+                null);
+
+            TempData["Success"] =
+                "Customer offer accepted successfully.";
+
+            return RedirectToAction("Negotiations");
         }
 
 
-        // Rental Duration
-        if (string.IsNullOrWhiteSpace(
-                model.RentalDuration))
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectNegotiation(
+            int id,
+            string? shopkeeperMessage)
         {
-            ModelState.AddModelError(
-                "RentalDuration",
-                "Rental duration is required.");
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId = GetShopkeeperId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .Include(n => n.Product)
+                .FirstOrDefaultAsync(
+                    n => n.NegotiationId == id &&
+                         n.ShopkeeperId == shopkeeperId);
+
+            if (negotiation == null)
+            {
+                TempData["Error"] =
+                    "Negotiation not found.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (!string.Equals(
+                    negotiation.Status,
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This negotiation is no longer pending.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            negotiation.Status =
+                "Rejected";
+
+            negotiation.RespondedDate =
+                DateTime.Now;
+
+            negotiation.ShopkeeperMessage =
+                string.IsNullOrWhiteSpace(shopkeeperMessage)
+                    ? "Your offer has been rejected."
+                    : shopkeeperMessage.Trim();
+
+            await _context.SaveChangesAsync();
+
+           
+            string productName =
+                negotiation.Product?.ProductName
+                ?? "product";
+
+            await CreateNotification(
+                negotiation.CustomerId,
+                "Negotiation Rejected",
+                $"Your offer for {productName} has been rejected by the shopkeeper.",
+                "Negotiation",
+                null);
+
+            TempData["Success"] =
+                "Negotiation rejected successfully.";
+
+            return RedirectToAction("Negotiations");
         }
 
 
-        // Rental Conditions
-        if (string.IsNullOrWhiteSpace(
-                model.RentalConditions))
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CounterNegotiation(
+            int id,
+            decimal counterPrice,
+            string? shopkeeperMessage)
         {
-            ModelState.AddModelError(
-                "RentalConditions",
-                "Rental conditions are required.");
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId = GetShopkeeperId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .Include(n => n.Product)
+                .FirstOrDefaultAsync(
+                    n => n.NegotiationId == id &&
+                         n.ShopkeeperId == shopkeeperId);
+
+            if (negotiation == null ||
+                negotiation.Product == null)
+            {
+                TempData["Error"] =
+                    "Negotiation not found.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (!string.Equals(
+                    negotiation.Status,
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This negotiation is no longer pending.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            if (counterPrice <= 0)
+            {
+                TempData["Error"] =
+                    "Counter offer must be greater than zero.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            
+            if (counterPrice >= negotiation.OriginalPrice)
+            {
+                TempData["Error"] =
+                    "Counter offer must be lower than the original product price.";
+
+                return RedirectToAction("Negotiations");
+            }
+
+            negotiation.CounterPrice =
+                counterPrice;
+
+            negotiation.Status =
+                "CounterOffer";
+
+            negotiation.RespondedDate =
+                DateTime.Now;
+
+            negotiation.ShopkeeperMessage =
+                string.IsNullOrWhiteSpace(shopkeeperMessage)
+                    ? $"Shopkeeper offered Rs. {counterPrice:N0}."
+                    : shopkeeperMessage.Trim();
+
+            await _context.SaveChangesAsync();
+
+           
+            await CreateNotification(
+                negotiation.CustomerId,
+                "New Counter Offer",
+                $"The shopkeeper has made a counter offer of Rs. {counterPrice:N0} for {negotiation.Product.ProductName}.",
+                "Negotiation",
+                null);
+
+            TempData["Success"] =
+                "Counter offer sent successfully.";
+
+            return RedirectToAction("Negotiations");
         }
-    }
-    else
-    {
-        // If rental is disabled, remove old rental information.
-
-        model.RentPrice = null;
-
-        model.RentalSecurity = null;
-
-        model.RentalDuration = null;
-
-        model.RentalConditions = null;
-    }
-
-
-    // ========================================================
-    // IMAGE VALIDATION
-    // ========================================================
-
-    if (productImage != null &&
-        productImage.Length > 0)
-    {
-        string extension =
-            Path.GetExtension(
-                productImage.FileName)
-            .ToLowerInvariant();
-
-
-        if (!AllowedProductImageExtensions.Contains(
-                extension))
+        
+        [HttpGet]
+        public async Task<IActionResult> AddProduct()
         {
-            ModelState.AddModelError(
-                "productImage",
-                "Only JPG, JPEG, PNG and WEBP images are allowed.");
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            if (!shop.IsApproved || !shop.Status)
+            {
+                TempData["Error"] =
+                    "Your shop must be approved and active before adding products.";
+
+                return RedirectToAction("Products");
+            }
+
+            PrepareProductForm(shop);
+
+            return View(new Product());
         }
 
 
-        if (productImage.Length >
-            5 * 1024 * 1024)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProduct(
+            Product product,
+            IFormFile? productImage)
         {
-            ModelState.AddModelError(
-                "productImage",
-                "Product image must be 5 MB or smaller.");
+           
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+
+            if (!shop.IsApproved || !shop.Status)
+            {
+                TempData["Error"] =
+                    "Your shop must be approved and active before adding products.";
+
+                return RedirectToAction("Products");
+            }
+
+
+            var allowedData =
+                GetAllowedCategoryDataForShop(
+                    shop.ShopCategory);
+
+
+            
+            if (string.IsNullOrWhiteSpace(product.Category) ||
+                !allowedData.Keys.Any(c =>
+                    string.Equals(
+                        c,
+                        product.Category.Trim(),
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                ModelState.AddModelError(
+                    "Category",
+                    "Please select a valid category for your shop.");
+            }
+
+
+            string selectedCategory =
+                product.Category?.Trim() ?? string.Empty;
+
+
+            var matchingCategory =
+                allowedData.Keys.FirstOrDefault(c =>
+                    string.Equals(
+                        c,
+                        selectedCategory,
+                        StringComparison.OrdinalIgnoreCase));
+
+
+            if (matchingCategory != null &&
+                allowedData.TryGetValue(
+                    matchingCategory,
+                    out var allowedSubcategories))
+            {
+                if (string.IsNullOrWhiteSpace(product.Subcategory) ||
+                    !allowedSubcategories.Any(s =>
+                        string.Equals(
+                            s,
+                            product.Subcategory?.Trim(),
+                            StringComparison.OrdinalIgnoreCase)))
+                {
+                    ModelState.AddModelError(
+                        "Subcategory",
+                        "Please select a valid subcategory.");
+                }
+            }
+
+
+            
+            if (product.Price < 0)
+            {
+                ModelState.AddModelError(
+                    "Price",
+                    "Price cannot be negative.");
+            }
+
+
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Stock quantity cannot be negative.");
+            }
+
+
+            if (product.IsOnSale)
+            {
+                
+                if (!product.SalePrice.HasValue ||
+                    product.SalePrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Please enter a valid sale price.");
+                }
+                else if (product.SalePrice.Value >= product.Price)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Sale price must be lower than the original price.");
+                }
+
+
+            }
+            else
+            {
+                
+                product.SalePrice = null;
+                product.SaleDetails = null;
+            }
+
+
+            if (product.IsAvailableForRent)
+            {
+                
+                if (!product.RentPrice.HasValue ||
+                    product.RentPrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "RentPrice",
+                        "Please enter a valid rental price.");
+                }
+
+
+                
+                if (!product.RentalSecurity.HasValue ||
+                    product.RentalSecurity.Value < 0)
+                {
+                    ModelState.AddModelError(
+                        "RentalSecurity",
+                        "Please enter a valid refundable security amount.");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                        product.RentalDuration))
+                {
+                    ModelState.AddModelError(
+                        "RentalDuration",
+                        "Rental duration is required.");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                        product.RentalConditions))
+                {
+                    ModelState.AddModelError(
+                        "RentalConditions",
+                        "Rental conditions are required.");
+                }
+            }
+            else
+            {
+                product.RentPrice = null;
+                product.RentalSecurity = null;
+                product.RentalDuration = null;
+                product.RentalConditions = null;
+            }
+
+
+            if (productImage != null &&
+                productImage.Length > 0)
+            {
+                string extension =
+                    Path.GetExtension(
+                        productImage.FileName)
+                    .ToLowerInvariant();
+
+
+               
+                if (!AllowedProductImageExtensions.Contains(
+                        extension))
+                {
+                    ModelState.AddModelError(
+                        "productImage",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+                }
+
+
+                if (productImage.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(
+                        "productImage",
+                        "Product image must be 5 MB or smaller.");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(
+                    "productImage",
+                    "Please select a product image.");
+            }
+
+
+            if (!ModelState.IsValid)
+            {
+                PrepareProductForm(shop);
+
+                return View(product);
+            }
+
+
+            product.ShopId =
+                shop.ShopId;
+
+
+           
+            product.Category =
+                product.Category?.Trim();
+
+            product.Subcategory =
+                product.Subcategory?.Trim();
+
+            product.ProductName =
+                product.ProductName?.Trim();
+
+            product.Description =
+                product.Description?.Trim();
+
+            product.Color =
+                product.Color?.Trim();
+
+            product.Size =
+                product.Size?.Trim();
+
+            product.Occasion =
+                product.Occasion?.Trim();
+
+
+            if (product.IsAvailableForRent)
+            {
+                product.RentalDuration =
+                    product.RentalDuration?.Trim();
+
+                product.RentalConditions =
+                    product.RentalConditions?.Trim();
+            }
+
+
+            if (product.IsOnSale)
+            {
+                product.SaleDetails =
+                    product.SaleDetails?.Trim();
+            }
+
+
+            SetProductType(
+                product,
+                shop.ShopCategory);
+
+
+            if (productImage != null &&
+                productImage.Length > 0)
+            {
+                product.Image =
+                    await SaveFile(
+                        productImage,
+                        "products");
+            }
+
+
+            product.CreatedDate =
+                DateTime.Now;
+
+            product.Status =
+                true;
+
+            _context.Products.Add(product);
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["Success"] =
+                "Product added successfully.";
+
+            return RedirectToAction("Products");
         }
-    }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProduct(int id)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            var product = await _context.Products
+                .FirstOrDefaultAsync(
+                    p => p.ProductId == id &&
+                         p.ShopId == shop.ShopId);
+
+            if (product == null)
+                return NotFound();
+
+            PrepareProductForm(shop);
+
+            return View(product);
+        }
 
 
-    // ========================================================
-    // RETURN VIEW IF VALIDATION FAILED
-    // ========================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduct(
+            Product model,
+            IFormFile? productImage)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
-    if (!ModelState.IsValid)
-    {
-        PrepareProductForm(shop);
+            var shop = await GetMyShop();
 
-        return View(model);
-    }
+            if (shop == null)
+                return NotFound();
 
+            var product = await _context.Products
+                .FirstOrDefaultAsync(
+                    p => p.ProductId == model.ProductId &&
+                         p.ShopId == shop.ShopId);
 
-    // ========================================================
-    // UPDATE BASIC PRODUCT INFORMATION
-    // ========================================================
-
-    product.ProductName =
-        model.ProductName?.Trim();
-
-    product.Description =
-        model.Description?.Trim();
-
-    product.Category =
-        model.Category?.Trim();
-
-    product.Subcategory =
-        model.Subcategory?.Trim();
-
-    product.Occasion =
-        model.Occasion?.Trim();
-
-    product.Size =
-        model.Size?.Trim();
-
-    product.SizeType =
-        model.SizeType?.Trim();
-
-    product.CustomMeasurements =
-        model.CustomMeasurements?.Trim();
-
-    product.Color =
-        model.Color?.Trim();
+            if (product == null)
+                return NotFound();
 
 
-    // ========================================================
-    // PRICE & STOCK
-    // ========================================================
-
-    // IMPORTANT:
-    // This is always the ORIGINAL product price.
-    // Sale price and negotiated price do NOT replace it.
-
-    product.Price =
-        model.Price;
-
-    product.StockQuantity =
-        model.StockQuantity;
+            ModelState.Remove("Shop");
 
 
-    // ========================================================
-    // CUSTOM MEASUREMENT
-    // ========================================================
+            var allowedData =
+                GetAllowedCategoryDataForShop(
+                    shop.ShopCategory);
 
-    product.HasCustomMeasurement =
-        model.HasCustomMeasurement;
-
-
-    // ========================================================
-    // SALE / DISCOUNT
-    // ========================================================
-
-    product.IsOnSale =
-        model.IsOnSale;
-
-    product.SalePrice =
-        model.SalePrice;
-
-    product.SaleDetails =
-        model.SaleDetails?.Trim();
+            string selectedCategory =
+                model.Category?.Trim() ?? string.Empty;
 
 
-    // ========================================================
-    // RENTAL
-    // ========================================================
-
-    product.IsAvailableForRent =
-        model.IsAvailableForRent;
-
-    product.RentPrice =
-        model.RentPrice;
-
-    product.RentalSecurity =
-        model.RentalSecurity;
-
-    product.RentalDuration =
-        model.RentalDuration?.Trim();
-
-    product.RentalConditions =
-        model.RentalConditions?.Trim();
+            var matchingCategory =
+                allowedData.Keys.FirstOrDefault(c =>
+                    string.Equals(
+                        c,
+                        selectedCategory,
+                        StringComparison.OrdinalIgnoreCase));
 
 
-    // ========================================================
-    // NEGOTIATION
-    // ========================================================
-
-    product.AllowNegotiation =
-        model.AllowNegotiation;
-
-
-    // ========================================================
-    // PRODUCT TYPE
-    // ========================================================
-
-    // ProductType is controlled by the server.
-    // Customer/browser cannot decide it.
-
-    SetProductType(
-        product,
-        shop.ShopCategory);
+            if (matchingCategory == null)
+            {
+                ModelState.AddModelError(
+                    "Category",
+                    "Please select a valid category for your shop.");
+            }
 
 
-    // ========================================================
-    // PRODUCT IMAGE
-    // ========================================================
-
-    if (productImage != null &&
-        productImage.Length > 0)
-    {
-        product.Image =
-            await SaveFile(
-                productImage,
-                "products");
-    }
-
-
-    // ========================================================
-    // SAVE
-    // ========================================================
-
-    await _context.SaveChangesAsync();
-
-
-    TempData["Success"] =
-        "Product updated successfully.";
+            
+            if (matchingCategory != null &&
+                allowedData.TryGetValue(
+                    matchingCategory,
+                    out var allowedSubcategories))
+            {
+                if (string.IsNullOrWhiteSpace(model.Subcategory) ||
+                    !allowedSubcategories.Any(s =>
+                        string.Equals(
+                            s,
+                            model.Subcategory?.Trim(),
+                            StringComparison.OrdinalIgnoreCase)))
+                {
+                    ModelState.AddModelError(
+                        "Subcategory",
+                        "Please select a valid subcategory.");
+                }
+            }
 
 
-    return RedirectToAction("Products");
-}
-        // ============================================================
-        // DELETE PRODUCT
-        // ============================================================
+            if (model.Price < 0)
+            {
+                ModelState.AddModelError(
+                    "Price",
+                    "Price cannot be negative.");
+            }
 
+
+            
+            if (model.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Stock quantity cannot be negative.");
+            }
+
+
+            if (model.IsOnSale)
+            {
+                if (!model.SalePrice.HasValue ||
+                    model.SalePrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Please enter a valid sale price.");
+                }
+                else if (model.SalePrice.Value >= model.Price)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Sale price must be lower than the original price.");
+                }
+            }
+            else
+            {
+              
+                model.SalePrice = null;
+                model.SaleDetails = null;
+            }
+
+
+            if (model.IsAvailableForRent)
+            {
+              
+                if (!model.RentPrice.HasValue ||
+                    model.RentPrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "RentPrice",
+                        "Please enter a valid rental price.");
+                }
+
+
+              
+                if (!model.RentalSecurity.HasValue ||
+                    model.RentalSecurity.Value < 0)
+                {
+                    ModelState.AddModelError(
+                        "RentalSecurity",
+                        "Please enter a valid refundable security amount.");
+                }
+
+
+               
+                if (string.IsNullOrWhiteSpace(
+                        model.RentalDuration))
+                {
+                    ModelState.AddModelError(
+                        "RentalDuration",
+                        "Rental duration is required.");
+                }
+
+
+             
+                if (string.IsNullOrWhiteSpace(
+                        model.RentalConditions))
+                {
+                    ModelState.AddModelError(
+                        "RentalConditions",
+                        "Rental conditions are required.");
+                }
+            }
+            else
+            {
+               
+                model.RentPrice = null;
+
+                model.RentalSecurity = null;
+
+                model.RentalDuration = null;
+
+                model.RentalConditions = null;
+            }
+
+
+            if (productImage != null &&
+                productImage.Length > 0)
+            {
+                string extension =
+                    Path.GetExtension(
+                        productImage.FileName)
+                    .ToLowerInvariant();
+
+
+                if (!AllowedProductImageExtensions.Contains(
+                        extension))
+                {
+                    ModelState.AddModelError(
+                        "productImage",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+                }
+
+
+                if (productImage.Length >
+                    5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(
+                        "productImage",
+                        "Product image must be 5 MB or smaller.");
+                }
+            }
+
+
+            if (!ModelState.IsValid)
+            {
+                PrepareProductForm(shop);
+
+                return View(model);
+            }
+
+
+            product.ProductName =
+                model.ProductName?.Trim();
+
+            product.Description =
+                model.Description?.Trim();
+
+            product.Category =
+                model.Category?.Trim();
+
+            product.Subcategory =
+                model.Subcategory?.Trim();
+
+            product.Occasion =
+                model.Occasion?.Trim();
+
+            product.Size =
+                model.Size?.Trim();
+
+            product.SizeType =
+                model.SizeType?.Trim();
+
+            product.CustomMeasurements =
+                model.CustomMeasurements?.Trim();
+
+            product.Color =
+                model.Color?.Trim();
+
+
+            product.Price =
+                model.Price;
+
+            product.StockQuantity =
+                model.StockQuantity;
+
+
+            product.HasCustomMeasurement =
+                model.HasCustomMeasurement;
+
+
+            product.IsOnSale =
+                model.IsOnSale;
+
+            product.SalePrice =
+                model.SalePrice;
+
+            product.SaleDetails =
+                model.SaleDetails?.Trim();
+
+
+            product.IsAvailableForRent =
+                model.IsAvailableForRent;
+
+            product.RentPrice =
+                model.RentPrice;
+
+            product.RentalSecurity =
+                model.RentalSecurity;
+
+            product.RentalDuration =
+                model.RentalDuration?.Trim();
+
+            product.RentalConditions =
+                model.RentalConditions?.Trim();
+
+
+            product.AllowNegotiation =
+                model.AllowNegotiation;
+
+
+            SetProductType(
+                product,
+                shop.ShopCategory);
+
+
+          
+            if (productImage != null &&
+                productImage.Length > 0)
+            {
+                product.Image =
+                    await SaveFile(
+                        productImage,
+                        "products");
+            }
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["Success"] =
+                "Product updated successfully.";
+
+
+            return RedirectToAction("Products");
+        }
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id)
@@ -2091,10 +1731,7 @@ public async Task<IActionResult> EditProduct(
             return RedirectToAction("Products");
         }
 
-        // ============================================================
-        // TOGGLE PRODUCT STATUS
-        // ============================================================
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleProductStatus(int id)
@@ -2133,11 +1770,7 @@ public async Task<IActionResult> EditProduct(
             return RedirectToAction("Products");
         }
 
-        // ============================================================
-        // ORDERS
-        // CANCELLED ORDERS ARE NOT SHOWN
-        // ============================================================
-
+       
         public async Task<IActionResult> Orders()
         {
             if (!IsShopkeeper())
@@ -2174,11 +1807,7 @@ public async Task<IActionResult> EditProduct(
             return View(orders);
         }
 
-        // ============================================================
-        // ORDER DETAILS
-        // CANCELLED ORDERS CANNOT BE OPENED
-        // ============================================================
-
+        
         public async Task<IActionResult> OrderDetails(int id)
         {
             if (!IsShopkeeper())
@@ -2219,10 +1848,6 @@ public async Task<IActionResult> EditProduct(
 
             return View(order);
         }
-
-        // ============================================================
-        // UPDATE ORDER STATUS
-        // ============================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2361,10 +1986,6 @@ public async Task<IActionResult> EditProduct(
 
             await _context.SaveChangesAsync();
 
-            // --------------------------------------------------------
-            // CUSTOMER NOTIFICATION
-            // --------------------------------------------------------
-
             if (order.CustomerId > 0)
             {
                 string notificationMessage;
@@ -2390,10 +2011,7 @@ public async Task<IActionResult> EditProduct(
                     order.OrderId);
             }
 
-            // --------------------------------------------------------
-            // ADMIN NOTIFICATION WHEN ORDER IS READY
-            // --------------------------------------------------------
-
+           
             if (newStatus.Equals(
                     "Ready",
                     StringComparison.OrdinalIgnoreCase))
@@ -2436,11 +2054,7 @@ public async Task<IActionResult> EditProduct(
                 new { id });
         }
 
-        // ============================================================
-        // PAYMENTS
-        // CANCELLED ORDERS ARE NOT SHOWN
-        // ============================================================
-
+        
         public async Task<IActionResult> Payments()
         {
             if (!IsShopkeeper())
@@ -2470,14 +2084,7 @@ public async Task<IActionResult> EditProduct(
             ViewBag.ProfileImage =
                 shop.Shopkeeper?.ProfileImage;
 
-            // --------------------------------------------------------
-            // FINANCIAL TOTALS
-            //
-            // Shopkeeper gets FULL ProductTotal.
-            // ServiceFee is separate and belongs to Admin.
-            // DeliveryCharges are separate.
-            // --------------------------------------------------------
-
+           
             decimal totalProductAmount =
                 orders.Sum(o => o.ProductTotal);
 
@@ -2529,11 +2136,7 @@ public async Task<IActionResult> EditProduct(
             return View(orders);
         }
 
-        // ============================================================
-        // PAYMENT DETAILS
-        // CANCELLED ORDERS CANNOT BE OPENED
-        // ============================================================
-
+        
         public async Task<IActionResult> PaymentDetails(int id)
         {
             if (!IsShopkeeper())
@@ -2562,21 +2165,6 @@ public async Task<IActionResult> EditProduct(
 
                 return RedirectToAction("Payments");
             }
-
-            // --------------------------------------------------------
-            // IMPORTANT PAYMENT CALCULATION
-            //
-            // ProductTotal = FINAL / NEGOTIATED DRESS PRICE
-            //
-            // Shopkeeper receives FULL ProductTotal.
-            //
-            // ServiceFee = Admin's 10% service fee.
-            //
-            // DeliveryCharges = Delivery person's charge.
-            //
-            // Customer Total =
-            // ProductTotal + ServiceFee + DeliveryCharges
-            // --------------------------------------------------------
 
             decimal productAmount =
                 order.ProductTotal;
@@ -2656,7 +2244,7 @@ public async Task<IActionResult> EditProduct(
             ViewBag.PaymentDate =
                 order.PaymentDate;
 
-           
+
 
             ViewBag.IsCOD =
                 IsCodPayment(order.PaymentMethod);
@@ -2674,802 +2262,631 @@ public async Task<IActionResult> EditProduct(
         }
 
 
-// ============================================================
-// FEEDBACK
-// ============================================================
-
-public async Task<IActionResult> Feedback()
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    // ============================================================
-    // MARK ALL UNREAD FEEDBACK FOR THIS SHOP AS READ
-    // ============================================================
-
-    var unreadFeedback = await _context.Reviews
-        .Where(r =>
-            r.ShopId == shop.ShopId &&
-            !r.IsRead)
-        .ToListAsync();
-
-    if (unreadFeedback.Any())
-    {
-        foreach (var review in unreadFeedback)
+        public async Task<IActionResult> Feedback()
         {
-            review.IsRead = true;
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            var unreadFeedback = await _context.Reviews
+                .Where(r =>
+                    r.ShopId == shop.ShopId &&
+                    !r.IsRead)
+                .ToListAsync();
+
+            if (unreadFeedback.Any())
+            {
+                foreach (var review in unreadFeedback)
+                {
+                    review.IsRead = true;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            var feedback = await _context.Reviews
+                .Include(r => r.User)
+                .Include(r => r.Product)
+                .Include(r => r.Shop)
+                .Where(r => r.ShopId == shop.ShopId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
+
+            ViewBag.ShopName =
+                shop.ShopName;
+
+            ViewBag.ProfileImage =
+                shop.Shopkeeper?.ProfileImage;
+
+            return View(feedback);
         }
 
-        await _context.SaveChangesAsync();
-    }
 
-    // ============================================================
-    // LOAD ALL FEEDBACK
-    // ============================================================
-
-    var feedback = await _context.Reviews
-        .Include(r => r.User)
-        .Include(r => r.Product)
-        .Include(r => r.Shop)
-        .Where(r => r.ShopId == shop.ShopId)
-        .OrderByDescending(r => r.CreatedAt)
-        .ToListAsync();
-
-    ViewBag.ShopkeeperName =
-        shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-    ViewBag.ShopName =
-        shop.ShopName;
-
-    ViewBag.ProfileImage =
-        shop.Shopkeeper?.ProfileImage;
-
-    return View(feedback);
-}
-
-
-    
-// ============================================================
-// MARK FEEDBACK AS READ
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> MarkFeedbackRead(int reviewId)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    // Find only a review that belongs to the logged-in shopkeeper's shop
-    var review = await _context.Reviews
-        .FirstOrDefaultAsync(r =>
-            r.ReviewId == reviewId &&
-            r.ShopId == shop.ShopId);
-
-    if (review == null)
-        return NotFound();
-
-    // Mark this feedback as read
-    if (!review.IsRead)
-    {
-        review.IsRead = true;
-        await _context.SaveChangesAsync();
-    }
-
-    // Return to feedback page
-    return RedirectToAction(nameof(Feedback));
-}
-
-
-// ============================================================
-// CHAT
-// ============================================================
-
-public async Task<IActionResult> Chat()
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId =
-        GetShopkeeperId()!.Value;
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    // --------------------------------------------------------
-    // CUSTOMERS WHO HAVE ACTIVE ORDERS FROM THIS SHOP
-    // --------------------------------------------------------
-
-    var customerIds = await _context.Orders
-        .Where(o =>
-            o.ShopId == shop.ShopId &&
-            o.OrderStatus != "Cancelled" &&
-            o.CustomerId != shopkeeperId)
-        .Select(o => o.CustomerId)
-        .Distinct()
-        .ToListAsync();
-
-    var customers = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            customerIds.Contains(u.UserId) &&
-            u.Status)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // DELIVERY BOYS WHO HAVE ACTIVE ORDERS FROM THIS SHOP
-    // --------------------------------------------------------
-
-    var deliveryIds = await _context.Orders
-        .Where(o =>
-            o.ShopId == shop.ShopId &&
-            o.OrderStatus != "Cancelled" &&
-            o.DeliveryId.HasValue)
-        .Select(o => o.DeliveryId!.Value)
-        .Distinct()
-        .ToListAsync();
-
-    var deliveryUsers = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            deliveryIds.Contains(u.UserId) &&
-            u.Status)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // ACTIVE ADMINS
-    // --------------------------------------------------------
-
-    var admins = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            u.Role != null &&
-            u.Role.RoleName == AdminRole &&
-            u.Status &&
-            u.IsApproved)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // UNREAD MESSAGE COUNTS
-    // --------------------------------------------------------
-
-    var unreadCounts = await _context.ChatMessages
-        .Where(m =>
-            m.ReceiverId == shopkeeperId &&
-            !m.IsRead &&
-            !m.IsDeleted)
-        .GroupBy(m => m.SenderId)
-        .Select(g => new
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkFeedbackRead(int reviewId)
         {
-            UserId = g.Key,
-            Count = g.Count()
-        })
-        .ToDictionaryAsync(
-            x => x.UserId,
-            x => x.Count);
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
-    // --------------------------------------------------------
-    // TOTAL UNREAD MESSAGES
-    // --------------------------------------------------------
+            var shop = await GetMyShop();
 
-    int totalUnreadMessages =
-        await _context.ChatMessages
-            .CountAsync(m =>
-                m.ReceiverId == shopkeeperId &&
-                !m.IsRead &&
-                !m.IsDeleted);
+            if (shop == null)
+                return NotFound();
 
-    // --------------------------------------------------------
-    // VIEWBAG
-    // --------------------------------------------------------
+            var review = await _context.Reviews
+                .FirstOrDefaultAsync(r =>
+                    r.ReviewId == reviewId &&
+                    r.ShopId == shop.ShopId);
 
-    ViewBag.CurrentUserId =
-        shopkeeperId;
+            if (review == null)
+                return NotFound();
 
-    ViewBag.TotalUnreadMessages =
-        totalUnreadMessages;
+            if (!review.IsRead)
+            {
+                review.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
 
-    ViewBag.Customers =
-        customers;
-
-    ViewBag.DeliveryUsers =
-        deliveryUsers;
-
-    ViewBag.Admins =
-        admins;
-
-    ViewBag.UnreadCounts =
-        unreadCounts;
-
-    ViewBag.SelectedUserId =
-        null;
-
-    ViewBag.SelectedUserName =
-        null;
-
-    ViewBag.ShopkeeperName =
-        shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-    ViewBag.ShopName =
-        shop.ShopName;
-
-    ViewBag.ProfileImage =
-        shop.Shopkeeper?.ProfileImage;
-
-    return View(
-        new List<ChatMessage>());
-}
+            return RedirectToAction(nameof(Feedback));
+        }
 
 
-// ============================================================
-// CONVERSATION
-// ============================================================
-
-public async Task<IActionResult> Conversation(int userId)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId =
-        GetShopkeeperId()!.Value;
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    // --------------------------------------------------------
-    // PREVENT SELF CHAT
-    // --------------------------------------------------------
-
-    if (userId == shopkeeperId)
-    {
-        TempData["Error"] =
-            "You cannot chat with yourself.";
-
-        return RedirectToAction("Chat");
-    }
-
-    // --------------------------------------------------------
-    // SELECTED USER
-    // --------------------------------------------------------
-
-    var selectedUser = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(
-            u =>
-                u.UserId == userId &&
-                u.Status);
-
-    if (selectedUser == null ||
-        selectedUser.Role == null)
-    {
-        TempData["Error"] =
-            "Selected user was not found.";
-
-        return RedirectToAction("Chat");
-    }
-
-    string selectedRole =
-        selectedUser.Role.RoleName;
-
-    bool isAllowed = false;
-
-    // --------------------------------------------------------
-    // ADMIN
-    // --------------------------------------------------------
-
-    if (string.Equals(
-            selectedRole,
-            AdminRole,
-            StringComparison.OrdinalIgnoreCase))
-    {
-        isAllowed = true;
-    }
-
-    // --------------------------------------------------------
-    // CUSTOMER
-    // ACTIVE ORDER ONLY
-    // --------------------------------------------------------
-
-    else if (string.Equals(
-                 selectedRole,
-                 CustomerRole,
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        isAllowed =
-            await _context.Orders.AnyAsync(
-                o =>
-                    o.ShopId == shop.ShopId &&
-                    o.CustomerId == userId &&
-                    o.OrderStatus != "Cancelled");
-    }
-
-    // --------------------------------------------------------
-    // DELIVERY
-    // ACTIVE ORDER ONLY
-    // --------------------------------------------------------
-
-    else if (string.Equals(
-                 selectedRole,
-                 DeliveryRole,
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        isAllowed =
-            await _context.Orders.AnyAsync(
-                o =>
-                    o.ShopId == shop.ShopId &&
-                    o.DeliveryId == userId &&
-                    o.OrderStatus != "Cancelled");
-    }
-
-    // --------------------------------------------------------
-    // INVALID USER
-    // --------------------------------------------------------
-
-    if (!isAllowed)
-    {
-        TempData["Error"] =
-            "You are not allowed to chat with this user.";
-
-        return RedirectToAction("Chat");
-    }
-
-    // --------------------------------------------------------
-    // LOAD CONVERSATION
-    // --------------------------------------------------------
-
-    var messages = await _context.ChatMessages
-        .Include(m => m.Sender)
-        .Include(m => m.Receiver)
-        .Where(m =>
-            (m.SenderId == shopkeeperId &&
-             m.ReceiverId == userId)
-            ||
-            (m.SenderId == userId &&
-             m.ReceiverId == shopkeeperId))
-        .OrderBy(m => m.SentDate)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // MARK RECEIVED MESSAGES AS READ
-    // --------------------------------------------------------
-
-    var unreadMessages =
-        messages.Where(m =>
-            m.ReceiverId == shopkeeperId &&
-            !m.IsRead &&
-            !m.IsDeleted);
-
-    foreach (var message in unreadMessages)
-    {
-        message.IsRead = true;
-    }
-
-    await _context.SaveChangesAsync();
-
-    // --------------------------------------------------------
-    // RELOAD CHAT USERS
-    // --------------------------------------------------------
-
-    var customerIds = await _context.Orders
-        .Where(o =>
-            o.ShopId == shop.ShopId &&
-            o.OrderStatus != "Cancelled")
-        .Select(o => o.CustomerId)
-        .Distinct()
-        .ToListAsync();
-
-    var customers = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            customerIds.Contains(u.UserId) &&
-            u.Status)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // DELIVERY USERS
-    // --------------------------------------------------------
-
-    var deliveryIds = await _context.Orders
-        .Where(o =>
-            o.ShopId == shop.ShopId &&
-            o.OrderStatus != "Cancelled" &&
-            o.DeliveryId.HasValue)
-        .Select(o => o.DeliveryId!.Value)
-        .Distinct()
-        .ToListAsync();
-
-    var deliveryUsers = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            deliveryIds.Contains(u.UserId) &&
-            u.Status)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // ADMINS
-    // --------------------------------------------------------
-
-    var admins = await _context.Users
-        .Include(u => u.Role)
-        .Where(u =>
-            u.Role != null &&
-            u.Role.RoleName == AdminRole &&
-            u.Status &&
-            u.IsApproved)
-        .OrderBy(u => u.Name)
-        .ToListAsync();
-
-    // --------------------------------------------------------
-    // UNREAD COUNTS
-    // --------------------------------------------------------
-
-    var unreadCounts = await _context.ChatMessages
-        .Where(m =>
-            m.ReceiverId == shopkeeperId &&
-            !m.IsRead &&
-            !m.IsDeleted)
-        .GroupBy(m => m.SenderId)
-        .Select(g => new
+        public async Task<IActionResult> Chat()
         {
-            UserId = g.Key,
-            Count = g.Count()
-        })
-        .ToDictionaryAsync(
-            x => x.UserId,
-            x => x.Count);
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
-    // --------------------------------------------------------
-    // TOTAL UNREAD
-    // --------------------------------------------------------
+            int shopkeeperId =
+                GetShopkeeperId()!.Value;
 
-    int totalUnreadMessages =
-        await _context.ChatMessages
-            .CountAsync(m =>
-                m.ReceiverId == shopkeeperId &&
-                !m.IsRead &&
-                !m.IsDeleted);
+            var shop = await GetMyShop();
 
-    // --------------------------------------------------------
-    // VIEWBAG
-    // IMPORTANT: THIS FIX MAKES DELETE ICON APPEAR
-    // --------------------------------------------------------
+            if (shop == null)
+                return NotFound();
 
-    ViewBag.CurrentUserId =
-        shopkeeperId;
-
-    ViewBag.TotalUnreadMessages =
-        totalUnreadMessages;
-
-    ViewBag.Customers =
-        customers;
-
-    ViewBag.DeliveryUsers =
-        deliveryUsers;
-
-    ViewBag.Admins =
-        admins;
-
-    ViewBag.UnreadCounts =
-        unreadCounts;
-
-    ViewBag.SelectedUserId =
-        userId;
-
-    ViewBag.SelectedUserName =
-        selectedUser.Name;
-
-    ViewBag.ShopkeeperName =
-        shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-    ViewBag.ShopName =
-        shop.ShopName;
-
-    ViewBag.ProfileImage =
-        shop.Shopkeeper?.ProfileImage;
-
-    return View(
-        "Chat",
-        messages);
-}
-
-
-// ============================================================
-// SEND MESSAGE
-// ============================================================
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> SendMessage(
-    int receiverId,
-    string message)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    int shopkeeperId =
-        GetShopkeeperId()!.Value;
-
-    // --------------------------------------------------------
-    // PREVENT SELF MESSAGE
-    // --------------------------------------------------------
-
-    if (receiverId == shopkeeperId)
-    {
-        TempData["Error"] =
-            "You cannot send a message to yourself.";
-
-        return RedirectToAction("Chat");
-    }
-
-    // --------------------------------------------------------
-    // EMPTY MESSAGE
-    // --------------------------------------------------------
-
-    if (string.IsNullOrWhiteSpace(message))
-    {
-        TempData["Error"] =
-            "Message cannot be empty.";
-
-        return RedirectToAction(
-            "Conversation",
-            new { userId = receiverId });
-    }
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    // --------------------------------------------------------
-    // FIND RECEIVER
-    // --------------------------------------------------------
-
-    var receiver = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(
-            u =>
-                u.UserId == receiverId &&
-                u.Status);
-
-    if (receiver == null ||
-        receiver.Role == null)
-    {
-        TempData["Error"] =
-            "Receiver not found.";
-
-        return RedirectToAction("Chat");
-    }
-
-    string role =
-        receiver.Role.RoleName;
-
-    bool allowed = false;
-
-    // --------------------------------------------------------
-    // ADMIN
-    // --------------------------------------------------------
-
-    if (string.Equals(
-            role,
-            AdminRole,
-            StringComparison.OrdinalIgnoreCase))
-    {
-        allowed = true;
-    }
-
-    // --------------------------------------------------------
-    // CUSTOMER
-    // --------------------------------------------------------
-
-    else if (string.Equals(
-                 role,
-                 CustomerRole,
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        allowed =
-            await _context.Orders.AnyAsync(
-                o =>
+            var customerIds = await _context.Orders
+                .Where(o =>
                     o.ShopId == shop.ShopId &&
-                    o.CustomerId == receiverId &&
-                    o.OrderStatus != "Cancelled");
-    }
+                    o.OrderStatus != "Cancelled" &&
+                    o.CustomerId != shopkeeperId)
+                .Select(o => o.CustomerId)
+                .Distinct()
+                .ToListAsync();
 
-    // --------------------------------------------------------
-    // DELIVERY
-    // --------------------------------------------------------
+            var customers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    customerIds.Contains(u.UserId) &&
+                    u.Status)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
 
-    else if (string.Equals(
-                 role,
-                 DeliveryRole,
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        allowed =
-            await _context.Orders.AnyAsync(
-                o =>
+            var deliveryIds = await _context.Orders
+                .Where(o =>
                     o.ShopId == shop.ShopId &&
-                    o.DeliveryId == receiverId &&
-                    o.OrderStatus != "Cancelled");
-    }
+                    o.OrderStatus != "Cancelled" &&
+                    o.DeliveryId.HasValue)
+                .Select(o => o.DeliveryId!.Value)
+                .Distinct()
+                .ToListAsync();
 
-    // --------------------------------------------------------
-    // NOT ALLOWED
-    // --------------------------------------------------------
+            var deliveryUsers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    deliveryIds.Contains(u.UserId) &&
+                    u.Status)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
 
-    if (!allowed)
-    {
-        TempData["Error"] =
-            "You are not allowed to message this user.";
+            var admins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    u.Role != null &&
+                    u.Role.RoleName == AdminRole &&
+                    u.Status &&
+                    u.IsApproved)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
 
-        return RedirectToAction("Chat");
-    }
+            var unreadCounts = await _context.ChatMessages
+                .Where(m =>
+                    m.ReceiverId == shopkeeperId &&
+                    !m.IsRead &&
+                    !m.IsDeleted)
+                .GroupBy(m => m.SenderId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(
+                    x => x.UserId,
+                    x => x.Count);
 
-    // --------------------------------------------------------
-    // CREATE MESSAGE
-    // --------------------------------------------------------
+           
+            int totalUnreadMessages =
+                await _context.ChatMessages
+                    .CountAsync(m =>
+                        m.ReceiverId == shopkeeperId &&
+                        !m.IsRead &&
+                        !m.IsDeleted);
 
-    var chatMessage = new ChatMessage
-    {
-        SenderId = shopkeeperId,
-        ReceiverId = receiverId,
-        Message = message.Trim(),
-        IsRead = false,
-        IsDeleted = false,
-        SentDate = DateTime.Now
-    };
+          
+            ViewBag.CurrentUserId =
+                shopkeeperId;
 
-    _context.ChatMessages.Add(chatMessage);
+            ViewBag.TotalUnreadMessages =
+                totalUnreadMessages;
 
-    await _context.SaveChangesAsync();
+            ViewBag.Customers =
+                customers;
 
-    // --------------------------------------------------------
-    // NOTIFICATION
-    // --------------------------------------------------------
+            ViewBag.DeliveryUsers =
+                deliveryUsers;
 
-    await CreateNotification(
-        receiverId,
-        "New Message",
-        $"You have a new message from {HttpContext.Session.GetString("UserName") ?? "Shopkeeper"}.",
-        "Chat",
-        null);
+            ViewBag.Admins =
+                admins;
 
-    return RedirectToAction(
-        "Conversation",
-        new { userId = receiverId });
-}
+            ViewBag.UnreadCounts =
+                unreadCounts;
 
+            ViewBag.SelectedUserId =
+                null;
 
-// ============================================================
-// DELETE MESSAGE
-// ============================================================
+            ViewBag.SelectedUserName =
+                null;
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteMessage(
-    int messageId,
-    int receiverId)
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
 
-    int shopkeeperId =
-        GetShopkeeperId()!.Value;
+            ViewBag.ShopName =
+                shop.ShopName;
 
-    // --------------------------------------------------------
-    // VALIDATE IDS
-    // --------------------------------------------------------
+            ViewBag.ProfileImage =
+                shop.Shopkeeper?.ProfileImage;
 
-    if (messageId <= 0 ||
-        receiverId <= 0)
-    {
-        TempData["Error"] =
-            "Invalid message.";
-
-        return RedirectToAction("Chat");
-    }
-
-    // --------------------------------------------------------
-    // FIND MESSAGE
-    // --------------------------------------------------------
-
-    var chatMessage =
-        await _context.ChatMessages
-            .FirstOrDefaultAsync(
-                m =>
-                    m.ChatMessageId == messageId);
-
-    if (chatMessage == null)
-    {
-        TempData["Error"] =
-            "Message not found.";
-
-        return RedirectToAction(
-            "Conversation",
-            new { userId = receiverId });
-    }
-
-    // --------------------------------------------------------
-    // ONLY MESSAGE SENDER CAN DELETE
-    // --------------------------------------------------------
-
-    if (chatMessage.SenderId != shopkeeperId)
-    {
-        TempData["Error"] =
-            "You can only delete your own messages.";
-
-        return RedirectToAction(
-            "Conversation",
-            new { userId = receiverId });
-    }
-
-    // --------------------------------------------------------
-    // VERIFY CONVERSATION
-    // --------------------------------------------------------
-
-    if (chatMessage.ReceiverId != receiverId)
-    {
-        TempData["Error"] =
-            "Invalid conversation.";
-
-        return RedirectToAction(
-            "Conversation",
-            new { userId = receiverId });
-    }
-
-    // --------------------------------------------------------
-    // ALREADY DELETED
-    // --------------------------------------------------------
-
-    if (chatMessage.IsDeleted)
-    {
-        return RedirectToAction(
-            "Conversation",
-            new { userId = receiverId });
-    }
-
-    // --------------------------------------------------------
-    // SOFT DELETE
-    // --------------------------------------------------------
-
-    chatMessage.IsDeleted = true;
-
-    chatMessage.Message =
-        "This message was deleted.";
-
-    await _context.SaveChangesAsync();
-
-    // --------------------------------------------------------
-    // RETURN TO SAME CONVERSATION
-    // --------------------------------------------------------
-
-    return RedirectToAction(
-        "Conversation",
-        new { userId = receiverId });
-}
+            return View(
+                new List<ChatMessage>());
+        }
 
 
+        public async Task<IActionResult> Conversation(int userId)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
-        // ============================================================
-        // NOTIFICATIONS
-        // ============================================================
+            int shopkeeperId =
+                GetShopkeeperId()!.Value;
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+           
+            if (userId == shopkeeperId)
+            {
+                TempData["Error"] =
+                    "You cannot chat with yourself.";
+
+                return RedirectToAction("Chat");
+            }
+
+            var selectedUser = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(
+                    u =>
+                        u.UserId == userId &&
+                        u.Status);
+
+            if (selectedUser == null ||
+                selectedUser.Role == null)
+            {
+                TempData["Error"] =
+                    "Selected user was not found.";
+
+                return RedirectToAction("Chat");
+            }
+
+            string selectedRole =
+                selectedUser.Role.RoleName;
+
+            bool isAllowed = false;
+
+            
+            if (string.Equals(
+                    selectedRole,
+                    AdminRole,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                isAllowed = true;
+            }
+
+           
+            else if (string.Equals(
+                         selectedRole,
+                         CustomerRole,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                isAllowed =
+                    await _context.Orders.AnyAsync(
+                        o =>
+                            o.ShopId == shop.ShopId &&
+                            o.CustomerId == userId &&
+                            o.OrderStatus != "Cancelled");
+            }
+
+            else if (string.Equals(
+                         selectedRole,
+                         DeliveryRole,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                isAllowed =
+                    await _context.Orders.AnyAsync(
+                        o =>
+                            o.ShopId == shop.ShopId &&
+                            o.DeliveryId == userId &&
+                            o.OrderStatus != "Cancelled");
+            }
+
+            if (!isAllowed)
+            {
+                TempData["Error"] =
+                    "You are not allowed to chat with this user.";
+
+                return RedirectToAction("Chat");
+            }
+
+           
+            var messages = await _context.ChatMessages
+                .Include(m => m.Sender)
+                .Include(m => m.Receiver)
+                .Where(m =>
+                    (m.SenderId == shopkeeperId &&
+                     m.ReceiverId == userId)
+                    ||
+                    (m.SenderId == userId &&
+                     m.ReceiverId == shopkeeperId))
+                .OrderBy(m => m.SentDate)
+                .ToListAsync();
+
+           
+            var unreadMessages =
+                messages.Where(m =>
+                    m.ReceiverId == shopkeeperId &&
+                    !m.IsRead &&
+                    !m.IsDeleted);
+
+            foreach (var message in unreadMessages)
+            {
+                message.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var customerIds = await _context.Orders
+                .Where(o =>
+                    o.ShopId == shop.ShopId &&
+                    o.OrderStatus != "Cancelled")
+                .Select(o => o.CustomerId)
+                .Distinct()
+                .ToListAsync();
+
+            var customers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    customerIds.Contains(u.UserId) &&
+                    u.Status)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
+
+            
+            var deliveryIds = await _context.Orders
+                .Where(o =>
+                    o.ShopId == shop.ShopId &&
+                    o.OrderStatus != "Cancelled" &&
+                    o.DeliveryId.HasValue)
+                .Select(o => o.DeliveryId!.Value)
+                .Distinct()
+                .ToListAsync();
+
+            var deliveryUsers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    deliveryIds.Contains(u.UserId) &&
+                    u.Status)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
+
+            var admins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    u.Role != null &&
+                    u.Role.RoleName == AdminRole &&
+                    u.Status &&
+                    u.IsApproved)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
+
+           
+            var unreadCounts = await _context.ChatMessages
+                .Where(m =>
+                    m.ReceiverId == shopkeeperId &&
+                    !m.IsRead &&
+                    !m.IsDeleted)
+                .GroupBy(m => m.SenderId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(
+                    x => x.UserId,
+                    x => x.Count);
+
+            int totalUnreadMessages =
+                await _context.ChatMessages
+                    .CountAsync(m =>
+                        m.ReceiverId == shopkeeperId &&
+                        !m.IsRead &&
+                        !m.IsDeleted);
+
+            ViewBag.CurrentUserId =
+                shopkeeperId;
+
+            ViewBag.TotalUnreadMessages =
+                totalUnreadMessages;
+
+            ViewBag.Customers =
+                customers;
+
+            ViewBag.DeliveryUsers =
+                deliveryUsers;
+
+            ViewBag.Admins =
+                admins;
+
+            ViewBag.UnreadCounts =
+                unreadCounts;
+
+            ViewBag.SelectedUserId =
+                userId;
+
+            ViewBag.SelectedUserName =
+                selectedUser.Name;
+
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
+
+            ViewBag.ShopName =
+                shop.ShopName;
+
+            ViewBag.ProfileImage =
+                shop.Shopkeeper?.ProfileImage;
+
+            return View(
+                "Chat",
+                messages);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendMessage(
+            int receiverId,
+            string message)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId =
+                GetShopkeeperId()!.Value;
+
+            if (receiverId == shopkeeperId)
+            {
+                TempData["Error"] =
+                    "You cannot send a message to yourself.";
+
+                return RedirectToAction("Chat");
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                TempData["Error"] =
+                    "Message cannot be empty.";
+
+                return RedirectToAction(
+                    "Conversation",
+                    new { userId = receiverId });
+            }
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            
+            var receiver = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(
+                    u =>
+                        u.UserId == receiverId &&
+                        u.Status);
+
+            if (receiver == null ||
+                receiver.Role == null)
+            {
+                TempData["Error"] =
+                    "Receiver not found.";
+
+                return RedirectToAction("Chat");
+            }
+
+            string role =
+                receiver.Role.RoleName;
+
+            bool allowed = false;
+
+            
+            if (string.Equals(
+                    role,
+                    AdminRole,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                allowed = true;
+            }
+
+           
+            else if (string.Equals(
+                         role,
+                         CustomerRole,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                allowed =
+                    await _context.Orders.AnyAsync(
+                        o =>
+                            o.ShopId == shop.ShopId &&
+                            o.CustomerId == receiverId &&
+                            o.OrderStatus != "Cancelled");
+            }
+
+            else if (string.Equals(
+                         role,
+                         DeliveryRole,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                allowed =
+                    await _context.Orders.AnyAsync(
+                        o =>
+                            o.ShopId == shop.ShopId &&
+                            o.DeliveryId == receiverId &&
+                            o.OrderStatus != "Cancelled");
+            }
+
+            if (!allowed)
+            {
+                TempData["Error"] =
+                    "You are not allowed to message this user.";
+
+                return RedirectToAction("Chat");
+            }
+
+            var chatMessage = new ChatMessage
+            {
+                SenderId = shopkeeperId,
+                ReceiverId = receiverId,
+                Message = message.Trim(),
+                IsRead = false,
+                IsDeleted = false,
+                SentDate = DateTime.Now
+            };
+
+            _context.ChatMessages.Add(chatMessage);
+
+            await _context.SaveChangesAsync();
+
+           
+            await CreateNotification(
+                receiverId,
+                "New Message",
+                $"You have a new message from {HttpContext.Session.GetString("UserName") ?? "Shopkeeper"}.",
+                "Chat",
+                null);
+
+            return RedirectToAction(
+                "Conversation",
+                new { userId = receiverId });
+        }
+
+
+       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMessage(
+            int messageId,
+            int receiverId)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            int shopkeeperId =
+                GetShopkeeperId()!.Value;
+
+            if (messageId <= 0 ||
+                receiverId <= 0)
+            {
+                TempData["Error"] =
+                    "Invalid message.";
+
+                return RedirectToAction("Chat");
+            }
+
+            var chatMessage =
+                await _context.ChatMessages
+                    .FirstOrDefaultAsync(
+                        m =>
+                            m.ChatMessageId == messageId);
+
+            if (chatMessage == null)
+            {
+                TempData["Error"] =
+                    "Message not found.";
+
+                return RedirectToAction(
+                    "Conversation",
+                    new { userId = receiverId });
+            }
+
+            
+            if (chatMessage.SenderId != shopkeeperId)
+            {
+                TempData["Error"] =
+                    "You can only delete your own messages.";
+
+                return RedirectToAction(
+                    "Conversation",
+                    new { userId = receiverId });
+            }
+
+            
+            if (chatMessage.ReceiverId != receiverId)
+            {
+                TempData["Error"] =
+                    "Invalid conversation.";
+
+                return RedirectToAction(
+                    "Conversation",
+                    new { userId = receiverId });
+            }
+
+            if (chatMessage.IsDeleted)
+            {
+                return RedirectToAction(
+                    "Conversation",
+                    new { userId = receiverId });
+            }
+
+            chatMessage.IsDeleted = true;
+
+            chatMessage.Message =
+                "This message was deleted.";
+
+            await _context.SaveChangesAsync();
+
+            
+            return RedirectToAction(
+                "Conversation",
+                new { userId = receiverId });
+        }
+
 
         public async Task<IActionResult> Notifications()
         {
@@ -3489,11 +2906,9 @@ public async Task<IActionResult> DeleteMessage(
                 .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedDate)
                 .ToListAsync();
-            // ------------------------------------------------------------
-            // UNREAD / READ COUNTS 
-            // ------------------------------------------------------------
-             int unreadCount =
-                notifications.Count(n => !n.IsRead);
+
+            int unreadCount =
+               notifications.Count(n => !n.IsRead);
             int readCount =
                 notifications.Count(n => n.IsRead);
             ViewBag.ShopkeeperName =
@@ -3514,10 +2929,7 @@ public async Task<IActionResult> DeleteMessage(
             return View(notifications);
         }
 
-        // ============================================================
-        // MARK ONE NOTIFICATION READ
-        // ============================================================
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationRead(
@@ -3545,10 +2957,7 @@ public async Task<IActionResult> DeleteMessage(
             return RedirectToAction("Notifications");
         }
 
-        // ============================================================
-        // MARK ALL NOTIFICATIONS READ
-        // ============================================================
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllNotificationsRead()
@@ -3578,10 +2987,6 @@ public async Task<IActionResult> DeleteMessage(
 
             return RedirectToAction("Notifications");
         }
-
-        // ============================================================
-        // PROFILE - GET
-        // ============================================================
 
         [HttpGet]
         public async Task<IActionResult> Profile()
@@ -3617,10 +3022,7 @@ public async Task<IActionResult> DeleteMessage(
             return View(user);
         }
 
-        // ============================================================
-        // PROFILE - POST
-        // ============================================================
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(
@@ -3657,10 +3059,7 @@ public async Task<IActionResult> DeleteMessage(
                     "Account");
             }
 
-            // --------------------------------------------------------
-            // BASIC VALIDATION
-            // --------------------------------------------------------
-
+            
             if (string.IsNullOrWhiteSpace(model.Name))
             {
                 ModelState.AddModelError(
@@ -3674,10 +3073,6 @@ public async Task<IActionResult> DeleteMessage(
                     "Email",
                     "Email is required.");
             }
-
-            // --------------------------------------------------------
-            // EMAIL DUPLICATE CHECK
-            // --------------------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
@@ -3698,10 +3093,6 @@ public async Task<IActionResult> DeleteMessage(
                         "This email is already registered.");
                 }
             }
-
-            // --------------------------------------------------------
-            // PAYMENT VALIDATION
-            // --------------------------------------------------------
 
             string? paymentMethod =
                 model.PaymentMethod?.Trim();
@@ -3733,10 +3124,7 @@ public async Task<IActionResult> DeleteMessage(
                 }
             }
 
-            // --------------------------------------------------------
-            // PROFILE IMAGE VALIDATION
-            // --------------------------------------------------------
-
+            
             if (profileImage != null &&
                 profileImage.Length > 0)
             {
@@ -3780,10 +3168,6 @@ public async Task<IActionResult> DeleteMessage(
                 return View(model);
             }
 
-            // --------------------------------------------------------
-            // UPDATE USER
-            // --------------------------------------------------------
-
             user.Name =
                 model.Name.Trim();
 
@@ -3807,10 +3191,6 @@ public async Task<IActionResult> DeleteMessage(
                     model.PaymentAccount)
                     ? null
                     : model.PaymentAccount.Trim();
-
-            // --------------------------------------------------------
-            // UPDATE PROFILE IMAGE
-            // --------------------------------------------------------
 
             if (profileImage != null &&
                 profileImage.Length > 0)
@@ -3853,10 +3233,6 @@ public async Task<IActionResult> DeleteMessage(
             }
         }
 
-        // ============================================================
-        // LOGOUT
-        // ============================================================
-
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -3866,10 +3242,7 @@ public async Task<IActionResult> DeleteMessage(
                 "Account");
         }
 
-        // ============================================================
-        // CREATE NOTIFICATION
-        // ============================================================
-
+       
         private async Task CreateNotification(
             int userId,
             string title,
@@ -3893,10 +3266,6 @@ public async Task<IActionResult> DeleteMessage(
 
             await _context.SaveChangesAsync();
         }
-
-        // ============================================================
-        // SAVE FILE
-        // ============================================================
 
         private async Task<string> SaveFile(
             IFormFile file,

@@ -17,11 +17,11 @@
 
     <title>@ViewData["Title"] - WeddingClosetHubs</title>
 
-    
+
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-    <!-- Bootstrap Icons -->
+
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
@@ -45,16 +45,16 @@
             box-shadow: 0 3px 12px rgba(0,0,0,0.08);
         }
 
-        .page-header h2 {
-            margin: 0;
-            font-weight: 700;
-            color: #343a40;
-        }
+            .page-header h2 {
+                margin: 0;
+                font-weight: 700;
+                color: #343a40;
+            }
 
-        .page-header p {
-            margin-top: 7px;
-            color: #777;
-        }
+            .page-header p {
+                margin-top: 7px;
+                color: #777;
+            }
 
         .back-btn {
             border-radius: 8px;
@@ -76,10 +76,10 @@
             padding: 17px 22px;
         }
 
-        .delivery-card-header h5 {
-            margin: 0;
-            font-weight: 700;
-        }
+            .delivery-card-header h5 {
+                margin: 0;
+                font-weight: 700;
+            }
 
         .table-container {
             padding: 20px;
@@ -89,23 +89,23 @@
             margin-bottom: 0;
         }
 
-        .table thead th {
-            background: #212529;
-            color: white;
-            border: none;
-            padding: 13px 10px;
-            white-space: nowrap;
-            font-size: 14px;
-        }
+            .table thead th {
+                background: #212529;
+                color: white;
+                border: none;
+                padding: 13px 10px;
+                white-space: nowrap;
+                font-size: 14px;
+            }
 
-        .table tbody td {
-            padding: 13px 10px;
-            vertical-align: middle;
-        }
+            .table tbody td {
+                padding: 13px 10px;
+                vertical-align: middle;
+            }
 
-        .table tbody tr:hover {
-            background: #f8f9fa;
-        }
+            .table tbody tr:hover {
+                background: #f8f9fa;
+            }
 
         .delivery-name {
             font-weight: 600;
@@ -127,10 +127,10 @@
             font-size: 13px;
         }
 
-        .btn-details:hover {
-            background: #0b5ed7;
-            color: white;
-        }
+            .btn-details:hover {
+                background: #0b5ed7;
+                color: white;
+            }
 
         .empty-box {
             text-align: center;
@@ -138,16 +138,16 @@
             color: #777;
         }
 
-        .empty-box i {
-            font-size: 65px;
-            color: #adb5bd;
-        }
+            .empty-box i {
+                font-size: 65px;
+                color: #adb5bd;
+            }
 
-        .empty-box h5 {
-            margin-top: 20px;
-            font-weight: 600;
-            color: #555;
-        }
+            .empty-box h5 {
+                margin-top: 20px;
+                font-weight: 600;
+                color: #555;
+            }
 
         .alert {
             border-radius: 8px;
@@ -172,7 +172,6 @@
             .back-btn {
                 width: 100%;
             }
-
         }
 
     </style>
@@ -315,14 +314,14 @@
 
                                     <tr>
 
-                                      
+
 
                                         <td>
                                             @count
                                         </td>
 
 
-                                       
+
 
                                         <td>
 
@@ -347,49 +346,49 @@
                                         <td>
 
                                             @(string.IsNullOrEmpty(delivery.User?.Phone)
-                                                ? "N/A"
-                                                : delivery.User.Phone)
+                                                                                ? "N/A"
+                                                                                : delivery.User.Phone)
 
                                         </td>
 
 
-                                      
+
 
                                         <td>
 
                                             @(string.IsNullOrEmpty(delivery.CNIC)
-                                                ? "N/A"
-                                                : delivery.CNIC)
+                                                                                ? "N/A"
+                                                                                : delivery.CNIC)
 
                                         </td>
 
 
-                                       
+
                                         <td>
 
                                             @(string.IsNullOrEmpty(delivery.MotorbikeNumber)
-                                                ? "N/A"
-                                                : delivery.MotorbikeNumber)
+                                                                                ? "N/A"
+                                                                                : delivery.MotorbikeNumber)
 
                                         </td>
 
 
-                                        
+
 
                                         <td>
 
                                             @(string.IsNullOrEmpty(delivery.PreferredZone)
-                                                ? "N/A"
-                                                : delivery.PreferredZone)
+                                                                                ? "N/A"
+                                                                                : delivery.PreferredZone)
 
-                                        </td>
+                                </td>
 
 
-                                       
+
 
                                         <td>
 
-                                            @if (string.IsNullOrEmpty(delivery.AssignedZone))
+                                    @if (string.IsNullOrEmpty(delivery.AssignedZone))
                                             {
                                                 <span class="badge bg-secondary">
                                                     Not Assigned
@@ -405,7 +404,7 @@
                                         </td>
 
 
-                                       
+
 
                                         <td>
 
@@ -443,12 +442,12 @@
                                         </td>
 
 
-                                       
+
 
                                         <td>
 
                                             @if (delivery.User != null &&
-                                                 delivery.User.Status)
+                                                                                delivery.User.Status)
                                             {
                                                 <span class="badge bg-success">
 
@@ -472,7 +471,7 @@
                                         </td>
 
 
-                                       
+
 
                                         <td>
 
@@ -528,7 +527,7 @@
     </div>
 
 
-  
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
     </script>

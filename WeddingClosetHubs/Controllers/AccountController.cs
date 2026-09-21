@@ -16,17 +16,14 @@ namespace WeddingClosetHubs.Controllers
             _context = context;
         }
 
-        
+
         private string NormalizeCNIC(string cnic)
         {
-              return cnic
-              .Trim()
-              .Replace(" ", "");
+            return cnic
+            .Trim()
+            .Replace(" ", "");
         }
 
-        // ============================================================
-        // CONSTANTS
-        // ============================================================
 
         private const long MaxImageSize = 5 * 1024 * 1024; // 5 MB
 
@@ -45,10 +42,6 @@ namespace WeddingClosetHubs.Controllers
         };
 
 
-        // ============================================================
-        // REGISTER - GET
-        // ============================================================
-
         [HttpGet]
         public async Task<IActionResult> Register()
         {
@@ -57,19 +50,10 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
-
-        // ============================================================
-        // REGISTER - POST
-        // ============================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
             User user,
-
-            // --------------------------------------------------------
-            // SHOPKEEPER DATA
-            // --------------------------------------------------------
 
             string? ShopName,
             string? ShopCategory,
@@ -80,10 +64,6 @@ namespace WeddingClosetHubs.Controllers
             IFormFile? ShopInsidePhoto,
             IFormFile? ShopSignboardPhoto,
 
-            // --------------------------------------------------------
-            // DELIVERY DATA
-            // --------------------------------------------------------
-
             string? CNIC,
             IFormFile? CNICFrontImage,
             IFormFile? CNICBackImage,
@@ -91,10 +71,7 @@ namespace WeddingClosetHubs.Controllers
             string? MotorbikeNumber,
             string? PreferredZone)
         {
-            // ========================================================
-            // BASIC MODEL VALIDATION
-            // ========================================================
-
+            
             if (!ModelState.IsValid)
             {
                 await LoadRoles();
@@ -102,10 +79,6 @@ namespace WeddingClosetHubs.Controllers
                 return View(user);
             }
 
-
-            // ========================================================
-            // NAME VALIDATION
-            // ========================================================
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
@@ -146,10 +119,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // EMAIL VALIDATION
-            // ========================================================
-
             if (string.IsNullOrWhiteSpace(user.Email))
             {
                 ModelState.AddModelError(
@@ -172,10 +141,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // EMAIL DUPLICATE CHECK
-            // ========================================================
-
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
                 string normalizedEmail =
@@ -196,10 +161,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
-            // ========================================================
-            // USER PHONE VALIDATION
-            // ========================================================
 
             if (string.IsNullOrWhiteSpace(user.Phone))
             {
@@ -222,10 +183,7 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // USER PHONE DUPLICATE CHECK
-            // ========================================================
-
+           
             if (!string.IsNullOrWhiteSpace(user.Phone))
             {
                 string normalizedPhone =
@@ -246,10 +204,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
-            // ========================================================
-            // USER ADDRESS VALIDATION
-            // ========================================================
 
             if (string.IsNullOrWhiteSpace(user.Address))
             {
@@ -279,10 +233,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // ROLE VALIDATION
-            // ========================================================
-
             var role = await _context.Roles
                 .FirstOrDefaultAsync(
                     r => r.RoleId == user.RoleId
@@ -301,10 +251,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // ADMIN REGISTRATION NOT ALLOWED
-            // ========================================================
-
             if (role.RoleName == "Admin")
             {
                 ModelState.AddModelError(
@@ -317,10 +263,6 @@ namespace WeddingClosetHubs.Controllers
                 return View(user);
             }
 
-
-            // ========================================================
-            // PASSWORD VALIDATION
-            // ========================================================
 
             if (string.IsNullOrWhiteSpace(user.Password))
             {
@@ -371,16 +313,8 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // SHOPKEEPER VALIDATION
-            // ========================================================
-
             if (role.RoleName == "Shopkeeper")
             {
-                // ----------------------------------------------------
-                // SHOP NAME
-                // ----------------------------------------------------
-
                 if (string.IsNullOrWhiteSpace(ShopName))
                 {
                     ModelState.AddModelError(
@@ -410,10 +344,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ----------------------------------------------------
-                // SHOP CATEGORY
-                // ----------------------------------------------------
-
                 if (string.IsNullOrWhiteSpace(ShopCategory))
                 {
                     ModelState.AddModelError(
@@ -433,11 +363,6 @@ namespace WeddingClosetHubs.Controllers
                         );
                     }
                 }
-
-
-                // ----------------------------------------------------
-                // SHOP PHONE
-                // ----------------------------------------------------
 
                 if (string.IsNullOrWhiteSpace(ShopPhone))
                 {
@@ -459,10 +384,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                // ----------------------------------------------------
-                // SHOP ADDRESS
-                // ----------------------------------------------------
 
                 if (string.IsNullOrWhiteSpace(ShopAddress))
                 {
@@ -491,11 +412,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                // ----------------------------------------------------
-                // SHOP DESCRIPTION
-                // ----------------------------------------------------
-
                 if (!string.IsNullOrWhiteSpace(ShopDescription))
                 {
                     ShopDescription = ShopDescription.Trim();
@@ -510,10 +426,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ----------------------------------------------------
-                // SHOP FRONT IMAGE
-                // ----------------------------------------------------
-
                 if (!IsAllowedImage(ShopFrontPhoto))
                 {
                     ModelState.AddModelError(
@@ -523,10 +435,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ----------------------------------------------------
-                // SHOP INSIDE IMAGE
-                // ----------------------------------------------------
-
                 if (!IsAllowedImage(ShopInsidePhoto))
                 {
                     ModelState.AddModelError(
@@ -535,10 +443,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-
-                // ----------------------------------------------------
-                // SHOP SIGNBOARD IMAGE
-                // ----------------------------------------------------
 
                 if (!IsAllowedImage(ShopSignboardPhoto))
                 {
@@ -550,16 +454,9 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // DELIVERY VALIDATION
-            // ========================================================
-
             if (role.RoleName == "Delivery")
             {
-                // ----------------------------------------------------
-                // CNIC
-                // ----------------------------------------------------
-
+                
                 if (string.IsNullOrWhiteSpace(CNIC))
                 {
                     ModelState.AddModelError(
@@ -580,10 +477,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                // ----------------------------------------------------
-                // CNIC DUPLICATE CHECK
-                // ----------------------------------------------------
 
                 if (!string.IsNullOrWhiteSpace(CNIC) &&
                     IsValidCNIC(CNIC))
@@ -606,11 +499,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                // ----------------------------------------------------
-                // CNIC FRONT IMAGE
-                // ----------------------------------------------------
-
                 if (!IsAllowedImage(CNICFrontImage))
                 {
                     ModelState.AddModelError(
@@ -618,11 +506,6 @@ namespace WeddingClosetHubs.Controllers
                         "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB."
                     );
                 }
-
-
-                // ----------------------------------------------------
-                // CNIC BACK IMAGE
-                // ----------------------------------------------------
 
                 if (!IsAllowedImage(CNICBackImage))
                 {
@@ -632,10 +515,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-
-                // ----------------------------------------------------
-                // VEHICLE TYPE
-                // ----------------------------------------------------
 
                 if (string.IsNullOrWhiteSpace(VehicleType))
                 {
@@ -655,10 +534,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-
-                // ----------------------------------------------------
-                // MOTORBIKE NUMBER
-                // ----------------------------------------------------
 
                 if (string.IsNullOrWhiteSpace(MotorbikeNumber))
                 {
@@ -690,10 +565,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ----------------------------------------------------
-                // MOTORBIKE NUMBER DUPLICATE
-                // ----------------------------------------------------
-
                 if (!string.IsNullOrWhiteSpace(MotorbikeNumber))
                 {
                     string normalizedMotorbike =
@@ -716,10 +587,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                // ----------------------------------------------------
-                // DELIVERY ZONE
-                // ----------------------------------------------------
 
                 if (string.IsNullOrWhiteSpace(PreferredZone))
                 {
@@ -752,10 +619,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // FINAL VALIDATION CHECK
-            // ========================================================
-
             if (!ModelState.IsValid)
             {
                 foreach (var item in ModelState)
@@ -774,10 +637,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // NORMALIZE USER DATA
-            // ========================================================
-
             user.Email =
                 user.Email!.Trim().ToLowerInvariant();
 
@@ -794,11 +653,6 @@ namespace WeddingClosetHubs.Controllers
 
             user.CreatedDate = DateTime.Now;
 
-
-            // ========================================================
-            // CUSTOMER APPROVAL
-            // ========================================================
-
             if (role.RoleName == "Customer")
             {
                 user.IsApproved = true;
@@ -813,27 +667,16 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // ========================================================
-            // DATABASE TRANSACTION
-            // ========================================================
-
             using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // ====================================================
-                // SAVE USER
-                // ====================================================
-
+               
                 _context.Users.Add(user);
 
                 await _context.SaveChangesAsync();
 
-
-                // ====================================================
-                // SHOPKEEPER
-                // ====================================================
 
                 if (role.RoleName == "Shopkeeper")
                 {
@@ -850,10 +693,6 @@ namespace WeddingClosetHubs.Controllers
                         Directory.CreateDirectory(shopFolder);
                     }
 
-
-                    // ------------------------------------------------
-                    // FRONT PHOTO
-                    // ------------------------------------------------
 
                     string frontFileName =
                         Guid.NewGuid().ToString()
@@ -876,10 +715,6 @@ namespace WeddingClosetHubs.Controllers
                     }
 
 
-                    // ------------------------------------------------
-                    // INSIDE PHOTO
-                    // ------------------------------------------------
-
                     string insideFileName =
                         Guid.NewGuid().ToString()
                         + Path.GetExtension(
@@ -901,10 +736,6 @@ namespace WeddingClosetHubs.Controllers
                     }
 
 
-                    // ------------------------------------------------
-                    // SIGNBOARD PHOTO
-                    // ------------------------------------------------
-
                     string signboardFileName =
                         Guid.NewGuid().ToString()
                         + Path.GetExtension(
@@ -925,10 +756,6 @@ namespace WeddingClosetHubs.Controllers
                         await ShopSignboardPhoto.CopyToAsync(stream);
                     }
 
-
-                    // ------------------------------------------------
-                    // CREATE SHOP
-                    // ------------------------------------------------
 
                     var shop = new Shop
                     {
@@ -978,10 +805,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ====================================================
-                // DELIVERY
-                // ====================================================
-
                 if (role.RoleName == "Delivery")
                 {
                     string uploadFolder =
@@ -998,10 +821,7 @@ namespace WeddingClosetHubs.Controllers
                     }
 
 
-                    // ------------------------------------------------
-                    // CNIC FRONT
-                    // ------------------------------------------------
-
+                  
                     string frontFileName =
                         Guid.NewGuid().ToString()
                         + Path.GetExtension(
@@ -1022,10 +842,6 @@ namespace WeddingClosetHubs.Controllers
                         await CNICFrontImage.CopyToAsync(stream);
                     }
 
-
-                    // ------------------------------------------------
-                    // CNIC BACK
-                    // ------------------------------------------------
 
                     string backFileName =
                         Guid.NewGuid().ToString()
@@ -1048,10 +864,7 @@ namespace WeddingClosetHubs.Controllers
                     }
 
 
-                    // ------------------------------------------------
-                    // CREATE DELIVERY BOY
-                    // ------------------------------------------------
-
+                    
                     var deliveryBoy = new DeliveryBoy
                     {
                         UserId = user.UserId,
@@ -1099,10 +912,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-                // ====================================================
-                // COMMIT TRANSACTION
-                // ====================================================
-
                 await transaction.CommitAsync();
             }
             catch (Exception ex)
@@ -1123,10 +932,6 @@ namespace WeddingClosetHubs.Controllers
                 return View(user);
             }
 
-
-            // ========================================================
-            // SUCCESS MESSAGE
-            // ========================================================
 
             if (role.RoleName == "Customer")
             {
@@ -1149,20 +954,12 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // LOGIN - GET
-        // ============================================================
-
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-
-        // ============================================================
-        // LOGIN - POST
-        // ============================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1171,10 +968,7 @@ namespace WeddingClosetHubs.Controllers
             string password,
             string roleName)
         {
-            // --------------------------------------------------------
-            // EMAIL
-            // --------------------------------------------------------
-
+            
             if (string.IsNullOrWhiteSpace(email))
             {
                 ViewBag.Error =
@@ -1184,10 +978,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // PASSWORD
-            // --------------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(password))
             {
                 ViewBag.Error =
@@ -1196,10 +986,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            // --------------------------------------------------------
-            // ROLE
-            // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(roleName))
             {
@@ -1213,10 +999,6 @@ namespace WeddingClosetHubs.Controllers
             email =
                 email.Trim().ToLowerInvariant();
 
-
-            // --------------------------------------------------------
-            // FIND USER
-            // --------------------------------------------------------
 
             var user = await _context.Users
                 .Include(u => u.Role)
@@ -1238,10 +1020,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            // --------------------------------------------------------
-            // APPROVAL CHECK
-            // --------------------------------------------------------
 
             if (!user.IsApproved)
             {
@@ -1267,10 +1045,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            // ========================================================
-            // SESSION
-            // ========================================================
 
             HttpContext.Session.SetInt32(
                 "UserId",
@@ -1307,10 +1081,6 @@ namespace WeddingClosetHubs.Controllers
                 user.Role!.RoleName
             );
 
-
-            // ========================================================
-            // ROLE REDIRECTION
-            // ========================================================
 
             switch (user.Role.RoleName)
             {
@@ -1358,20 +1128,12 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // FORGOT PASSWORD - GET
-        // ============================================================
-
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-
-        // ============================================================
-        // FORGOT PASSWORD - POST
-        // ============================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1427,10 +1189,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // RESET PASSWORD - GET
-        // ============================================================
-
         [HttpGet]
         public IActionResult ResetPassword()
         {
@@ -1450,10 +1208,6 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
-
-        // ============================================================
-        // RESET PASSWORD - POST
-        // ============================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1475,10 +1229,7 @@ namespace WeddingClosetHubs.Controllers
                 );
 
 
-            // --------------------------------------------------------
-            // PASSWORD REQUIRED
-            // --------------------------------------------------------
-
+          
             if (string.IsNullOrWhiteSpace(password))
             {
                 ViewBag.Error =
@@ -1492,10 +1243,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // PASSWORD LENGTH
-            // --------------------------------------------------------
-
             if (password.Length < 8)
             {
                 ViewBag.Error =
@@ -1508,10 +1255,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            // --------------------------------------------------------
-            // UPPERCASE
-            // --------------------------------------------------------
 
             if (!Regex.IsMatch(
                 password,
@@ -1528,10 +1271,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // LOWERCASE
-            // --------------------------------------------------------
-
             if (!Regex.IsMatch(
                 password,
                 @"[a-z]"))
@@ -1547,10 +1286,7 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // NUMBER
-            // --------------------------------------------------------
-
+           
             if (!Regex.IsMatch(
                 password,
                 @"\d"))
@@ -1566,10 +1302,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // CONFIRM PASSWORD
-            // --------------------------------------------------------
-
             if (password != confirmPassword)
             {
                 ViewBag.Error =
@@ -1582,10 +1314,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            // --------------------------------------------------------
-            // FIND USER
-            // --------------------------------------------------------
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(
@@ -1602,10 +1330,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // UPDATE PASSWORD
-            // --------------------------------------------------------
-
             user.Password = password;
 
             await _context.SaveChangesAsync();
@@ -1621,10 +1345,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // LOGOUT
-        // ============================================================
-
         [HttpGet]
         public IActionResult Logout()
         {
@@ -1636,11 +1356,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // VALIDATION HELPER:
-        // PAKISTANI PHONE
-        // ============================================================
-
+        
         private bool IsPakistaniPhone(string? phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
@@ -1648,16 +1364,7 @@ namespace WeddingClosetHubs.Controllers
 
             phone = phone.Trim();
 
-            /*
-                Accepted formats:
-
-                03001234567
-                0300-1234567
-                +923001234567
-                +92-300-1234567
-                00923001234567
-                0092-300-1234567
-            */
+           
 
             return Regex.IsMatch(
                 phone,
@@ -1666,27 +1373,22 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // NORMALIZE PHONE
-        // ============================================================
-
+        
         private string NormalizePhone(string phone)
         {
             phone = phone.Trim();
 
-            // Remove spaces and hyphens
+            
             phone = phone
                 .Replace(" ", "")
                 .Replace("-", "");
 
-            // Convert +92XXXXXXXXXX to 03XXXXXXXXX
             if (phone.StartsWith("+92"))
             {
                 phone =
                     "0" + phone.Substring(3);
             }
 
-            // Convert 0092XXXXXXXXXX to 03XXXXXXXXX
             if (phone.StartsWith("0092"))
             {
                 phone =
@@ -1697,10 +1399,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // VALIDATE CNIC
-        // ============================================================
-
         private bool IsValidCNIC(string? cnic)
         {
             if (string.IsNullOrWhiteSpace(cnic))
@@ -1708,28 +1406,13 @@ namespace WeddingClosetHubs.Controllers
 
             cnic = cnic.Trim();
 
-            /*
-                Pakistani CNIC format:
-
-                35202-1234567-1
-
-                5 digits
-                -
-                7 digits
-                -
-                1 digit
-            */
-
+          
             return Regex.IsMatch(
                 cnic,
                 @"^\d{5}-\d{7}-\d$"
             );
         }
 
-
-        // ============================================================
-        // RAWALPINDI ADDRESS CHECK
-        // ============================================================
 
         private bool IsRawalpindiAddress(string? address)
         {
@@ -1743,10 +1426,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // DETAILED ADDRESS CHECK
-        // ============================================================
-
         private bool HasDetailedAddress(string? address)
         {
             if (string.IsNullOrWhiteSpace(address))
@@ -1755,7 +1434,7 @@ namespace WeddingClosetHubs.Controllers
             string value =
                 address.Trim().ToLowerInvariant();
 
-            
+
             bool hasNumber =
                 Regex.IsMatch(
                     value,
@@ -1763,7 +1442,7 @@ namespace WeddingClosetHubs.Controllers
                 );
 
 
-           
+
 
             bool hasStreet =
                 value.Contains("street") ||
@@ -1778,7 +1457,7 @@ namespace WeddingClosetHubs.Controllers
                 value.Contains("colony");
 
 
-            
+
 
             bool hasArea =
                 value.Contains("saddar") ||
@@ -1813,10 +1492,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        // ============================================================
-        // IMAGE VALIDATION
-        // ============================================================
-
         private bool IsAllowedImage(IFormFile? file)
         {
             if (file == null ||
@@ -1826,19 +1501,11 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            // --------------------------------------------------------
-            // MAXIMUM SIZE
-            // --------------------------------------------------------
-
             if (file.Length > MaxImageSize)
             {
                 return false;
             }
 
-
-            // --------------------------------------------------------
-            // FILE EXTENSION
-            // --------------------------------------------------------
 
             string extension =
                 Path.GetExtension(
@@ -1852,10 +1519,6 @@ namespace WeddingClosetHubs.Controllers
                 return false;
             }
 
-
-            // --------------------------------------------------------
-            // CONTENT TYPE
-            // --------------------------------------------------------
 
             string contentType =
                 file.ContentType?.ToLowerInvariant()
@@ -1872,10 +1535,6 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
-
-        // ============================================================
-        // LOAD ROLES
-        // ============================================================
 
         private async Task LoadRoles()
         {

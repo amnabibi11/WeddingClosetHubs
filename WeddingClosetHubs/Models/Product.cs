@@ -8,20 +8,11 @@ namespace WeddingClosetHubs.Models
         public int ProductId { get; set; }
 
 
-        // =====================================================
-        // SHOP
-        // =====================================================
-
         [Required]
         public int ShopId { get; set; }
 
         [ForeignKey("ShopId")]
         public virtual Shop? Shop { get; set; }
-
-
-        // =====================================================
-        // PRODUCT INFORMATION
-        // =====================================================
 
         [Required(ErrorMessage = "Product name is required")]
         [StringLength(150)]
@@ -32,75 +23,37 @@ namespace WeddingClosetHubs.Models
         public string? Description { get; set; }
 
 
-        // =====================================================
-        // MAIN CATEGORY
-        // =====================================================
-
         [StringLength(100)]
         public string? Category { get; set; }
 
-
-        // =====================================================
-        // SUBCATEGORY
-        // =====================================================
 
         [StringLength(100)]
         public string? Subcategory { get; set; }
 
 
-        // =====================================================
-        // OCCASION
-        // =====================================================
-
         [StringLength(100)]
         public string? Occasion { get; set; }
 
 
-        // =====================================================
-        // SIZE
-        // =====================================================
-
         [StringLength(50)]
         public string? Size { get; set; }
-
-
-        // =====================================================
-        // SIZE TYPE
-        // Standard / Custom Measurement
-        // =====================================================
 
         [StringLength(50)]
         public string? SizeType { get; set; }
 
 
-        // =====================================================
-        // CUSTOM MEASUREMENTS
-        // =====================================================
-
         [StringLength(1000)]
         public string? CustomMeasurements { get; set; }
 
-
-        // =====================================================
-        // COLOR
-        // =====================================================
 
         [StringLength(50)]
         public string? Color { get; set; }
 
 
-        // =====================================================
-        // PRICE
-        // =====================================================
-
         [Required(ErrorMessage = "Price is required")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-
-        // =====================================================
-        // STOCK QUANTITY
-        // =====================================================
 
         [Required(ErrorMessage = "Stock quantity is required")]
         [Range(0, int.MaxValue,

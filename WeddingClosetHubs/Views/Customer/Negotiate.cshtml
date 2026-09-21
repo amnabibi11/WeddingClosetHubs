@@ -192,10 +192,7 @@
 
 <body>
 
-    <!-- ===================================================== -->
-    <!-- SIDEBAR -->
-    <!-- ===================================================== -->
-
+   
     <div class="sidebar">
 
         <div class="brand">
@@ -294,10 +291,7 @@
     </div>
 
 
-    <!-- ===================================================== -->
-    <!-- MAIN CONTENT -->
-    <!-- ===================================================== -->
-
+    
     <div class="main-content">
 
         <div class="negotiation-container">
@@ -325,10 +319,7 @@
             <div class="negotiation-card">
 
 
-                <!-- ================================================= -->
-                <!-- PRODUCT INFORMATION -->
-                <!-- ================================================= -->
-
+                
                 <div class="row align-items-center">
 
 
@@ -395,10 +386,6 @@
                 </div>
 
 
-                <!-- ================================================= -->
-                <!-- INFORMATION -->
-                <!-- ================================================= -->
-
                 <div class="info-box">
 
                     <i class="bi bi-info-circle me-2"></i>
@@ -428,10 +415,7 @@
                 </div>
 
 
-                <!-- ================================================= -->
-                <!-- NEGOTIATION FORM -->
-                <!-- ================================================= -->
-
+                
                 <form asp-action="MakeNegotiation"
                       asp-controller="Customer"
                       method="post">
@@ -439,16 +423,12 @@
                     @Html.AntiForgeryToken()
 
 
-                    <!-- IMPORTANT:
-                         Customer does NOT see Product ID.
-                         It is automatically submitted. -->
-
                     <input type="hidden"
                            name="productId"
                            value="@Model.ProductId" />
 
 
-                    <!-- OFFER PRICE -->
+                  
 
                     <div class="mb-4">
 
@@ -490,7 +470,7 @@
                     </div>
 
 
-                    <!-- CUSTOMER MESSAGE -->
+                    
 
                     <div class="mb-4">
 
@@ -515,7 +495,7 @@
                     </div>
 
 
-                    <!-- BUTTONS -->
+                  
 
                     <div class="d-flex gap-2 flex-wrap">
 

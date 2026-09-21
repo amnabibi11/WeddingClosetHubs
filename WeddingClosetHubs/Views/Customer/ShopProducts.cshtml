@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<WeddingClosetHubs.Models.Product>
 
 @{
-ViewData["Title"] = "Shop Products";
-Layout = null;
+    ViewData["Title"] = "Shop Products";
+    Layout = null;
 
 
-var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
+    var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
 
 }
@@ -17,578 +17,425 @@ var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 <head>
 
 
-<meta charset="utf-8" />
+    <meta charset="utf-8" />
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-<title>
-    @(shop?.ShopName ?? "Shop Products") - Wedding Closet Hubs
-</title>
+    <title>
+        @(shop?.ShopName ?? "Shop Products") - Wedding Closet Hubs
+    </title>
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-<style>
+    <style>
 
-    * {
-        box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-        margin: 0;
-        background: #f8f5f6;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #333;
-    }
+        body {
+            margin: 0;
+            background: #f8f5f6;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
 
-
-    /* =====================================================
-       NAVBAR
-       ===================================================== */
-
-    .navbar-custom {
-        background: #800020;
-        padding: 15px 35px;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.12);
-    }
-
-    .brand {
-        color: white;
-        font-size: 24px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .brand span {
-        color: #d4af37;
-    }
-
-    .nav-link-custom {
-        color: white;
-        text-decoration: none;
-        margin-left: 20px;
-        font-weight: 500;
-    }
-
-    .nav-link-custom:hover {
-        color: #d4af37;
-    }
-
-    .logout-btn {
-        border: 1px solid #d4af37;
-        color: white;
-        padding: 7px 15px;
-        border-radius: 6px;
-        text-decoration: none;
-        margin-left: 20px;
-    }
-
-    .logout-btn:hover {
-        background: #d4af37;
-        color: #800020;
-    }
-
-
-    /* =====================================================
-       PAGE
-       ===================================================== */
-
-    .page-wrapper {
-        padding: 35px;
-    }
-
-
-    /* =====================================================
-       SHOP HEADER
-       ===================================================== */
-
-    .shop-header {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    }
-
-    .shop-logo-wrapper {
-        width: 110px;
-        height: 110px;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #f3eef0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .shop-logo {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .shop-logo-placeholder {
-        font-size: 45px;
-        color: #800020;
-    }
-
-    .shop-name {
-        color: #800020;
-        font-size: 30px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .shop-category {
-        display: inline-block;
-        background: #fff4d6;
-        color: #806000;
-        padding: 6px 13px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .shop-description {
-        color: #666;
-        margin-bottom: 8px;
-        line-height: 1.6;
-    }
-
-    .shop-address {
-        color: #555;
-        font-size: 14px;
-    }
-
-    .shop-address i {
-        color: #800020;
-    }
-
-
-    /* =====================================================
-       PRODUCT CARD
-       ===================================================== */
-
-    .product-card {
-        background: white;
-        border: none;
-        border-radius: 15px;
-        overflow: hidden;
-        height: 100%;
-        box-shadow: 0 5px 18px rgba(0,0,0,0.07);
-        transition: 0.3s ease;
-    }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.13);
-    }
-
-    .product-image-wrapper {
-        height: 280px;
-        background: #f3eef0;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .product-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: 0.3s ease;
-    }
-
-    .product-card:hover .product-image {
-        transform: scale(1.04);
-    }
-
-    .no-image {
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: #999;
-    }
-
-    .no-image i {
-        font-size: 55px;
-        margin-bottom: 8px;
-    }
-
-
-    /* =====================================================
-       PRODUCT BADGES
-       ===================================================== */
-
-    .category-badge {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background: #800020;
-        color: white;
-        padding: 6px 11px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .custom-badge {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: #d4af37;
-        color: #3d3000;
-        padding: 6px 11px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .out-stock-badge {
-        position: absolute;
-        bottom: 12px;
-        left: 12px;
-        background: #dc3545;
-        color: white;
-        padding: 6px 11px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-
-    /* =====================================================
-       PRODUCT BODY
-       ===================================================== */
-
-    .product-body {
-        padding: 20px;
-    }
-
-    .product-name {
-        color: #800020;
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 7px;
-    }
-
-    .product-description {
-        color: #777;
-        font-size: 13px;
-        line-height: 1.5;
-        min-height: 40px;
-        margin-bottom: 12px;
-    }
-
-    .product-info {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-        margin-bottom: 12px;
-    }
-
-    .info-badge {
-        background: #f6f6f6;
-        border: 1px solid #e5e5e5;
-        color: #555;
-        padding: 5px 8px;
-        border-radius: 5px;
-        font-size: 11px;
-    }
-
-    .info-badge i {
-        color: #800020;
-    }
-
-    .price {
-        color: #800020;
-        font-size: 23px;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-
-    .stock {
-        color: #198754;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .stock-low {
-        color: #dc3545;
-    }
-
-
-    /* =====================================================
-       VIEW PRODUCT BUTTON
-       ===================================================== */
-
-    .view-product-btn {
-        display: block;
-        width: 100%;
-        background: #800020;
-        color: white;
-        border: none;
-        border-radius: 7px;
-        padding: 11px;
-        text-align: center;
-        text-decoration: none;
-        font-weight: 600;
-        margin-top: 15px;
-    }
-
-    .view-product-btn:hover {
-        background: #650018;
-        color: white;
-    }
-
-
-    /* =====================================================
-       EMPTY PRODUCTS
-       ===================================================== */
-
-    .empty-box {
-        background: white;
-        border-radius: 15px;
-        padding: 60px 20px;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    }
-
-    .empty-box i {
-        font-size: 65px;
-        color: #800020;
-        margin-bottom: 15px;
-    }
-
-    .empty-box h4 {
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .empty-box p {
-        color: #777;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE
-       ===================================================== */
-
-    @@media (max-width: 768px) {
 
         .navbar-custom {
-            padding: 15px;
+            background: #800020;
+            padding: 15px 35px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
         }
+
+        .brand {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+            .brand span {
+                color: #d4af37;
+            }
+
+        .nav-link-custom {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+            .nav-link-custom:hover {
+                color: #d4af37;
+            }
+
+        .logout-btn {
+            border: 1px solid #d4af37;
+            color: white;
+            padding: 7px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+            .logout-btn:hover {
+                background: #d4af37;
+                color: #800020;
+            }
+
+
 
         .page-wrapper {
-            padding: 15px;
+            padding: 35px;
         }
 
+
         .shop-header {
-            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .shop-logo-wrapper {
+            width: 110px;
+            height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3eef0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shop-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .shop-logo-placeholder {
+            font-size: 45px;
+            color: #800020;
         }
 
         .shop-name {
-            font-size: 24px;
+            color: #800020;
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
-        .nav-link-custom {
-            margin-left: 8px;
+        .shop-category {
+            display: inline-block;
+            background: #fff4d6;
+            color: #806000;
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
+
+        .shop-description {
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .shop-address {
+            color: #555;
+            font-size: 14px;
+        }
+
+            .shop-address i {
+                color: #800020;
+            }
+
+
+        .product-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.07);
+            transition: 0.3s ease;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.13);
+            }
 
         .product-image-wrapper {
-            height: 250px;
+            height: 280px;
+            background: #f3eef0;
+            position: relative;
+            overflow: hidden;
         }
 
-    }
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.3s ease;
+        }
 
-</style>
+        .product-card:hover .product-image {
+            transform: scale(1.04);
+        }
+
+        .no-image {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #999;
+        }
+
+            .no-image i {
+                font-size: 55px;
+                margin-bottom: 8px;
+            }
+
+
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #800020;
+            color: white;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .custom-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #d4af37;
+            color: #3d3000;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .out-stock-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: #dc3545;
+            color: white;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        .product-body {
+            padding: 20px;
+        }
+
+        .product-name {
+            color: #800020;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .product-description {
+            color: #777;
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 40px;
+            margin-bottom: 12px;
+        }
+
+        .product-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 12px;
+        }
+
+        .info-badge {
+            background: #f6f6f6;
+            border: 1px solid #e5e5e5;
+            color: #555;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+
+            .info-badge i {
+                color: #800020;
+            }
+
+        .price {
+            color: #800020;
+            font-size: 23px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stock {
+            color: #198754;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stock-low {
+            color: #dc3545;
+        }
+
+
+        .view-product-btn {
+            display: block;
+            width: 100%;
+            background: #800020;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 11px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+            .view-product-btn:hover {
+                background: #650018;
+                color: white;
+            }
+
+
+
+
+        .empty-box {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+            .empty-box i {
+                font-size: 65px;
+                color: #800020;
+                margin-bottom: 15px;
+            }
+
+            .empty-box h4 {
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .empty-box p {
+                color: #777;
+            }
+
+
+
+        @@media (max-width: 768px) {
+
+            .navbar-custom {
+                padding: 15px;
+            }
+
+            .page-wrapper {
+                padding: 15px;
+            }
+
+            .shop-header {
+                padding: 20px;
+            }
+
+            .shop-name {
+                font-size: 24px;
+            }
+
+            .nav-link-custom {
+                margin-left: 8px;
+            }
+
+            .product-image-wrapper {
+                height: 250px;
+            }
+        }
+
+    </style>
 
 
 </head>
 
 <body>
 
-<!-- =====================================================
-     NAVBAR
-     ===================================================== -->
 
-<nav class="navbar-custom">
 
+    <nav class="navbar-custom">
 
-<div class="container-fluid d-flex align-items-center justify-content-between">
 
-    <a asp-controller="Customer"
-       asp-action="Dashboard"
-       class="brand">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
 
-        Wedding Closet <span>Hubs</span>
+            <a asp-controller="Customer"
+               asp-action="Dashboard"
+               class="brand">
 
-    </a>
+                Wedding Closet <span>Hubs</span>
 
+            </a>
 
-    <div class="d-flex align-items-center">
 
-        <a asp-controller="Customer"
-           asp-action="Dashboard"
-           class="nav-link-custom">
+            <div class="d-flex align-items-center">
 
-            <i class="bi bi-house"></i>
-            Dashboard
+                <a asp-controller="Customer"
+                   asp-action="Dashboard"
+                   class="nav-link-custom">
 
-        </a>
+                    <i class="bi bi-house"></i>
+                    Dashboard
 
-
-        <a asp-controller="Customer"
-           asp-action="Shops"
-           class="nav-link-custom">
-
-            <i class="bi bi-shop"></i>
-            Shops
-
-        </a>
-
-
-        <a asp-controller="Customer"
-           asp-action="Cart"
-           class="nav-link-custom">
-
-            <i class="bi bi-cart3"></i>
-            Cart
-
-        </a>
-
-
-        <a asp-controller="Account"
-           asp-action="Logout"
-           class="logout-btn">
-
-            <i class="bi bi-box-arrow-right"></i>
-            Logout
-
-        </a>
-
-    </div>
-
-</div>
-
-
-</nav>
-
-<!-- =====================================================
-     MAIN CONTENT
-     ===================================================== -->
-
-<div class="page-wrapper">
-
-
-<!-- =================================================
-     SHOP INFORMATION
-     ================================================= -->
-
-@if (shop != null)
-{
-
-    <div class="shop-header">
-
-        <div class="row align-items-center">
-
-            <div class="col-md-2 text-center mb-3 mb-md-0">
-
-                <div class="shop-logo-wrapper mx-auto">
-
-                    @if (!string.IsNullOrEmpty(shop.Logo))
-                    {
-
-                        <img src="@shop.Logo"
-                             alt="@shop.ShopName"
-                             class="shop-logo" />
-
-                    }
-                    else
-                    {
-
-                        <i class="bi bi-shop shop-logo-placeholder"></i>
-
-                    }
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-7">
-
-                <h1 class="shop-name">
-
-                    @shop.ShopName
-
-                </h1>
-
-
-                @if (!string.IsNullOrEmpty(shop.ShopCategory))
-                {
-
-                    <span class="shop-category">
-
-                        <i class="bi bi-tags"></i>
-
-                        @shop.ShopCategory
-
-                    </span>
-
-                }
-
-
-                @if (!string.IsNullOrEmpty(shop.ShopDescription))
-                {
-
-                    <p class="shop-description">
-
-                        @shop.ShopDescription
-
-                    </p>
-
-                }
-
-
-                <div class="shop-address">
-
-                    <i class="bi bi-geo-alt-fill"></i>
-
-                    @shop.ShopAddress
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-3 text-md-end mt-3 mt-md-0">
-
-                <div class="mb-2">
-
-                    <strong>
-                        @(Model?.Count() ?? 0)
-                    </strong>
-
-                    Products Available
-
-                </div>
+                </a>
 
 
                 <a asp-controller="Customer"
                    asp-action="Shops"
-                   class="btn btn-outline-secondary">
+                   class="nav-link-custom">
 
-                    <i class="bi bi-arrow-left"></i>
+                    <i class="bi bi-shop"></i>
+                    Shops
 
-                    Back to Shops
+                </a>
+
+
+                <a asp-controller="Customer"
+                   asp-action="Cart"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-cart3"></i>
+                    Cart
+
+                </a>
+
+
+                <a asp-controller="Account"
+                   asp-action="Logout"
+                   class="logout-btn">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
 
                 </a>
 
@@ -596,318 +443,114 @@ var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
         </div>
 
-    </div>
 
-}
-
-
-<!-- =================================================
-     ERROR MESSAGE
-     ================================================= -->
-
-@if (TempData["Error"] != null)
-{
-
-    <div class="alert alert-danger alert-dismissible fade show">
-
-        <i class="bi bi-exclamation-triangle-fill"></i>
-
-        @TempData["Error"]
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert">
-        </button>
-
-    </div>
-
-}
+    </nav>
 
 
-<!-- =================================================
-     PRODUCT LIST
-     ================================================= -->
 
-@if (Model != null && Model.Any())
-{
+    <div class="page-wrapper">
 
-    <div class="row g-4">
 
-        @foreach (var product in Model)
+
+        @if (shop != null)
         {
 
-            <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="shop-header">
 
-                <div class="product-card">
+                <div class="row align-items-center">
 
+                    <div class="col-md-2 text-center mb-3 mb-md-0">
 
-                    <!-- PRODUCT IMAGE -->
+                        <div class="shop-logo-wrapper mx-auto">
 
-                    <div class="product-image-wrapper">
+                            @if (!string.IsNullOrEmpty(shop.Logo))
+                            {
 
-                        @if (!string.IsNullOrEmpty(product.Image))
-                        {
+                                <img src="@shop.Logo"
+                                     alt="@shop.ShopName"
+                                     class="shop-logo" />
 
-                            <img src="@product.Image"
-                                 alt="@product.ProductName"
-                                 class="product-image" />
+                            }
+                            else
+                            {
 
-                        }
-                        else
-                        {
+                                <i class="bi bi-shop shop-logo-placeholder"></i>
 
-                            <div class="no-image">
+                            }
 
-                                <i class="bi bi-image"></i>
-
-                                <span>
-                                    No Image Available
-                                </span>
-
-                            </div>
-
-                        }
-
-
-                        <!-- CATEGORY -->
-
-                        @if (!string.IsNullOrEmpty(product.Category))
-                        {
-
-                            <span class="category-badge">
-
-                                @product.Category
-
-                            </span>
-
-                        }
-
-
-                        <!-- CUSTOM MEASUREMENT -->
-
-                        @if (product.HasCustomMeasurement)
-                        {
-
-                            <span class="custom-badge">
-
-                                <i class="bi bi-rulers"></i>
-
-                                Custom Measurement
-
-                            </span>
-
-                        }
-
-
-                        <!-- OUT OF STOCK -->
-
-                        @if (product.StockQuantity <= 0)
-                        {
-
-                            <span class="out-stock-badge">
-
-                                Out of Stock
-
-                            </span>
-
-                        }
+                        </div>
 
                     </div>
 
 
-                    <!-- PRODUCT BODY -->
+                    <div class="col-md-7">
 
-                    <div class="product-body">
+                        <h1 class="shop-name">
+
+                            @shop.ShopName
+
+                        </h1>
 
 
-                        <!-- PRODUCT NAME -->
+                        @if (!string.IsNullOrEmpty(shop.ShopCategory))
+                        {
 
-                        <div class="product-name">
+                            <span class="shop-category">
 
-                            @product.ProductName
+                                <i class="bi bi-tags"></i>
+
+                                @shop.ShopCategory
+
+                            </span>
+
+                        }
+
+
+                        @if (!string.IsNullOrEmpty(shop.ShopDescription))
+                        {
+
+                            <p class="shop-description">
+
+                                @shop.ShopDescription
+
+                            </p>
+
+                        }
+
+
+                        <div class="shop-address">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            @shop.ShopAddress
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                        <div class="mb-2">
+
+                            <strong>
+                                @(Model?.Count() ?? 0)
+                            </strong>
+
+                            Products Available
 
                         </div>
 
 
-                        <!-- DESCRIPTION -->
+                        <a asp-controller="Customer"
+                           asp-action="Shops"
+                           class="btn btn-outline-secondary">
 
-                        <p class="product-description">
+                            <i class="bi bi-arrow-left"></i>
 
-                            @if (!string.IsNullOrEmpty(product.Description))
-                            {
+                            Back to Shops
 
-                                @if (product.Description.Length > 100)
-                                {
-                                    @product.Description.Substring(0, 100)
-
-                                    <text>...</text>
-                                }
-                                else
-                                {
-                                    @product.Description
-                                }
-
-                            }
-                            else
-                            {
-
-                                <span>
-                                    No description available.
-                                </span>
-
-                            }
-
-                        </p>
-
-
-                        <!-- PRODUCT INFORMATION -->
-
-                        <div class="product-info">
-
-
-                            @if (!string.IsNullOrEmpty(product.Subcategory))
-                            {
-
-                                <span class="info-badge">
-
-                                    <i class="bi bi-diagram-3"></i>
-
-                                    @product.Subcategory
-
-                                </span>
-
-                            }
-
-
-                            @if (!string.IsNullOrEmpty(product.Occasion))
-                            {
-
-                                <span class="info-badge">
-
-                                    <i class="bi bi-calendar-event"></i>
-
-                                    @product.Occasion
-
-                                </span>
-
-                            }
-
-
-                            @if (!string.IsNullOrEmpty(product.Color))
-                            {
-
-                                <span class="info-badge">
-
-                                    <i class="bi bi-palette"></i>
-
-                                    @product.Color
-
-                                </span>
-
-                            }
-
-
-                            @if (!string.IsNullOrEmpty(product.Size))
-                            {
-
-                                <span class="info-badge">
-
-                                    <i class="bi bi-rulers"></i>
-
-                                    Size: @product.Size
-
-                                </span>
-
-                            }
-
-                        </div>
-
-
-                        <!-- PRICE -->
-
-                        <div class="price">
-
-                            Rs. @product.Price.ToString("N2")
-
-                        </div>
-
-
-                        <!-- STOCK -->
-
-                        @if (product.StockQuantity > 0)
-                        {
-
-                            if (product.StockQuantity <= 5)
-                            {
-
-                                <div class="stock stock-low">
-
-                                    <i class="bi bi-exclamation-circle"></i>
-
-                                    Only @product.StockQuantity left
-
-                                </div>
-
-                            }
-                            else
-                            {
-
-                                <div class="stock">
-
-                                    <i class="bi bi-check-circle"></i>
-
-                                    @product.StockQuantity available
-
-                                </div>
-
-                            }
-
-                        }
-                        else
-                        {
-
-                            <div class="stock stock-low">
-
-                                <i class="bi bi-x-circle"></i>
-
-                                Currently unavailable
-
-                            </div>
-
-                        }
-
-
-                        <!-- VIEW PRODUCT -->
-
-                        @if (product.StockQuantity > 0)
-                        {
-
-                            <a asp-controller="Customer"
-                               asp-action="ProductDetails"
-                               asp-route-id="@product.ProductId"
-                               class="view-product-btn">
-
-                                <i class="bi bi-eye"></i>
-
-                                View Product
-
-                            </a>
-
-                        }
-                        else
-                        {
-
-                            <button type="button"
-                                    class="view-product-btn"
-                                    disabled>
-
-                                <i class="bi bi-x-circle"></i>
-
-                                Out of Stock
-
-                            </button>
-
-                        }
+                        </a>
 
                     </div>
 
@@ -917,53 +560,352 @@ var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
         }
 
+
+
+        @if (TempData["Error"] != null)
+        {
+
+            <div class="alert alert-danger alert-dismissible fade show">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+
+        }
+
+
+        @if (Model != null && Model.Any())
+        {
+
+            <div class="row g-4">
+
+                @foreach (var product in Model)
+                {
+
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+
+                        <div class="product-card">
+
+
+
+
+                            <div class="product-image-wrapper">
+
+                                @if (!string.IsNullOrEmpty(product.Image))
+                                {
+
+                                    <img src="@product.Image"
+                                         alt="@product.ProductName"
+                                         class="product-image" />
+
+                                }
+                                else
+                                {
+
+                                    <div class="no-image">
+
+                                        <i class="bi bi-image"></i>
+
+                                        <span>
+                                            No Image Available
+                                        </span>
+
+                                    </div>
+
+                                }
+
+
+
+                                @if (!string.IsNullOrEmpty(product.Category))
+                                {
+
+                                    <span class="category-badge">
+
+                                        @product.Category
+
+                                    </span>
+
+                                }
+
+
+
+                                @if (product.HasCustomMeasurement)
+                                {
+
+                                    <span class="custom-badge">
+
+                                        <i class="bi bi-rulers"></i>
+
+                                        Custom Measurement
+
+                                    </span>
+
+                                }
+
+
+                                <!-- OUT OF STOCK -->
+                                @if (product.StockQuantity <= 0)
+                                {
+
+                                    <span class="out-stock-badge">
+
+                                        Out of Stock
+
+                                    </span>
+
+                                }
+
+                            </div>
+
+
+
+
+                            <div class="product-body">
+
+
+
+
+                                <div class="product-name">
+
+                                    @product.ProductName
+
+                                </div>
+
+
+
+
+                                <p class="product-description">
+
+                                    @if (!string.IsNullOrEmpty(product.Description))
+                                    {
+
+                                        @if (product.Description.Length > 100)
+                                        {
+                                            @product.Description.Substring(0, 100)
+
+                                            <text>...</text>
+                                        }
+                                        else
+                                        {
+                                            @product.Description
+                                        }
+
+                                    }
+                                    else
+                                    {
+
+                                        <span>
+                                            No description available.
+                                        </span>
+
+                                    }
+
+                                </p>
+
+
+
+
+                                <div class="product-info">
+
+
+                                    @if (!string.IsNullOrEmpty(product.Subcategory))
+                                    {
+
+                                        <span class="info-badge">
+
+                                            <i class="bi bi-diagram-3"></i>
+
+                                            @product.Subcategory
+
+                                        </span>
+
+                                    }
+
+
+                                    @if (!string.IsNullOrEmpty(product.Occasion))
+                                    {
+
+                                        <span class="info-badge">
+
+                                            <i class="bi bi-calendar-event"></i>
+
+                                            @product.Occasion
+
+                                        </span>
+
+                                    }
+
+
+                                    @if (!string.IsNullOrEmpty(product.Color))
+                                    {
+
+                                        <span class="info-badge">
+
+                                            <i class="bi bi-palette"></i>
+
+                                            @product.Color
+
+                                        </span>
+
+                                    }
+
+
+                                    @if (!string.IsNullOrEmpty(product.Size))
+                                    {
+
+                                        <span class="info-badge">
+
+                                            <i class="bi bi-rulers"></i>
+
+                                            Size: @product.Size
+
+                                        </span>
+
+                                    }
+
+                                </div>
+
+
+
+
+                                <div class="price">
+
+                                    Rs. @product.Price.ToString("N2")
+
+                                </div>
+
+
+
+                                @if (product.StockQuantity > 0)
+                                {
+
+                                    if (product.StockQuantity <= 5)
+                                    {
+
+                                        <div class="stock stock-low">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            Only @product.StockQuantity left
+
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+
+                                        <div class="stock">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            @product.StockQuantity available
+
+                                        </div>
+
+                                    }
+
+                                }
+                                else
+                                {
+
+                                    <div class="stock stock-low">
+
+                                        <i class="bi bi-x-circle"></i>
+
+                                        Currently unavailable
+
+                                    </div>
+
+                                }
+
+
+
+                                @if (product.StockQuantity > 0)
+                                {
+
+                                    <a asp-controller="Customer"
+                                       asp-action="ProductDetails"
+                                       asp-route-id="@product.ProductId"
+                                       class="view-product-btn">
+
+                                        <i class="bi bi-eye"></i>
+
+                                        View Product
+
+                                    </a>
+
+                                }
+                                else
+                                {
+
+                                    <button type="button"
+                                            class="view-product-btn"
+                                            disabled>
+
+                                        <i class="bi bi-x-circle"></i>
+
+                                        Out of Stock
+
+                                    </button>
+
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+
+        }
+        else
+        {
+
+
+            <div class="empty-box">
+
+                <i class="bi bi-bag-x"></i>
+
+                <h4>
+                    No Products Available
+                </h4>
+
+                <p>
+                    This shop currently has no active products available.
+                    Please check another shop.
+                </p>
+
+
+                <a asp-controller="Customer"
+                   asp-action="Shops"
+                   class="btn btn-outline-dark">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Browse Other Shops
+
+                </a>
+
+            </div>
+
+        }
+
+
     </div>
 
-}
-else
-{
 
-    <!-- =================================================
-         NO PRODUCTS
-         ================================================= -->
-
-    <div class="empty-box">
-
-        <i class="bi bi-bag-x"></i>
-
-        <h4>
-            No Products Available
-        </h4>
-
-        <p>
-            This shop currently has no active products available.
-            Please check another shop.
-        </p>
-
-
-        <a asp-controller="Customer"
-           asp-action="Shops"
-           class="btn btn-outline-dark">
-
-            <i class="bi bi-arrow-left"></i>
-
-            Browse Other Shops
-
-        </a>
-
-    </div>
-
-}
-
-
-</div>
-
-<!-- =====================================================
-     BOOTSTRAP JS
-     ===================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
 

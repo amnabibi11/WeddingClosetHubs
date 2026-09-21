@@ -18,10 +18,6 @@ namespace WeddingClosetHubs.Controllers
             _context = context;
         }
 
-        // =========================================================
-        // DELIVERY LOGIN CHECK
-        // =========================================================
-
         private bool IsDeliveryLoggedIn()
         {
             int? userId =
@@ -38,18 +34,10 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        // =========================================================
-        // GET DELIVERY USER ID
-        // =========================================================
-
         private int? GetDeliveryUserId()
         {
             return HttpContext.Session.GetInt32("UserId");
         }
-
-        // =========================================================
-        // DELIVERY LOGIN REDIRECT
-        // =========================================================
 
         private IActionResult DeliveryLogin()
         {
@@ -59,10 +47,6 @@ namespace WeddingClosetHubs.Controllers
                 "Login",
                 "Account");
         }
-
-        // =========================================================
-        // GET DELIVERY BOY
-        // =========================================================
 
         private async Task<DeliveryBoy?> GetDeliveryBoy()
         {
@@ -78,10 +62,6 @@ namespace WeddingClosetHubs.Controllers
                 .FirstOrDefaultAsync(d =>
                     d.UserId == userId.Value);
         }
-
-        // =========================================================
-        // CHECK DELIVERY BOY APPROVAL
-        // =========================================================
 
         private async Task<bool> IsApprovedDeliveryBoy()
         {
@@ -116,9 +96,6 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
-        // =========================================================
-        // DASHBOARD
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -147,12 +124,6 @@ namespace WeddingClosetHubs.Controllers
             int deliveryUserId =
                 deliveryBoy.UserId;
 
-            // -----------------------------------------------------
-            // TOTAL ASSIGNED ORDERS
-            //
-            // Only orders actually assigned to this delivery boy.
-            // Cancelled orders are excluded.
-            // -----------------------------------------------------
 
             int totalAssigned =
                 await _context.Orders
@@ -160,20 +131,6 @@ namespace WeddingClosetHubs.Controllers
                         o.DeliveryId == deliveryUserId &&
                         o.OrderStatus != "Cancelled");
 
-            // -----------------------------------------------------
-            // ACTIVE / PENDING DELIVERIES
-            //
-            // These are orders which still require delivery work.
-            //
-            // Pending
-            // Ready
-            // Confirmed
-            // Assigned
-            // Picked Up
-            // Out for Delivery
-            //
-            // Cancelled, Delivered and Completed are excluded.
-            // -----------------------------------------------------
 
             int activeOrders =
                 await _context.Orders
@@ -191,9 +148,6 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Out for Delivery"
                         ));
 
-            // -----------------------------------------------------
-            // COMPLETED / DELIVERED ORDERS
-            // -----------------------------------------------------
 
             int deliveredOrders =
                 await _context.Orders
@@ -205,11 +159,6 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Completed"
                         ));
 
-            // -----------------------------------------------------
-            // COD ORDERS
-            //
-            // Cancelled orders are excluded.
-            // -----------------------------------------------------
 
             int codOrders =
                 await _context.Orders
@@ -221,14 +170,6 @@ namespace WeddingClosetHubs.Controllers
                             o.PaymentMethod == "Cash on Delivery"
                         ));
 
-            // -----------------------------------------------------
-            // COD CASH COLLECTED
-            //
-            // This is the actual amount recorded by the delivery
-            // person as collected from customers.
-            //
-            // It does NOT mean Admin has received the cash.
-            // -----------------------------------------------------
 
             decimal codCollected =
                 await _context.Orders
@@ -243,12 +184,6 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         o.DeliveryCollectedAmount);
 
-            // -----------------------------------------------------
-            // TOTAL DELIVERY EARNINGS
-            //
-            // Total delivery charges earned from completed
-            // deliveries, whether Admin has paid or not.
-            // -----------------------------------------------------
 
             decimal totalEarnings =
                 await _context.Orders
@@ -262,11 +197,6 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         o.DeliveryCharges);
 
-            // -----------------------------------------------------
-            // PAID DELIVERY EARNINGS
-            //
-            // Only amounts actually paid by Admin.
-            // -----------------------------------------------------
 
             decimal paidEarnings =
                 await _context.Orders
@@ -281,11 +211,6 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         o.DeliveryPaidAmount);
 
-            // -----------------------------------------------------
-            // PENDING DELIVERY EARNINGS
-            //
-            // Completed deliveries for which Admin has not yet paid.
-            // -----------------------------------------------------
 
             decimal pendingEarnings =
                 await _context.Orders
@@ -300,9 +225,6 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         o.DeliveryCharges);
 
-            // -----------------------------------------------------
-            // PAYMENT SETTINGS
-            // -----------------------------------------------------
 
             ViewBag.PaymentMethod =
                 deliveryBoy.PaymentMethod;
@@ -310,9 +232,6 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.PaymentAccount =
                 deliveryBoy.PaymentAccount;
 
-            // -----------------------------------------------------
-            // ACCOUNT STATUS
-            // -----------------------------------------------------
 
             string accountStatus;
 
@@ -334,10 +253,7 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.VerificationStatus =
                 accountStatus;
 
-            // -----------------------------------------------------
-            // BASIC INFORMATION
-            // -----------------------------------------------------
-
+            
             ViewBag.DeliveryBoy =
                 deliveryBoy;
 
@@ -346,11 +262,6 @@ namespace WeddingClosetHubs.Controllers
 
             ViewBag.ActiveOrders =
                 activeOrders;
-
-            // IMPORTANT:
-            // The Dashboard view uses ViewBag.PendingOrders.
-            // Previously this value was never assigned,
-            // therefore the Razor view displayed 0.
 
             ViewBag.PendingOrders =
                 activeOrders;
@@ -361,9 +272,7 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.CompletedOrders =
                 deliveredOrders;
 
-            // -----------------------------------------------------
-            // PAYMENT SUMMARY
-            // -----------------------------------------------------
+            
 
             ViewBag.CodOrders =
                 codOrders;
@@ -380,13 +289,8 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.PendingEarnings =
                 pendingEarnings;
 
-            // Keep this for compatibility with existing views.
             ViewBag.PendingPayment =
                 pendingEarnings;
-
-            // -----------------------------------------------------
-            // DELIVERY INFORMATION
-            // -----------------------------------------------------
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -403,10 +307,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View();
         }
-
-        // =========================================================
-        // ORDERS
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> Orders()
@@ -474,10 +374,6 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
-        // =========================================================
-        // MY ORDERS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> MyOrders()
         {
@@ -490,10 +386,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Orders");
         }
-
-        // =========================================================
-        // ORDER DETAILS
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> OrderDetails(
@@ -609,10 +501,6 @@ namespace WeddingClosetHubs.Controllers
             return View(order);
         }
 
-        // =========================================================
-        // ACCEPT / CONFIRM ORDER
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcceptOrder(
@@ -666,10 +554,6 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderStatus)
                     ? "Pending"
                     : order.OrderStatus.Trim();
-
-            // -----------------------------------------------------
-            // ALREADY ASSIGNED
-            // -----------------------------------------------------
 
             if (order.DeliveryId.HasValue)
             {
@@ -738,10 +622,6 @@ namespace WeddingClosetHubs.Controllers
                     "Orders");
             }
 
-            // -----------------------------------------------------
-            // STATUS
-            // -----------------------------------------------------
-
             if (!currentStatus.Equals(
                     "Ready",
                     StringComparison.OrdinalIgnoreCase)
@@ -757,10 +637,6 @@ namespace WeddingClosetHubs.Controllers
                     "Orders");
             }
 
-            // -----------------------------------------------------
-            // ZONE
-            // -----------------------------------------------------
-
             string assignedZone =
                 deliveryBoy.AssignedZone?.Trim() ?? "";
 
@@ -774,10 +650,6 @@ namespace WeddingClosetHubs.Controllers
                     "Orders");
             }
 
-            // -----------------------------------------------------
-            // ADDRESS
-            // -----------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(
                     order.DeliveryAddress))
             {
@@ -787,10 +659,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction(
                     "Orders");
             }
-
-            // -----------------------------------------------------
-            // ZONE CHECK
-            // -----------------------------------------------------
 
             if (!order.DeliveryAddress.Contains(
                     assignedZone,
@@ -802,10 +670,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction(
                     "Orders");
             }
-
-            // -----------------------------------------------------
-            // ASSIGN
-            // -----------------------------------------------------
 
             order.DeliveryId =
                 deliveryUserId;
@@ -845,18 +709,6 @@ namespace WeddingClosetHubs.Controllers
                     id = order.OrderId
                 });
         }
-
-        // =========================================================
-        // UPDATE DELIVERY STATUS
-        //
-        // Assigned
-        //     ↓
-        // Picked Up
-        //     ↓
-        // Out for Delivery
-        //     ↓
-        // Delivered
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -927,10 +779,7 @@ namespace WeddingClosetHubs.Controllers
                     ? "Pending"
                     : order.OrderStatus.Trim();
 
-            // =====================================================
-            // ASSIGNED -> PICKED UP
-            // =====================================================
-
+           
             if (status.Equals(
                     "Picked Up",
                     StringComparison.OrdinalIgnoreCase))
@@ -957,10 +806,6 @@ namespace WeddingClosetHubs.Controllers
                     "Order",
                     order.OrderId);
             }
-
-            // =====================================================
-            // PICKED UP -> OUT FOR DELIVERY
-            // =====================================================
 
             else if (status.Equals(
                          "Out for Delivery",
@@ -989,10 +834,6 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderId);
             }
 
-            // =====================================================
-            // OUT FOR DELIVERY -> DELIVERED
-            // =====================================================
-
             else if (status.Equals(
                          "Delivered",
                          StringComparison.OrdinalIgnoreCase))
@@ -1008,10 +849,6 @@ namespace WeddingClosetHubs.Controllers
                         "OrderDetails",
                         new { id });
                 }
-
-                // -------------------------------------------------
-                // COD PAYMENT REQUIRED
-                // -------------------------------------------------
 
                 bool isCod =
                     IsCashOnDelivery(
@@ -1029,16 +866,8 @@ namespace WeddingClosetHubs.Controllers
                         new { id });
                 }
 
-                // -------------------------------------------------
-                // MARK DELIVERED
-                // -------------------------------------------------
-
                 order.OrderStatus =
                     "Delivered";
-
-                // -------------------------------------------------
-                // DELIVERY BOY PAYOUT REMAINS PENDING
-                // -------------------------------------------------
 
                 order.DeliveryPaymentStatus =
                     "Pending";
@@ -1100,10 +929,6 @@ namespace WeddingClosetHubs.Controllers
                 "OrderDetails",
                 new { id });
         }
-
-        // =========================================================
-        // START DELIVERY
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1179,10 +1004,6 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-        // =========================================================
-        // DELIVER ORDER
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeliverOrder(
@@ -1192,10 +1013,6 @@ namespace WeddingClosetHubs.Controllers
                 id,
                 "Delivered");
         }
-
-        // =========================================================
-        // COLLECT COD
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1353,10 +1170,6 @@ namespace WeddingClosetHubs.Controllers
                 "OrderDetails",
                 new { id });
         }
-
-        // =========================================================
-        // OLD COD ACTION
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1523,10 +1336,6 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-        // =========================================================
-        // COLLECTIONS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Collections()
         {
@@ -1575,10 +1384,7 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
-        // =========================================================
-        // PAYMENTS
-        // =========================================================
-
+       
         [HttpGet]
         public async Task<IActionResult> Payments()
         {
@@ -1644,10 +1450,6 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
-        // =========================================================
-        // PAYMENT DETAILS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> PaymentDetails(
             int id)
@@ -1709,10 +1511,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(order);
         }
-
-        // =========================================================
-        // SAVE DELIVERY BOY PAYMENT SETTINGS
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1815,10 +1613,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Payments");
         }
-
-        // =========================================================
-        // SET PAYMENT METHOD FOR EXISTING ORDER
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1975,10 +1769,6 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-        // =========================================================
-        // NOTIFICATIONS
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Notifications()
         {
@@ -2038,10 +1828,6 @@ namespace WeddingClosetHubs.Controllers
             return View(notifications);
         }
 
-        // =========================================================
-        // MARK NOTIFICATION READ
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationRead(
@@ -2073,10 +1859,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Notifications");
         }
-
-        // =========================================================
-        // MARK ALL NOTIFICATIONS READ
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2113,10 +1895,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Notifications");
         }
-
-        // =========================================================
-        // CHAT
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> Chat(int? userId)
@@ -2416,10 +2194,6 @@ namespace WeddingClosetHubs.Controllers
             return View(messages);
         }
 
-        // =========================================================
-        // SEND CHAT MESSAGE
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendMessage(
@@ -2581,98 +2355,91 @@ namespace WeddingClosetHubs.Controllers
                     userId = receiverId
                 });
         }
-        // =========================================================
-// DELETE CHAT MESSAGE
-// =========================================================
+       
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteMessage(
-    int messageId,
-    int receiverId)
-{
-    if (!IsDeliveryLoggedIn())
-        return DeliveryLogin();
-
-    if (!await IsApprovedDeliveryBoy())
-        return DeliveryLogin();
-
-    int? currentUserId = GetDeliveryUserId();
-
-    if (!currentUserId.HasValue)
-        return DeliveryLogin();
-
-    int deliveryUserId = currentUserId.Value;
-
-    if (messageId <= 0 || receiverId <= 0)
-    {
-        TempData["Error"] = "Invalid message.";
-        return RedirectToAction(nameof(Chat));
-    }
-
-    // Find the message
-    var chatMessage = await _context.ChatMessages
-        .FirstOrDefaultAsync(m =>
-            m.ChatMessageId == messageId);
-
-    if (chatMessage == null)
-    {
-        TempData["Error"] = "Message not found.";
-
-        return RedirectToAction(
-            nameof(Chat),
-            new
-            {
-                userId = receiverId
-            });
-    }
-
-    // IMPORTANT:
-    // Delivery person can delete ONLY their own message.
-    if (chatMessage.SenderId != deliveryUserId)
-    {
-        TempData["Error"] =
-            "You can only delete your own messages.";
-
-        return RedirectToAction(
-            nameof(Chat),
-            new
-            {
-                userId = receiverId
-            });
-    }
-
-    // Make sure this message belongs to the selected conversation
-    if (chatMessage.ReceiverId != receiverId)
-    {
-        TempData["Error"] = "Invalid conversation.";
-
-        return RedirectToAction(
-            nameof(Chat),
-            new
-            {
-                userId = receiverId
-            });
-    }
-
-    // Soft delete
-    // Keep Message non-null because Message is [Required].
-    chatMessage.IsDeleted = true;
-    chatMessage.Message = "This message was deleted.";
-
-    await _context.SaveChangesAsync();
-
-    return RedirectToAction(
-        nameof(Chat),
-        new
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMessage(
+            int messageId,
+            int receiverId)
         {
-            userId = receiverId
-        });
-}
-        // =========================================================
-        // GET CHAT MESSAGES
-        // =========================================================
+            if (!IsDeliveryLoggedIn())
+                return DeliveryLogin();
 
+            if (!await IsApprovedDeliveryBoy())
+                return DeliveryLogin();
+
+            int? currentUserId = GetDeliveryUserId();
+
+            if (!currentUserId.HasValue)
+                return DeliveryLogin();
+
+            int deliveryUserId = currentUserId.Value;
+
+            if (messageId <= 0 || receiverId <= 0)
+            {
+                TempData["Error"] = "Invalid message.";
+                return RedirectToAction(nameof(Chat));
+            }
+
+           
+            var chatMessage = await _context.ChatMessages
+                .FirstOrDefaultAsync(m =>
+                    m.ChatMessageId == messageId);
+
+            if (chatMessage == null)
+            {
+                TempData["Error"] = "Message not found.";
+
+                return RedirectToAction(
+                    nameof(Chat),
+                    new
+                    {
+                        userId = receiverId
+                    });
+            }
+
+          
+            if (chatMessage.SenderId != deliveryUserId)
+            {
+                TempData["Error"] =
+                    "You can only delete your own messages.";
+
+                return RedirectToAction(
+                    nameof(Chat),
+                    new
+                    {
+                        userId = receiverId
+                    });
+            }
+
+            
+            if (chatMessage.ReceiverId != receiverId)
+            {
+                TempData["Error"] = "Invalid conversation.";
+
+                return RedirectToAction(
+                    nameof(Chat),
+                    new
+                    {
+                        userId = receiverId
+                    });
+            }
+
+           
+            chatMessage.IsDeleted = true;
+            chatMessage.Message = "This message was deleted.";
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(Chat),
+                new
+                {
+                    userId = receiverId
+                });
+        }
+       
         [HttpGet]
         public async Task<IActionResult> GetMessages(
             int userId)
@@ -2781,10 +2548,6 @@ public async Task<IActionResult> DeleteMessage(
             return Json(messages);
         }
 
-        // =========================================================
-        // UNREAD CHAT COUNT
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> UnreadChatCount()
         {
@@ -2809,10 +2572,6 @@ public async Task<IActionResult> DeleteMessage(
                 count
             });
         }
-
-        // =========================================================
-        // UNREAD NOTIFICATION COUNT
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> UnreadNotificationCount()
@@ -2839,10 +2598,6 @@ public async Task<IActionResult> DeleteMessage(
             });
         }
 
-        // =========================================================
-        // GET ADMIN
-        // =========================================================
-
         private async Task<User?> GetAdmin()
         {
             return await _context.Users
@@ -2851,10 +2606,6 @@ public async Task<IActionResult> DeleteMessage(
                     u.Role != null &&
                     u.Role.RoleName == "Admin");
         }
-
-        // =========================================================
-        // GET CURRENT DELIVERY NAME
-        // =========================================================
 
         private async Task<string> GetCurrentDeliveryName()
         {
@@ -2872,10 +2623,6 @@ public async Task<IActionResult> DeleteMessage(
             return user?.Name ??
                    "Delivery Boy";
         }
-
-        // =========================================================
-        // CHECK COD
-        // =========================================================
 
         private bool IsCashOnDelivery(
             string? paymentMethod)
@@ -2901,10 +2648,6 @@ public async Task<IActionResult> DeleteMessage(
                        "Cash",
                        StringComparison.OrdinalIgnoreCase);
         }
-
-        // =========================================================
-        // CREATE NOTIFICATION
-        // =========================================================
 
         private async Task CreateNotification(
             int userId,
@@ -2961,10 +2704,6 @@ public async Task<IActionResult> DeleteMessage(
             _context.Notifications.Add(
                 notification);
         }
-
-        // =========================================================
-        // LOGOUT
-        // =========================================================
 
         [HttpGet]
         public IActionResult Logout()

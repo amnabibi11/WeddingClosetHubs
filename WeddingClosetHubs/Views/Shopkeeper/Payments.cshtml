@@ -4,10 +4,7 @@
     ViewData["Title"] = "Payments";
     Layout = null;
 
-    // =========================================================
-    // EXCLUDE CANCELLED ORDERS
-    // Cancelled orders must not appear in shopkeeper payments.
-    // =========================================================
+
 
     var orders = (Model?
         .Where(x => !string.Equals(
@@ -17,10 +14,6 @@
         .ToList())
         ?? new List<WeddingClosetHubs.Models.Order>();
 
-
-    // =========================================================
-    // PAYMENT TOTALS
-    // =========================================================
 
     decimal totalProductAmount =
         orders.Sum(x => x.ProductTotal);
@@ -71,13 +64,12 @@
     </title>
 
 
-    <!-- Bootstrap -->
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
 
-    <!-- Bootstrap Icons -->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -92,9 +84,6 @@
         }
 
 
-        /* =====================================================
-           HEADER
-        ===================================================== */
 
         .page-header {
             background: #800020;
@@ -103,20 +92,17 @@
             margin-bottom: 25px;
         }
 
-        .page-header h2 {
-            margin: 0;
-            font-weight: 600;
-        }
+            .page-header h2 {
+                margin: 0;
+                font-weight: 600;
+            }
 
-        .page-header p {
-            margin: 5px 0 0;
-            opacity: .85;
-        }
+            .page-header p {
+                margin: 5px 0 0;
+                opacity: .85;
+            }
 
 
-        /* =====================================================
-           SUMMARY CARDS
-        ===================================================== */
 
         .summary-card {
             background: white;
@@ -153,9 +139,6 @@
         }
 
 
-        /* =====================================================
-           CARDS
-        ===================================================== */
 
         .card {
             border: none;
@@ -173,38 +156,31 @@
         }
 
 
-        /* =====================================================
-           TABLE
-        ===================================================== */
 
         .table {
             margin-bottom: 0;
         }
 
-        .table thead {
-            background: #800020;
-            color: white;
-        }
+            .table thead {
+                background: #800020;
+                color: white;
+            }
 
-        .table thead th {
-            border: none;
-            padding: 14px;
-            white-space: nowrap;
-        }
+                .table thead th {
+                    border: none;
+                    padding: 14px;
+                    white-space: nowrap;
+                }
 
-        .table tbody td {
-            padding: 14px;
-            vertical-align: middle;
-        }
+            .table tbody td {
+                padding: 14px;
+                vertical-align: middle;
+            }
 
-        .table tbody tr:hover {
-            background: #fafafa;
-        }
+            .table tbody tr:hover {
+                background: #fafafa;
+            }
 
-
-        /* =====================================================
-           TRANSACTION ID
-        ===================================================== */
 
         .transaction-id {
             display: inline-block;
@@ -220,9 +196,6 @@
         }
 
 
-        /* =====================================================
-           PAYMENT STATUS
-        ===================================================== */
 
         .payment-badge {
             display: inline-block;
@@ -243,9 +216,6 @@
         }
 
 
-        /* =====================================================
-           ORDER STATUS
-        ===================================================== */
 
         .order-badge {
             display: inline-block;
@@ -258,9 +228,6 @@
         }
 
 
-        /* =====================================================
-           PAYMENT METHOD
-        ===================================================== */
 
         .method-badge {
             display: inline-block;
@@ -273,9 +240,7 @@
         }
 
 
-        /* =====================================================
-           VIEW BUTTON
-        ===================================================== */
+
 
         .view-btn {
             background: #800020;
@@ -288,15 +253,13 @@
             display: inline-block;
         }
 
-        .view-btn:hover {
-            background: #650019;
-            color: white;
-        }
+            .view-btn:hover {
+                background: #650019;
+                color: white;
+            }
 
 
-        /* =====================================================
-           INFORMATION BOX
-        ===================================================== */
+
 
         .payment-info {
             background: #fffdf5;
@@ -305,14 +268,11 @@
             padding: 18px;
         }
 
-        .payment-info i {
-            color: #d4af37;
-        }
+            .payment-info i {
+                color: #d4af37;
+            }
 
 
-        /* =====================================================
-           EMPTY STATE
-        ===================================================== */
 
         .empty-state {
             text-align: center;
@@ -320,15 +280,13 @@
             color: #777;
         }
 
-        .empty-state i {
-            font-size: 55px;
-            color: #bbb;
-        }
+            .empty-state i {
+                font-size: 55px;
+                color: #bbb;
+            }
 
 
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+
 
         @@media (max-width: 768px) {
 
@@ -336,14 +294,13 @@
                 padding: 20px;
             }
 
-            .page-header h2 {
-                font-size: 22px;
-            }
+                .page-header h2 {
+                    font-size: 22px;
+                }
 
             .summary-value {
                 font-size: 18px;
             }
-
         }
 
     </style>
@@ -352,90 +309,90 @@
 
 <body>
 
-<!-- =========================================================
-     PAGE HEADER
-========================================================= -->
 
-<div class="page-header">
+
+    <div class="page-header">
+
+        <div class="container-fluid">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h2>
+
+                        <i class="bi bi-wallet2"></i>
+
+                        Payments
+
+                    </h2>
+
+                    <p>
+
+                        View payments received from the administrator.
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Dashboard"
+                       class="btn btn-light">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
     <div class="container-fluid">
 
-        <div class="d-flex justify-content-between align-items-center">
-
-            <div>
-
-                <h2>
-
-                    <i class="bi bi-wallet2"></i>
-
-                    Payments
-
-                </h2>
-
-                <p>
-
-                    View payments received from the administrator.
-
-                </p>
-
-            </div>
 
 
-            <div>
-
-                <a asp-controller="Shopkeeper"
-                   asp-action="Dashboard"
-                   class="btn btn-light">
-
-                    <i class="bi bi-arrow-left"></i>
-
-                    Dashboard
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+        <div class="row g-4 mb-4">
 
 
-<div class="container-fluid">
-
-<!-- =========================================================
-     SUMMARY CARDS
-========================================================= -->
-
-<div class="row g-4 mb-4">
 
 
-    <!-- PRODUCT SALES -->
+            <div class="col-lg-3 col-md-6">
 
-    <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
 
-        <div class="summary-card">
+                    <div class="d-flex align-items-center">
 
-            <div class="d-flex align-items-center">
+                        <div class="summary-icon me-3">
 
-                <div class="summary-icon me-3">
+                            <i class="bi bi-cart-check"></i>
 
-                    <i class="bi bi-cart-check"></i>
+                        </div>
 
-                </div>
+                        <div>
 
-                <div>
+                            <div class="summary-title">
 
-                    <div class="summary-title">
+                                Product Sales
 
-                        Product Sales
+                            </div>
 
-                    </div>
+                            <div class="summary-value">
 
-                    <div class="summary-value">
+                                Rs. @totalProductAmount.ToString("N2")
 
-                        Rs. @totalProductAmount.ToString("N2")
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -443,599 +400,576 @@
 
             </div>
 
-        </div>
 
-    </div>
 
 
-    <!-- SERVICE FEE -->
+            <div class="col-lg-3 col-md-6">
 
-    <div class="col-lg-3 col-md-6">
+                <div class="summary-card">
 
-        <div class="summary-card">
+                    <div class="d-flex align-items-center">
 
-            <div class="d-flex align-items-center">
+                        <div class="summary-icon me-3">
 
-                <div class="summary-icon me-3">
+                            <i class="bi bi-percent"></i>
 
-                    <i class="bi bi-percent"></i>
+                        </div>
 
-                </div>
+                        <div>
 
-                <div>
+                            <div class="summary-title">
 
-                    <div class="summary-title">
-
-                        Service Fee
-
-                    </div>
-
-                    <div class="summary-value">
-
-                        Rs. @totalServiceFee.ToString("N2")
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- PAID -->
-
-    <div class="col-lg-3 col-md-6">
-
-        <div class="summary-card">
-
-            <div class="d-flex align-items-center">
-
-                <div class="summary-icon me-3">
-
-                    <i class="bi bi-check-circle"></i>
-
-                </div>
-
-                <div>
-
-                    <div class="summary-title">
-
-                        Received
-
-                    </div>
-
-                    <div class="summary-value">
-
-                        Rs. @paidAmount.ToString("N2")
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- PENDING -->
-
-    <div class="col-lg-3 col-md-6">
-
-        <div class="summary-card">
-
-            <div class="d-flex align-items-center">
-
-                <div class="summary-icon me-3">
-
-                    <i class="bi bi-clock-history"></i>
-
-                </div>
-
-                <div>
-
-                    <div class="summary-title">
-
-                        Pending
-
-                    </div>
-
-                    <div class="summary-value">
-
-                        Rs. @pendingAmount.ToString("N2")
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-</div>
-
-
-
-
-<!-- =========================================================
-     PAYMENT SUMMARY
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <i class="bi bi-calculator"></i>
-
-        Earnings Summary
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="row text-center">
-
-
-            <div class="col-md-4 mb-3 mb-md-0">
-
-                <div class="text-muted">
-
-                    Total Product Amount
-
-                </div>
-
-                <h4 class="mt-2">
-
-                    Rs. @totalProductAmount.ToString("N2")
-
-                </h4>
-
-            </div>
-
-
-            <div class="col-md-4 mb-3 mb-md-0">
-
-                <div class="text-muted">
-
-                    Platform Service Fee
-
-                </div>
-
-                <h4 class="mt-2">
-
-                    Rs. @totalServiceFee.ToString("N2")
-
-                </h4>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="text-muted">
-
-                    Shopkeeper Amount
-
-                </div>
-
-                <h4 class="mt-2 text-success">
-
-                    Rs. @totalShopkeeperAmount.ToString("N2")
-
-                </h4>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     PAYMENT HISTORY
-========================================================= -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="d-flex justify-content-between align-items-center">
-
-            <span>
-
-                <i class="bi bi-receipt"></i>
-
-                Payment History
-
-            </span>
-
-
-            <span class="text-muted">
-
-                @orders.Count order(s)
-
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <div class="card-body p-0">
-
-
-        @if (orders.Any())
-        {
-
-            <div class="table-responsive">
-
-                <table class="table table-hover">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Order
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Customer Payment
-                            </th>
-
-                            <th>
-                                Product Amount
-                            </th>
-
-                            <th>
                                 Service Fee
-                            </th>
 
-                            <th>
-                                Shopkeeper Amount
-                            </th>
+                            </div>
 
-                            <th>
-                                Order Status
-                            </th>
+                            <div class="summary-value">
 
-                            <th>
-                                Payment Status
-                            </th>
+                                Rs. @totalServiceFee.ToString("N2")
 
-                            <th>
-                                Payment Method
-                            </th>
+                            </div>
 
-                            <th>
-                                Payment Account
-                            </th>
+                        </div>
 
-                            <th>
-                                Transaction / Reference ID
-                            </th>
+                    </div>
 
-                            <th>
-                                Payment Date
-                            </th>
+                </div>
 
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
+            </div>
 
 
-                    <tbody>
 
 
-                        @foreach (var order in orders
-                            .OrderByDescending(x => x.CreatedDate))
-                        {
+            <div class="col-lg-3 col-md-6">
 
-                            string paymentStatus =
-                                string.IsNullOrWhiteSpace(
+                <div class="summary-card">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="summary-icon me-3">
+
+                            <i class="bi bi-check-circle"></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="summary-title">
+
+                                Received
+
+                            </div>
+
+                            <div class="summary-value">
+
+                                Rs. @paidAmount.ToString("N2")
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-card">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="summary-icon me-3">
+
+                            <i class="bi bi-clock-history"></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="summary-title">
+
+                                Pending
+
+                            </div>
+
+                            <div class="summary-value">
+
+                                Rs. @pendingAmount.ToString("N2")
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <i class="bi bi-calculator"></i>
+
+                Earnings Summary
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row text-center">
+
+
+                    <div class="col-md-4 mb-3 mb-md-0">
+
+                        <div class="text-muted">
+
+                            Total Product Amount
+
+                        </div>
+
+                        <h4 class="mt-2">
+
+                            Rs. @totalProductAmount.ToString("N2")
+
+                        </h4>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3 mb-md-0">
+
+                        <div class="text-muted">
+
+                            Platform Service Fee
+
+                        </div>
+
+                        <h4 class="mt-2">
+
+                            Rs. @totalServiceFee.ToString("N2")
+
+                        </h4>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="text-muted">
+
+                            Shopkeeper Amount
+
+                        </div>
+
+                        <h4 class="mt-2 text-success">
+
+                            Rs. @totalShopkeeperAmount.ToString("N2")
+
+                        </h4>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span>
+
+                        <i class="bi bi-receipt"></i>
+
+                        Payment History
+
+                    </span>
+
+
+                    <span class="text-muted">
+
+                        @orders.Count order(s)
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body p-0">
+
+
+                @if (orders.Any())
+                {
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Order
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th>
+                                        Customer Payment
+                                    </th>
+
+                                    <th>
+                                        Product Amount
+                                    </th>
+
+                                    <th>
+                                        Service Fee
+                                    </th>
+
+                                    <th>
+                                        Shopkeeper Amount
+                                    </th>
+
+                                    <th>
+                                        Order Status
+                                    </th>
+
+                                    <th>
+                                        Payment Status
+                                    </th>
+
+                                    <th>
+                                        Payment Method
+                                    </th>
+
+                                    <th>
+                                        Payment Account
+                                    </th>
+
+                                    <th>
+                                        Transaction / Reference ID
+                                    </th>
+
+                                    <th>
+                                        Payment Date
+                                    </th>
+
+                                    <th>
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+
+                                @foreach (var order in orders
+                                                            .OrderByDescending(x => x.CreatedDate))
+                                {
+
+                                    string paymentStatus =
+                                    string.IsNullOrWhiteSpace(
                                     order.ShopkeeperPaymentStatus)
-                                ? "Pending"
-                                : order.ShopkeeperPaymentStatus;
+                                    ? "Pending"
+                                    : order.ShopkeeperPaymentStatus;
 
 
-                            string paymentClass =
-                                paymentStatus.Equals(
+                                    string paymentClass =
+                                    paymentStatus.Equals(
                                     "Paid",
                                     StringComparison.OrdinalIgnoreCase)
-                                ? "payment-paid"
-                                : "payment-pending";
+                                    ? "payment-paid"
+                                    : "payment-pending";
 
 
-                            <tr>
+                                    <tr>
 
 
-                                <!-- ORDER ID -->
+                                        <td>
 
-                                <td>
+                                            <strong>
 
-                                    <strong>
+                                                #@order.OrderId
 
-                                        #@order.OrderId
+                                            </strong>
 
-                                    </strong>
-
-                                </td>
+                                        </td>
 
 
-                                <!-- DATE -->
 
-                                <td>
+                                        <td>
 
-                                    @order.CreatedDate.ToString(
-                                        "dd MMM yyyy")
+                                            @order.CreatedDate.ToString(
+                                            "dd MMM yyyy")
 
                                 </td>
 
 
-                                <!-- CUSTOMER PAYMENT METHOD -->
 
                                 <td>
 
                                     @{
-                                        string customerPayment =
-                                            string.IsNullOrWhiteSpace(
+                                                string customerPayment =
+                                                string.IsNullOrWhiteSpace(
                                                 order.PaymentMethod)
-                                            ? "N/A"
-                                            : order.PaymentMethod;
-                                    }
+                                                ? "N/A"
+                                                : order.PaymentMethod;
+                                            }
 
-                                    <span class="method-badge">
+                                            <span class="method-badge">
 
-                                        @customerPayment
+                                                @customerPayment
 
-                                    </span>
+                                            </span>
 
-                                </td>
+                                        </td>
 
 
-                                <!-- PRODUCT AMOUNT -->
 
-                                <td>
+                                        <td>
 
-                                    Rs.
-                                    @order.ProductTotal.ToString("N2")
+                                            Rs.
+                                            @order.ProductTotal.ToString("N2")
 
-                                </td>
+                                        </td>
 
 
-                                <!-- SERVICE FEE -->
 
-                                <td>
+                                        <td>
 
-                                    Rs.
-                                    @order.ServiceFee.ToString("N2")
+                                            Rs.
+                                            @order.ServiceFee.ToString("N2")
 
-                                </td>
+                                        </td>
 
 
-                                <!-- SHOPKEEPER AMOUNT -->
 
-                                <td>
 
-                                    <strong>
+                                        <td>
 
-                                        Rs.
-                                        @order.ShopkeeperAmount.ToString("N2")
-                                            
+                                            <strong>
 
-                                    </strong>
+                                                Rs.
+                                                @order.ShopkeeperAmount.ToString("N2")
 
-                                </td>
 
+                                            </strong>
 
-                                <!-- ORDER STATUS -->
+                                        </td>
 
-                                <td>
 
-                                    <span class="order-badge">
 
-                                        @order.OrderStatus
 
-                                    </span>
+                                        <td>
 
-                                </td>
+                                            <span class="order-badge">
 
+                                                @order.OrderStatus
 
-                                <!-- SHOPKEEPER PAYMENT STATUS -->
+                                            </span>
 
-                                <td>
+                                        </td>
 
-                                    <span class="payment-badge @paymentClass">
 
-                                        @paymentStatus
 
-                                    </span>
+                                        <td>
 
-                                </td>
+                                            <span class="payment-badge @paymentClass">
 
+                                                @paymentStatus
 
-                                <!-- SHOPKEEPER PAYMENT METHOD -->
+                                            </span>
 
-                                <td>
+                                        </td>
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        order.ShopkeeperPaymentMethod))
-                                    {
-                                        <span class="method-badge">
 
-                                            @order.ShopkeeperPaymentMethod
 
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
 
-                                            Not Paid
+                                        <td>
 
-                                        </span>
-                                    }
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                                                order.ShopkeeperPaymentMethod))
+                                            {
+                                                <span class="method-badge">
 
-                                </td>
+                                                    @order.ShopkeeperPaymentMethod
 
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">
 
-                                <!-- SHOPKEEPER PAYMENT ACCOUNT -->
+                                                    Not Paid
 
-                                <td>
+                                                </span>
+                                            }
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        order.ShopkeeperPaymentAccount))
-                                    {
-                                        <span>
+                                        </td>
 
-                                            @order.ShopkeeperPaymentAccount
 
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
 
-                                            Not Recorded
 
-                                        </span>
-                                    }
+                                        <td>
 
-                                </td>
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                                                order.ShopkeeperPaymentAccount))
+                                            {
+                                                <span>
 
+                                                    @order.ShopkeeperPaymentAccount
 
-                                <!-- =================================================
-                                     SHOPKEEPER TRANSACTION ID
-                                ================================================== -->
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">
 
-                                <td>
+                                                    Not Recorded
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        order.ShopkeeperTransactionId))
-                                    {
-                                        <span class="transaction-id">
+                                                </span>
+                                            }
 
-                                            @order.ShopkeeperTransactionId
+                                        </td>
 
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
 
-                                            Not Recorded
+                                        <td>
 
-                                        </span>
-                                    }
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                                                order.ShopkeeperTransactionId))
+                                            {
+                                                <span class="transaction-id">
 
-                                </td>
+                                                    @order.ShopkeeperTransactionId
 
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">
 
-                                <!-- PAYMENT DATE -->
+                                                    Not Recorded
 
-                                <td>
+                                                </span>
+                                            }
 
-                                    @if (order.ShopkeeperPaymentDate.HasValue)
-                                    {
-                                        <span>
+                                        </td>
 
-                                            @order.ShopkeeperPaymentDate.Value.ToString("dd MMM yyyy")
 
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
 
-                                            Not Paid
+                                        <td>
 
-                                        </span>
-                                    }
+                                            @if (order.ShopkeeperPaymentDate.HasValue)
+                                            {
+                                                <span>
 
-                                </td>
+                                                    @order.ShopkeeperPaymentDate.Value.ToString("dd MMM yyyy")
 
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">
 
-                                <!-- VIEW ORDER -->
+                                                    Not Paid
 
-                                <td>
+                                                </span>
+                                            }
 
-                                    <a asp-controller="Shopkeeper"
-                                       asp-action="OrderDetails"
-                                       asp-route-id="@order.OrderId"
-                                       class="view-btn">
+                                        </td>
 
-                                        <i class="bi bi-eye"></i>
 
-                                        View
 
-                                    </a>
 
-                                </td>
+                                        <td>
 
+                                            <a asp-controller="Shopkeeper"
+                                               asp-action="OrderDetails"
+                                               asp-route-id="@order.OrderId"
+                                               class="view-btn">
 
-                            </tr>
+                                                <i class="bi bi-eye"></i>
 
-                        }
+                                                View
 
-                    </tbody>
+                                            </a>
 
-                </table>
+                                        </td>
+
+
+                                    </tr>
+
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                }
+                else
+                {
+
+                    <div class="empty-state">
+
+                        <i class="bi bi-wallet2"></i>
+
+                        <h5 class="mt-3">
+
+                            No Payment Records
+
+                        </h5>
+
+                        <p class="mb-0">
+
+                            Payment information will appear here after
+                            customers place orders from your shop.
+
+                        </p>
+
+                    </div>
+
+                }
 
             </div>
 
-        }
-        else
-        {
+        </div>
 
-            <div class="empty-state">
 
-                <i class="bi bi-wallet2"></i>
 
-                <h5 class="mt-3">
 
-                    No Payment Records
-
-                </h5>
-
-                <p class="mb-0">
-
-                    Payment information will appear here after
-                    customers place orders from your shop.
-
-                </p>
-
-            </div>
-
-        }
 
     </div>
-
-</div>
-
-
-
-
-
-</div>
 
 </body>
 

@@ -87,7 +87,7 @@
             min-height: 650px;
         }
 
-        /* SIDEBAR */
+        
 
         .chat-sidebar {
             border-right: 1px solid #e5e5e5;
@@ -215,7 +215,7 @@
             margin-bottom: 6px;
         }
 
-        /* CHAT AREA */
+        
 
         .chat-area {
             height: 650px;
@@ -242,7 +242,7 @@
             color: #888;
         }
 
-        /* MESSAGES */
+        
 
         .messages-area {
             flex: 1;
@@ -305,7 +305,7 @@
             opacity: 0.7;
         }
 
-        /* DELETE BUTTON */
+        
 
         .message-actions {
             display: flex;
@@ -334,7 +334,7 @@
             color: #dc3545;
         }
 
-        /* EMPTY CHAT */
+        
 
         .empty-chat,
         .no-user-selected {
@@ -360,7 +360,7 @@
             font-weight: 700;
         }
 
-        /* MESSAGE FORM */
+        
 
         .message-form {
             border-top: 1px solid #eee;
@@ -458,7 +458,7 @@
 
 <div class="page-wrapper">
 
-    <!-- BACK BUTTON -->
+    
 
     <div class="back-button">
         <a asp-controller="Customer"
@@ -471,7 +471,7 @@
         </a>
     </div>
 
-    <!-- PAGE HEADER -->
+  
 
     <div class="page-header">
         <h2 class="page-title">
@@ -484,7 +484,7 @@
         </p>
     </div>
 
-    <!-- SUCCESS MESSAGE -->
+   
 
     @if (TempData["Success"] != null)
     {
@@ -499,7 +499,7 @@
         </div>
     }
 
-    <!-- ERROR MESSAGE -->
+   
 
     @if (TempData["Error"] != null)
     {
@@ -514,13 +514,13 @@
         </div>
     }
 
-    <!-- CHAT CONTAINER -->
+  
 
     <div class="chat-container">
 
         <div class="row g-0">
 
-            <!-- LEFT SIDEBAR -->
+           
 
             <div class="col-md-4">
 
@@ -531,7 +531,7 @@
                         Contacts
                     </div>
 
-                    <!-- ADMIN -->
+                   
 
                     @if (admin != null)
                     {
@@ -573,7 +573,7 @@
                         </div>
                     }
 
-                    <!-- SHOPKEEPERS -->
+                    
 
                     <div class="contact-section">
 
@@ -630,8 +630,7 @@
 
                     </div>
 
-                    <!-- DELIVERY BOYS -->
-
+                    
                     <div class="contact-section">
 
                         <div class="contact-section-title">
@@ -688,7 +687,7 @@
                 </div>
             </div>
 
-            <!-- RIGHT CHAT AREA -->
+            
 
             <div class="col-md-8">
 
@@ -696,7 +695,7 @@
 
                     @if (selectedUser != null)
                     {
-                        <!-- CHAT HEADER -->
+                        
 
                         <div class="chat-header">
 
@@ -752,7 +751,7 @@
 
                         </div>
 
-                        <!-- MESSAGES -->
+                        
 
                         <div class="messages-area" id="messagesArea">
 
@@ -789,7 +788,7 @@
 
                                             </div>
 
-                                            <!-- DELETE OWN MESSAGE -->
+                                            
 
                                             @if (isSent && !message.IsDeleted)
                                             {
@@ -843,7 +842,7 @@
 
                         </div>
 
-                        <!-- SEND TEXT MESSAGE -->
+                        
 
                         <div class="message-form">
 
@@ -884,7 +883,7 @@
                     }
                     else
                     {
-                        <!-- NO USER SELECTED -->
+                       
 
                         <div class="no-user-selected">
 
@@ -911,7 +910,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-        // Automatically scroll to the latest message
+        
         var messagesArea =
             document.getElementById("messagesArea");
 
@@ -920,7 +919,7 @@
                 messagesArea.scrollHeight;
         }
 
-        // Focus the message input
+        
         var messageInput =
             document.getElementById("messageInput");
 

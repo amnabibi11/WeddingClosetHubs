@@ -49,9 +49,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         margin: auto;
     }
 
-    /* =========================================
-       BACK BUTTON
-    ========================================= */
+  
 
     .back-button {
         margin-bottom: 20px;
@@ -61,9 +59,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         border-radius: 8px;
     }
 
-    /* =========================================
-       HEADER
-    ========================================= */
+ 
 
     .page-header {
         background: white;
@@ -84,18 +80,14 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         margin-bottom: 0;
     }
 
-    /* =========================================
-       ALERTS
-    ========================================= */
+    
 
     .alert {
         border-radius: 10px;
         margin-bottom: 20px;
     }
 
-    /* =========================================
-       NOTIFICATION CONTAINER
-    ========================================= */
+  
 
     .notification-container {
         background: white;
@@ -118,9 +110,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         font-weight: 700;
     }
 
-    /* =========================================
-       NOTIFICATION ITEM
-    ========================================= */
+  
 
     .notification-item {
         display: flex;
@@ -145,9 +135,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         border-bottom: none;
     }
 
-    /* =========================================
-       UNREAD
-    ========================================= */
 
     .notification-unread {
         background: #fff8e1;
@@ -157,9 +144,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         background: #fff4d6;
     }
 
-    /* =========================================
-       ICON
-    ========================================= */
+   
 
     .notification-icon {
         min-width: 48px;
@@ -205,9 +190,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         color: #495057;
     }
 
-    /* =========================================
-       CONTENT
-    ========================================= */
+   
 
     .notification-content {
         flex: 1;
@@ -232,9 +215,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         font-size: 12px;
     }
 
-    /* =========================================
-       ORDER BADGE
-    ========================================= */
+    
 
     .order-badge {
         display: inline-block;
@@ -252,9 +233,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         margin-top: 6px;
     }
 
-    /* =========================================
-       ACTION AREA
-    ========================================= */
+   
 
     .notification-action {
         min-width: 100px;
@@ -282,9 +261,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         color: white;
     }
 
-    /* =========================================
-       UNREAD DOT
-    ========================================= */
+
 
     .unread-dot {
         width: 10px;
@@ -299,9 +276,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         flex-shrink: 0;
     }
 
-    /* =========================================
-       UNREAD COUNT
-    ========================================= */
+    
 
     .unread-count {
         background: #dc3545;
@@ -315,9 +290,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         font-weight: 600;
     }
 
-    /* =========================================
-       EMPTY STATE
-    ========================================= */
+   
 
     .empty-notification {
         text-align: center;
@@ -338,9 +311,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         color: #888;
     }
 
-    /* =========================================
-       MOBILE
-    ========================================= */
+  
 
     @@media (max-width: 768px) {
 
@@ -419,9 +390,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
 <div class="page-wrapper">
 
 
-<!-- =========================================
-     BACK BUTTON
-========================================= -->
+
 
 <div class="back-button">
 
@@ -438,9 +407,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
 </div>
 
 
-<!-- =========================================
-     PAGE HEADER
-========================================= -->
+
 
 <div class="page-header">
 
@@ -510,9 +477,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
 </div>
 
 
-<!-- =========================================
-     SUCCESS MESSAGE
-========================================= -->
 
 @if (TempData["Success"] != null)
 {
@@ -533,9 +497,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
 }
 
 
-<!-- =========================================
-     ERROR MESSAGE
-========================================= -->
+
 
 @if (TempData["Error"] != null)
 {
@@ -556,16 +518,11 @@ var unreadCount = notifications.Count(x => !x.IsRead);
 }
 
 
-<!-- =========================================
-     NOTIFICATION CONTAINER
-========================================= -->
+
 
 <div class="notification-container">
 
 
-    <!-- =====================================
-         NOTIFICATION HEADER
-    ====================================== -->
 
     <div class="notification-header">
 
@@ -602,9 +559,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
     </div>
 
 
-    <!-- =====================================
-         NOTIFICATION LIST
-    ====================================== -->
 
     @if (notifications.Any())
     {
@@ -612,13 +566,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
         foreach (var notification in notifications)
         {
 
-            /*
-             * Notification model contains:
-             *
-             * public string Type { get; set; }
-             *
-             * Therefore notification.Type is used.
-             */
+           
 
             string notificationType =
                 notification.Type?.Trim().ToLower()
@@ -717,9 +665,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
             }
 
 
-            <!-- =================================
-                 NOTIFICATION ITEM
-            ================================== -->
+           
 
             <div class="notification-item
                         @(notification.IsRead
@@ -727,9 +673,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                             : "notification-unread")">
 
 
-                <!-- =================================
-                     ICON
-                ================================== -->
 
                 <div class="notification-icon @iconClass">
 
@@ -738,14 +681,11 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                 </div>
 
 
-                <!-- =================================
-                     CONTENT
-                ================================== -->
+                
 
                 <div class="notification-content">
 
 
-                    <!-- TITLE -->
 
                     <div class="notification-title">
 
@@ -754,7 +694,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                     </div>
 
 
-                    <!-- MESSAGE -->
+                    
 
                     <div class="notification-message">
 
@@ -763,7 +703,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                     </div>
 
 
-                    <!-- DATE -->
+                    
 
                     <div class="notification-date">
 
@@ -776,9 +716,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                     </div>
 
 
-                    <!-- =================================
-                         ORDER INFORMATION
-                    ================================== -->
 
                     @if (notification.OrderId.HasValue)
                     {
@@ -796,9 +733,6 @@ var unreadCount = notifications.Count(x => !x.IsRead);
                 </div>
 
 
-                <!-- =================================
-                     ACTION
-                ================================== -->
 
                 <div class="notification-action">
 
@@ -856,9 +790,7 @@ var unreadCount = notifications.Count(x => !x.IsRead);
     else
     {
 
-        <!-- =====================================
-             EMPTY NOTIFICATIONS
-        ====================================== -->
+        
 
         <div class="empty-notification">
 

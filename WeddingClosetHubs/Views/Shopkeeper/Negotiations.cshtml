@@ -85,12 +85,12 @@
             margin-bottom: 7px;
         }
 
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #d4af37;
-            color: #800020;
-            font-weight: 600;
-        }
+            .sidebar a:hover,
+            .sidebar a.active {
+                background: #d4af37;
+                color: #800020;
+                font-weight: 600;
+            }
 
         .main-content {
             margin-left: 250px;
@@ -105,11 +105,11 @@
             margin-bottom: 25px;
         }
 
-        .page-header h2 {
-            color: #800020;
-            font-weight: 700;
-            margin: 0;
-        }
+            .page-header h2 {
+                color: #800020;
+                font-weight: 700;
+                margin: 0;
+            }
 
         .stat-card {
             background: white;
@@ -218,10 +218,10 @@
             border: none;
         }
 
-        .btn-maroon:hover {
-            background: #650019;
-            color: white;
-        }
+            .btn-maroon:hover {
+                background: #650019;
+                color: white;
+            }
 
         .btn-gold {
             background: #d4af37;
@@ -230,10 +230,10 @@
             font-weight: 600;
         }
 
-        .btn-gold:hover {
-            background: #bd982c;
-            color: #800020;
-        }
+            .btn-gold:hover {
+                background: #bd982c;
+                color: #800020;
+            }
 
         .empty-box {
             background: white;
@@ -243,10 +243,10 @@
             box-shadow: 0 3px 12px rgba(0,0,0,.07);
         }
 
-        .empty-box i {
-            font-size: 55px;
-            color: #d4af37;
-        }
+            .empty-box i {
+                font-size: 55px;
+                color: #d4af37;
+            }
 
         @@media (max-width: 768px) {
 
@@ -260,7 +260,6 @@
                 margin-left: 0;
                 padding: 15px;
             }
-
         }
 
     </style>
@@ -269,7 +268,6 @@
 
 <body>
 
-    <!-- SIDEBAR -->
 
     <div class="sidebar">
 
@@ -341,7 +339,7 @@
     </div>
 
 
-    <!-- MAIN CONTENT -->
+
 
     <div class="main-content">
 
@@ -360,7 +358,7 @@
         </div>
 
 
-        <!-- STATISTICS -->
+
 
         <div class="row g-3 mb-4">
 
@@ -481,34 +479,34 @@
                 string status = negotiation.Status ?? "Pending";
 
                 string statusClass =
-                    status.Equals("Accepted",
-                        StringComparison.OrdinalIgnoreCase)
-                    ? "status-accepted"
-                    : status.Equals("Rejected",
-                        StringComparison.OrdinalIgnoreCase)
-                    ? "status-rejected"
-                    : status.Equals("CounterOffer",
-                        StringComparison.OrdinalIgnoreCase)
-                    ? "status-counter"
-                    : status.Equals("Expired",
-                        StringComparison.OrdinalIgnoreCase)
-                    ? "status-expired"
-                    : "status-pending";
+                status.Equals("Accepted",
+                StringComparison.OrdinalIgnoreCase)
+                ? "status-accepted"
+                : status.Equals("Rejected",
+                StringComparison.OrdinalIgnoreCase)
+                ? "status-rejected"
+                : status.Equals("CounterOffer",
+                StringComparison.OrdinalIgnoreCase)
+                ? "status-counter"
+                : status.Equals("Expired",
+                StringComparison.OrdinalIgnoreCase)
+                ? "status-expired"
+                : "status-pending";
 
 
                 <div class="negotiation-card">
 
-                    <!-- HEADER -->
+
 
                     <div class="d-flex justify-content-between
-                                align-items-start flex-wrap gap-2">
+                                        align-items-start flex-wrap gap-2">
 
                         <div>
 
                             <div class="product-name">
 
                                 @(negotiation.Product?.ProductName
-                                    ?? "Product")
+                                                        ?? "Product")
 
                             </div>
 
@@ -518,9 +516,9 @@
 
                                 Customer:
                                 @(negotiation.Customer?.Name
-                                    ?? "Customer")
+                                                        ?? "Customer")
 
-                            </div>
+                    </div>
 
                             <small class="text-muted">
 
@@ -540,7 +538,7 @@
                     </div>
 
 
-                    <!-- PRICES -->
+
 
                     <div class="price-box">
 
@@ -586,7 +584,7 @@
 
                                 <div class="price-value">
 
-                                    @if (negotiation.CounterPrice.HasValue)
+                            @if (negotiation.CounterPrice.HasValue)
                                     {
                                         <span>
                                             Rs.
@@ -634,10 +632,9 @@
                     </div>
 
 
-                    <!-- CUSTOMER MESSAGE -->
 
                     @if (!string.IsNullOrWhiteSpace(
-                        negotiation.CustomerMessage))
+                                negotiation.CustomerMessage))
                     {
                         <div class="message-box">
 
@@ -659,10 +656,10 @@
                     }
 
 
-                    <!-- SHOPKEEPER MESSAGE -->
+
 
                     @if (!string.IsNullOrWhiteSpace(
-                        negotiation.ShopkeeperMessage))
+                                negotiation.ShopkeeperMessage))
                     {
                         <div class="message-box">
 
@@ -692,11 +689,11 @@
 
                             Created:
                             @negotiation.CreatedDate.ToString(
-                                "dd MMM yyyy hh:mm tt")
+                            "dd MMM yyyy hh:mm tt")
 
-                        </small>
+                </small>
 
-                        @if (negotiation.RespondedDate.HasValue)
+                @if (negotiation.RespondedDate.HasValue)
                         {
                             <small class="text-muted ms-3">
 
@@ -704,24 +701,24 @@
 
                                 Responded:
                                 @negotiation.RespondedDate.Value.ToString(
-                                    "dd MMM yyyy hh:mm tt")
+                                "dd MMM yyyy hh:mm tt")
 
-                            </small>
-                        }
+                </small>
+                                }
 
                     </div>
 
 
-                    <!-- SHOPKEEPER ACTIONS -->
+
 
                     @if (status.Equals("Pending",
-                        StringComparison.OrdinalIgnoreCase))
+                                StringComparison.OrdinalIgnoreCase))
                     {
                         <div class="mt-4">
 
                             <div class="row g-3">
 
-                                <!-- ACCEPT -->
+
 
                                 <div class="col-md-4">
 
@@ -750,7 +747,7 @@
                                 </div>
 
 
-                                <!-- REJECT -->
+
 
                                 <div class="col-md-4">
 
@@ -779,7 +776,7 @@
                                 </div>
 
 
-                                <!-- COUNTER -->
+
 
                                 <div class="col-md-4">
 
@@ -799,7 +796,7 @@
                             </div>
 
 
-                            <!-- COUNTER FORM -->
+
 
                             <div class="collapse mt-3"
                                  id="counter_@negotiation.NegotiationId">
@@ -854,9 +851,9 @@
                                                 </label>
 
                                                 <textarea name="shopkeeperMessage"
-                                                          class="form-control"
-                                                          rows="2"
-                                                          placeholder="Write a message for the customer..."></textarea>
+                                              class="form-control"
+                                              rows="2"
+                                              placeholder="Write a message for the customer..."></textarea>
 
                                             </div>
 
@@ -883,7 +880,7 @@
 
 
                     @if (status.Equals("CounterOffer",
-                        StringComparison.OrdinalIgnoreCase))
+                                StringComparison.OrdinalIgnoreCase))
                     {
                         <div class="alert alert-info mt-4 mb-0">
 
@@ -906,7 +903,7 @@
 
 
                     @if (status.Equals("Accepted",
-                        StringComparison.OrdinalIgnoreCase))
+                                StringComparison.OrdinalIgnoreCase))
                     {
                         <div class="alert alert-success mt-4 mb-0">
 
