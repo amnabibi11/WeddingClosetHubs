@@ -4,23 +4,17 @@
     ViewData["Title"] = "Shop Products";
     Layout = null;
 
-
     var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
-
+    var products = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.Product>();
 }
 
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-
     <meta charset="utf-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>
         @(shop?.ShopName ?? "Shop Products") - Wedding Closet Hubs
@@ -33,7 +27,6 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -44,7 +37,6 @@
             font-family: Arial, Helvetica, sans-serif;
             color: #333;
         }
-
 
         .navbar-custom {
             background: #800020;
@@ -88,12 +80,9 @@
                 color: #800020;
             }
 
-
-
         .page-wrapper {
             padding: 35px;
         }
-
 
         .shop-header {
             background: white;
@@ -158,7 +147,6 @@
                 color: #800020;
             }
 
-
         .product-card {
             background: white;
             border: none;
@@ -206,7 +194,6 @@
                 margin-bottom: 8px;
             }
 
-
         .category-badge {
             position: absolute;
             top: 12px;
@@ -217,6 +204,7 @@
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
+            max-width: 75%;
         }
 
         .custom-badge {
@@ -225,6 +213,43 @@
             right: 12px;
             background: #d4af37;
             color: #3d3000;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sale-badge {
+            position: absolute;
+            top: 48px;
+            left: 12px;
+            background: #dc3545;
+            color: white;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .rent-badge {
+            position: absolute;
+            top: 84px;
+            left: 12px;
+            background: #5936a3;
+            color: white;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .negotiation-badge {
+            position: absolute;
+            top: 120px;
+            left: 12px;
+            background: #fff4d6;
+            color: #705900;
+            border: 1px solid #d4af37;
             padding: 6px 11px;
             border-radius: 20px;
             font-size: 11px;
@@ -242,7 +267,6 @@
             font-size: 11px;
             font-weight: 600;
         }
-
 
         .product-body {
             padding: 20px;
@@ -283,6 +307,11 @@
                 color: #800020;
             }
 
+        .price-section {
+            margin-top: 8px;
+            margin-bottom: 5px;
+        }
+
         .price {
             color: #800020;
             font-size: 23px;
@@ -290,16 +319,72 @@
             margin-bottom: 4px;
         }
 
+        .original-price {
+            color: #777;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: line-through;
+            margin-bottom: 3px;
+        }
+
+        .sale-price {
+            color: #800020;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .sale-details {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .rent-box {
+            background: #f5f0fb;
+            border: 1px solid #e0d5f2;
+            border-radius: 8px;
+            padding: 9px 11px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+
+        .rent-title {
+            color: #5936a3;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .rent-price {
+            color: #5936a3;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .rent-security {
+            color: #666;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .rent-duration {
+            color: #666;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
         .stock {
             color: #198754;
             font-size: 12px;
             font-weight: 600;
+            margin-top: 8px;
         }
 
         .stock-low {
             color: #dc3545;
         }
-
 
         .view-product-btn {
             display: block;
@@ -320,8 +405,10 @@
                 color: white;
             }
 
-
-
+            .view-product-btn:disabled {
+                background: #999;
+                cursor: not-allowed;
+            }
 
         .empty-box {
             background: white;
@@ -346,10 +433,7 @@
                 color: #777;
             }
 
-
-
         @@media (max-width: 768px) {
-
             .navbar-custom {
                 padding: 15px;
             }
@@ -374,87 +458,58 @@
                 height: 250px;
             }
         }
-
     </style>
-
-
 </head>
 
 <body>
 
-
-
     <nav class="navbar-custom">
-
-
-        <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap gap-3">
 
             <a asp-controller="Customer"
                asp-action="Dashboard"
                class="brand">
-
                 Wedding Closet <span>Hubs</span>
-
             </a>
 
-
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center flex-wrap">
 
                 <a asp-controller="Customer"
                    asp-action="Dashboard"
                    class="nav-link-custom">
-
                     <i class="bi bi-house"></i>
                     Dashboard
-
                 </a>
-
 
                 <a asp-controller="Customer"
                    asp-action="Shops"
                    class="nav-link-custom">
-
                     <i class="bi bi-shop"></i>
                     Shops
-
                 </a>
-
 
                 <a asp-controller="Customer"
                    asp-action="Cart"
                    class="nav-link-custom">
-
                     <i class="bi bi-cart3"></i>
                     Cart
-
                 </a>
-
 
                 <a asp-controller="Account"
                    asp-action="Logout"
                    class="logout-btn">
-
                     <i class="bi bi-box-arrow-right"></i>
                     Logout
-
                 </a>
 
             </div>
-
         </div>
-
-
     </nav>
-
-
 
     <div class="page-wrapper">
 
-
-
         @if (shop != null)
         {
-
             <div class="shop-header">
 
                 <div class="row align-items-center">
@@ -465,91 +520,62 @@
 
                             @if (!string.IsNullOrEmpty(shop.Logo))
                             {
-
                                 <img src="@shop.Logo"
                                      alt="@shop.ShopName"
                                      class="shop-logo" />
-
                             }
                             else
                             {
-
                                 <i class="bi bi-shop shop-logo-placeholder"></i>
-
                             }
 
                         </div>
 
                     </div>
-
 
                     <div class="col-md-7">
 
                         <h1 class="shop-name">
-
                             @shop.ShopName
-
                         </h1>
-
 
                         @if (!string.IsNullOrEmpty(shop.ShopCategory))
                         {
-
                             <span class="shop-category">
-
                                 <i class="bi bi-tags"></i>
-
                                 @shop.ShopCategory
-
                             </span>
-
                         }
-
 
                         @if (!string.IsNullOrEmpty(shop.ShopDescription))
                         {
-
                             <p class="shop-description">
-
                                 @shop.ShopDescription
-
                             </p>
-
                         }
 
-
-                        <div class="shop-address">
-
-                            <i class="bi bi-geo-alt-fill"></i>
-
-                            @shop.ShopAddress
-
-                        </div>
+                        @if (!string.IsNullOrEmpty(shop.ShopAddress))
+                        {
+                            <div class="shop-address">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                @shop.ShopAddress
+                            </div>
+                        }
 
                     </div>
-
 
                     <div class="col-md-3 text-md-end mt-3 mt-md-0">
 
                         <div class="mb-2">
-
-                            <strong>
-                                @(Model?.Count() ?? 0)
-                            </strong>
-
+                            <strong>@products.Count</strong>
                             Products Available
-
                         </div>
-
 
                         <a asp-controller="Customer"
                            asp-action="Shops"
                            class="btn btn-outline-secondary">
-
                             <i class="bi bi-arrow-left"></i>
-
                             Back to Shops
-
                         </a>
 
                     </div>
@@ -557,18 +583,13 @@
                 </div>
 
             </div>
-
         }
-
-
 
         @if (TempData["Error"] != null)
         {
-
             <div class="alert alert-danger alert-dismissible fade show">
 
                 <i class="bi bi-exclamation-triangle-fill"></i>
-
                 @TempData["Error"]
 
                 <button type="button"
@@ -577,284 +598,281 @@
                 </button>
 
             </div>
-
         }
 
-
-        @if (Model != null && Model.Any())
+        @if (products.Any())
         {
-
             <div class="row g-4">
 
-                @foreach (var product in Model)
+                @foreach (var product in products)
                 {
+                    bool isOnSale =
+                    product.IsOnSale &&
+                    product.SalePrice.HasValue &&
+                    product.SalePrice.Value > 0;
+
+                    bool isAvailableForRent =
+                    product.IsAvailableForRent &&
+                    product.RentPrice.HasValue &&
+                    product.RentPrice.Value > 0;
+
+                    bool canNegotiate =
+                    product.AllowNegotiation;
+
+                    decimal displayBuyPrice =
+                    isOnSale
+                    ? product.SalePrice!.Value
+                    : product.Price;
 
                     <div class="col-xl-3 col-lg-4 col-md-6">
 
                         <div class="product-card">
 
-
-
-
                             <div class="product-image-wrapper">
 
                                 @if (!string.IsNullOrEmpty(product.Image))
                                 {
-
                                     <img src="@product.Image"
                                          alt="@product.ProductName"
                                          class="product-image" />
-
                                 }
                                 else
                                 {
-
                                     <div class="no-image">
-
                                         <i class="bi bi-image"></i>
-
-                                        <span>
-                                            No Image Available
-                                        </span>
-
+                                        <span>No Image Available</span>
                                     </div>
-
                                 }
-
-
 
                                 @if (!string.IsNullOrEmpty(product.Category))
                                 {
-
                                     <span class="category-badge">
-
                                         @product.Category
-
                                     </span>
-
                                 }
 
+                                @if (isOnSale)
+                                {
+                                    <span class="sale-badge">
+                                        <i class="bi bi-tag-fill"></i>
+                                        SALE
+                                    </span>
+                                }
 
+                                @if (isAvailableForRent)
+                                {
+                                    <span class="rent-badge">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                        RENT
+                                    </span>
+                                }
+
+                                @if (canNegotiate)
+                                {
+                                    <span class="negotiation-badge">
+                                        <i class="bi bi-handshake"></i>
+                                        Negotiable
+                                    </span>
+                                }
 
                                 @if (product.HasCustomMeasurement)
                                 {
-
                                     <span class="custom-badge">
-
                                         <i class="bi bi-rulers"></i>
-
                                         Custom Measurement
-
                                     </span>
-
                                 }
 
-
-                                <!-- OUT OF STOCK -->
                                 @if (product.StockQuantity <= 0)
                                 {
-
                                     <span class="out-stock-badge">
-
                                         Out of Stock
-
                                     </span>
-
                                 }
 
                             </div>
 
-
-
-
                             <div class="product-body">
 
-
-
-
                                 <div class="product-name">
-
                                     @product.ProductName
-
                                 </div>
-
-
-
 
                                 <p class="product-description">
 
                                     @if (!string.IsNullOrEmpty(product.Description))
                                     {
-
-                                        @if (product.Description.Length > 100)
+                                        if (product.Description.Length > 100)
                                         {
                                             @product.Description.Substring(0, 100)
-
                                             <text>...</text>
                                         }
                                         else
                                         {
                                             @product.Description
                                         }
-
                                     }
                                     else
                                     {
-
-                                        <span>
-                                            No description available.
-                                        </span>
-
+                                        <span>No description available.</span>
                                     }
 
                                 </p>
 
-
-
-
                                 <div class="product-info">
-
 
                                     @if (!string.IsNullOrEmpty(product.Subcategory))
                                     {
-
                                         <span class="info-badge">
-
                                             <i class="bi bi-diagram-3"></i>
-
                                             @product.Subcategory
-
                                         </span>
-
                                     }
-
 
                                     @if (!string.IsNullOrEmpty(product.Occasion))
                                     {
-
                                         <span class="info-badge">
-
                                             <i class="bi bi-calendar-event"></i>
-
                                             @product.Occasion
-
                                         </span>
-
                                     }
-
 
                                     @if (!string.IsNullOrEmpty(product.Color))
                                     {
-
                                         <span class="info-badge">
-
                                             <i class="bi bi-palette"></i>
-
                                             @product.Color
-
                                         </span>
-
                                     }
-
 
                                     @if (!string.IsNullOrEmpty(product.Size))
                                     {
-
                                         <span class="info-badge">
-
                                             <i class="bi bi-rulers"></i>
-
                                             Size: @product.Size
-
                                         </span>
-
                                     }
 
                                 </div>
 
+                                <div class="price-section">
 
-
-
-                                <div class="price">
-
-                                    Rs. @product.Price.ToString("N2")
-
-                                </div>
-
-
-
-                                @if (product.StockQuantity > 0)
-                                {
-
-                                    if (product.StockQuantity <= 5)
+                                    @if (isOnSale)
                                     {
-
-                                        <div class="stock stock-low">
-
-                                            <i class="bi bi-exclamation-circle"></i>
-
-                                            Only @product.StockQuantity left
-
+                                        <div class="original-price">
+                                            Original: Rs. @product.Price.ToString("N2")
                                         </div>
 
+                                        <div class="sale-price">
+                                            Rs. @displayBuyPrice.ToString("N2")
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(product.SaleDetails))
+                                        {
+                                            <div class="sale-details">
+                                                <i class="bi bi-tag-fill"></i>
+                                                @product.SaleDetails
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="sale-details">
+                                                <i class="bi bi-tag-fill"></i>
+                                                Sale Price
+                                            </div>
+                                        }
                                     }
                                     else
                                     {
-
-                                        <div class="stock">
-
-                                            <i class="bi bi-check-circle"></i>
-
-                                            @product.StockQuantity available
-
+                                        <div class="price">
+                                            Rs. @displayBuyPrice.ToString("N2")
                                         </div>
-
                                     }
 
-                                }
-                                else
+                                </div>
+
+                                @if (isAvailableForRent)
                                 {
+                                    <div class="rent-box">
 
-                                    <div class="stock stock-low">
+                                        <div class="rent-title">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                            Rental Available
+                                        </div>
 
-                                        <i class="bi bi-x-circle"></i>
+                                        <div class="rent-price">
+                                            Rs. @product.RentPrice!.Value.ToString("N2")
+                                        </div>
 
-                                        Currently unavailable
+                                        @if (product.RentalSecurity.HasValue &&
+                                                                    product.RentalSecurity.Value > 0)
+                                        {
+                                            <div class="rent-security">
+                                                <i class="bi bi-shield-check"></i>
+                                                Refundable Security:
+                                                Rs. @product.RentalSecurity.Value.ToString("N2")
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(product.RentalDuration))
+                                        {
+                                            <div class="rent-duration">
+                                                <i class="bi bi-clock"></i>
+                                                Duration:
+                                                @product.RentalDuration
+                                            </div>
+                                        }
 
                                     </div>
-
                                 }
-
-
 
                                 @if (product.StockQuantity > 0)
                                 {
+                                    if (product.StockQuantity <= 5)
+                                    {
+                                        <div class="stock stock-low">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            Only @product.StockQuantity left
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="stock">
+                                            <i class="bi bi-check-circle"></i>
+                                            @product.StockQuantity available
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="stock stock-low">
+                                        <i class="bi bi-x-circle"></i>
+                                        Currently unavailable
+                                    </div>
+                                }
 
+                                @if (product.StockQuantity > 0)
+                                {
                                     <a asp-controller="Customer"
                                        asp-action="ProductDetails"
                                        asp-route-id="@product.ProductId"
                                        class="view-product-btn">
 
                                         <i class="bi bi-eye"></i>
-
                                         View Product
 
                                     </a>
-
                                 }
                                 else
                                 {
-
                                     <button type="button"
                                             class="view-product-btn"
                                             disabled>
 
                                         <i class="bi bi-x-circle"></i>
-
                                         Out of Stock
 
                                     </button>
-
                                 }
 
                             </div>
@@ -862,51 +880,38 @@
                         </div>
 
                     </div>
-
                 }
 
             </div>
-
         }
         else
         {
-
-
             <div class="empty-box">
 
                 <i class="bi bi-bag-x"></i>
 
-                <h4>
-                    No Products Available
-                </h4>
+                <h4>No Products Available</h4>
 
                 <p>
                     This shop currently has no active products available.
                     Please check another shop.
                 </p>
 
-
                 <a asp-controller="Customer"
                    asp-action="Shops"
                    class="btn btn-outline-dark">
 
                     <i class="bi bi-arrow-left"></i>
-
                     Browse Other Shops
 
                 </a>
 
             </div>
-
         }
-
 
     </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>

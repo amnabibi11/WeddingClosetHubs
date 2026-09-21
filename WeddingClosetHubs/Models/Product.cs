@@ -67,7 +67,7 @@ namespace WeddingClosetHubs.Models
         public string? ProductType { get; set; }
 
         public bool HasCustomMeasurement { get; set; } = false;
-        
+        public bool IsAvailableForBuy { get; set; } = true;
         public bool IsOnSale { get; set; }
 
         public decimal? SalePrice { get; set; }

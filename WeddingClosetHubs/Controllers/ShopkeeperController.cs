@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Text.Json;
+using System.Threading.Channels;
 using WeddingClosetHubs.Models;
 
 namespace WeddingClosetHubs.Controllers
@@ -373,7 +375,7 @@ namespace WeddingClosetHubs.Controllers
 
             int shopkeeperId = GetShopkeeperId()!.Value;
 
-            
+
             var shop = await _context.Shops
                 .Include(s => s.Shopkeeper)
                 .FirstOrDefaultAsync(s =>
@@ -387,7 +389,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Profile");
             }
 
-            
+
             var shopkeeper = shop.Shopkeeper;
 
             if (shopkeeper == null)
@@ -398,18 +400,18 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Profile");
             }
 
-           
+
             var shopProducts = _context.Products
                 .Where(p => p.ShopId == shop.ShopId);
 
             var shopOrders = _context.Orders
                 .Where(o => o.ShopId == shop.ShopId);
 
-            
+
             var activeOrders = shopOrders
                 .Where(o => o.OrderStatus != "Cancelled");
 
-           
+
             int totalProducts =
                 await shopProducts.CountAsync();
 
@@ -419,7 +421,7 @@ namespace WeddingClosetHubs.Controllers
             int disabledProducts =
                 await shopProducts.CountAsync(p => !p.Status);
 
-            
+
             int totalOrders =
                 await activeOrders.CountAsync();
 
@@ -445,7 +447,7 @@ namespace WeddingClosetHubs.Controllers
                         o.OrderStatus == "Delivered" ||
                         o.OrderStatus == "Completed");
 
-            
+
             int cancelledOrders =
                 await shopOrders.CountAsync(
                     o => o.OrderStatus == "Cancelled");
@@ -457,7 +459,7 @@ namespace WeddingClosetHubs.Controllers
                         o.OrderStatus == "Completed")
                     .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-           
+
             decimal paidPayments =
                 await activeOrders
                     .Where(o =>
@@ -470,17 +472,17 @@ namespace WeddingClosetHubs.Controllers
                         o.ShopkeeperPaymentStatus != "Paid")
                     .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-           
+
             var reviews = await _context.Reviews
                 .Where(r => r.ShopId == shop.ShopId)
                 .ToListAsync();
 
-            
+
 
             int reviewCount =
                 reviews.Count;
 
-           
+
 
             double averageRating =
                 reviews.Any()
@@ -493,7 +495,7 @@ namespace WeddingClosetHubs.Controllers
                         r.ShopId == shop.ShopId &&
                         !r.IsRead);
 
-            
+
             int unreadNotifications =
                 await _context.Notifications
                     .CountAsync(n =>
@@ -521,23 +523,23 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.ShopkeeperProfileImage =
                 shopkeeper.ProfileImage;
 
-            
+
             ViewBag.ShopName =
                 shop.ShopName ?? "My Shop";
 
             ViewBag.ShopCategory =
                 shop.ShopCategory ?? "Not Selected";
 
-            
+
             ViewBag.ShopApproved =
                 shop.IsApproved;
 
-            
+
 
             ViewBag.ShopStatus =
                 shop.Status;
 
-            
+
             ViewBag.TotalProducts =
                 totalProducts;
 
@@ -580,18 +582,18 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.PendingPayments =
                 pendingPayments;
 
-           
+
             ViewBag.ReviewCount =
                 reviewCount;
 
             ViewBag.TotalReviews =
                 reviewCount;
 
-           
+
             ViewBag.UnreadFeedback =
                 unreadFeedback;
 
-            
+
 
             ViewBag.AverageRating =
                 averageRating;
@@ -620,7 +622,7 @@ namespace WeddingClosetHubs.Controllers
             return View(shop);
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> EditShop()
         {
@@ -635,7 +637,7 @@ namespace WeddingClosetHubs.Controllers
             return View(shop);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditShop(
@@ -725,7 +727,7 @@ namespace WeddingClosetHubs.Controllers
             }
         }
 
-       
+
         public async Task<IActionResult> Products()
         {
             if (!IsShopkeeper())
@@ -758,7 +760,7 @@ namespace WeddingClosetHubs.Controllers
 
             return View(products);
         }
-       
+
         public async Task<IActionResult> Negotiations()
         {
             if (!IsShopkeeper())
@@ -867,7 +869,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Negotiations");
             }
 
-          
+
             negotiation.AgreedPrice =
                 negotiation.RequestedPrice;
 
@@ -882,7 +884,7 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-           
+
             await CreateNotification(
                 negotiation.CustomerId,
                 "Negotiation Accepted",
@@ -946,7 +948,7 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-           
+
             string productName =
                 negotiation.Product?.ProductName
                 ?? "product";
@@ -965,7 +967,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CounterNegotiation(
@@ -1012,7 +1014,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Negotiations");
             }
 
-            
+
             if (counterPrice >= negotiation.OriginalPrice)
             {
                 TempData["Error"] =
@@ -1037,7 +1039,7 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-           
+
             await CreateNotification(
                 negotiation.CustomerId,
                 "New Counter Offer",
@@ -1050,7 +1052,7 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Negotiations");
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> AddProduct()
         {
@@ -1076,22 +1078,20 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProduct(
             Product product,
             IFormFile? productImage)
         {
-           
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
-
 
             var shop = await GetMyShop();
 
             if (shop == null)
                 return NotFound();
-
 
             if (!shop.IsApproved || !shop.Status)
             {
@@ -1101,13 +1101,10 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Products");
             }
 
-
             var allowedData =
                 GetAllowedCategoryDataForShop(
                     shop.ShopCategory);
 
-
-            
             if (string.IsNullOrWhiteSpace(product.Category) ||
                 !allowedData.Keys.Any(c =>
                     string.Equals(
@@ -1120,10 +1117,8 @@ namespace WeddingClosetHubs.Controllers
                     "Please select a valid category for your shop.");
             }
 
-
             string selectedCategory =
                 product.Category?.Trim() ?? string.Empty;
-
 
             var matchingCategory =
                 allowedData.Keys.FirstOrDefault(c =>
@@ -1131,7 +1126,6 @@ namespace WeddingClosetHubs.Controllers
                         c,
                         selectedCategory,
                         StringComparison.OrdinalIgnoreCase));
-
 
             if (matchingCategory != null &&
                 allowedData.TryGetValue(
@@ -1151,15 +1145,29 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
+            if (!product.IsAvailableForBuy &&
+                !product.IsAvailableForRent)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please select at least one option: Buy or Rent.");
+            }
 
-            
+            if (!product.IsAvailableForBuy)
+            {
+                product.IsOnSale = false;
+                product.AllowNegotiation = false;
+
+                product.SalePrice = null;
+                product.SaleDetails = null;
+            }
+
             if (product.Price < 0)
             {
                 ModelState.AddModelError(
                     "Price",
                     "Price cannot be negative.");
             }
-
 
             if (product.StockQuantity < 0)
             {
@@ -1168,10 +1176,8 @@ namespace WeddingClosetHubs.Controllers
                     "Stock quantity cannot be negative.");
             }
 
-
             if (product.IsOnSale)
             {
-                
                 if (!product.SalePrice.HasValue ||
                     product.SalePrice.Value <= 0)
                 {
@@ -1185,20 +1191,15 @@ namespace WeddingClosetHubs.Controllers
                         "SalePrice",
                         "Sale price must be lower than the original price.");
                 }
-
-
             }
             else
             {
-                
                 product.SalePrice = null;
                 product.SaleDetails = null;
             }
 
-
             if (product.IsAvailableForRent)
             {
-                
                 if (!product.RentPrice.HasValue ||
                     product.RentPrice.Value <= 0)
                 {
@@ -1207,8 +1208,6 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter a valid rental price.");
                 }
 
-
-                
                 if (!product.RentalSecurity.HasValue ||
                     product.RentalSecurity.Value < 0)
                 {
@@ -1217,7 +1216,6 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter a valid refundable security amount.");
                 }
 
-
                 if (string.IsNullOrWhiteSpace(
                         product.RentalDuration))
                 {
@@ -1225,7 +1223,6 @@ namespace WeddingClosetHubs.Controllers
                         "RentalDuration",
                         "Rental duration is required.");
                 }
-
 
                 if (string.IsNullOrWhiteSpace(
                         product.RentalConditions))
@@ -1243,7 +1240,6 @@ namespace WeddingClosetHubs.Controllers
                 product.RentalConditions = null;
             }
 
-
             if (productImage != null &&
                 productImage.Length > 0)
             {
@@ -1252,8 +1248,6 @@ namespace WeddingClosetHubs.Controllers
                         productImage.FileName)
                     .ToLowerInvariant();
 
-
-               
                 if (!AllowedProductImageExtensions.Contains(
                         extension))
                 {
@@ -1261,7 +1255,6 @@ namespace WeddingClosetHubs.Controllers
                         "productImage",
                         "Only JPG, JPEG, PNG and WEBP images are allowed.");
                 }
-
 
                 if (productImage.Length > 5 * 1024 * 1024)
                 {
@@ -1277,7 +1270,6 @@ namespace WeddingClosetHubs.Controllers
                     "Please select a product image.");
             }
 
-
             if (!ModelState.IsValid)
             {
                 PrepareProductForm(shop);
@@ -1285,12 +1277,9 @@ namespace WeddingClosetHubs.Controllers
                 return View(product);
             }
 
-
             product.ShopId =
                 shop.ShopId;
 
-
-           
             product.Category =
                 product.Category?.Trim();
 
@@ -1312,7 +1301,6 @@ namespace WeddingClosetHubs.Controllers
             product.Occasion =
                 product.Occasion?.Trim();
 
-
             if (product.IsAvailableForRent)
             {
                 product.RentalDuration =
@@ -1322,18 +1310,15 @@ namespace WeddingClosetHubs.Controllers
                     product.RentalConditions?.Trim();
             }
 
-
             if (product.IsOnSale)
             {
                 product.SaleDetails =
                     product.SaleDetails?.Trim();
             }
 
-
             SetProductType(
                 product,
                 shop.ShopCategory);
-
 
             if (productImage != null &&
                 productImage.Length > 0)
@@ -1343,7 +1328,6 @@ namespace WeddingClosetHubs.Controllers
                         productImage,
                         "products");
             }
-
 
             product.CreatedDate =
                 DateTime.Now;
@@ -1355,12 +1339,12 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-
             TempData["Success"] =
                 "Product added successfully.";
 
             return RedirectToAction("Products");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> EditProduct(int id)
@@ -1437,7 +1421,6 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            
             if (matchingCategory != null &&
                 allowedData.TryGetValue(
                     matchingCategory,
@@ -1457,6 +1440,28 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
+            if (!model.IsAvailableForBuy &&
+                !model.IsAvailableForRent)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please select at least one option: Buy or Rent.");
+            }
+
+
+            if (!model.IsAvailableForBuy)
+            {
+                model.IsOnSale = false;
+
+                model.AllowNegotiation = false;
+
+                model.SalePrice = null;
+
+                model.SaleDetails = null;
+            }
+
+
+
             if (model.Price < 0)
             {
                 ModelState.AddModelError(
@@ -1465,7 +1470,7 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
-            
+
             if (model.StockQuantity < 0)
             {
                 ModelState.AddModelError(
@@ -1492,15 +1497,15 @@ namespace WeddingClosetHubs.Controllers
             }
             else
             {
-              
                 model.SalePrice = null;
+
                 model.SaleDetails = null;
             }
 
 
+
             if (model.IsAvailableForRent)
             {
-              
                 if (!model.RentPrice.HasValue ||
                     model.RentPrice.Value <= 0)
                 {
@@ -1510,7 +1515,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-              
                 if (!model.RentalSecurity.HasValue ||
                     model.RentalSecurity.Value < 0)
                 {
@@ -1520,7 +1524,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-               
                 if (string.IsNullOrWhiteSpace(
                         model.RentalDuration))
                 {
@@ -1530,7 +1533,6 @@ namespace WeddingClosetHubs.Controllers
                 }
 
 
-             
                 if (string.IsNullOrWhiteSpace(
                         model.RentalConditions))
                 {
@@ -1541,7 +1543,6 @@ namespace WeddingClosetHubs.Controllers
             }
             else
             {
-               
                 model.RentPrice = null;
 
                 model.RentalSecurity = null;
@@ -1580,12 +1581,15 @@ namespace WeddingClosetHubs.Controllers
             }
 
 
+
+
             if (!ModelState.IsValid)
             {
                 PrepareProductForm(shop);
 
                 return View(model);
             }
+
 
 
             product.ProductName =
@@ -1616,6 +1620,7 @@ namespace WeddingClosetHubs.Controllers
                 model.Color?.Trim();
 
 
+
             product.Price =
                 model.Price;
 
@@ -1623,8 +1628,17 @@ namespace WeddingClosetHubs.Controllers
                 model.StockQuantity;
 
 
+
+
             product.HasCustomMeasurement =
                 model.HasCustomMeasurement;
+
+
+
+            product.IsAvailableForBuy =
+                model.IsAvailableForBuy;
+
+
 
 
             product.IsOnSale =
@@ -1635,6 +1649,8 @@ namespace WeddingClosetHubs.Controllers
 
             product.SaleDetails =
                 model.SaleDetails?.Trim();
+
+
 
 
             product.IsAvailableForRent =
@@ -1653,8 +1669,11 @@ namespace WeddingClosetHubs.Controllers
                 model.RentalConditions?.Trim();
 
 
+
             product.AllowNegotiation =
                 model.AllowNegotiation;
+
+
 
 
             SetProductType(
@@ -1662,7 +1681,8 @@ namespace WeddingClosetHubs.Controllers
                 shop.ShopCategory);
 
 
-          
+
+
             if (productImage != null &&
                 productImage.Length > 0)
             {
@@ -1682,7 +1702,9 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Products");
         }
-        
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id)
@@ -1731,7 +1753,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Products");
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleProductStatus(int id)
@@ -1770,7 +1792,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Products");
         }
 
-       
+
         public async Task<IActionResult> Orders()
         {
             if (!IsShopkeeper())
@@ -1807,7 +1829,7 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
-        
+
         public async Task<IActionResult> OrderDetails(int id)
         {
             if (!IsShopkeeper())
@@ -2011,7 +2033,7 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderId);
             }
 
-           
+
             if (newStatus.Equals(
                     "Ready",
                     StringComparison.OrdinalIgnoreCase))
@@ -2054,7 +2076,7 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-        
+
         public async Task<IActionResult> Payments()
         {
             if (!IsShopkeeper())
@@ -2084,7 +2106,7 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.ProfileImage =
                 shop.Shopkeeper?.ProfileImage;
 
-           
+
             decimal totalProductAmount =
                 orders.Sum(o => o.ProductTotal);
 
@@ -2136,7 +2158,7 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
-        
+
         public async Task<IActionResult> PaymentDetails(int id)
         {
             if (!IsShopkeeper())
@@ -2411,7 +2433,7 @@ namespace WeddingClosetHubs.Controllers
                     x => x.UserId,
                     x => x.Count);
 
-           
+
             int totalUnreadMessages =
                 await _context.ChatMessages
                     .CountAsync(m =>
@@ -2419,7 +2441,7 @@ namespace WeddingClosetHubs.Controllers
                         !m.IsRead &&
                         !m.IsDeleted);
 
-          
+
             ViewBag.CurrentUserId =
                 shopkeeperId;
 
@@ -2471,7 +2493,7 @@ namespace WeddingClosetHubs.Controllers
             if (shop == null)
                 return NotFound();
 
-           
+
             if (userId == shopkeeperId)
             {
                 TempData["Error"] =
@@ -2501,7 +2523,7 @@ namespace WeddingClosetHubs.Controllers
 
             bool isAllowed = false;
 
-            
+
             if (string.Equals(
                     selectedRole,
                     AdminRole,
@@ -2510,7 +2532,7 @@ namespace WeddingClosetHubs.Controllers
                 isAllowed = true;
             }
 
-           
+
             else if (string.Equals(
                          selectedRole,
                          CustomerRole,
@@ -2545,7 +2567,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Chat");
             }
 
-           
+
             var messages = await _context.ChatMessages
                 .Include(m => m.Sender)
                 .Include(m => m.Receiver)
@@ -2558,7 +2580,7 @@ namespace WeddingClosetHubs.Controllers
                 .OrderBy(m => m.SentDate)
                 .ToListAsync();
 
-           
+
             var unreadMessages =
                 messages.Where(m =>
                     m.ReceiverId == shopkeeperId &&
@@ -2588,7 +2610,7 @@ namespace WeddingClosetHubs.Controllers
                 .OrderBy(u => u.Name)
                 .ToListAsync();
 
-            
+
             var deliveryIds = await _context.Orders
                 .Where(o =>
                     o.ShopId == shop.ShopId &&
@@ -2616,7 +2638,7 @@ namespace WeddingClosetHubs.Controllers
                 .OrderBy(u => u.Name)
                 .ToListAsync();
 
-           
+
             var unreadCounts = await _context.ChatMessages
                 .Where(m =>
                     m.ReceiverId == shopkeeperId &&
@@ -2713,7 +2735,7 @@ namespace WeddingClosetHubs.Controllers
             if (shop == null)
                 return NotFound();
 
-            
+
             var receiver = await _context.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(
@@ -2735,7 +2757,7 @@ namespace WeddingClosetHubs.Controllers
 
             bool allowed = false;
 
-            
+
             if (string.Equals(
                     role,
                     AdminRole,
@@ -2744,7 +2766,7 @@ namespace WeddingClosetHubs.Controllers
                 allowed = true;
             }
 
-           
+
             else if (string.Equals(
                          role,
                          CustomerRole,
@@ -2793,7 +2815,7 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-           
+
             await CreateNotification(
                 receiverId,
                 "New Message",
@@ -2807,7 +2829,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-       
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMessage(
@@ -2845,7 +2867,7 @@ namespace WeddingClosetHubs.Controllers
                     new { userId = receiverId });
             }
 
-            
+
             if (chatMessage.SenderId != shopkeeperId)
             {
                 TempData["Error"] =
@@ -2856,7 +2878,7 @@ namespace WeddingClosetHubs.Controllers
                     new { userId = receiverId });
             }
 
-            
+
             if (chatMessage.ReceiverId != receiverId)
             {
                 TempData["Error"] =
@@ -2881,7 +2903,7 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-            
+
             return RedirectToAction(
                 "Conversation",
                 new { userId = receiverId });
@@ -2929,7 +2951,7 @@ namespace WeddingClosetHubs.Controllers
             return View(notifications);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationRead(
@@ -2957,7 +2979,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Notifications");
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllNotificationsRead()
@@ -3022,7 +3044,7 @@ namespace WeddingClosetHubs.Controllers
             return View(user);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(
@@ -3059,7 +3081,7 @@ namespace WeddingClosetHubs.Controllers
                     "Account");
             }
 
-            
+
             if (string.IsNullOrWhiteSpace(model.Name))
             {
                 ModelState.AddModelError(
@@ -3124,7 +3146,7 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-            
+
             if (profileImage != null &&
                 profileImage.Length > 0)
             {
@@ -3242,7 +3264,7 @@ namespace WeddingClosetHubs.Controllers
                 "Account");
         }
 
-       
+
         private async Task CreateNotification(
             int userId,
             string title,

@@ -18,7 +18,6 @@
         ViewBag.StandardSizes as List<string>
         ?? new List<string>();
 
-
     string categoryDataJson =
         ViewBag.CategoryDataJson as string ?? "{}";
 }
@@ -35,25 +34,18 @@
 
     <title>Add Product - Wedding Closet Hub</title>
 
-
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
-
-
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
           rel="stylesheet" />
 
-
     <style>
-
 
         body {
             background: #f7f4f5;
             font-family: Arial, sans-serif;
         }
-
 
         .navbar-custom {
             background: #800020;
@@ -65,8 +57,6 @@
             font-size: 23px;
             font-weight: bold;
         }
-
-
 
         .main-container {
             max-width: 1000px;
@@ -85,8 +75,6 @@
             font-weight: bold;
         }
 
-
-
         .section-title {
             color: #800020;
             border-bottom: 2px solid #d4af37;
@@ -96,8 +84,6 @@
             font-weight: bold;
         }
 
-
-
         .form-label {
             font-weight: 600;
         }
@@ -105,7 +91,6 @@
         .required {
             color: red;
         }
-
 
         .btn-save {
             background: #800020;
@@ -132,8 +117,6 @@
                 color: white;
             }
 
-
-
         .measurement-box {
             background: #fff8e1;
             border: 1px solid #d4af37;
@@ -147,15 +130,12 @@
             font-weight: bold;
         }
 
-
-
         .category-info {
             background: #f8e9ed;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
-
 
         .image-preview {
             width: 180px;
@@ -167,13 +147,10 @@
             border: 2px solid #d4af37;
         }
 
-
-
         .locked-field {
             background-color: #f1f1f1;
             cursor: not-allowed;
         }
-
 
         .option-card {
             border: 1px solid #ddd;
@@ -212,8 +189,6 @@
             font-size: 14px;
         }
 
-
-
         .option-details {
             margin-top: 18px;
             padding: 18px;
@@ -221,8 +196,6 @@
             background: #f8f8f8;
             border-left: 4px solid #d4af37;
         }
-
-
 
         .form-check-input:checked {
             background-color: #800020;
@@ -232,8 +205,6 @@
         .form-check-label {
             font-weight: 600;
         }
-
-
 
         .info-badge {
             display: inline-block;
@@ -245,8 +216,6 @@
             margin-top: 5px;
         }
 
-
-
         .price-note {
             background: #f8e9ed;
             border-left: 4px solid #800020;
@@ -256,7 +225,9 @@
             font-size: 14px;
         }
 
-
+        .buy-disabled-note {
+            display: none;
+        }
 
         @@media (max-width: 768px) {
 
@@ -281,9 +252,7 @@
 
 </head>
 
-
 <body>
-
 
     <nav class="navbar-custom">
 
@@ -306,13 +275,9 @@
 
     </nav>
 
-
-
     <div class="main-container">
 
         <div class="form-card">
-
-
 
             <h2 class="page-title mb-2">
 
@@ -325,8 +290,6 @@
                 Add a new product to your shop and choose how customers
                 can buy, rent, or negotiate its price.
             </p>
-
-
 
             <div class="category-info">
 
@@ -349,8 +312,6 @@
 
             </div>
 
-
-
             <form asp-controller="Shopkeeper"
                   asp-action="AddProduct"
                   method="post"
@@ -358,24 +319,15 @@
 
                 @Html.AntiForgeryToken()
 
-
-
                 <div asp-validation-summary="ModelOnly"
                      class="text-danger mb-3">
                 </div>
 
-
-
                 <h5 class="section-title">
-
                     Product Information
-
                 </h5>
 
-
                 <div class="row">
-
-
 
                     <div class="col-md-6 mb-3">
 
@@ -396,8 +348,6 @@
                         </span>
 
                     </div>
-
-
 
                     <div class="col-md-6 mb-3">
 
@@ -420,8 +370,6 @@
 
                 </div>
 
-
-
                 <div class="mb-3">
 
                     <label asp-for="Description"
@@ -442,19 +390,11 @@
 
                 </div>
 
-
-
                 <h5 class="section-title">
-
                     Category
-
                 </h5>
 
-
                 <div class="row">
-
-
-
 
                     <div class="col-md-6 mb-3">
 
@@ -488,9 +428,6 @@
                         </span>
 
                     </div>
-
-
-
 
                     <div class="col-md-6 mb-3">
 
@@ -527,8 +464,6 @@
 
                 </div>
 
-
-
                 <div class="mb-3">
 
                     <label asp-for="ProductType"
@@ -549,7 +484,6 @@
                     </small>
 
                 </div>
-
 
                 <div id="normalSizeSection"
                      class="mb-3">
@@ -584,19 +518,13 @@
 
                 </div>
 
-
-
                 <div id="shoeSizeSection"
                      class="mb-3"
                      style="display:none;">
 
                     <label class="form-label">
-
                         Shoe Size
-
                     </label>
-
-
 
                     <select name="Size"
                             id="shoeSize"
@@ -621,14 +549,9 @@
 
                 </div>
 
-
-
                 <h5 class="section-title">
-
                     Price & Stock
-
                 </h5>
-
 
                 <div class="price-note">
 
@@ -642,10 +565,7 @@
 
                 </div>
 
-
                 <div class="row">
-
-
 
                     <div class="col-md-6 mb-3">
 
@@ -678,8 +598,6 @@
 
                     </div>
 
-
-
                     <div class="col-md-6 mb-3">
 
                         <label asp-for="StockQuantity"
@@ -704,21 +622,14 @@
 
                 </div>
 
-
-
                 <h5 class="section-title">
-
                     Product Image
-
                 </h5>
-
 
                 <div class="mb-3">
 
                     <label class="form-label">
-
                         Product Image
-
                     </label>
 
                     <input type="file"
@@ -739,8 +650,6 @@
                          alt="Product image preview" />
 
                 </div>
-
-
 
                 <div id="customMeasurementBox"
                      class="measurement-box"
@@ -777,15 +686,9 @@
 
                 </div>
 
-
-
                 <h5 class="section-title">
-
                     Selling Options
-
                 </h5>
-
-
 
                 <div class="option-card">
 
@@ -793,35 +696,33 @@
 
                         <div class="form-check pt-1">
 
-
-                            <input type="checkbox"
+                            <input asp-for="IsAvailableForBuy"
                                    class="form-check-input"
-                                   id="buyAvailable"
-                                   checked
-                                   disabled />
+                                   type="checkbox"
+                                   id="isAvailableForBuy" />
 
                         </div>
 
                         <div>
 
-                            <div class="option-title">
+                            <label class="option-title"
+                                   for="isAvailableForBuy">
 
                                 <i class="bi bi-cart-check"></i>
                                 Available for Buy
 
-                            </div>
+                            </label>
 
                             <div class="option-description">
 
-                                Customers can purchase this product
-                                at its original price.
+                                Allow customers to purchase this product.
+                                Uncheck this option if the product is
+                                available for rent only.
 
                             </div>
 
                             <span class="info-badge">
-
-                                Normal Buy
-
+                                Buy
                             </span>
 
                         </div>
@@ -829,9 +730,6 @@
                     </div>
 
                 </div>
-
-
-
 
                 <div class="option-card sale-card">
 
@@ -863,17 +761,11 @@
 
                             </div>
 
-
-
-
                             <div id="saleDetails"
                                  class="option-details"
                                  style="display:none;">
 
                                 <div class="row">
-
-
-
 
                                     <div class="col-md-6 mb-3">
 
@@ -914,9 +806,6 @@
 
                                     </div>
 
-
-
-
                                     <div class="col-md-6 mb-3">
 
                                         <label asp-for="SaleDetails"
@@ -946,9 +835,6 @@
                     </div>
 
                 </div>
-
-
-
 
                 <div class="option-card rental-card">
 
@@ -981,17 +867,11 @@
 
                             </div>
 
-
-
-
                             <div id="rentalDetails"
                                  class="option-details"
                                  style="display:none;">
 
                                 <div class="row">
-
-
-
 
                                     <div class="col-md-6 mb-3">
 
@@ -1031,9 +911,6 @@
                                         </small>
 
                                     </div>
-
-
-
 
                                     <div class="col-md-6 mb-3">
 
@@ -1075,8 +952,6 @@
 
                                     </div>
 
-
-
                                     <div class="col-md-6 mb-3">
 
                                         <label asp-for="RentalDuration"
@@ -1097,9 +972,6 @@
                                         </span>
 
                                     </div>
-
-
-
 
                                     <div class="col-md-6 mb-3">
 
@@ -1125,9 +997,6 @@
 
                                 </div>
 
-
-
-
                                 <div class="alert alert-warning mb-0">
 
                                     <i class="bi bi-info-circle"></i>
@@ -1148,8 +1017,6 @@
                     </div>
 
                 </div>
-
-
 
                 <div class="option-card negotiation-card">
 
@@ -1198,9 +1065,6 @@
 
                 </div>
 
-
-
-
                 <div class="price-note mt-4">
 
                     <strong>
@@ -1241,8 +1105,6 @@
 
                 </div>
 
-
-
                 <div class="mt-4 d-flex gap-2">
 
                     <button type="submit"
@@ -1263,20 +1125,13 @@
 
                 </div>
 
-
             </form>
 
         </div>
 
     </div>
 
-
-
-
     <script>
-
-
-
 
         const shopCategory =
             @Html.Raw(
@@ -1285,14 +1140,8 @@
                 )
                         );
 
-
-
-
         const subCategoryData =
             @Html.Raw(categoryDataJson);
-
-
-
 
         const categorySelect =
             document.getElementById("category");
@@ -1318,8 +1167,8 @@
         const shoeSize =
             document.getElementById("shoeSize");
 
-
-
+        const isAvailableForBuy =
+            document.getElementById("isAvailableForBuy");
 
         const isOnSale =
             document.getElementById("isOnSale");
@@ -1329,9 +1178,6 @@
 
         const salePrice =
             document.getElementById("salePrice");
-
-
-
 
         const isAvailableForRent =
             document.getElementById("isAvailableForRent");
@@ -1351,7 +1197,14 @@
         const rentalConditions =
             document.getElementById("rentalConditions");
 
+        const saleCard =
+            document.querySelector(".sale-card");
 
+        const negotiationCard =
+            document.querySelector(".negotiation-card");
+
+        const allowNegotiation =
+            document.getElementById("allowNegotiation");
 
         const dressKeywords = [
 
@@ -1378,31 +1231,19 @@
 
         ];
 
-
-
         function loadSubCategories() {
 
             const selectedCategory =
                 categorySelect.value.trim();
 
-
-
-
             subCategorySelect.innerHTML =
                 '<option value="">-- Select Subcategory --</option>';
 
-
-
-
             updateProductOptions();
-
 
             if (!selectedCategory) {
                 return;
             }
-
-
-
 
             const categoryKey =
                 Object.keys(subCategoryData).find(function (key) {
@@ -1412,22 +1253,16 @@
 
                 });
 
-
             if (!categoryKey) {
                 return;
             }
 
-
             const subCategories =
                 subCategoryData[categoryKey];
-
 
             if (!Array.isArray(subCategories)) {
                 return;
             }
-
-
-
 
             subCategories.forEach(function (item) {
 
@@ -1441,12 +1276,9 @@
 
             });
 
-
             updateProductOptions();
 
         }
-
-
 
         function updateProductOptions() {
 
@@ -1454,8 +1286,6 @@
                 subCategorySelect.value
                     .trim()
                     .toLowerCase();
-
-
 
             customBox.style.display = "none";
 
@@ -1466,9 +1296,6 @@
             sizeSelect.disabled = false;
 
             shoeSize.disabled = true;
-
-
-
 
             if (
                 shopCategory === "footwear" ||
@@ -1481,15 +1308,12 @@
 
                 productType.value = "Footwear";
 
-
-
                 sizeSelect.disabled = true;
 
                 shoeSize.disabled = false;
 
                 return;
             }
-
 
             if (
                 shopCategory === "jewellery" ||
@@ -1507,7 +1331,6 @@
                 return;
             }
 
-
             if (
                 shopCategory === "accessories" ||
                 shopCategory === "wedding accessories"
@@ -1523,7 +1346,6 @@
 
                 return;
             }
-
 
             if (
                 shopCategory === "wedding guest wear" ||
@@ -1544,14 +1366,12 @@
                 return;
             }
 
-
             const isDress =
                 dressKeywords.some(function (keyword) {
 
                     return selected.includes(keyword);
 
                 });
-
 
             if (isDress) {
 
@@ -1569,7 +1389,6 @@
                 return;
             }
 
-
             productType.value =
                 "Standard Product";
 
@@ -1579,9 +1398,39 @@
 
         }
 
+        function updateBuyDependentOptions() {
+
+            if (isAvailableForBuy.checked) {
+
+                saleCard.style.display = "block";
+
+                negotiationCard.style.display = "block";
+
+            }
+            else {
+
+                saleCard.style.display = "none";
+
+                negotiationCard.style.display = "none";
+
+                isOnSale.checked = false;
+
+                allowNegotiation.checked = false;
+
+                saleDetails.style.display = "none";
+
+                salePrice.value = "";
+
+            }
+
+        }
+
         function updateSaleSection() {
 
-            if (isOnSale.checked) {
+            if (
+                isAvailableForBuy.checked &&
+                isOnSale.checked
+            ) {
 
                 saleDetails.style.display = "block";
 
@@ -1590,16 +1439,11 @@
 
                 saleDetails.style.display = "none";
 
-
-
                 salePrice.value = "";
 
             }
 
         }
-
-
-
 
         function updateRentalSection() {
 
@@ -1611,8 +1455,6 @@
             else {
 
                 rentalDetails.style.display = "none";
-
-
 
                 rentPrice.value = "";
 
@@ -1626,7 +1468,6 @@
 
         }
 
-
         categorySelect.addEventListener(
             "change",
             function () {
@@ -1636,12 +1477,22 @@
             }
         );
 
-
         subCategorySelect.addEventListener(
             "change",
             function () {
 
                 updateProductOptions();
+
+            }
+        );
+
+        isAvailableForBuy.addEventListener(
+            "change",
+            function () {
+
+                updateBuyDependentOptions();
+
+                updateSaleSection();
 
             }
         );
@@ -1655,7 +1506,6 @@
             }
         );
 
-
         isAvailableForRent.addEventListener(
             "change",
             function () {
@@ -1664,8 +1514,6 @@
 
             }
         );
-
-
 
         document
             .getElementById("productImage")
@@ -1678,7 +1526,6 @@
 
                     const preview =
                         document.getElementById("imagePreview");
-
 
                     if (file) {
 
@@ -1696,7 +1543,6 @@
 
                             return;
                         }
-
 
                         preview.src =
                             URL.createObjectURL(file);
@@ -1717,18 +1563,38 @@
                 }
             );
 
-
-
         document
             .querySelector("form")
             .addEventListener(
                 "submit",
                 function (event) {
 
+                    if (
+                        !isAvailableForBuy.checked &&
+                        !isAvailableForRent.checked
+                    ) {
 
+                        alert(
+                            "Please select at least one selling option: Buy or Rent."
+                        );
 
+                        event.preventDefault();
+
+                        return;
+                    }
 
                     if (isOnSale.checked) {
+
+                        if (!isAvailableForBuy.checked) {
+
+                            alert(
+                                "Sale is only available when Buy is enabled."
+                            );
+
+                            event.preventDefault();
+
+                            return;
+                        }
 
                         const originalPrice =
                             parseFloat(
@@ -1744,7 +1610,6 @@
                                 salePrice.value
                             );
 
-
                         if (
                             isNaN(enteredSalePrice) ||
                             enteredSalePrice <= 0
@@ -1758,7 +1623,6 @@
 
                             return;
                         }
-
 
                         if (
                             !isNaN(originalPrice) &&
@@ -1776,9 +1640,6 @@
 
                     }
 
-
-
-
                     if (isAvailableForRent.checked) {
 
                         const enteredRentPrice =
@@ -1790,7 +1651,6 @@
                             parseFloat(
                                 rentalSecurity.value
                             );
-
 
                         if (
                             isNaN(enteredRentPrice) ||
@@ -1806,7 +1666,6 @@
                             return;
                         }
 
-
                         if (
                             isNaN(enteredSecurity) ||
                             enteredSecurity < 0
@@ -1821,7 +1680,6 @@
                             return;
                         }
 
-
                         if (
                             rentalDuration.value.trim() === ""
                         ) {
@@ -1834,7 +1692,6 @@
 
                             return;
                         }
-
 
                         if (
                             rentalConditions.value.trim() === ""
@@ -1854,15 +1711,9 @@
                 }
             );
 
-
-
-
         document.addEventListener(
             "DOMContentLoaded",
             function () {
-
-
-
 
                 if (shopCategory) {
 
@@ -1878,7 +1729,6 @@
 
                         });
 
-
                     if (matchingOption) {
 
                         categorySelect.value =
@@ -1888,19 +1738,13 @@
 
                 }
 
-
-
                 loadSubCategories();
-
-
-
 
                 updateProductOptions();
 
-
+                updateBuyDependentOptions();
 
                 updateSaleSection();
-
 
                 updateRentalSection();
 
@@ -1912,3 +1756,4 @@
 </body>
 
 </html>
+
