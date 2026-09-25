@@ -9,7 +9,7 @@ namespace WeddingClosetHubs.Controllers
     {
         private readonly WeddingClosetHubsContext _context;
 
-        
+
 
         private const string AdminRole = "Admin";
         private const string ShopkeeperRole = "Shopkeeper";
@@ -23,7 +23,7 @@ namespace WeddingClosetHubs.Controllers
             "Liaqat Bagh"
         };
 
-       
+
 
         public AdminController(WeddingClosetHubsContext context)
         {
@@ -43,7 +43,7 @@ namespace WeddingClosetHubs.Controllers
                    roleName == AdminRole;
         }
 
-       
+
 
         private IActionResult AdminLoginRedirect()
         {
@@ -52,7 +52,7 @@ namespace WeddingClosetHubs.Controllers
                 "Account");
         }
 
-       
+
 
         private static bool IsCancelledOrder(Order order)
         {
@@ -94,7 +94,7 @@ namespace WeddingClosetHubs.Controllers
             int adminId =
                 HttpContext.Session.GetInt32("UserId") ?? 0;
 
-           
+
 
             ViewBag.UnreadChats =
                 await _context.ChatMessages
@@ -124,7 +124,7 @@ namespace WeddingClosetHubs.Controllers
                 await _context.Users
                     .CountAsync(u => !u.Status);
 
-            
+
 
             ViewBag.TotalShopkeepers =
                 await _context.Users
@@ -185,7 +185,7 @@ namespace WeddingClosetHubs.Controllers
                         d.User.Status)
                     .CountAsync();
 
-            
+
 
             ViewBag.TotalShops =
                 await _context.Shops.CountAsync();
@@ -206,7 +206,7 @@ namespace WeddingClosetHubs.Controllers
                         s.IsApproved &&
                         !s.Status);
 
-            
+
 
             ViewBag.TotalOrders =
                 await _context.Orders
@@ -228,7 +228,7 @@ namespace WeddingClosetHubs.Controllers
                     .CountAsync(o =>
                         o.OrderStatus == "Cancelled");
 
-            
+
 
             ViewBag.TotalPayments =
                 await _context.Orders
@@ -272,7 +272,7 @@ namespace WeddingClosetHubs.Controllers
             return View(shopkeepers);
         }
 
-       
+
         [HttpGet]
         public async Task<IActionResult> ShopkeeperDetails(int id)
         {
@@ -436,7 +436,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-       
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -563,7 +563,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-       
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -607,7 +607,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-      
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -682,7 +682,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-       
+
 
         [HttpGet]
         public async Task<IActionResult> Customers()
@@ -804,7 +804,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Customers");
         }
 
-       
+
 
         [HttpGet]
         public async Task<IActionResult> DeliveryBoys()
@@ -824,7 +824,7 @@ namespace WeddingClosetHubs.Controllers
             return View(deliveryBoys);
         }
 
-        
+
 
         [HttpGet]
         public async Task<IActionResult> DeliveryDetails(int id)
@@ -1358,26 +1358,11 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            order.DeliveryId =
-                deliveryBoy.UserId;
+            order.DeliveryId =deliveryBoy.UserId;
+             order.OrderStatus= "Ready" ;  
 
-            
-            if (string.Equals(
-                    order.OrderStatus,
-                    "Ready for Delivery",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                order.OrderStatus =
-                    "Assigned";
-            }
-            else if (string.Equals(
-                         order.OrderStatus,
-                         "Ready",
-                         StringComparison.OrdinalIgnoreCase))
-            {
-                order.OrderStatus =
-                    "Assigned";
-            }
+
+           
 
 
             await CreateNotification(
@@ -1407,7 +1392,7 @@ namespace WeddingClosetHubs.Controllers
                 return AdminLoginRedirect();
             }
 
-         
+
 
             var payments = await _context.Orders
                 .Include(o => o.Customer)
@@ -1431,7 +1416,7 @@ namespace WeddingClosetHubs.Controllers
                 return AdminLoginRedirect();
             }
 
-           
+
 
             var order = await _context.Orders
                 .Include(o => o.Customer)
@@ -1484,7 +1469,7 @@ namespace WeddingClosetHubs.Controllers
                 ViewBag.DeliveryPaymentAccount = null;
             }
 
-           
+
 
             return View(order);
         }
@@ -1529,7 +1514,7 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            
+
             if (order.TotalAmount <= 0)
             {
                 TempData["Error"] =
@@ -1606,7 +1591,7 @@ namespace WeddingClosetHubs.Controllers
                 nameof(PaymentDetails),
                 new { id });
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmCODHandover(
@@ -1661,7 +1646,7 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            
+
 
             if (order.DeliveryCollectedAmount < order.TotalAmount)
             {
@@ -1713,7 +1698,7 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderId);
             }
 
-            
+
 
             if (order.Delivery != null)
             {
@@ -1734,7 +1719,7 @@ namespace WeddingClosetHubs.Controllers
                 nameof(PaymentDetails),
                 new { id });
         }
-       
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1750,7 +1735,7 @@ namespace WeddingClosetHubs.Controllers
                 return AdminLoginRedirect();
             }
 
-            
+
 
             var order = await _context.Orders
                 .Include(o => o.Shop)
@@ -1764,7 +1749,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction(nameof(Payments));
             }
 
-          
+
 
             if (IsCancelledOrder(order))
             {
@@ -2197,7 +2182,6 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> Reports()
         {
@@ -2205,8 +2189,6 @@ namespace WeddingClosetHubs.Controllers
             {
                 return AdminLoginRedirect();
             }
-
-
 
             ViewBag.TotalUsers =
                 await _context.Users.CountAsync();
@@ -2218,9 +2200,6 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.DisabledUsers =
                 await _context.Users
                     .CountAsync(u => !u.Status);
-
-
-
 
             ViewBag.TotalShopkeepers =
                 await _context.Users
@@ -2245,9 +2224,6 @@ namespace WeddingClosetHubs.Controllers
                         !u.IsApproved)
                     .CountAsync();
 
-
-
-
             ViewBag.TotalCustomers =
                 await _context.Users
                     .Where(u =>
@@ -2262,8 +2238,6 @@ namespace WeddingClosetHubs.Controllers
                         u.Role.RoleName == CustomerRole &&
                         u.Status)
                     .CountAsync();
-
-
 
             ViewBag.TotalDelivery =
                 await _context.Users
@@ -2288,9 +2262,6 @@ namespace WeddingClosetHubs.Controllers
                         !u.IsApproved)
                     .CountAsync();
 
-
-
-
             ViewBag.TotalShops =
                 await _context.Shops.CountAsync();
 
@@ -2314,16 +2285,12 @@ namespace WeddingClosetHubs.Controllers
                         s.IsApproved &&
                         !s.Status);
 
-
-
-
             var allOrders =
                 _context.Orders.AsQueryable();
 
             var activeOrders =
                 allOrders.Where(o =>
                     o.OrderStatus != "Cancelled");
-
 
             ViewBag.TotalOrders =
                 await activeOrders.CountAsync();
@@ -2343,9 +2310,6 @@ namespace WeddingClosetHubs.Controllers
                     .CountAsync(o =>
                         o.OrderStatus == "Cancelled");
 
-
-
-
             ViewBag.TotalPayments =
                 await activeOrders.CountAsync();
 
@@ -2359,39 +2323,30 @@ namespace WeddingClosetHubs.Controllers
                     .CountAsync(o =>
                         !o.PaymentReceived);
 
-
-
             ViewBag.TotalProductAmount =
                 await activeOrders
                     .SumAsync(o =>
                         (decimal?)o.ProductTotal) ?? 0m;
-
 
             ViewBag.TotalDeliveryCharges =
                 await activeOrders
                     .SumAsync(o =>
                         (decimal?)o.DeliveryCharges) ?? 0m;
 
-
             ViewBag.TotalServiceFee =
                 await activeOrders
                     .SumAsync(o =>
                         (decimal?)o.ServiceFee) ?? 0m;
-
 
             ViewBag.TotalRevenue =
                 await activeOrders
                     .SumAsync(o =>
                         (decimal?)o.TotalAmount) ?? 0m;
 
-
-
-
             ViewBag.TotalShopkeeperAmount =
                 await activeOrders
                     .SumAsync(o =>
                         (decimal?)o.ShopkeeperAmount) ?? 0m;
-
 
             ViewBag.TotalShopkeeperPaid =
                 await activeOrders
@@ -2399,7 +2354,6 @@ namespace WeddingClosetHubs.Controllers
                         o.ShopkeeperPaymentStatus == "Paid")
                     .SumAsync(o =>
                         (decimal?)o.ShopkeeperPaidAmount) ?? 0m;
-
 
             ViewBag.PendingShopkeeperPayments =
                 await activeOrders
@@ -2409,15 +2363,12 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         (decimal?)o.ProductTotal) ?? 0m;
 
-
-
             ViewBag.TotalDeliveryPaid =
                 await activeOrders
                     .Where(o =>
                         o.DeliveryPaymentStatus == "Paid")
                     .SumAsync(o =>
                         (decimal?)o.DeliveryPaidAmount) ?? 0m;
-
 
             ViewBag.PendingDeliveryPayments =
                 await activeOrders
@@ -2428,29 +2379,97 @@ namespace WeddingClosetHubs.Controllers
                     .SumAsync(o =>
                         (decimal?)o.DeliveryCharges) ?? 0m;
 
-
-
-
             ViewBag.CODPayments =
                 await activeOrders
                     .CountAsync(o =>
                         o.PaymentMethod == "COD" ||
                         o.PaymentMethod == "Cash on Delivery");
 
-
             ViewBag.JazzCashPayments =
                 await activeOrders
                     .CountAsync(o =>
                         o.PaymentMethod == "JazzCash");
-
 
             ViewBag.EasypaisaPayments =
                 await activeOrders
                     .CountAsync(o =>
                         o.PaymentMethod == "Easypaisa");
 
+            var rentalDetails =
+                await _context.OrderDetails
+                    .Include(d => d.Order)
+                    .Where(d =>
+                        d.PurchaseType == "Rent" &&
+                        d.Order != null &&
+                        d.Order.OrderStatus != "Cancelled")
+                    .ToListAsync();
+
+            ViewBag.RentalOrders =
+                rentalDetails
+                    .Select(d => d.OrderId)
+                    .Distinct()
+                    .Count();
+
+            ViewBag.TotalRentalItems =
+                rentalDetails.Count;
+
+            ViewBag.PendingRentalReturns =
+                rentalDetails
+                    .Count(d =>
+                        d.RentalReturnStatus == "Awaiting Return");
+
+            ViewBag.ReturnedRentals =
+                rentalDetails
+                    .Count(d =>
+                        d.RentalReturnStatus == "Returned");
+
+            ViewBag.InspectedRentals =
+                rentalDetails
+                    .Count(d =>
+                        d.RentalReturnStatus == "Inspected");
+
+            ViewBag.RefundedRentals =
+                rentalDetails
+                    .Count(d =>
+                        d.SecurityRefunded);
+
+            ViewBag.TotalRentalProductAmount =
+                rentalDetails
+                    .Sum(d =>
+                        d.SubTotal);
+
+            ViewBag.TotalRentalSecurity =
+                rentalDetails
+                    .Sum(d =>
+                        d.RentalSecurity * d.Quantity);
+
+            ViewBag.RefundedRentalSecurity =
+                rentalDetails
+                    .Where(d =>
+                        d.SecurityRefunded)
+                    .Sum(d =>
+                        d.RentalSecurity * d.Quantity);
+
+            ViewBag.PendingRentalSecurityRefund =
+                rentalDetails
+                    .Where(d =>
+                        d.RentalReturnStatus == "Inspected" &&
+                        !d.SecurityRefunded)
+                    .Sum(d =>
+                        d.RentalSecurity * d.Quantity);
 
 
+            ViewBag.EasypaisaRentalRefunds =
+                rentalDetails
+                    .Count(d =>
+                        d.SecurityRefunded &&
+                        d.SecurityRefundMethod == "Easypaisa");
+
+            ViewBag.JazzCashRentalRefunds =
+                rentalDetails
+                    .Count(d =>
+                        d.SecurityRefunded &&
+                        d.SecurityRefundMethod == "JazzCash");
 
             return View();
         }
@@ -3560,15 +3579,219 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Feedback");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> RentalOrders()
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+
+            var rentalOrders = await _context.OrderDetails
+                .Include(d => d.Order)
+                    .ThenInclude(o => o.Customer)
+                .Include(d => d.Order)
+                    .ThenInclude(o => o.Shop)
+                .Include(d => d.Product)
+                .Where(d =>
+                    d.PurchaseType == "Rent" &&
+                    d.Order != null &&
+                    d.Order.OrderStatus != "Cancelled")
+                .OrderByDescending(d => d.Order!.CreatedDate)
+                .ToListAsync();
+
+            return View(rentalOrders);
+
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InspectRental(
+        int id,
+        string inspectionResult,
+        string? adminNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+
+            var detail = await _context.OrderDetails
+                .Include(d => d.Order)
+                .FirstOrDefaultAsync(d => d.OrderDetailId == id);
+
+            if (detail == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.Equals(
+                detail.PurchaseType,
+                "Rent",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This order item is not a rental.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (!string.Equals(
+                detail.RentalReturnStatus,
+                "Returned",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "The dress must be returned by the shopkeeper before inspection.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (string.IsNullOrWhiteSpace(inspectionResult))
+            {
+                TempData["Error"] =
+                    "Please select an inspection result.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            detail.InspectionResult = inspectionResult;
+            detail.RentalReturnStatus = "Inspected";
+            detail.SecurityRefundNotes = adminNotes;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Rental inspection has been recorded.";
+
+            return RedirectToAction("RentalOrders");
+
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefundRentalSecurity(
+        int id,
+        string refundMethod,
+        string? refundAccount,
+        string? transactionId,
+        string? refundNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+
+            var detail = await _context.OrderDetails
+                .Include(d => d.Order)
+                .FirstOrDefaultAsync(d => d.OrderDetailId == id);
+
+            if (detail == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.Equals(
+                detail.PurchaseType,
+                "Rent",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Security refund is only available for rental orders.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (!string.Equals(
+                detail.RentalReturnStatus,
+                "Inspected",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "The dress must be returned and inspected before the security can be refunded.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (detail.SecurityRefunded)
+            {
+                TempData["Error"] =
+                    "This rental security has already been refunded.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (detail.RentalSecurity <= 0)
+            {
+                TempData["Error"] =
+                    "There is no refundable security amount for this rental.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (!string.Equals(
+                    refundMethod,
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase)
+                &&
+                !string.Equals(
+                    refundMethod,
+                    "JazzCash",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Invalid refund method. Only Easypaisa and JazzCash are allowed.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (string.IsNullOrWhiteSpace(refundAccount))
+            {
+                TempData["Error"] =
+                    "Account number is required for Easypaisa or JazzCash refund.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            detail.SecurityRefunded = true;
+            detail.SecurityRefundDate = DateTime.Now;
+            detail.SecurityRefundMethod = refundMethod;
+            detail.SecurityRefundAccount = refundAccount.Trim();
+            detail.SecurityRefundTransactionId =
+                string.IsNullOrWhiteSpace(transactionId)
+                    ? null
+                    : transactionId.Trim();
+
+            detail.SecurityRefundNotes = refundNotes;
+            detail.RentalReturnStatus = "Refunded";
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Rental security refund has been recorded successfully.";
+
+            return RedirectToAction("RentalOrders");
+
+
+        }
 
         [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
 
+
             return RedirectToAction(
                 "Login",
                 "Account");
+
+
         }
+
     }
 }

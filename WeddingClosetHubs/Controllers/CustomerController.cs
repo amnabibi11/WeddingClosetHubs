@@ -695,7 +695,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(negotiations);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(
@@ -710,7 +709,6 @@ namespace WeddingClosetHubs.Controllers
 
             if (quantity < 1)
                 quantity = 1;
-
 
             var product = await _context.Products
                 .Include(p => p.Shop)
@@ -754,14 +752,19 @@ namespace WeddingClosetHubs.Controllers
                     new { id = productId });
             }
 
+            bool validSale =
+                product.IsOnSale &&
+                product.SalePrice.HasValue &&
+                product.SalePrice.Value > 0 &&
+                product.SalePrice.Value < product.Price;
 
             string requestedType =
                 string.IsNullOrWhiteSpace(purchaseType)
-                    ? "Buy"
+                    ? ""
                     : purchaseType.Trim();
 
-            string selectedPurchaseType = "Buy";
-            decimal selectedPrice = product.Price;
+            string selectedPurchaseType;
+            decimal selectedPrice;
             int? negotiationId = null;
 
             if (requestedType.Equals(
@@ -781,13 +784,8 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 selectedPurchaseType = "Rent";
-
-                selectedPrice =
-                    product.RentPrice.Value;
-
-                negotiationId = null;
+                selectedPrice = product.RentPrice.Value;
             }
-
             else if (requestedType.Equals(
                          "Negotiated",
                          StringComparison.OrdinalIgnoreCase))
@@ -801,8 +799,7 @@ namespace WeddingClosetHubs.Controllers
                             n.AgreedPrice.HasValue &&
                             n.AgreedPrice.Value > 0)
                         .OrderByDescending(n =>
-                            n.RespondedDate ??
-                            n.CreatedDate)
+                            n.RespondedDate ?? n.CreatedDate)
                         .FirstOrDefaultAsync();
 
                 if (negotiation == null)
@@ -810,27 +807,26 @@ namespace WeddingClosetHubs.Controllers
                     TempData["Error"] =
                         "No accepted negotiated price is available for this product.";
 
-                    return RedirectToAction(
-                        "MyNegotiations");
+                    return RedirectToAction("MyNegotiations");
+                }
+
+                if (negotiation.AgreedPrice!.Value >= product.Price)
+                {
+                    TempData["Error"] =
+                        "The negotiated price must be lower than the original product price.";
+
+                    return RedirectToAction("MyNegotiations");
                 }
 
                 selectedPurchaseType = "Negotiated";
-
-                selectedPrice =
-                    negotiation.AgreedPrice!.Value;
-
-                negotiationId =
-                    negotiation.NegotiationId;
+                selectedPrice = negotiation.AgreedPrice.Value;
+                negotiationId = negotiation.NegotiationId;
             }
-
             else if (requestedType.Equals(
                          "Sale",
                          StringComparison.OrdinalIgnoreCase))
             {
-                if (!product.IsOnSale ||
-                    !product.SalePrice.HasValue ||
-                    product.SalePrice.Value <= 0 ||
-                    product.SalePrice.Value >= product.Price)
+                if (!validSale)
                 {
                     TempData["Error"] =
                         "This product is not currently available at a sale price.";
@@ -841,23 +837,28 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 selectedPurchaseType = "Sale";
-
-                selectedPrice =
-                    product.SalePrice.Value;
-
-                negotiationId = null;
+                selectedPrice = product.SalePrice!.Value;
             }
-
-            else
+            else if (requestedType.Equals(
+                         "Buy",
+                         StringComparison.OrdinalIgnoreCase))
             {
                 selectedPurchaseType = "Buy";
-
-                selectedPrice =
-                    product.Price;
-
-                negotiationId = null;
+                selectedPrice = product.Price;
             }
-
+            else
+            {
+                if (validSale)
+                {
+                    selectedPurchaseType = "Sale";
+                    selectedPrice = product.SalePrice!.Value;
+                }
+                else
+                {
+                    selectedPurchaseType = "Buy";
+                    selectedPrice = product.Price;
+                }
+            }
 
             var cartItems = GetCartItems();
 
@@ -871,7 +872,6 @@ namespace WeddingClosetHubs.Controllers
 
             if (existingItem != null)
             {
-
                 if (selectedPurchaseType.Equals(
                         "Negotiated",
                         StringComparison.OrdinalIgnoreCase))
@@ -897,48 +897,24 @@ namespace WeddingClosetHubs.Controllers
                         new { id = productId });
                 }
 
-                existingItem.Quantity =
-                    newQuantity;
-
-                existingItem.ProductName =
-                    product.ProductName;
-
-                existingItem.Price =
-                    selectedPrice;
-
-                existingItem.PurchaseType =
-                    selectedPurchaseType;
-
-                existingItem.NegotiationId =
-                    negotiationId;
+                existingItem.Quantity = newQuantity;
+                existingItem.ProductName = product.ProductName;
+                existingItem.Price = selectedPrice;
+                existingItem.PurchaseType = selectedPurchaseType;
+                existingItem.NegotiationId = negotiationId;
             }
-
-
             else
             {
                 cartItems.Add(
                     new CustomerCartItem
                     {
-                        ProductId =
-                            product.ProductId,
-
-                        ProductName =
-                            product.ProductName,
-
-                        Price =
-                            selectedPrice,
-
-                        Quantity =
-                            quantity,
-
-                        CustomMeasurements =
-                            null,
-
-                        PurchaseType =
-                            selectedPurchaseType,
-
-                        NegotiationId =
-                            negotiationId
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        Price = selectedPrice,
+                        Quantity = quantity,
+                        CustomMeasurements = null,
+                        PurchaseType = selectedPurchaseType,
+                        NegotiationId = negotiationId
                     });
             }
 
@@ -1355,21 +1331,15 @@ namespace WeddingClosetHubs.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CustomizeProduct(
-            int id)
+        public async Task<IActionResult> CustomizeProduct(int id)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            var cartItems =
-                GetCartItems();
+            var cartItems = GetCartItems();
 
-            var cartItem =
-                cartItems.FirstOrDefault(
-                    x =>
-                        x.ProductId ==
-                        id
-                );
+            var cartItem = cartItems.FirstOrDefault(
+                x => x.ProductId == id);
 
             if (cartItem == null)
             {
@@ -1379,15 +1349,12 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Cart");
             }
 
-            var product =
-                await _context.Products
-                    .Include(p => p.Shop)
-                    .FirstOrDefaultAsync(
-                        p =>
-                            p.ProductId ==
-                                id &&
-                            p.Status
-                    );
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(
+                    p =>
+                        p.ProductId == id &&
+                        p.Status);
 
             if (product == null)
             {
@@ -1414,6 +1381,90 @@ namespace WeddingClosetHubs.Controllers
 
                 return RedirectToAction("Cart");
             }
+
+            string subcategory =
+                product.Subcategory?.Trim().ToLowerInvariant() ?? "";
+
+            string productName =
+                product.ProductName?.Trim().ToLowerInvariant() ?? "";
+
+            string measurementType = "general";
+
+            if (subcategory.Contains("lehenga") ||
+                productName.Contains("lehenga"))
+            {
+                measurementType = "lehenga";
+            }
+            else if (subcategory.Contains("gown") ||
+                     productName.Contains("gown"))
+            {
+                measurementType = "gown";
+            }
+            else if (subcategory.Contains("maxi") ||
+                     productName.Contains("maxi"))
+            {
+                measurementType = "maxi";
+            }
+            else if (subcategory.Contains("sharara") ||
+                     subcategory.Contains("gharara") ||
+                     productName.Contains("sharara") ||
+                     productName.Contains("gharara"))
+            {
+                measurementType = "sharara";
+            }
+            else if (subcategory.Contains("pishwas") ||
+                     productName.Contains("pishwas"))
+            {
+                measurementType = "pishwas";
+            }
+            else if (subcategory.Contains("saree") ||
+                     subcategory.Contains("sari") ||
+                     productName.Contains("saree") ||
+                     productName.Contains("sari"))
+            {
+                measurementType = "saree";
+            }
+            else if (subcategory.Contains("frock") ||
+                     productName.Contains("frock"))
+            {
+                measurementType = "frock";
+            }
+            else if (subcategory.Contains("anarkali") ||
+                     productName.Contains("anarkali"))
+            {
+                measurementType = "anarkali";
+            }
+            else if (subcategory.Contains("palazzo") ||
+                     productName.Contains("palazzo"))
+            {
+                measurementType = "palazzo";
+            }
+            else if (subcategory.Contains("sherwani") ||
+                     productName.Contains("sherwani"))
+            {
+                measurementType = "sherwani";
+            }
+            else if (subcategory.Contains("prince coat") ||
+                     subcategory.Contains("princecoat") ||
+                     productName.Contains("prince coat") ||
+                     productName.Contains("princecoat"))
+            {
+                measurementType = "princecoat";
+            }
+            else if (subcategory.Contains("kurta shalwar") ||
+                     subcategory.Contains("kurtashalwar") ||
+                     productName.Contains("kurta shalwar") ||
+                     productName.Contains("kurtashalwar"))
+            {
+                measurementType = "kurtashalwar";
+            }
+            else if (subcategory.Contains("suit") ||
+                     productName.Contains("suit"))
+            {
+                measurementType = "suit";
+            }
+
+            ViewBag.MeasurementType = measurementType;
 
             return View(product);
         }
@@ -1536,7 +1587,6 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Cart");
         }
-
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
@@ -1545,7 +1595,6 @@ namespace WeddingClosetHubs.Controllers
 
             int customerId =
                 GetCustomerId()!.Value;
-
 
             var customer =
                 await _context.Users
@@ -1589,7 +1638,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Cart");
             }
 
-
             var productIds =
                 cartItems
                     .Select(x => x.ProductId)
@@ -1607,7 +1655,6 @@ namespace WeddingClosetHubs.Controllers
                             p.Status
                     )
                     .ToListAsync();
-
 
             if (products.Count !=
                 productIds.Count)
@@ -1674,6 +1721,15 @@ namespace WeddingClosetHubs.Controllers
 
             decimal productTotal = 0m;
 
+            var checkoutPrices =
+                new Dictionary<int, decimal>();
+
+            var checkoutPurchaseTypes =
+                new Dictionary<int, string>();
+
+            var checkoutNegotiationIds =
+                new Dictionary<int, int?>();
+
             foreach (var item in cartItems)
             {
                 var product =
@@ -1688,6 +1744,8 @@ namespace WeddingClosetHubs.Controllers
                     "Buy";
 
                 decimal finalUnitPrice;
+
+                int? negotiationId = null;
 
                 if (purchaseType.Equals(
                         "Rent",
@@ -1706,7 +1764,6 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         product.RentPrice.Value;
                 }
-
                 else if (purchaseType.Equals(
                     "Negotiated",
                     StringComparison.OrdinalIgnoreCase))
@@ -1740,10 +1797,12 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         negotiation.AgreedPrice.Value;
 
-                    item.NegotiationId =
+                    negotiationId =
                         negotiation.NegotiationId;
-                }
 
+                    purchaseType =
+                        "Negotiated";
+                }
                 else if (
                     product.IsOnSale &&
                     product.SalePrice.HasValue &&
@@ -1754,21 +1813,35 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         product.SalePrice.Value;
 
-                    item.PurchaseType =
+                    purchaseType =
                         "Sale";
                 }
-
                 else
                 {
                     finalUnitPrice =
                         product.Price;
 
-                    item.PurchaseType =
+                    purchaseType =
                         "Buy";
                 }
 
+                checkoutPrices[
+                    product.ProductId] =
+                    finalUnitPrice;
+
+                checkoutPurchaseTypes[
+                    product.ProductId] =
+                    purchaseType;
+
+                checkoutNegotiationIds[
+                    product.ProductId] =
+                    negotiationId;
+
                 item.Price =
                     finalUnitPrice;
+
+                item.PurchaseType =
+                    purchaseType;
 
                 productTotal +=
                     finalUnitPrice *
@@ -1777,13 +1850,37 @@ namespace WeddingClosetHubs.Controllers
 
             SaveCartItems(cartItems);
 
-
             if (productTotal <= 0)
             {
                 TempData["Error"] =
                     "Invalid cart amount.";
 
                 return RedirectToAction("Cart");
+            }
+            decimal refundableSecurity = 0m;
+
+            foreach (var item in cartItems)
+            {
+                if (!item.PurchaseType.Equals(
+                    "Rent",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var product =
+                    products.First(
+                        p =>
+                            p.ProductId ==
+                            item.ProductId
+                    );
+
+                decimal securityPerItem =
+                    product.RentalSecurity ?? 0m;
+
+                refundableSecurity +=
+                    securityPerItem *
+                    item.Quantity;
             }
 
             decimal deliveryCharges =
@@ -1797,9 +1894,11 @@ namespace WeddingClosetHubs.Controllers
                 );
 
             decimal totalAmount =
-                productTotal +
-                deliveryCharges +
-                serviceFee;
+     productTotal +
+     deliveryCharges +
+     serviceFee +
+     refundableSecurity;
+
 
             decimal shopkeeperAmount =
                 productTotal;
@@ -1822,6 +1921,8 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.ServiceFee =
                 serviceFee;
 
+            ViewBag.RefundableSecurity =
+                refundableSecurity;
             ViewBag.TotalAmount =
                 totalAmount;
 
@@ -1837,6 +1938,17 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.Shop =
                 shop;
 
+            ViewBag.CheckoutPrices =
+                checkoutPrices;
+
+            ViewBag.CheckoutPurchaseTypes =
+                checkoutPurchaseTypes;
+
+            ViewBag.CheckoutQuantities =
+                cartItems.ToDictionary(x => x.ProductId, x => x.Quantity);
+
+            ViewBag.CheckoutNegotiationIds =
+                checkoutNegotiationIds;
 
             return View(products);
         }
@@ -1844,20 +1956,21 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(
-            string? cartData,
-            string? deliveryCity,
-            string deliveryAddress,
-            string? notes,
-            string paymentMethod,
-            string? transactionId,
-            IFormFile? transactionImage)
+      string? cartData,
+      string? deliveryCity,
+      string deliveryAddress,
+      string? notes,
+      string paymentMethod,
+      string? transactionId,
+      IFormFile? transactionImage,
+      string? refundPreferenceMethod,
+      string? refundPreferenceAccount)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
             int customerId =
                 GetCustomerId()!.Value;
-
 
             var customer =
                 await _context.Users
@@ -1870,8 +1983,10 @@ namespace WeddingClosetHubs.Controllers
             if (customer == null)
             {
                 HttpContext.Session.Clear();
+
                 TempData["Error"] =
-                   "Customer account could not be found.";
+                    "Customer account could not be found.";
+
                 return RedirectToAction(
                     "Login",
                     "Account"
@@ -1942,7 +2057,8 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            deliveryCity = deliveryCity.Trim();
+            deliveryCity =
+                deliveryCity.Trim();
 
             if (!deliveryCity.Equals(
                     "Rawalpindi",
@@ -1954,8 +2070,8 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-
-            deliveryCity = "Rawalpindi";
+            deliveryCity =
+                "Rawalpindi";
 
             if (string.IsNullOrWhiteSpace(deliveryAddress))
             {
@@ -1965,7 +2081,8 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            deliveryAddress = deliveryAddress.Trim();
+            deliveryAddress =
+                deliveryAddress.Trim();
 
             if (deliveryAddress.Length < 10)
             {
@@ -1983,9 +2100,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-
-
-
             if (!deliveryAddress.Contains(
                     "Rawalpindi",
                     StringComparison.OrdinalIgnoreCase))
@@ -1996,8 +2110,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            if (string.IsNullOrWhiteSpace(
-                paymentMethod))
+            if (string.IsNullOrWhiteSpace(paymentMethod))
             {
                 TempData["Error"] =
                     "Please select a payment method.";
@@ -2053,9 +2166,7 @@ namespace WeddingClosetHubs.Controllers
                     )
                     .ToListAsync();
 
-
-            if (products.Count !=
-                productIds.Count)
+            if (products.Count != productIds.Count)
             {
                 TempData["Error"] =
                     "One or more products in your cart are no longer available.";
@@ -2092,6 +2203,11 @@ namespace WeddingClosetHubs.Controllers
 
             decimal productTotal = 0m;
 
+            decimal refundableSecurity = 0m;
+
+            bool containsRental =
+                false;
+
             var finalPrices =
                 new Dictionary<int, decimal>();
 
@@ -2100,7 +2216,6 @@ namespace WeddingClosetHubs.Controllers
 
             var finalNegotiationIds =
                 new Dictionary<int, int?>();
-
 
             foreach (var item in cartItems)
             {
@@ -2128,13 +2243,14 @@ namespace WeddingClosetHubs.Controllers
                     return RedirectToAction("Cart");
                 }
 
-
                 string purchaseType =
                     item.PurchaseType ??
                     "Buy";
 
                 decimal finalUnitPrice;
-                int? negotiationId = null;
+
+                int? negotiationId =
+                    null;
 
                 if (purchaseType.Equals(
                         "Rent",
@@ -2152,8 +2268,20 @@ namespace WeddingClosetHubs.Controllers
 
                     finalUnitPrice =
                         product.RentPrice.Value;
-                }
 
+                    purchaseType =
+                        "Rent";
+
+                    containsRental =
+                        true;
+
+                    decimal securityPerItem =
+                        product.RentalSecurity ?? 0m;
+
+                    refundableSecurity +=
+                        securityPerItem *
+                        item.Quantity;
+                }
                 else if (purchaseType.Equals(
                     "Negotiated",
                     StringComparison.OrdinalIgnoreCase))
@@ -2181,7 +2309,7 @@ namespace WeddingClosetHubs.Controllers
                         TempData["Error"] =
                             $"The negotiated price for {product.ProductName} is no longer valid.";
 
-                        return RedirectToAction("Cart");
+                        return RedirectToAction("Checkout");
                     }
 
                     finalUnitPrice =
@@ -2189,23 +2317,32 @@ namespace WeddingClosetHubs.Controllers
 
                     negotiationId =
                         negotiation.NegotiationId;
-                }
 
+                    purchaseType =
+                        "Negotiated";
+                }
                 else if (
-                    product.IsOnSale &&
-                    product.SalePrice.HasValue &&
-                    product.SalePrice.Value > 0 &&
-                    product.SalePrice.Value <
-                        product.Price)
+                    purchaseType.Equals(
+                        "Sale",
+                        StringComparison.OrdinalIgnoreCase))
                 {
+                    if (!product.IsOnSale ||
+                        !product.SalePrice.HasValue ||
+                        product.SalePrice.Value <= 0 ||
+                        product.SalePrice.Value >= product.Price)
+                    {
+                        TempData["Error"] =
+                            $"The sale price for {product.ProductName} is no longer available.";
+
+                        return RedirectToAction("Cart");
+                    }
+
                     finalUnitPrice =
                         product.SalePrice.Value;
 
                     purchaseType =
                         "Sale";
                 }
-
-
                 else
                 {
                     finalUnitPrice =
@@ -2214,7 +2351,6 @@ namespace WeddingClosetHubs.Controllers
                     purchaseType =
                         "Buy";
                 }
-
 
                 finalPrices[
                     product.ProductId] =
@@ -2233,13 +2369,70 @@ namespace WeddingClosetHubs.Controllers
                     item.Quantity;
             }
 
-
             if (productTotal <= 0)
             {
                 TempData["Error"] =
                     "Invalid cart amount.";
 
                 return RedirectToAction("Cart");
+            }
+
+            if (containsRental)
+            {
+                if (string.IsNullOrWhiteSpace(refundPreferenceMethod))
+                {
+                    TempData["Error"] =
+                        "Please select Easypaisa or JazzCash for your rental security refund.";
+
+                    return RedirectToAction("Checkout");
+                }
+
+                refundPreferenceMethod =
+                    refundPreferenceMethod.Trim();
+
+                if (!refundPreferenceMethod.Equals(
+                        "Easypaisa",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    !refundPreferenceMethod.Equals(
+                        "JazzCash",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "Only Easypaisa and JazzCash are available for rental security refunds.";
+
+                    return RedirectToAction("Checkout");
+                }
+
+                if (string.IsNullOrWhiteSpace(refundPreferenceAccount))
+                {
+                    TempData["Error"] =
+                        "Please enter your Easypaisa or JazzCash account number for the rental security refund.";
+
+                    return RedirectToAction("Checkout");
+                }
+
+                refundPreferenceAccount =
+                    refundPreferenceAccount.Trim();
+
+                if (refundPreferenceAccount.Length < 10 ||
+                    refundPreferenceAccount.Length > 20)
+                {
+                    TempData["Error"] =
+                        "Please enter a valid Easypaisa or JazzCash account number.";
+
+                    return RedirectToAction("Checkout");
+                }
+            }
+            else
+            {
+                refundPreferenceMethod =
+                    null;
+
+                refundPreferenceAccount =
+                    null;
+
+                refundableSecurity =
+                    0m;
             }
 
             decimal deliveryCharges =
@@ -2255,11 +2448,11 @@ namespace WeddingClosetHubs.Controllers
             decimal totalAmount =
                 productTotal +
                 deliveryCharges +
-                serviceFee;
+                serviceFee +
+                refundableSecurity;
 
             decimal shopkeeperAmount =
                 productTotal;
-
 
             bool paymentReceived =
                 false;
@@ -2269,7 +2462,6 @@ namespace WeddingClosetHubs.Controllers
 
             string? savedTransactionImage =
                 null;
-
 
             if (paymentMethod.Equals(
                 "Cash on Delivery",
@@ -2284,8 +2476,6 @@ namespace WeddingClosetHubs.Controllers
                 transactionId =
                     null;
             }
-
-
             else
             {
                 if (string.IsNullOrWhiteSpace(
@@ -2300,7 +2490,6 @@ namespace WeddingClosetHubs.Controllers
                 transactionId =
                     transactionId.Trim();
 
-
                 if (transactionImage == null ||
                     transactionImage.Length == 0)
                 {
@@ -2309,8 +2498,6 @@ namespace WeddingClosetHubs.Controllers
 
                     return RedirectToAction("Checkout");
                 }
-
-
 
                 string extension =
                     Path.GetExtension(
@@ -2334,8 +2521,6 @@ namespace WeddingClosetHubs.Controllers
 
                     return RedirectToAction("Checkout");
                 }
-
-
 
                 string uploadsFolder =
                     Path.Combine(
@@ -2384,7 +2569,6 @@ namespace WeddingClosetHubs.Controllers
                     "Pending";
             }
 
-
             var order =
                 new Order
                 {
@@ -2400,11 +2584,11 @@ namespace WeddingClosetHubs.Controllers
                     OrderStatus =
                         "Pending",
 
-
                     DeliveryCity =
                         deliveryCity,
+
                     DeliveryAddress =
-                        deliveryAddress.Trim(),
+                        deliveryAddress,
 
                     Notes =
                         string.IsNullOrWhiteSpace(
@@ -2418,12 +2602,14 @@ namespace WeddingClosetHubs.Controllers
                     DeliveryCharges =
                         deliveryCharges,
 
+                    RefundableSecurity =
+                        refundableSecurity,
+
                     ServiceFee =
                         serviceFee,
 
                     TotalAmount =
                         totalAmount,
-
 
                     ShopkeeperAmount =
                         shopkeeperAmount,
@@ -2486,7 +2672,6 @@ namespace WeddingClosetHubs.Controllers
                         DateTime.Now
                 };
 
-
             _context.Orders.Add(order);
 
             await _context.SaveChangesAsync();
@@ -2512,10 +2697,10 @@ namespace WeddingClosetHubs.Controllers
                     finalPurchaseTypes[
                         product.ProductId];
 
-                int? negotiationId =
-                    finalNegotiationIds[
-                        product.ProductId];
-
+                bool isRental =
+                    purchaseType.Equals(
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase);
 
                 var orderDetail =
                     new OrderDetail
@@ -2528,7 +2713,6 @@ namespace WeddingClosetHubs.Controllers
 
                         Quantity =
                             cartItem.Quantity,
-
 
                         UnitPrice =
                             unitPrice,
@@ -2543,27 +2727,53 @@ namespace WeddingClosetHubs.Controllers
                             purchaseType,
 
                         RentalSecurity =
-                            purchaseType.Equals(
-                                "Rent",
-                                StringComparison.OrdinalIgnoreCase)
+                            isRental
                                 ? product.RentalSecurity ?? 0m
                                 : 0m,
 
                         RentalDuration =
-                            purchaseType.Equals(
-                                "Rent",
-                                StringComparison.OrdinalIgnoreCase)
+                            isRental
                                 ? product.RentalDuration
                                 : null,
 
                         RentalConditions =
-                            purchaseType.Equals(
-                                "Rent",
-                                StringComparison.OrdinalIgnoreCase)
+                            isRental
                                 ? product.RentalConditions
-                                : null
-                    };
+                                : null,
 
+                        RentalReturnStatus =
+                            isRental
+                                ? "Awaiting Return"
+                                : "Not Required",
+
+                        RefundPreferenceMethod =
+                            isRental
+                                ? refundPreferenceMethod
+                                : null,
+
+                        RefundPreferenceAccount =
+                            isRental
+                                ? refundPreferenceAccount
+                                : null,
+
+                        SecurityRefunded =
+                            false,
+
+                        SecurityRefundDate =
+                            null,
+
+                        SecurityRefundMethod =
+                            null,
+
+                        SecurityRefundAccount =
+                            null,
+
+                        SecurityRefundTransactionId =
+                            null,
+
+                        SecurityRefundNotes =
+                            null
+                    };
 
                 _context.OrderDetails.Add(
                     orderDetail
@@ -2573,9 +2783,7 @@ namespace WeddingClosetHubs.Controllers
                     cartItem.Quantity;
             }
 
-
             await _context.SaveChangesAsync();
-
 
             await CreateNotification(
                 customerId,
@@ -2616,18 +2824,19 @@ namespace WeddingClosetHubs.Controllers
                 );
             }
 
-
             await _context.SaveChangesAsync();
 
             ClearCart();
-
 
             TempData["Success"] =
                 $"Order #{order.OrderId} placed successfully.";
 
             return RedirectToAction(
                 "OrderDetails",
-                new { id = order.OrderId }
+                new
+                {
+                    id = order.OrderId
+                }
             );
         }
 
@@ -2644,8 +2853,7 @@ namespace WeddingClosetHubs.Controllers
                 await _context.Orders
                     .Include(o => o.Shop)
                     .Include(o => o.OrderDetails)
-                    .ThenInclude(
-                        od => od.Product)
+                        .ThenInclude(od => od.Product)
                     .Where(
                         o =>
                             o.CustomerId ==
@@ -2675,12 +2883,10 @@ namespace WeddingClosetHubs.Controllers
                 await _context.Orders
                     .Include(o => o.Customer)
                     .Include(o => o.Shop)
-                    .ThenInclude(
-                        s => s!.Shopkeeper)
+                        .ThenInclude(s => s!.Shopkeeper)
                     .Include(o => o.Delivery)
                     .Include(o => o.OrderDetails)
-                    .ThenInclude(
-                        od => od.Product)
+                        .ThenInclude(od => od.Product)
                     .FirstOrDefaultAsync(
                         o =>
                             o.OrderId == id &&

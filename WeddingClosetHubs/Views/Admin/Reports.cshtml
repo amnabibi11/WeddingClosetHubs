@@ -3,133 +3,93 @@
     Layout = null;
 
 
-    int totalUsers =
-        ViewBag.TotalUsers ?? 0;
+    int totalUsers = ViewBag.TotalUsers ?? 0;
+    int activeUsers = ViewBag.ActiveUsers ?? 0;
+    int disabledUsers = ViewBag.DisabledUsers ?? 0;
 
-    int activeUsers =
-        ViewBag.ActiveUsers ?? 0;
+    int totalShopkeepers = ViewBag.TotalShopkeepers ?? 0;
+    int approvedShopkeepers = ViewBag.ApprovedShopkeepers ?? 0;
+    int pendingShopkeepers = ViewBag.PendingShopkeepers ?? 0;
 
-    int disabledUsers =
-        ViewBag.DisabledUsers ?? 0;
+    int totalCustomers = ViewBag.TotalCustomers ?? 0;
+    int activeCustomers = ViewBag.ActiveCustomers ?? 0;
 
-    int totalShopkeepers =
-        ViewBag.TotalShopkeepers ?? 0;
+    int totalDelivery = ViewBag.TotalDelivery ?? 0;
+    int approvedDelivery = ViewBag.ApprovedDelivery ?? 0;
+    int pendingDelivery = ViewBag.PendingDelivery ?? 0;
 
-    int approvedShopkeepers =
-        ViewBag.ApprovedShopkeepers ?? 0;
+    int totalShops = ViewBag.TotalShops ?? 0;
+    int approvedShops = ViewBag.ApprovedShops ?? 0;
+    int pendingShops = ViewBag.PendingShops ?? 0;
+    int activeShops = ViewBag.ActiveShops ?? 0;
+    int disabledShops = ViewBag.DisabledShops ?? 0;
 
-    int pendingShopkeepers =
-        ViewBag.PendingShopkeepers ?? 0;
+    int totalOrders = ViewBag.TotalOrders ?? 0;
+    int pendingOrders = ViewBag.PendingOrders ?? 0;
+    int completedOrders = ViewBag.CompletedOrders ?? 0;
+    int cancelledOrders = ViewBag.CancelledOrders ?? 0;
 
-    int totalCustomers =
-        ViewBag.TotalCustomers ?? 0;
+    int totalPayments = ViewBag.TotalPayments ?? 0;
+    int receivedPayments = ViewBag.ReceivedPayments ?? 0;
+    int pendingPayments = ViewBag.PendingPayments ?? 0;
 
-    int activeCustomers =
-        ViewBag.ActiveCustomers ?? 0;
+    int codPayments = ViewBag.CODPayments ?? 0;
+    int jazzCashPayments = ViewBag.JazzCashPayments ?? 0;
+    int easypaisaPayments = ViewBag.EasypaisaPayments ?? 0;
 
-    int totalDelivery =
-        ViewBag.TotalDelivery ?? 0;
+    decimal totalProductAmount = ViewBag.TotalProductAmount ?? 0m;
+    decimal totalDeliveryCharges = ViewBag.TotalDeliveryCharges ?? 0m;
+    decimal totalServiceFee = ViewBag.TotalServiceFee ?? 0m;
+    decimal totalRevenue = ViewBag.TotalRevenue ?? 0m;
 
-    int approvedDelivery =
-        ViewBag.ApprovedDelivery ?? 0;
+    decimal totalShopkeeperAmount = ViewBag.TotalShopkeeperAmount ?? 0m;
+    decimal totalShopkeeperPaid = ViewBag.TotalShopkeeperPaid ?? 0m;
+    decimal pendingShopkeeperPayments = ViewBag.PendingShopkeeperPayments ?? 0m;
 
-    int pendingDelivery =
-        ViewBag.PendingDelivery ?? 0;
+    decimal totalDeliveryPaid = ViewBag.TotalDeliveryPaid ?? 0m;
+    decimal pendingDeliveryPayments = ViewBag.PendingDeliveryPayments ?? 0m;
 
-    int totalShops =
-        ViewBag.TotalShops ?? 0;
+    int rentalOrders = ViewBag.RentalOrders ?? 0;
+    int totalRentalItems = ViewBag.TotalRentalItems ?? 0;
+    int pendingRentalReturns = ViewBag.PendingRentalReturns ?? 0;
+    int returnedRentals = ViewBag.ReturnedRentals ?? 0;
+    int inspectedRentals = ViewBag.InspectedRentals ?? 0;
+    int refundedRentals = ViewBag.RefundedRentals ?? 0;
 
-    int approvedShops =
-        ViewBag.ApprovedShops ?? 0;
+    decimal totalRentalProductAmount =
+        ViewBag.TotalRentalProductAmount ?? 0m;
 
-    int pendingShops =
-        ViewBag.PendingShops ?? 0;
+    decimal totalRentalSecurity =
+        ViewBag.TotalRentalSecurity ?? 0m;
 
-    int activeShops =
-        ViewBag.ActiveShops ?? 0;
+    decimal refundedRentalSecurity =
+        ViewBag.RefundedRentalSecurity ?? 0m;
 
-    int disabledShops =
-        ViewBag.DisabledShops ?? 0;
+    decimal pendingRentalSecurityRefund =
+        ViewBag.PendingRentalSecurityRefund ?? 0m;
 
-    int totalOrders =
-        ViewBag.TotalOrders ?? 0;
+    int easypaisaRentalRefunds =
+        ViewBag.EasypaisaRentalRefunds ?? 0;
 
-    int pendingOrders =
-        ViewBag.PendingOrders ?? 0;
+    int jazzCashRentalRefunds =
+        ViewBag.JazzCashRentalRefunds ?? 0;
 
-    int completedOrders =
-        ViewBag.CompletedOrders ?? 0;
-
-    int cancelledOrders =
-        ViewBag.CancelledOrders ?? 0;
-
-    int totalPayments =
-        ViewBag.TotalPayments ?? 0;
-
-    int receivedPayments =
-        ViewBag.ReceivedPayments ?? 0;
-
-    int pendingPayments =
-        ViewBag.PendingPayments ?? 0;
-
-    int codPayments =
-        ViewBag.CODPayments ?? 0;
-
-    int jazzCashPayments =
-        ViewBag.JazzCashPayments ?? 0;
-
-    int easypaisaPayments =
-        ViewBag.EasypaisaPayments ?? 0;
-
-
-    decimal totalProductAmount =
-        ViewBag.TotalProductAmount ?? 0m;
-
-    decimal totalDeliveryCharges =
-        ViewBag.TotalDeliveryCharges ?? 0m;
-
-    decimal totalServiceFee =
-        ViewBag.TotalServiceFee ?? 0m;
-
-    decimal totalRevenue =
-        ViewBag.TotalRevenue ?? 0m;
-
-    decimal totalShopkeeperAmount =
-        ViewBag.TotalShopkeeperAmount ?? 0m;
-
-    decimal totalShopkeeperPaid =
-        ViewBag.TotalShopkeeperPaid ?? 0m;
-
-    decimal pendingShopkeeperPayments =
-        ViewBag.PendingShopkeeperPayments ?? 0m;
-
-    decimal totalDeliveryPaid =
-        ViewBag.TotalDeliveryPaid ?? 0m;
-
-    decimal pendingDeliveryPayments =
-        ViewBag.PendingDeliveryPayments ?? 0m;
-
-
-    
-
-    decimal adminRemaining =
-        totalServiceFee;
-
-
-   
+    decimal adminRemaining = totalServiceFee;
 
     decimal paymentReceivedPercentage =
         totalPayments > 0
             ? ((decimal)receivedPayments / totalPayments) * 100m
             : 0m;
-}
 
+
+}
 
 <!DOCTYPE html>
 
 <html lang="en">
 
 <head>
+
 
     <meta charset="utf-8" />
 
@@ -140,16 +100,11 @@
         Reports - Wedding Closet Hubs
     </title>
 
-
-
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-
-
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
 
     <style>
 
@@ -163,11 +118,9 @@
             --text-muted: #777;
         }
 
-
         * {
             box-sizing: border-box;
         }
-
 
         body {
             margin: 0;
@@ -176,16 +129,11 @@
             color: var(--text-dark);
         }
 
-
-      
-
         .page-container {
             max-width: 1500px;
             margin: auto;
             padding: 30px;
         }
-
-
 
         .page-header {
             background: white;
@@ -196,14 +144,12 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
         }
 
-
         .page-header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
         }
-
 
         .page-title {
             margin: 0;
@@ -212,19 +158,16 @@
             color: var(--maroon);
         }
 
-
-        .page-title i {
-            color: var(--gold);
-            margin-right: 8px;
-        }
-
+            .page-title i {
+                color: var(--gold);
+                margin-right: 8px;
+            }
 
         .page-subtitle {
             margin: 8px 0 0;
             color: var(--text-muted);
             font-size: 14px;
         }
-
 
         .back-btn {
             background: var(--maroon);
@@ -235,14 +178,10 @@
             font-weight: 600;
         }
 
-
-        .back-btn:hover {
-            background: var(--maroon-dark);
-            color: white;
-        }
-
-
-       
+            .back-btn:hover {
+                background: var(--maroon-dark);
+                color: white;
+            }
 
         .summary-card {
             background: white;
@@ -254,12 +193,10 @@
             transition: 0.2s ease;
         }
 
-
-        .summary-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
-        }
-
+            .summary-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
+            }
 
         .summary-icon {
             width: 50px;
@@ -272,7 +209,6 @@
             margin-bottom: 16px;
         }
 
-
         .summary-label {
             font-size: 13px;
             color: var(--text-muted);
@@ -281,7 +217,6 @@
             letter-spacing: 0.4px;
         }
 
-
         .summary-value {
             font-size: 25px;
             font-weight: 800;
@@ -289,51 +224,41 @@
             color: var(--text-dark);
         }
 
-
         .summary-description {
             font-size: 12px;
             color: #999;
             margin-top: 5px;
         }
 
-
         .icon-maroon {
             background: #f6e7ec;
             color: var(--maroon);
         }
-
 
         .icon-gold {
             background: #fff5d6;
             color: #9a7800;
         }
 
-
         .icon-green {
             background: #e4f4eb;
             color: #198754;
         }
-
 
         .icon-blue {
             background: #e6f0ff;
             color: #0d6efd;
         }
 
-
         .icon-cyan {
             background: #e2f7fa;
             color: #087990;
         }
 
-
         .icon-red {
             background: #fce7e9;
             color: #b02a37;
         }
-
-
-     
 
         .section-card {
             background: white;
@@ -344,7 +269,6 @@
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
         }
 
-
         .section-header {
             background: var(--maroon);
             color: white;
@@ -353,19 +277,14 @@
             font-weight: 700;
         }
 
-
-        .section-header i {
-            color: var(--gold);
-            margin-right: 8px;
-        }
-
+            .section-header i {
+                color: var(--gold);
+                margin-right: 8px;
+            }
 
         .section-body {
             padding: 22px;
         }
-
-
-     
 
         .stat-row {
             display: flex;
@@ -376,25 +295,19 @@
             border-bottom: 1px solid #eeeeee;
         }
 
-
-        .stat-row:last-child {
-            border-bottom: none;
-        }
-
+            .stat-row:last-child {
+                border-bottom: none;
+            }
 
         .stat-label {
             color: #555;
             font-weight: 600;
         }
 
-
         .stat-value {
             font-weight: 800;
             color: #333;
         }
-
-
-       
 
         .status-badge {
             display: inline-flex;
@@ -406,31 +319,25 @@
             font-weight: 700;
         }
 
-
         .badge-paid {
             background: #d1e7dd;
             color: #146c43;
         }
-
 
         .badge-pending {
             background: #fff3cd;
             color: #664d03;
         }
 
-
         .badge-cancelled {
             background: #f8d7da;
             color: #842029;
         }
 
-
         .badge-info {
             background: #cff4fc;
             color: #055160;
         }
-
-
 
         .progress {
             height: 9px;
@@ -438,20 +345,12 @@
             background: #eeeeee;
         }
 
-
         .progress-bar {
             background: var(--maroon);
         }
 
-
-   
-
         .financial-card {
-            background: linear-gradient(
-                135deg,
-                var(--maroon),
-                #570016
-            );
+            background: linear-gradient( 135deg, var(--maroon), #570016 );
             color: white;
             border-radius: 16px;
             padding: 25px;
@@ -459,27 +358,22 @@
             box-shadow: 0 5px 20px rgba(128, 0, 32, 0.18);
         }
 
+            .financial-card .financial-label {
+                font-size: 13px;
+                opacity: 0.8;
+            }
 
-        .financial-card .financial-label {
-            font-size: 13px;
-            opacity: 0.8;
-        }
+            .financial-card .financial-value {
+                font-size: 28px;
+                font-weight: 800;
+                margin-top: 8px;
+            }
 
+            .financial-card i {
+                color: var(--gold);
+                font-size: 25px;
+            }
 
-        .financial-card .financial-value {
-            font-size: 28px;
-            font-weight: 800;
-            margin-top: 8px;
-        }
-
-
-        .financial-card i {
-            color: var(--gold);
-            font-size: 25px;
-        }
-
-
-     
         .mini-financial {
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -488,13 +382,11 @@
             height: 100%;
         }
 
-
         .mini-financial-title {
             color: #777;
             font-size: 13px;
             font-weight: 600;
         }
-
 
         .mini-financial-value {
             font-size: 20px;
@@ -502,56 +394,47 @@
             margin-top: 7px;
         }
 
-
-        .table-wrapper {
-            overflow-x: auto;
+        .refund-method-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            background: white;
+            height: 100%;
         }
 
-
-        .report-table {
-            min-width: 950px;
-            margin-bottom: 0;
+        .refund-method-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 14px;
         }
 
-
-        .report-table thead th {
-            background: #2c2c2c;
-            color: white;
-            border: none;
-            padding: 14px;
+        .refund-method-title {
             font-size: 13px;
-            white-space: nowrap;
+            font-weight: 700;
+            color: #777;
+            text-transform: uppercase;
         }
 
+        .refund-method-value {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-top: 5px;
+        }
 
-        .report-table tbody td {
-            padding: 13px 14px;
-            vertical-align: middle;
-            border-color: #eeeeee;
+        .refund-note {
+            background: #f8f1d8;
+            border: 1px solid #eadca7;
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: #66551c;
             font-size: 13px;
         }
-
-
-        .report-table tbody tr:hover {
-            background: #fafafa;
-        }
-
-
-       
-
-        .empty-state {
-            text-align: center;
-            padding: 45px 20px;
-            color: #888;
-        }
-
-
-        .empty-state i {
-            font-size: 55px;
-            color: #ccc;
-        }
-
-
 
         @@media (max-width: 992px) {
 
@@ -567,9 +450,7 @@
             .back-btn {
                 width: 100%;
             }
-
         }
-
 
         @@media (max-width: 576px) {
 
@@ -588,701 +469,1056 @@
             .summary-value {
                 font-size: 21px;
             }
-
         }
 
     </style>
 
-</head>
 
+</head>
 
 <body>
 
-<div class="page-container">
+    <div class="page-container">
 
 
-   
-    <div class="page-header">
+        <div class="page-header">
 
-        <div class="page-header-content">
+            <div class="page-header-content">
 
-            <div>
+                <div>
 
-                <h1 class="page-title">
+                    <h1 class="page-title">
 
-                    <i class="bi bi-bar-chart-line-fill"></i>
+                        <i class="bi bi-bar-chart-line-fill"></i>
 
-                    Admin Reports
+                        Admin Reports
 
-                </h1>
+                    </h1>
 
-                <p class="page-subtitle">
+                    <p class="page-subtitle">
 
-                    Complete overview of orders, payments,
-                    platform service fees, shopkeeper settlements
-                    and delivery payments.
+                        Complete overview of orders, payments,
+                        platform service fees, shopkeeper settlements,
+                        delivery payments and rental security.
 
-                </p>
+                    </p>
+
+                </div>
+
+                <a asp-controller="Admin"
+                   asp-action="Dashboard"
+                   class="btn back-btn">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Back to Dashboard
+
+                </a>
 
             </div>
 
+        </div>
 
-            <a asp-controller="Admin"
-               asp-action="Dashboard"
-               class="btn back-btn">
+        <div class="row g-4 mb-4">
 
-                <i class="bi bi-arrow-left"></i>
+            <div class="col-lg-3 col-md-6">
 
-                Back to Dashboard
+                <div class="financial-card">
 
-            </a>
+                    <i class="bi bi-wallet2"></i>
+
+                    <div class="financial-label mt-3">
+                        Total Customer Revenue
+                    </div>
+
+                    <div class="financial-value">
+                        Rs. @totalRevenue.ToString("N2")
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="financial-card">
+
+                    <i class="bi bi-percent"></i>
+
+                    <div class="financial-label mt-3">
+                        Platform Service Fee
+                    </div>
+
+                    <div class="financial-value">
+                        Rs. @totalServiceFee.ToString("N2")
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="financial-card">
+
+                    <i class="bi bi-shop"></i>
+
+                    <div class="financial-label mt-3">
+                        Shopkeeper Amount
+                    </div>
+
+                    <div class="financial-value">
+                        Rs. @totalShopkeeperAmount.ToString("N2")
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="financial-card">
+
+                    <i class="bi bi-truck"></i>
+
+                    <div class="financial-label mt-3">
+                        Delivery Charges
+                    </div>
+
+                    <div class="financial-value">
+                        Rs. @totalDeliveryCharges.ToString("N2")
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
-    </div>
+        <div class="section-card">
 
+            <div class="section-header">
 
-   
+                <i class="bi bi-box-seam"></i>
 
-    <div class="row g-4 mb-4">
+                Order Summary
 
+            </div>
 
-       
+            <div class="section-body">
 
-        <div class="col-lg-3 col-md-6">
+                <div class="row g-4">
 
-            <div class="financial-card">
+                    <div class="col-md-3">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-maroon">
+                                <i class="bi bi-box"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Total Orders
+                            </div>
+
+                            <div class="summary-value">
+                                @totalOrders
+                            </div>
+
+                            <div class="summary-description">
+                                Active orders excluding cancelled
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-gold">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Pending Orders
+                            </div>
+
+                            <div class="summary-value">
+                                @pendingOrders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-green">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Completed Orders
+                            </div>
+
+                            <div class="summary-value">
+                                @completedOrders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-red">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Cancelled Orders
+                            </div>
+
+                            <div class="summary-value">
+                                @cancelledOrders
+                            </div>
+
+                            <div class="summary-description">
+                                Excluded from financial totals
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-header">
+
+                <i class="bi bi-arrow-repeat"></i>
+
+                Rental Orders & Security Report
+
+            </div>
+
+            <div class="section-body">
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-maroon">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Rental Orders
+                            </div>
+
+                            <div class="summary-value">
+                                @rentalOrders
+                            </div>
+
+                            <div class="summary-description">
+                                Orders containing rental items
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-blue">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Rental Items
+                            </div>
+
+                            <div class="summary-value">
+                                @totalRentalItems
+                            </div>
+
+                            <div class="summary-description">
+                                Rental order items
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-gold">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Pending Returns
+                            </div>
+
+                            <div class="summary-value">
+                                @pendingRentalReturns
+                            </div>
+
+                            <div class="summary-description">
+                                Awaiting dress return
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-green">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Refunded Rentals
+                            </div>
+
+                            <div class="summary-value">
+                                @refundedRentals
+                            </div>
+
+                            <div class="summary-description">
+                                Security refund completed
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-6">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                RENTAL PRODUCT AMOUNT
+                            </div>
+
+                            <div class="mini-financial-value">
+                                Rs. @totalRentalProductAmount.ToString("N2")
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Rental product charges only
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-6">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                TOTAL RENTAL SECURITY COLLECTED
+                            </div>
+
+                            <div class="mini-financial-value">
+                                Rs. @totalRentalSecurity.ToString("N2")
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Refundable security held for rentals
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                RETURNED
+                            </div>
+
+                            <div class="mini-financial-value">
+                                @returnedRentals
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Awaiting inspection
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                INSPECTED
+                            </div>
+
+                            <div class="mini-financial-value">
+                                @inspectedRentals
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Ready for refund processing
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                SECURITY REFUNDED
+                            </div>
+
+                            <div class="mini-financial-value">
+                                Rs. @refundedRentalSecurity.ToString("N2")
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Refunds already completed
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-header">
+
+                <i class="bi bi-shield-check"></i>
+
+                Rental Security Refund Status
+
+            </div>
+
+            <div class="section-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-green">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Refunded Security
+                            </div>
+
+                            <div class="summary-value">
+                                Rs. @refundedRentalSecurity.ToString("N2")
+                            </div>
+
+                            <div class="summary-description">
+                                Security actually refunded
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-gold">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Pending Refund
+                            </div>
+
+                            <div class="summary-value">
+                                Rs. @pendingRentalSecurityRefund.ToString("N2")
+                            </div>
+
+                            <div class="summary-description">
+                                Inspected but not refunded
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-icon icon-blue">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+
+                            <div class="summary-label">
+                                Security Collected
+                            </div>
+
+                            <div class="summary-value">
+                                Rs. @totalRentalSecurity.ToString("N2")
+                            </div>
+
+                            <div class="summary-description">
+                                Total refundable security
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-header">
+
+                <i class="bi bi-cash-stack"></i>
+
+                Rental Security Refund Methods
+
+            </div>
+
+            <div class="section-body">
+
+                <div class="refund-note mb-4">
+
+                    <i class="bi bi-info-circle-fill me-1"></i>
+
+                    Rental security refunds are recorded only through
+                    <strong>Easypaisa</strong> or <strong>JazzCash</strong>.
+                    Cash refunds are not supported by the rental refund process.
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <div class="refund-method-card">
+
+                            <div class="refund-method-icon icon-green">
+
+                                <i class="bi bi-phone"></i>
+
+                            </div>
+
+                            <div class="refund-method-title">
+
+                                Easypaisa Refunds
+
+                            </div>
+
+                            <div class="refund-method-value">
+
+                                @easypaisaRentalRefunds
+
+                            </div>
+
+                            <div class="summary-description">
+
+                                Rental security refunds recorded through Easypaisa
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="refund-method-card">
+
+                            <div class="refund-method-icon icon-red">
+
+                                <i class="bi bi-phone"></i>
+
+                            </div>
+
+                            <div class="refund-method-title">
+
+                                JazzCash Refunds
+
+                            </div>
+
+                            <div class="refund-method-value">
+
+                                @jazzCashRentalRefunds
+
+                            </div>
+
+                            <div class="summary-description">
+
+                                Rental security refunds recorded through JazzCash
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-7">
+
+                <div class="section-card h-100">
+
+                    <div class="section-header">
+
+                        <i class="bi bi-calculator"></i>
+
+                        Financial Breakdown
+
+                    </div>
+
+                    <div class="section-body">
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Product Amount
+                            </span>
+
+                            <span class="stat-value">
+                                Rs. @totalProductAmount.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Platform Service Fee
+                            </span>
+
+                            <span class="stat-value text-success">
+                                Rs. @totalServiceFee.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Delivery Charges
+                            </span>
+
+                            <span class="stat-value">
+                                Rs. @totalDeliveryCharges.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Total Customer Revenue
+                            </span>
+
+                            <span class="stat-value text-success fs-5">
+                                Rs. @totalRevenue.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Shopkeeper Payable
+                            </span>
+
+                            <span class="stat-value">
+                                Rs. @totalShopkeeperAmount.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Delivery Boy Payable
+                            </span>
+
+                            <span class="stat-value">
+                                Rs. @totalDeliveryCharges.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+                                Admin Service Fee
+                            </span>
+
+                            <span class="stat-value text-success fs-5">
+                                Rs. @adminRemaining.ToString("N2")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-5">
+
+                <div class="section-card h-100">
+
+                    <div class="section-header">
+
+                        <i class="bi bi-credit-card"></i>
+
+                        Customer Payment Status
+
+                    </div>
+
+                    <div class="section-body">
+
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <span class="fw-semibold">
+                                Payments Received
+                            </span>
+
+                            <strong>
+                                @receivedPayments / @totalPayments
+                            </strong>
+
+                        </div>
+
+                        <div class="progress mb-4">
+
+                            <div class="progress-bar"
+                                 role="progressbar"
+                                 style="width:@paymentReceivedPercentage.ToString("0.##")%">
+                            </div>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+
+                                <i class="bi bi-check-circle text-success"></i>
+
+                                Received
+
+                            </span>
+
+                            <span class="status-badge badge-paid">
+                                @receivedPayments
+                            </span>
+
+                        </div>
+
+                        <div class="stat-row">
+
+                            <span class="stat-label">
+
+                                <i class="bi bi-clock text-warning"></i>
+
+                                Pending
+
+                            </span>
+
+                            <span class="status-badge badge-pending">
+                                @pendingPayments
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-header">
+
+                <i class="bi bi-arrow-left-right"></i>
+
+                Settlement Report
+
+            </div>
+
+            <div class="section-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <div class="mini-financial">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div>
+
+                                    <div class="mini-financial-title">
+                                        SHOPKEEPER
+                                    </div>
+
+                                    <div class="mini-financial-value">
+
+                                        Rs.
+                                        @totalShopkeeperAmount.ToString("N2")
+
+                                    </div>
+
+                                </div>
+
+                                <i class="bi bi-shop fs-3 text-secondary"></i>
+
+                            </div>
+
+                            <hr />
+
+                            <div class="stat-row">
+
+                                <span class="stat-label">
+                                    Paid
+                                </span>
+
+                                <span class="status-badge badge-paid">
+
+                                    Rs.
+                                    @totalShopkeeperPaid.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                            <div class="stat-row">
+
+                                <span class="stat-label">
+                                    Pending
+                                </span>
+
+                                <span class="status-badge badge-pending">
+
+                                    Rs.
+                                    @pendingShopkeeperPayments.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="mini-financial">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div>
+
+                                    <div class="mini-financial-title">
+                                        DELIVERY
+                                    </div>
+
+                                    <div class="mini-financial-value">
+
+                                        Rs.
+                                        @totalDeliveryCharges.ToString("N2")
+
+                                    </div>
+
+                                </div>
+
+                                <i class="bi bi-truck fs-3 text-secondary"></i>
+
+                            </div>
+
+                            <hr />
+
+                            <div class="stat-row">
+
+                                <span class="stat-label">
+                                    Paid
+                                </span>
+
+                                <span class="status-badge badge-paid">
+
+                                    Rs.
+                                    @totalDeliveryPaid.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                            <div class="stat-row">
+
+                                <span class="stat-label">
+                                    Pending
+                                </span>
+
+                                <span class="status-badge badge-pending">
+
+                                    Rs.
+                                    @pendingDeliveryPayments.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-header">
 
                 <i class="bi bi-wallet2"></i>
 
-                <div class="financial-label mt-3">
-
-                    Total Customer Revenue
-
-                </div>
-
-                <div class="financial-value">
-
-                    Rs. @totalRevenue.ToString("N2")
-
-                </div>
+                Customer Payment Methods
 
             </div>
 
-        </div>
+            <div class="section-body">
 
+                <div class="row g-4">
 
-   
+                    <div class="col-md-4">
 
-        <div class="col-lg-3 col-md-6">
+                        <div class="summary-card">
 
-            <div class="financial-card">
+                            <div class="summary-icon icon-blue">
 
-                <i class="bi bi-percent"></i>
-
-                <div class="financial-label mt-3">
-
-                    Platform Service Fee
-
-                </div>
-
-                <div class="financial-value">
-
-                    Rs. @totalServiceFee.ToString("N2")
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        
-
-        <div class="col-lg-3 col-md-6">
-
-            <div class="financial-card">
-
-                <i class="bi bi-shop"></i>
-
-                <div class="financial-label mt-3">
-
-                    Shopkeeper Amount
-
-                </div>
-
-                <div class="financial-value">
-
-                    Rs. @totalShopkeeperAmount.ToString("N2")
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-       
-
-        <div class="col-lg-3 col-md-6">
-
-            <div class="financial-card">
-
-                <i class="bi bi-truck"></i>
-
-                <div class="financial-label mt-3">
-
-                    Delivery Charges
-
-                </div>
-
-                <div class="financial-value">
-
-                    Rs. @totalDeliveryCharges.ToString("N2")
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    
-
-    <div class="section-card">
-
-        <div class="section-header">
-
-            <i class="bi bi-box-seam"></i>
-
-            Order Summary
-
-        </div>
-
-
-        <div class="section-body">
-
-            <div class="row g-4">
-
-
-                <div class="col-md-3">
-
-                    <div class="summary-card">
-
-                        <div class="summary-icon icon-maroon">
-
-                            <i class="bi bi-box"></i>
-
-                        </div>
-
-                        <div class="summary-label">
-
-                            Total Orders
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @totalOrders
-
-                        </div>
-
-                        <div class="summary-description">
-
-                            Active orders excluding cancelled
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <div class="summary-card">
-
-                        <div class="summary-icon icon-gold">
-
-                            <i class="bi bi-clock-history"></i>
-
-                        </div>
-
-                        <div class="summary-label">
-
-                            Pending Orders
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @pendingOrders
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <div class="summary-card">
-
-                        <div class="summary-icon icon-green">
-
-                            <i class="bi bi-check-circle"></i>
-
-                        </div>
-
-                        <div class="summary-label">
-
-                            Completed Orders
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @completedOrders
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <div class="summary-card">
-
-                        <div class="summary-icon icon-red">
-
-                            <i class="bi bi-x-circle"></i>
-
-                        </div>
-
-                        <div class="summary-label">
-
-                            Cancelled Orders
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @cancelledOrders
-
-                        </div>
-
-                        <div class="summary-description">
-
-                            Excluded from financial totals
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="row g-4 mb-4">
-
-
-        <div class="col-lg-7">
-
-            <div class="section-card h-100">
-
-                <div class="section-header">
-
-                    <i class="bi bi-calculator"></i>
-
-                    Financial Breakdown
-
-                </div>
-
-
-                <div class="section-body">
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Product Amount
-
-                        </span>
-
-                        <span class="stat-value">
-
-                            Rs. @totalProductAmount.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Platform Service Fee
-
-                        </span>
-
-                        <span class="stat-value text-success">
-
-                            Rs. @totalServiceFee.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Delivery Charges
-
-                        </span>
-
-                        <span class="stat-value">
-
-                            Rs. @totalDeliveryCharges.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Total Customer Revenue
-
-                        </span>
-
-                        <span class="stat-value text-success fs-5">
-
-                            Rs. @totalRevenue.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Shopkeeper Payable
-
-                        </span>
-
-                        <span class="stat-value">
-
-                            Rs. @totalShopkeeperAmount.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Delivery Boy Payable
-
-                        </span>
-
-                        <span class="stat-value">
-
-                            Rs. @totalDeliveryCharges.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            Admin Service Fee
-
-                        </span>
-
-                        <span class="stat-value text-success fs-5">
-
-                            Rs. @adminRemaining.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        
-
-        <div class="col-lg-5">
-
-            <div class="section-card h-100">
-
-                <div class="section-header">
-
-                    <i class="bi bi-credit-card"></i>
-
-                    Customer Payment Status
-
-                </div>
-
-
-                <div class="section-body">
-
-                    <div class="d-flex justify-content-between mb-2">
-
-                        <span class="fw-semibold">
-
-                            Payments Received
-
-                        </span>
-
-                        <strong>
-
-                            @receivedPayments / @totalPayments
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="progress mb-4">
-
-                        <div class="progress-bar"
-                             role="progressbar"
-                             style="width:@paymentReceivedPercentage.ToString("0.##")%">
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            <i class="bi bi-check-circle text-success"></i>
-
-                            Received
-
-                        </span>
-
-                        <span class="status-badge badge-paid">
-
-                            @receivedPayments
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-row">
-
-                        <span class="stat-label">
-
-                            <i class="bi bi-clock text-warning"></i>
-
-                            Pending
-
-                        </span>
-
-                        <span class="status-badge badge-pending">
-
-                            @pendingPayments
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-  
-
-    <div class="section-card">
-
-        <div class="section-header">
-
-            <i class="bi bi-arrow-left-right"></i>
-
-            Settlement Report
-
-        </div>
-
-
-        <div class="section-body">
-
-            <div class="row g-4">
-
-
-            
-
-                <div class="col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="d-flex justify-content-between">
-
-                            <div>
-
-                                <div class="mini-financial-title">
-
-                                    SHOPKEEPER
-
-                                </div>
-
-                                <div class="mini-financial-value">
-
-                                    Rs.
-                                    @totalShopkeeperAmount.ToString("N2")
-
-                                </div>
+                                <i class="bi bi-cash"></i>
 
                             </div>
 
-                            <i class="bi bi-shop fs-3 text-secondary"></i>
+                            <div class="summary-label">
+                                Cash on Delivery
+                            </div>
 
-                        </div>
+                            <div class="summary-value">
+                                @codPayments
+                            </div>
 
-
-                        <hr />
-
-
-                        <div class="stat-row">
-
-                            <span class="stat-label">
-
-                                Paid
-
-                            </span>
-
-                            <span class="status-badge badge-paid">
-
-                                Rs.
-                                @totalShopkeeperPaid.ToString("N2")
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="stat-row">
-
-                            <span class="stat-label">
-
-                                Pending
-
-                            </span>
-
-                            <span class="status-badge badge-pending">
-
-                                Rs.
-                                @pendingShopkeeperPayments.ToString("N2")
-
-                            </span>
+                            <div class="summary-description">
+                                COD orders
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="col-md-4">
 
+                        <div class="summary-card">
 
-               
+                            <div class="summary-icon icon-red">
 
-                <div class="col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="d-flex justify-content-between">
-
-                            <div>
-
-                                <div class="mini-financial-title">
-
-                                    DELIVERY
-
-                                </div>
-
-                                <div class="mini-financial-value">
-
-                                    Rs.
-                                    @totalDeliveryCharges.ToString("N2")
-
-                                </div>
+                                <i class="bi bi-phone"></i>
 
                             </div>
 
-                            <i class="bi bi-truck fs-3 text-secondary"></i>
+                            <div class="summary-label">
+                                JazzCash
+                            </div>
+
+                            <div class="summary-value">
+                                @jazzCashPayments
+                            </div>
+
+                            <div class="summary-description">
+                                JazzCash payments
+                            </div>
 
                         </div>
 
+                    </div>
 
-                        <hr />
+                    <div class="col-md-4">
 
+                        <div class="summary-card">
 
-                        <div class="stat-row">
+                            <div class="summary-icon icon-green">
 
-                            <span class="stat-label">
+                                <i class="bi bi-wallet2"></i>
 
-                                Paid
+                            </div>
 
-                            </span>
+                            <div class="summary-label">
+                                Easypaisa
+                            </div>
 
-                            <span class="status-badge badge-paid">
+                            <div class="summary-value">
+                                @easypaisaPayments
+                            </div>
 
-                                Rs.
-                                @totalDeliveryPaid.ToString("N2")
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="stat-row">
-
-                            <span class="stat-label">
-
-                                Pending
-
-                            </span>
-
-                            <span class="status-badge badge-pending">
-
-                                Rs.
-                                @pendingDeliveryPayments.ToString("N2")
-
-                            </span>
+                            <div class="summary-description">
+                                Easypaisa payments
+                            </div>
 
                         </div>
 
@@ -1294,118 +1530,145 @@
 
         </div>
 
-    </div>
+        <div class="section-card">
 
+            <div class="section-header">
 
-  
+                <i class="bi bi-people"></i>
 
-    <div class="section-card">
+                Marketplace Overview
 
-        <div class="section-header">
+            </div>
 
-            <i class="bi bi-wallet2"></i>
+            <div class="section-body">
 
-            Customer Payment Methods
+                <div class="row g-4">
 
-        </div>
+                    <div class="col-lg-3 col-md-6">
 
+                        <div class="mini-financial">
 
-        <div class="section-body">
+                            <div class="mini-financial-title">
+                                USERS
+                            </div>
 
-            <div class="row g-4">
+                            <div class="mini-financial-value">
+                                @totalUsers
+                            </div>
 
+                            <div class="small text-muted mt-2">
 
-                <div class="col-md-4">
+                                Active: @activeUsers
 
-                    <div class="summary-card">
+                                <br />
 
-                        <div class="summary-icon icon-blue">
+                                Disabled: @disabledUsers
 
-                            <i class="bi bi-cash"></i>
-
-                        </div>
-
-                        <div class="summary-label">
-
-                            Cash on Delivery
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @codPayments
-
-                        </div>
-
-                        <div class="summary-description">
-
-                            COD orders
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="col-lg-3 col-md-6">
 
+                        <div class="mini-financial">
 
-                <div class="col-md-4">
+                            <div class="mini-financial-title">
+                                SHOPKEEPERS
+                            </div>
 
-                    <div class="summary-card">
+                            <div class="mini-financial-value">
+                                @totalShopkeepers
+                            </div>
 
-                        <div class="summary-icon icon-red">
+                            <div class="small text-muted mt-2">
 
-                            <i class="bi bi-phone"></i>
+                                Approved: @approvedShopkeepers
 
-                        </div>
+                                <br />
 
-                        <div class="summary-label">
+                                Pending: @pendingShopkeepers
 
-                            JazzCash
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @jazzCashPayments
-
-                        </div>
-
-                        <div class="summary-description">
-
-                            JazzCash payments
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="col-lg-3 col-md-6">
 
+                        <div class="mini-financial">
 
-                <div class="col-md-4">
+                            <div class="mini-financial-title">
+                                CUSTOMERS
+                            </div>
 
-                    <div class="summary-card">
+                            <div class="mini-financial-value">
+                                @totalCustomers
+                            </div>
 
-                        <div class="summary-icon icon-green">
+                            <div class="small text-muted mt-2">
 
-                            <i class="bi bi-wallet2"></i>
+                                Active: @activeCustomers
 
-                        </div>
-
-                        <div class="summary-label">
-
-                            Easypaisa
-
-                        </div>
-
-                        <div class="summary-value">
-
-                            @easypaisaPayments
+                            </div>
 
                         </div>
 
-                        <div class="summary-description">
+                    </div>
 
-                            Easypaisa payments
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                DELIVERY STAFF
+                            </div>
+
+                            <div class="mini-financial-value">
+                                @totalDelivery
+                            </div>
+
+                            <div class="small text-muted mt-2">
+
+                                Approved: @approvedDelivery
+
+                                <br />
+
+                                Pending: @pendingDelivery
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <div class="mini-financial">
+
+                            <div class="mini-financial-title">
+                                SHOPS
+                            </div>
+
+                            <div class="mini-financial-value">
+                                @totalShops
+                            </div>
+
+                            <div class="small text-muted mt-2">
+
+                                Active: @activeShops
+
+                                <br />
+
+                                Disabled: @disabledShops
+
+                                <br />
+
+                                Pending: @pendingShops
+
+                            </div>
 
                         </div>
 
@@ -1417,184 +1680,33 @@
 
         </div>
 
-    </div>
+        <div class="section-card">
 
+            <div class="section-body">
 
- 
+                <div class="alert alert-light border mb-0">
 
-    <div class="section-card">
+                    <div class="d-flex gap-3">
 
-        <div class="section-header">
+                        <i class="bi bi-info-circle text-primary fs-4"></i>
 
-            <i class="bi bi-people"></i>
+                        <div>
 
-            Marketplace Overview
+                            <strong>Report Calculation</strong>
 
-        </div>
+                            <p class="mb-0 mt-1 text-muted">
 
+                                Cancelled orders are excluded from financial
+                                calculations. The platform service fee is
+                                separate from the shopkeeper product amount.
+                                Delivery charges are recorded separately.
+                                Rental security is recorded separately as a
+                                refundable customer amount and is not treated
+                                as platform revenue or shopkeeper income.
+                                Rental security refunds are recorded only
+                                through Easypaisa or JazzCash.
 
-        <div class="section-body">
-
-            <div class="row g-4">
-
-
-                
-
-                <div class="col-lg-3 col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="mini-financial-title">
-
-                            USERS
-
-                        </div>
-
-                        <div class="mini-financial-value">
-
-                            @totalUsers
-
-                        </div>
-
-                        <div class="small text-muted mt-2">
-
-                            Active: @activeUsers
-
-                            <br />
-
-                            Disabled: @disabledUsers
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                
-
-                <div class="col-lg-3 col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="mini-financial-title">
-
-                            SHOPKEEPERS
-
-                        </div>
-
-                        <div class="mini-financial-value">
-
-                            @totalShopkeepers
-
-                        </div>
-
-                        <div class="small text-muted mt-2">
-
-                            Approved: @approvedShopkeepers
-
-                            <br />
-
-                            Pending: @pendingShopkeepers
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                
-
-                <div class="col-lg-3 col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="mini-financial-title">
-
-                            CUSTOMERS
-
-                        </div>
-
-                        <div class="mini-financial-value">
-
-                            @totalCustomers
-
-                        </div>
-
-                        <div class="small text-muted mt-2">
-
-                            Active: @activeCustomers
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                
-
-                <div class="col-lg-3 col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="mini-financial-title">
-
-                            DELIVERY STAFF
-
-                        </div>
-
-                        <div class="mini-financial-value">
-
-                            @totalDelivery
-
-                        </div>
-
-                        <div class="small text-muted mt-2">
-
-                            Approved: @approvedDelivery
-
-                            <br />
-
-                            Pending: @pendingDelivery
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                
-
-                <div class="col-lg-4 col-md-6">
-
-                    <div class="mini-financial">
-
-                        <div class="mini-financial-title">
-
-                            SHOPS
-
-                        </div>
-
-                        <div class="mini-financial-value">
-
-                            @totalShops
-
-                        </div>
-
-                        <div class="small text-muted mt-2">
-
-                            Active: @activeShops
-
-                            <br />
-
-                            Disabled: @disabledShops
-
-                            <br />
-
-                            Pending: @pendingShops
+                            </p>
 
                         </div>
 
@@ -1606,52 +1718,11 @@
 
         </div>
 
-    </div>
-
-
-
-    <div class="section-card">
-
-        <div class="section-body">
-
-            <div class="alert alert-light border mb-0">
-
-                <div class="d-flex gap-3">
-
-                    <i class="bi bi-info-circle text-primary fs-4"></i>
-
-                    <div>
-
-                        <strong>Report Calculation</strong>
-
-                        <p class="mb-0 mt-1 text-muted">
-
-                            Cancelled orders are excluded from
-                            financial calculations. The platform
-                            service fee is treated separately from
-                            the shopkeeper's product amount, and
-                            delivery charges are recorded separately.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
 
     </div>
 
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
 </html>
-

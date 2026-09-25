@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WeddingClosetHubs.Models;
 
@@ -11,9 +12,11 @@ using WeddingClosetHubs.Models;
 namespace WeddingClosetHubs.Migrations
 {
     [DbContext(typeof(WeddingClosetHubsContext))]
-    partial class WeddingClosetHubsContextModelSnapshot : ModelSnapshot
+    [Migration("20260923041418_AddRentalReturnAndRefundTracking")]
+    partial class AddRentalReturnAndRefundTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -402,20 +405,8 @@ namespace WeddingClosetHubs.Migrations
                     b.Property<string>("CustomMeasurements")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("DamageDeduction")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("DressReceivedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("DressReturnedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("InspectionNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InspectionResult")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -430,17 +421,6 @@ namespace WeddingClosetHubs.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("RefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("RefundPreferenceAccount")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("RefundPreferenceMethod")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<string>("RentalConditions")
                         .HasColumnType("nvarchar(max)");
 
@@ -454,21 +434,6 @@ namespace WeddingClosetHubs.Migrations
                     b.Property<decimal>("RentalSecurity")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ReturnMethod")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReturnNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ReturnPickedUpDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ReturnRequestedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("SecurityReadyDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityRefundAccount")
                         .HasColumnType("nvarchar(max)");

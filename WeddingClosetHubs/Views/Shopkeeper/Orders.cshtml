@@ -17,13 +17,11 @@
 
     <title>Orders - Wedding Closet Hub</title>
 
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
           rel="stylesheet" />
-
 
     <style>
 
@@ -33,13 +31,10 @@
             color: #333;
         }
 
-
-
         .navbar-custom {
             background: #800020;
             padding: 15px 30px;
         }
-
 
         .brand {
             color: #d4af37;
@@ -48,17 +43,13 @@
             text-decoration: none;
         }
 
-
-            .brand:hover {
-                color: #d4af37;
-            }
-
-
+        .brand:hover {
+            color: #d4af37;
+        }
 
         .page-container {
             padding: 35px;
         }
-
 
         .page-title {
             color: #800020;
@@ -66,12 +57,9 @@
             margin-bottom: 5px;
         }
 
-
         .page-subtitle {
             color: #777;
         }
-
-
 
         .summary-box {
             background: white;
@@ -80,7 +68,6 @@
             box-shadow: 0 3px 12px rgba(0,0,0,.07);
             height: 100%;
         }
-
 
         .summary-icon {
             width: 48px;
@@ -94,20 +81,16 @@
             font-size: 22px;
         }
 
-
         .summary-number {
             font-size: 25px;
             font-weight: bold;
             color: #800020;
         }
 
-
         .summary-label {
             color: #777;
             font-size: 14px;
         }
-
-
 
         .orders-box {
             background: white;
@@ -116,62 +99,52 @@
             overflow: hidden;
         }
 
-
         .orders-header {
             padding: 20px 25px;
             border-bottom: 1px solid #eee;
         }
 
-
-            .orders-header h5 {
-                color: #800020;
-                font-weight: bold;
-                margin: 0;
-            }
-
+        .orders-header h5 {
+            color: #800020;
+            font-weight: bold;
+            margin: 0;
+        }
 
         .table {
             margin-bottom: 0;
         }
 
+        .table thead th {
+            background: #800020;
+            color: white;
+            font-size: 14px;
+            padding: 14px 12px;
+            white-space: nowrap;
+        }
 
-            .table thead th {
-                background: #800020;
-                color: white;
-                font-size: 14px;
-                padding: 14px 12px;
-                white-space: nowrap;
-            }
+        .table tbody td {
+            padding: 15px 12px;
+            vertical-align: middle;
+            font-size: 14px;
+        }
 
-
-            .table tbody td {
-                padding: 15px 12px;
-                vertical-align: middle;
-                font-size: 14px;
-            }
-
-
-            .table tbody tr:hover {
-                background: #fff8fa;
-            }
-
+        .table tbody tr:hover {
+            background: #fff8fa;
+        }
 
         .order-id {
             color: #800020;
             font-weight: bold;
         }
 
-
         .customer-name {
             font-weight: 600;
         }
-
 
         .amount {
             font-weight: bold;
             color: #800020;
         }
-
 
         .status-badge {
             padding: 7px 11px;
@@ -179,63 +152,96 @@
             font-size: 12px;
             font-weight: 600;
             display: inline-block;
+            white-space: nowrap;
         }
-
 
         .status-pending {
             background: #fff3cd;
             color: #856404;
         }
 
-
-        .status-accepted {
+        .status-confirmed {
             background: #cff4fc;
             color: #055160;
         }
-
 
         .status-processing {
             background: #e2d9f3;
             color: #432874;
         }
 
-
         .status-ready {
             background: #d1e7dd;
             color: #0f5132;
         }
-
 
         .status-completed {
             background: #198754;
             color: white;
         }
 
-
         .status-cancelled {
             background: #dc3545;
             color: white;
         }
-
-
 
         .payment-paid {
             color: #198754;
             font-weight: bold;
         }
 
-
         .payment-pending {
             color: #dc3545;
             font-weight: bold;
         }
 
-
         .payment-method {
             font-size: 13px;
         }
 
+        .type-badge {
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin: 2px;
+            white-space: nowrap;
+        }
 
+        .type-buy {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .type-sale {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .type-customize {
+            background: #e2d9f3;
+            color: #432874;
+        }
+
+        .type-rent {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .type-container {
+            max-width: 180px;
+        }
+
+        .rental-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .rental-info strong {
+            color: #800020;
+        }
 
         .view-btn {
             background: #800020;
@@ -245,33 +251,38 @@
             padding: 7px 12px;
             text-decoration: none;
             font-size: 13px;
+            white-space: nowrap;
         }
 
-
-            .view-btn:hover {
-                background: #5f0018;
-                color: white;
-            }
-
-
+        .view-btn:hover {
+            background: #5f0018;
+            color: white;
+        }
 
         .empty-box {
             padding: 70px 20px;
             text-align: center;
         }
 
+        .empty-box i {
+            font-size: 55px;
+            color: #ccc;
+        }
 
-            .empty-box i {
-                font-size: 55px;
-                color: #ccc;
-            }
+        .empty-box h4 {
+            margin-top: 15px;
+            color: #555;
+        }
 
+        .order-products {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
 
-            .empty-box h4 {
-                margin-top: 15px;
-                color: #555;
-            }
-
+        .order-products strong {
+            color: #333;
+        }
 
         @@media(max-width: 992px) {
 
@@ -283,19 +294,16 @@
                 overflow-x: auto;
             }
 
-                .orders-box table {
-                    min-width: 1100px;
-                }
+            .orders-box table {
+                min-width: 1500px;
+            }
         }
 
     </style>
 
 </head>
 
-
 <body>
-
-
 
     <nav class="navbar-custom">
 
@@ -308,7 +316,6 @@
                 Wedding Closet Hub
 
             </a>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Dashboard"
@@ -324,12 +331,7 @@
 
     </nav>
 
-
-
     <div class="page-container">
-
-
-
 
         @if (TempData["Success"] != null)
         {
@@ -342,7 +344,6 @@
             </div>
         }
 
-
         @if (TempData["Error"] != null)
         {
             <div class="alert alert-danger">
@@ -354,8 +355,6 @@
             </div>
         }
 
-
-
         <div class="mb-4">
 
             <h2 class="page-title">
@@ -366,35 +365,57 @@
 
             </h2>
 
-
             <p class="page-subtitle">
 
-                View and manage orders received for your shop.
+                View and manage Buy, Sale, Customize and Rent orders received for your shop.
 
             </p>
 
         </div>
 
-
-
         @{
             int totalOrders = Model?.Count() ?? 0;
 
             int pendingOrders =
-            Model?.Count(x => x.OrderStatus == "Pending") ?? 0;
+                Model?.Count(x =>
+                    string.Equals(x.OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
             int acceptedOrders =
-            Model?.Count(x => x.OrderStatus == "Accepted") ?? 0;
+                Model?.Count(x =>
+                    string.Equals(x.OrderStatus, "Confirmed", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
             int completedOrders =
-            Model?.Count(x => x.OrderStatus == "Completed") ?? 0;
-        }
+                Model?.Count(x =>
+                    string.Equals(x.OrderStatus, "Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
+            int rentOrders =
+                Model?.Count(x =>
+                    x.OrderDetails != null &&
+                    x.OrderDetails.Any(d =>
+                        string.Equals(d.PurchaseType, "Rent", StringComparison.OrdinalIgnoreCase))) ?? 0;
+
+            int customizeOrders =
+                Model?.Count(x =>
+                    x.OrderDetails != null &&
+                    x.OrderDetails.Any(d =>
+                        string.Equals(d.PurchaseType, "Customize", StringComparison.OrdinalIgnoreCase))) ?? 0;
+
+            int saleOrders =
+                Model?.Count(x =>
+                    x.OrderDetails != null &&
+                    x.OrderDetails.Any(d =>
+                        string.Equals(d.PurchaseType, "Sale", StringComparison.OrdinalIgnoreCase))) ?? 0;
+
+            int buyOrders =
+                Model?.Count(x =>
+                    x.OrderDetails != null &&
+                    x.OrderDetails.Any(d =>
+                        string.IsNullOrWhiteSpace(d.PurchaseType) ||
+                        string.Equals(d.PurchaseType, "Buy", StringComparison.OrdinalIgnoreCase))) ?? 0;
+        }
 
         <div class="row g-3 mb-4">
 
-
-
             <div class="col-xl-3 col-md-6">
 
                 <div class="summary-box">
@@ -402,23 +423,17 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-
                             <i class="bi bi-bag"></i>
-
                         </div>
 
                         <div>
 
                             <div class="summary-number">
-
                                 @totalOrders
-
                             </div>
 
                             <div class="summary-label">
-
                                 Total Orders
-
                             </div>
 
                         </div>
@@ -429,9 +444,6 @@
 
             </div>
 
-
-
-
             <div class="col-xl-3 col-md-6">
 
                 <div class="summary-box">
@@ -439,23 +451,17 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-
                             <i class="bi bi-hourglass-split"></i>
-
                         </div>
 
                         <div>
 
                             <div class="summary-number">
-
                                 @pendingOrders
-
                             </div>
 
                             <div class="summary-label">
-
                                 Pending Orders
-
                             </div>
 
                         </div>
@@ -466,8 +472,6 @@
 
             </div>
 
-
-
             <div class="col-xl-3 col-md-6">
 
                 <div class="summary-box">
@@ -475,23 +479,17 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-
                             <i class="bi bi-check2-circle"></i>
-
                         </div>
 
                         <div>
 
                             <div class="summary-number">
-
                                 @acceptedOrders
-
                             </div>
 
                             <div class="summary-label">
-
-                                Accepted Orders
-
+                                Confirmed Orders
                             </div>
 
                         </div>
@@ -501,9 +499,6 @@
                 </div>
 
             </div>
-
-
-
 
             <div class="col-xl-3 col-md-6">
 
@@ -512,23 +507,17 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-
                             <i class="bi bi-check-circle"></i>
-
                         </div>
 
                         <div>
 
                             <div class="summary-number">
-
                                 @completedOrders
-
                             </div>
 
                             <div class="summary-label">
-
                                 Completed Orders
-
                             </div>
 
                         </div>
@@ -538,14 +527,126 @@
                 </div>
 
             </div>
-
 
         </div>
 
+        <div class="row g-3 mb-4">
 
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-box">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-bag-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @buyOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Buy Orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-box">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-tag-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @saleOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Sale Orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-box">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @customizeOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Customize Orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-box">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-calendar-heart"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @rentOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Rental Orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
         <div class="orders-box">
-
 
             <div class="orders-header">
 
@@ -559,15 +660,12 @@
 
             </div>
 
-
-
             @if (Model != null && Model.Any())
             {
 
                 <div class="table-responsive">
 
                     <table class="table table-hover align-middle">
-
 
                         <thead>
 
@@ -579,6 +677,14 @@
 
                                 <th>
                                     Customer
+                                </th>
+
+                                <th>
+                                    Order Type
+                                </th>
+
+                                <th>
+                                    Products
                                 </th>
 
                                 <th>
@@ -621,27 +727,20 @@
 
                         </thead>
 
-
                         <tbody>
-
 
                             @foreach (var order in Model)
                             {
 
                                 <tr>
 
-
                                     <td>
 
                                         <span class="order-id">
-
                                             #@order.OrderId
-
                                         </span>
 
                                     </td>
-
-
 
                                     <td>
 
@@ -649,16 +748,11 @@
                                         {
 
                                             <div class="customer-name">
-
                                                 @order.Customer.Name
-
                                             </div>
 
-
                                             <small class="text-muted">
-
                                                 @order.Customer.Email
-
                                             </small>
 
                                         }
@@ -666,16 +760,146 @@
                                         {
 
                                             <span class="text-muted">
-
                                                 Customer unavailable
-
                                             </span>
 
                                         }
 
                                     </td>
 
+                                    <td>
 
+                                        <div class="type-container">
+
+                                            @if (order.OrderDetails != null && order.OrderDetails.Any())
+                                            {
+
+                                                var purchaseTypes =
+                                                    order.OrderDetails
+                                                        .Select(d =>
+                                                            string.IsNullOrWhiteSpace(d.PurchaseType)
+                                                                ? "Buy"
+                                                                : d.PurchaseType.Trim())
+                                                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                        .ToList();
+
+                                                foreach (var type in purchaseTypes)
+                                                {
+
+                                                    if (type.Equals("Rent", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <span class="type-badge type-rent">
+                                                            <i class="bi bi-calendar-heart"></i>
+                                                            Rent
+                                                        </span>
+                                                    }
+                                                    else if (type.Equals("Customize", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <span class="type-badge type-customize">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                            Customize
+                                                        </span>
+                                                    }
+                                                    else if (type.Equals("Sale", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <span class="type-badge type-sale">
+                                                            <i class="bi bi-tag"></i>
+                                                            Sale
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="type-badge type-buy">
+                                                            <i class="bi bi-bag"></i>
+                                                            Buy
+                                                        </span>
+                                                    }
+
+                                                }
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="type-badge type-buy">
+                                                    Buy
+                                                </span>
+
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="order-products">
+
+                                            @if (order.OrderDetails != null && order.OrderDetails.Any())
+                                            {
+
+                                                foreach (var detail in order.OrderDetails)
+                                                {
+
+                                                    string productType =
+                                                        string.IsNullOrWhiteSpace(detail.PurchaseType)
+                                                            ? "Buy"
+                                                            : detail.PurchaseType.Trim();
+
+                                                    <div class="mb-1">
+
+                                                        <strong>
+                                                            @(detail.Product?.ProductName ?? "Product")
+                                                        </strong>
+
+                                                        <span>
+                                                            × @detail.Quantity
+                                                        </span>
+
+                                                        <br />
+
+                                                        @if (productType.Equals("Rent", StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <span class="text-success">
+                                                                Rent
+                                                            </span>
+                                                        }
+                                                        else if (productType.Equals("Customize", StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <span class="text-primary">
+                                                                Customize
+                                                            </span>
+                                                        }
+                                                        else if (productType.Equals("Sale", StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <span class="text-warning">
+                                                                Sale
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">
+                                                                Buy
+                                                            </span>
+                                                        }
+
+                                                    </div>
+
+                                                }
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="text-muted">
+                                                    No products
+                                                </span>
+
+                                            }
+
+                                        </div>
+
+                                    </td>
 
                                     <td>
 
@@ -684,40 +908,26 @@
                                         <br />
 
                                         <small class="text-muted">
-
                                             @order.CreatedDate.ToString("hh:mm tt")
-
                                         </small>
 
                                     </td>
 
-
-
                                     <td>
 
                                         <span class="amount">
-
                                             Rs. @order.ProductTotal.ToString("N2")
-
                                         </span>
 
                                     </td>
-
-
-
 
                                     <td>
 
                                         <span class="amount">
-
                                             Rs. @order.TotalAmount.ToString("N2")
-
                                         </span>
 
                                     </td>
-
-
-
 
                                     <td>
 
@@ -744,7 +954,6 @@
                                             }
 
                                         </div>
-
 
                                         @if (order.PaymentReceived)
                                         {
@@ -773,10 +982,6 @@
 
                                     </td>
 
-
-
-
-
                                     <td>
 
                                         @if (order.OrderStatus == "Pending")
@@ -785,10 +990,10 @@
                                                 Pending
                                             </span>
                                         }
-                                        else if (order.OrderStatus == "Accepted")
+                                        else if (order.OrderStatus == "Confirmed")
                                         {
-                                            <span class="status-badge status-accepted">
-                                                Accepted
+                                            <span class="status-badge status-confirmed">
+                                                Confirmed
                                             </span>
                                         }
                                         else if (order.OrderStatus == "Processing")
@@ -797,10 +1002,10 @@
                                                 Processing
                                             </span>
                                         }
-                                        else if (order.OrderStatus == "Ready for Delivery")
+                                        else if (order.OrderStatus == "Ready")
                                         {
                                             <span class="status-badge status-ready">
-                                                Ready for Delivery
+                                                Ready
                                             </span>
                                         }
                                         else if (order.OrderStatus == "Completed")
@@ -823,10 +1028,6 @@
                                         }
 
                                     </td>
-
-
-
-
 
                                     <td>
 
@@ -857,23 +1058,13 @@
 
                                     </td>
 
-
-
-
-
                                     <td>
 
                                         <span class="amount">
-
                                             Rs. @order.ShopkeeperAmount.ToString("N2")
-
                                         </span>
 
                                     </td>
-
-
-
-
 
                                     <td>
 
@@ -904,10 +1095,6 @@
 
                                     </td>
 
-
-
-
-
                                     <td>
 
                                         <a asp-controller="Shopkeeper"
@@ -922,7 +1109,6 @@
                                         </a>
 
                                     </td>
-
 
                                 </tr>
 
@@ -958,10 +1144,9 @@
 
         </div>
 
-
     </div>
-
 
 </body>
 
 </html>
+

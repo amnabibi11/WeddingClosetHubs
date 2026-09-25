@@ -56,7 +56,6 @@ Layout = null;
         color: #d4af37;
     }
 
-   
     .page-wrapper {
         max-width: 1250px;
         margin: 35px auto;
@@ -83,7 +82,6 @@ Layout = null;
         margin: 0;
     }
 
-    
     .order-card {
         background: white;
         border-radius: 14px;
@@ -116,7 +114,6 @@ Layout = null;
         opacity: 0.9;
     }
 
-   
     .order-body {
         padding: 22px;
     }
@@ -158,7 +155,6 @@ Layout = null;
         font-weight: 700;
     }
 
-   
     .status-badge {
         display: inline-block;
         padding: 7px 13px;
@@ -202,7 +198,6 @@ Layout = null;
         color: #41464b;
     }
 
-    
     .payment-badge {
         display: inline-block;
         padding: 6px 11px;
@@ -225,7 +220,96 @@ Layout = null;
         font-size: 13px;
     }
 
-    
+    .rental-box {
+        margin-top: 20px;
+        padding: 18px;
+        background: #fffaf0;
+        border: 1px solid #ead9a7;
+        border-radius: 12px;
+    }
+
+    .rental-title {
+        color: #800020;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .rental-item {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+
+    .rental-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .rental-product {
+        color: #800020;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .rental-label {
+        color: #777;
+        font-size: 12px;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .rental-value {
+        color: #333;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .rental-status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .rental-awaiting {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .rental-returned {
+        background: #cff4fc;
+        color: #055160;
+    }
+
+    .rental-inspected {
+        background: #e2e3ff;
+        color: #373a8a;
+    }
+
+    .rental-refunded {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .refund-box {
+        margin-top: 12px;
+        padding: 12px;
+        background: #f4fbf7;
+        border: 1px solid #cce8d7;
+        border-radius: 8px;
+    }
+
+    .refund-title {
+        color: #198754;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
     .btn-details {
         background: #800020;
         border: 1px solid #800020;
@@ -258,7 +342,6 @@ Layout = null;
         color: white;
     }
 
-   
     .empty-card {
         background: white;
         border-radius: 14px;
@@ -323,8 +406,6 @@ Layout = null;
 <body>
 
 
-
-
 <nav class="navbar-custom">
 
     <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -365,12 +446,7 @@ Layout = null;
 
 </nav>
 
-
-
 <div class="page-wrapper">
-
-
-  
 
     <div class="page-header">
 
@@ -391,57 +467,21 @@ Layout = null;
 
     </div>
 
-
- 
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-
-            <i class="bi bi-check-circle-fill"></i>
-
-            @TempData["Success"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-    }
-
-
-    
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show">
-
-            <i class="bi bi-exclamation-triangle-fill"></i>
-
-            @TempData["Error"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-    }
-
-
     @if (Model != null && Model.Any())
     {
-
-     
 
         foreach (var order in Model)
         {
 
+            var rentalDetails = order.OrderDetails?
+                .Where(x => string.Equals(
+                    x.PurchaseType,
+                    "Rent",
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList()
+                ?? new List<WeddingClosetHubs.Models.OrderDetail>();
+
             <div class="order-card">
-
-
-               
 
                 <div class="order-header">
 
@@ -468,9 +508,6 @@ Layout = null;
                             </div>
 
                         </div>
-
-
-                        
 
                         <div>
 
@@ -549,15 +586,9 @@ Layout = null;
 
                 </div>
 
-
-               
-
                 <div class="order-body">
 
                     <div class="row">
-
-
-                        
 
                         <div class="col-md-4">
 
@@ -581,8 +612,6 @@ Layout = null;
 
                         </div>
 
-
-                       
                         <div class="col-md-4">
 
                             <div class="info-item">
@@ -605,8 +634,6 @@ Layout = null;
 
                         </div>
 
-
-                       
                         <div class="col-md-4">
 
                             <div class="info-item">
@@ -644,7 +671,6 @@ Layout = null;
 
                         </div>
 
-
                         <div class="col-md-8">
 
                             <div class="info-item">
@@ -667,7 +693,6 @@ Layout = null;
 
                         </div>
 
-
                         <div class="col-md-4">
 
                             <div class="amount-box">
@@ -689,9 +714,246 @@ Layout = null;
 
                         </div>
 
-
                     </div>
 
+                    @if (rentalDetails.Any())
+                    {
+
+                        <div class="rental-box">
+
+                            <div class="rental-title">
+
+                                <i class="bi bi-arrow-return-left"></i>
+
+                                Rental Return & Security
+
+                            </div>
+
+                            @foreach (var detail in rentalDetails)
+                            {
+
+                                <div class="rental-item">
+
+                                    <div class="rental-product mb-3">
+
+                                        <i class="bi bi-bag-heart"></i>
+
+                                        @(detail.Product?.ProductName ?? "Rental Product")
+
+                                    </div>
+
+                                    <div class="row g-3">
+
+                                        <div class="col-md-3">
+
+                                            <span class="rental-label">
+
+                                                Rental Security
+
+                                            </span>
+
+                                            <span class="rental-value">
+
+                                                Rs.
+                                                @((detail.RentalSecurity * detail.Quantity).ToString("N2"))
+
+                                            </span>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <span class="rental-label">
+
+                                                Rental Duration
+
+                                            </span>
+
+                                            <span class="rental-value">
+
+                                                @(detail.RentalDuration ?? "Not specified")
+
+                                            </span>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <span class="rental-label">
+
+                                                Return Status
+
+                                            </span>
+
+                                            @if (detail.RentalReturnStatus == "Returned")
+                                            {
+                                                <span class="rental-status rental-returned">
+
+                                                    <i class="bi bi-box-arrow-in-left"></i>
+
+                                                    Returned
+
+                                                </span>
+                                            }
+                                            else if (detail.RentalReturnStatus == "Inspected")
+                                            {
+                                                <span class="rental-status rental-inspected">
+
+                                                    <i class="bi bi-search"></i>
+
+                                                    Inspected
+
+                                                </span>
+                                            }
+                                            else if (detail.RentalReturnStatus == "Refunded")
+                                            {
+                                                <span class="rental-status rental-refunded">
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    Refunded
+
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="rental-status rental-awaiting">
+
+                                                    <i class="bi bi-clock"></i>
+
+                                                    @(detail.RentalReturnStatus ?? "Awaiting Return")
+
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <span class="rental-label">
+
+                                                Security Status
+
+                                            </span>
+
+                                            @if (detail.SecurityRefunded)
+                                            {
+                                                <span class="text-success fw-semibold small">
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    Refund Completed
+
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-warning fw-semibold small">
+
+                                                    <i class="bi bi-hourglass-split"></i>
+
+                                                    Refund Pending
+
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                    </div>
+
+                                    @if (detail.SecurityRefunded)
+                                    {
+
+                                        <div class="refund-box">
+
+                                            <div class="refund-title">
+
+                                                <i class="bi bi-wallet2"></i>
+
+                                                Security Refund Completed
+
+                                            </div>
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+
+                                                        Refund Amount
+
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        Rs.
+                                                        @((detail.RentalSecurity * detail.Quantity).ToString("N2"))
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+
+                                                        Refund Method
+
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        @(detail.SecurityRefundMethod ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+
+                                                        Refund Date
+
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        @(detail.SecurityRefundDate?.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+
+                                                        Transaction ID
+
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        @(detail.SecurityRefundTransactionId ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    }
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                    }
 
                     <div class="d-flex justify-content-between
                                 align-items-center
@@ -700,7 +962,6 @@ Layout = null;
                                 mt-3
                                 pt-3"
                          style="border-top:1px solid #eee;">
-
 
                         <div>
 
@@ -726,7 +987,6 @@ Layout = null;
                             }
 
                         </div>
-
 
                         <div>
 
@@ -790,12 +1050,9 @@ Layout = null;
 
     }
 
-
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
 </body>

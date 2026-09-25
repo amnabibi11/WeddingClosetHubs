@@ -11,12 +11,55 @@
         as List<WeddingClosetHubs.Controllers.CustomerCartItem>
         ?? new List<WeddingClosetHubs.Controllers.CustomerCartItem>();
 
-
     decimal productTotal = 0m;
 
     foreach (var item in cartItems)
     {
-        productTotal += item.Price * item.Quantity;
+        var product = products.FirstOrDefault(
+            p => p.ProductId == item.ProductId
+        );
+
+        if (product == null)
+            continue;
+
+        string purchaseType =
+            string.IsNullOrWhiteSpace(item.PurchaseType)
+                ? "Buy"
+                : item.PurchaseType.Trim();
+
+        decimal unitPrice = item.Price;
+
+        if (purchaseType.Equals(
+                "Sale",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            if (product.IsOnSale &&
+                product.SalePrice.HasValue &&
+                product.SalePrice.Value > 0 &&
+                product.SalePrice.Value < product.Price)
+            {
+                unitPrice = product.SalePrice.Value;
+            }
+        }
+        else if (purchaseType.Equals(
+                     "Rent",
+                     StringComparison.OrdinalIgnoreCase))
+        {
+            if (product.IsAvailableForRent &&
+                product.RentPrice.HasValue &&
+                product.RentPrice.Value > 0)
+            {
+                unitPrice = product.RentPrice.Value;
+            }
+        }
+        else if (purchaseType.Equals(
+                     "Buy",
+                     StringComparison.OrdinalIgnoreCase))
+        {
+            unitPrice = product.Price;
+        }
+
+        productTotal += unitPrice * item.Quantity;
     }
 
     decimal deliveryCharges = cartItems.Any()
@@ -58,14 +101,13 @@
 
         body {
             margin: 0;
-            background: linear-gradient( 135deg, #faf7f5 0%, #f8f6f4 50%, #fdfaf8 100% );
+            background: linear-gradient(135deg, #faf7f5 0%, #f8f6f4 50%, #fdfaf8 100%);
             font-family: Arial, Helvetica, sans-serif;
             color: #333;
         }
 
-      
         .navbar-custom {
-            background: linear-gradient( 135deg, #800020, #650018 );
+            background: linear-gradient(135deg, #800020, #650018);
             padding: 16px 35px;
             box-shadow: 0 4px 18px rgba(128, 0, 32, 0.20);
         }
@@ -78,9 +120,9 @@
             letter-spacing: 0.3px;
         }
 
-            .navbar-brand i {
-                margin-right: 7px;
-            }
+        .navbar-brand i {
+            margin-right: 7px;
+        }
 
         .navbar-custom a {
             color: white;
@@ -91,11 +133,10 @@
             transition: 0.25s ease;
         }
 
-            .navbar-custom a:hover {
-                color: #d4af37;
-            }
+        .navbar-custom a:hover {
+            color: #d4af37;
+        }
 
-       
         .page-wrapper {
             padding: 40px 35px;
             min-height: calc(100vh - 70px);
@@ -112,10 +153,10 @@
             font-size: 30px;
         }
 
-            .page-title i {
-                color: #d4af37;
-                margin-right: 7px;
-            }
+        .page-title i {
+            color: #d4af37;
+            margin-right: 7px;
+        }
 
         .page-subtitle {
             color: #777;
@@ -133,12 +174,11 @@
             transition: 0.25s ease;
         }
 
-            .cart-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 9px 25px rgba(70, 30, 30, 0.12);
-            }
+        .cart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 9px 25px rgba(70, 30, 30, 0.12);
+        }
 
-        
         .product-image {
             width: 120px;
             height: 140px;
@@ -159,10 +199,10 @@
             justify-content: center;
         }
 
-            .product-image-placeholder i {
-                font-size: 45px;
-                color: #bbb;
-            }
+        .product-image-placeholder i {
+            font-size: 45px;
+            color: #bbb;
+        }
 
         .product-name {
             color: #800020;
@@ -177,14 +217,39 @@
             margin-bottom: 6px;
         }
 
-            .product-info strong {
-                color: #555;
-            }
+        .product-info strong {
+            color: #555;
+        }
 
         .product-price {
             color: #800020;
             font-size: 20px;
             font-weight: 700;
+        }
+
+        .sale-price {
+            color: #c1121f;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .rent-price {
+            color: #087f8c;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .negotiated-price {
+            color: #198754;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .original-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-left: 7px;
         }
 
         .purchase-badge {
@@ -217,25 +282,26 @@
             color: #0f5132;
         }
 
-        
-        .negotiated-price {
-            color: #198754;
-            font-size: 21px;
-            font-weight: 700;
+        .price-note {
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 600;
         }
 
-        .original-price {
-            color: #999;
-            text-decoration: line-through;
-            font-size: 14px;
-            margin-left: 7px;
+        .sale-note {
+            color: #c1121f;
+        }
+
+        .rent-note {
+            color: #087f8c;
         }
 
         .negotiated-note {
             color: #198754;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 4px;
+        }
+
+        .buy-note {
+            color: #666;
         }
 
         .quantity-box {
@@ -269,7 +335,6 @@
             margin-top: 9px;
         }
 
-        
         .custom-badge {
             display: inline-flex;
             align-items: center;
@@ -282,7 +347,6 @@
             font-weight: 600;
         }
 
-       
         .remove-btn {
             color: #dc3545;
             border: none;
@@ -295,12 +359,11 @@
             transition: 0.25s ease;
         }
 
-            .remove-btn:hover {
-                color: white;
-                background: #dc3545;
-            }
+        .remove-btn:hover {
+            color: white;
+            background: #dc3545;
+        }
 
-       
         .measurement-btn {
             border-radius: 8px;
             font-size: 13px;
@@ -310,13 +373,12 @@
             transition: 0.25s ease;
         }
 
-            .measurement-btn:hover {
-                background: #800020;
-                border-color: #800020;
-                color: white;
-            }
+        .measurement-btn:hover {
+            background: #800020;
+            border-color: #800020;
+            color: white;
+        }
 
-        
         .continue-btn {
             border: 1px solid #800020;
             color: #800020;
@@ -332,13 +394,12 @@
             transition: 0.25s ease;
         }
 
-            .continue-btn:hover {
-                background: #800020;
-                color: white;
-                transform: translateX(-2px);
-            }
+        .continue-btn:hover {
+            background: #800020;
+            color: white;
+            transform: translateX(-2px);
+        }
 
-       
         .summary-card {
             background: white;
             border-radius: 15px;
@@ -358,10 +419,10 @@
             border-bottom: 1px solid #eee;
         }
 
-            .summary-title i {
-                color: #d4af37;
-                margin-right: 6px;
-            }
+        .summary-title i {
+            color: #d4af37;
+            margin-right: 6px;
+        }
 
         .summary-row {
             display: flex;
@@ -383,7 +444,6 @@
             white-space: nowrap;
         }
 
-        
         .grand-total {
             display: flex;
             justify-content: space-between;
@@ -399,7 +459,7 @@
 
         .checkout-btn {
             width: 100%;
-            background: linear-gradient( 135deg, #800020, #650018 );
+            background: linear-gradient(135deg, #800020, #650018);
             color: white;
             border: none;
             padding: 14px;
@@ -411,14 +471,13 @@
             box-shadow: 0 5px 14px rgba(128, 0, 32, 0.20);
         }
 
-            .checkout-btn:hover {
-                background: linear-gradient( 135deg, #650018, #520014 );
-                color: white;
-                transform: translateY(-2px);
-                box-shadow: 0 8px 18px rgba(128, 0, 32, 0.25);
-            }
+        .checkout-btn:hover {
+            background: linear-gradient(135deg, #650018, #520014);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(128, 0, 32, 0.25);
+        }
 
-        
         .empty-cart {
             background: white;
             border-radius: 18px;
@@ -432,15 +491,15 @@
             overflow: hidden;
         }
 
-            .empty-cart::before {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 5px;
-                background: linear-gradient( 90deg, #800020, #d4af37, #800020 );
-            }
+        .empty-cart::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #800020, #d4af37, #800020);
+        }
 
         .empty-cart-icon {
             width: 105px;
@@ -454,10 +513,10 @@
             justify-content: center;
         }
 
-            .empty-cart-icon i {
-                font-size: 48px;
-                color: #800020;
-            }
+        .empty-cart-icon i {
+            font-size: 48px;
+            color: #800020;
+        }
 
         .empty-cart h3 {
             color: #800020;
@@ -472,7 +531,6 @@
             margin-bottom: 25px;
         }
 
-        
         .browse-shops-btn {
             display: inline-flex;
             align-items: center;
@@ -481,7 +539,7 @@
             min-width: 190px;
             padding: 13px 25px;
             border-radius: 9px;
-            background: linear-gradient( 135deg, #800020, #650018 );
+            background: linear-gradient(135deg, #800020, #650018);
             color: white !important;
             text-decoration: none;
             font-size: 15px;
@@ -491,23 +549,23 @@
             transition: all 0.3s ease;
         }
 
-            .browse-shops-btn i {
-                color: #d4af37;
-                font-size: 18px;
-                transition: 0.3s ease;
-            }
+        .browse-shops-btn i {
+            color: #d4af37;
+            font-size: 18px;
+            transition: 0.3s ease;
+        }
 
-            .browse-shops-btn:hover {
-                color: white !important;
-                background: linear-gradient( 135deg, #650018, #520014 );
-                transform: translateY(-3px);
-                box-shadow: 0 9px 20px rgba(128, 0, 32, 0.28);
-            }
+        .browse-shops-btn:hover {
+            color: white !important;
+            background: linear-gradient(135deg, #650018, #520014);
+            transform: translateY(-3px);
+            box-shadow: 0 9px 20px rgba(128, 0, 32, 0.28);
+        }
 
-                .browse-shops-btn:hover i {
-                    color: #f0cf55;
-                    transform: scale(1.08);
-                }
+        .browse-shops-btn:hover i {
+            color: #f0cf55;
+            transform: scale(1.08);
+        }
 
         .empty-cart-note {
             margin-top: 18px;
@@ -515,12 +573,29 @@
             font-size: 12px;
         }
 
-            .empty-cart-note i {
-                color: #d4af37;
-                margin-right: 4px;
-            }
+        .empty-cart-note i {
+            color: #d4af37;
+            margin-right: 4px;
+        }
 
-       
+        .rental-security-note {
+            background: #f0fbfd;
+            border: 1px solid #bde7ee;
+            color: #055160;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .sale-saving {
+            color: #c1121f;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
         @@media (max-width: 992px) {
 
             .summary-card {
@@ -535,16 +610,16 @@
                 padding: 15px;
             }
 
-                .navbar-custom .d-flex {
-                    flex-direction: column;
-                    align-items: flex-start !important;
-                    gap: 15px;
-                }
+            .navbar-custom .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 15px;
+            }
 
-                .navbar-custom a {
-                    margin-left: 0;
-                    margin-right: 15px;
-                }
+            .navbar-custom a {
+                margin-left: 0;
+                margin-right: 15px;
+            }
 
             .page-wrapper {
                 padding: 25px 15px;
@@ -578,9 +653,9 @@
                 padding: 60px 20px;
             }
 
-                .empty-cart h3 {
-                    font-size: 23px;
-                }
+            .empty-cart h3 {
+                font-size: 23px;
+            }
 
             .browse-shops-btn {
                 width: 100%;
@@ -652,13 +727,9 @@
 
     </nav>
 
-
-    
     <div class="page-wrapper">
 
         <div class="container-fluid">
-
-            
 
             <div class="page-header">
 
@@ -677,7 +748,6 @@
                 </p>
 
             </div>
-
 
             @if (!cartItems.Any())
             {
@@ -733,7 +803,7 @@
                         {
 
                             var product = products.FirstOrDefault(
-                            p => p.ProductId == item.ProductId
+                                p => p.ProductId == item.ProductId
                             );
 
                             if (product == null)
@@ -741,48 +811,83 @@
                                 continue;
                             }
 
-                            
-                            decimal itemUnitPrice =
-                            item.Price;
-
-                            decimal itemSubtotal =
-                            itemUnitPrice * item.Quantity;
-
                             string purchaseType =
-                            string.IsNullOrWhiteSpace(item.PurchaseType)
-                            ? "Buy"
-                            : item.PurchaseType.Trim();
+                                string.IsNullOrWhiteSpace(item.PurchaseType)
+                                    ? "Buy"
+                                    : item.PurchaseType.Trim();
 
                             bool isNegotiated =
-                            purchaseType.Equals(
-                            "Negotiated",
-                            StringComparison.OrdinalIgnoreCase);
+                                purchaseType.Equals(
+                                    "Negotiated",
+                                    StringComparison.OrdinalIgnoreCase);
 
                             bool isSale =
-                            purchaseType.Equals(
-                            "Sale",
-                            StringComparison.OrdinalIgnoreCase);
+                                purchaseType.Equals(
+                                    "Sale",
+                                    StringComparison.OrdinalIgnoreCase);
 
                             bool isRent =
-                            purchaseType.Equals(
-                            "Rent",
-                            StringComparison.OrdinalIgnoreCase);
+                                purchaseType.Equals(
+                                    "Rent",
+                                    StringComparison.OrdinalIgnoreCase);
+
+                            bool isBuy =
+                                purchaseType.Equals(
+                                    "Buy",
+                                    StringComparison.OrdinalIgnoreCase);
+
+                            decimal itemUnitPrice = item.Price;
+
+                            decimal originalPrice = product.Price;
+
+                            if (isSale)
+                            {
+                                if (product.IsOnSale &&
+                                    product.SalePrice.HasValue &&
+                                    product.SalePrice.Value > 0 &&
+                                    product.SalePrice.Value < product.Price)
+                                {
+                                    itemUnitPrice =
+                                        product.SalePrice.Value;
+                                }
+                            }
+                            else if (isRent)
+                            {
+                                if (product.IsAvailableForRent &&
+                                    product.RentPrice.HasValue &&
+                                    product.RentPrice.Value > 0)
+                                {
+                                    itemUnitPrice =
+                                        product.RentPrice.Value;
+                                }
+                            }
+                            else if (isBuy)
+                            {
+                                itemUnitPrice =
+                                    product.Price;
+                            }
+
+                            decimal itemSubtotal =
+                                itemUnitPrice * item.Quantity;
+
+                            decimal saleSaving =
+                                isSale &&
+                                originalPrice > itemUnitPrice
+                                    ? originalPrice - itemUnitPrice
+                                    : 0m;
 
                             string purchaseBadgeClass =
-                            isNegotiated
-                            ? "purchase-negotiated"
-                            : isSale
-                            ? "purchase-sale"
-                            : isRent
-                            ? "purchase-rent"
-                            : "purchase-buy";
-
+                                isNegotiated
+                                    ? "purchase-negotiated"
+                                    : isSale
+                                        ? "purchase-sale"
+                                        : isRent
+                                            ? "purchase-rent"
+                                            : "purchase-buy";
 
                             <div class="cart-card">
 
                                 <div class="row align-items-center">
-
-                                    
 
                                     <div class="col-md-3 text-center">
 
@@ -805,60 +910,51 @@
 
                                         }
 
-                                </div>
-
-
-                                
-
-                                <div class="col-md-6">
-
-                                    <div class="product-name">
-
-                                        @product.ProductName
-
                                     </div>
 
+                                    <div class="col-md-6">
 
-                                    <div class="product-info">
+                                        <div class="product-name">
 
-                                        <strong>Category:</strong>
+                                            @product.ProductName
 
-                                        @(string.IsNullOrWhiteSpace(product.Category)
-                                                                            ? "N/A"
-                                                                            : product.Category)
+                                        </div>
 
-                                    </div>
+                                        <div class="product-info">
 
+                                            <strong>Category:</strong>
 
-                                    <div class="product-info">
+                                            @(string.IsNullOrWhiteSpace(product.Category)
+                                                ? "N/A"
+                                                : product.Category)
 
-                                        <strong>Subcategory:</strong>
+                                        </div>
 
-                                        @(string.IsNullOrWhiteSpace(product.Subcategory)
-                                                                            ? "N/A"
-                                                                            : product.Subcategory)
+                                        <div class="product-info">
 
-                                    </div>
+                                            <strong>Subcategory:</strong>
 
+                                            @(string.IsNullOrWhiteSpace(product.Subcategory)
+                                                ? "N/A"
+                                                : product.Subcategory)
 
-                                    <div class="product-info">
+                                        </div>
 
-                                        <strong>Occasion:</strong>
+                                        <div class="product-info">
 
-                                        @(string.IsNullOrWhiteSpace(product.Occasion)
-                                                                            ? "N/A"
-                                                                            : product.Occasion)
+                                            <strong>Occasion:</strong>
 
-                                </div>
+                                            @(string.IsNullOrWhiteSpace(product.Occasion)
+                                                ? "N/A"
+                                                : product.Occasion)
 
-
-                                       
+                                        </div>
 
                                         <div>
 
                                             <span class="purchase-badge @purchaseBadgeClass">
 
-                                        @if (isNegotiated)
+                                                @if (isNegotiated)
                                                 {
                                                     <i class="bi bi-chat-square-text me-1"></i>
                                                     <text>Negotiated Price</text>
@@ -882,9 +978,6 @@
                                             </span>
 
                                         </div>
-
-
-                                        
 
                                         <div class="product-info mt-3">
 
@@ -910,7 +1003,7 @@
 
                                                 }
 
-                                                <div class="negotiated-note">
+                                                <div class="price-note negotiated-note">
 
                                                     <i class="bi bi-check-circle me-1"></i>
 
@@ -922,7 +1015,7 @@
                                             else if (isSale)
                                             {
 
-                                                <span class="product-price">
+                                                <span class="sale-price">
 
                                                     Rs. @itemUnitPrice.ToString("N2")
 
@@ -939,6 +1032,45 @@
 
                                                 }
 
+                                                @if (saleSaving > 0)
+                                                {
+
+                                                    <div class="sale-saving">
+
+                                                        <i class="bi bi-tag-fill me-1"></i>
+
+                                                        You save Rs. @saleSaving.ToString("N2")
+
+                                                    </div>
+
+                                                }
+
+                                            }
+                                            else if (isRent)
+                                            {
+
+                                                <span class="rent-price">
+
+                                                    Rs. @itemUnitPrice.ToString("N2")
+
+                                                </span>
+
+                                                <div class="price-note rent-note">
+
+                                                    <i class="bi bi-arrow-repeat me-1"></i>
+
+                                                    Rental price
+
+                                                </div>
+
+                                                <div class="rental-security-note">
+
+                                                    <i class="bi bi-shield-check me-1"></i>
+
+                                                    Refundable security deposit may apply at checkout.
+
+                                                </div>
+
                                             }
                                             else
                                             {
@@ -949,12 +1081,17 @@
 
                                                 </span>
 
+                                                <div class="price-note buy-note">
+
+                                                    <i class="bi bi-cart-check me-1"></i>
+
+                                                    Regular purchase price
+
+                                                </div>
+
                                             }
 
                                         </div>
-
-
-                                       
 
                                         <div class="quantity-box mt-2">
 
@@ -970,9 +1107,6 @@
 
                                         </div>
 
-
-                                      
-
                                         <div class="subtotal-text">
 
                                             Subtotal:
@@ -981,8 +1115,6 @@
 
                                         </div>
 
-
-                                        
                                         @if (!string.IsNullOrWhiteSpace(item.CustomMeasurements))
                                         {
 
@@ -1018,12 +1150,8 @@
 
                                     </div>
 
-
-                                  
-
                                     <div class="col-md-3 text-md-end mt-3 mt-md-0">
 
-                                        
                                         @if (product.HasCustomMeasurement)
                                         {
 
@@ -1039,9 +1167,6 @@
                                             </a>
 
                                         }
-
-
-                                       
 
                                         <form asp-controller="Customer"
                                               asp-action="RemoveFromCart"
@@ -1067,11 +1192,7 @@
                                 </div>
 
                             </div>
-
                         }
-
-
-                        
 
                         <div class="mt-3 mb-4">
 
@@ -1089,8 +1210,6 @@
 
                     </div>
 
-
-                    
                     <div class="col-lg-4">
 
                         <div class="summary-card">
@@ -1102,9 +1221,6 @@
                                 Order Summary
 
                             </div>
-
-
-        
 
                             <div class="summary-row">
 
@@ -1122,9 +1238,6 @@
 
                             </div>
 
-
-                            
-
                             <div class="summary-row">
 
                                 <span class="summary-label">
@@ -1140,9 +1253,6 @@
                                 </span>
 
                             </div>
-
-
-                            
 
                             <div class="summary-row">
 
@@ -1160,9 +1270,6 @@
 
                             </div>
 
-
-                            
-
                             <div class="grand-total">
 
                                 <span>
@@ -1177,9 +1284,6 @@
 
                             </div>
 
-
-                            
-
                             <a asp-controller="Customer"
                                asp-action="Checkout"
                                class="checkout-btn text-center d-block text-decoration-none">
@@ -1190,9 +1294,6 @@
 
                             </a>
 
-
-                            
-
                             <div class="text-center mt-3">
 
                                 <small class="text-muted">
@@ -1201,7 +1302,7 @@
 
                                     <br />
 
-                                    Platform service fee: 10% of product total
+                                    Platform service fee: 10% of actual product total
 
                                 </small>
 
@@ -1219,10 +1320,8 @@
 
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
 </html>
-

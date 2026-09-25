@@ -46,16 +46,11 @@
         Order Details - Wedding Closet Hub
     </title>
 
-
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
 
-
-
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
 
     <style>
 
@@ -66,8 +61,6 @@
             padding: 0;
         }
 
-
-
         .page-header {
             background-color: #800020;
             color: white;
@@ -75,17 +68,15 @@
             margin-bottom: 25px;
         }
 
-            .page-header h2 {
-                margin: 0;
-                font-weight: 600;
-            }
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
 
-            .page-header p {
-                margin: 5px 0 0;
-                opacity: 0.85;
-            }
-
-
+        .page-header p {
+            margin: 5px 0 0;
+            opacity: 0.85;
+        }
 
         .card {
             border: none;
@@ -102,8 +93,6 @@
             color: #800020;
         }
 
-
-
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -112,9 +101,9 @@
             border-bottom: 1px solid #eeeeee;
         }
 
-            .info-row:last-child {
-                border-bottom: none;
-            }
+        .info-row:last-child {
+            border-bottom: none;
+        }
 
         .info-label {
             font-weight: 600;
@@ -126,8 +115,6 @@
             text-align: right;
             word-break: break-word;
         }
-
-
 
         .status-badge {
             display: inline-block;
@@ -172,7 +159,34 @@
             color: #842029;
         }
 
+        .type-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 7px;
+        }
 
+        .type-buy {
+            background-color: #e9ecef;
+            color: #343a40;
+        }
+
+        .type-sale {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .type-rent {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .type-customize {
+            background-color: #e2d9f3;
+            color: #4c3575;
+        }
 
         .product-img {
             width: 65px;
@@ -180,26 +194,23 @@
             object-fit: cover;
             border-radius: 8px;
             border: 1px solid #dddddd;
+            flex-shrink: 0;
         }
-
-
 
         .table thead {
             background-color: #800020;
             color: white;
         }
 
-            .table thead th {
-                border: none;
-                padding: 13px;
-            }
+        .table thead th {
+            border: none;
+            padding: 13px;
+        }
 
         .table tbody td {
             vertical-align: middle;
             padding: 13px;
         }
-
-
 
         .total-box {
             background-color: #fafafa;
@@ -222,8 +233,6 @@
             color: #800020;
         }
 
-
-
         .payment-box {
             border-left: 4px solid #d4af37;
             background-color: #fffdf5;
@@ -237,8 +246,6 @@
             color: #777777;
         }
 
-
-
         .notes-box {
             background-color: #fafafa;
             border-radius: 8px;
@@ -246,6 +253,159 @@
             color: #555555;
         }
 
+        .measurement-box {
+            background-color: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .measurement-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .measurement-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 5px 0;
+            border-bottom: 1px solid #eadfbd;
+            font-size: 13px;
+        }
+
+        .measurement-row:last-child {
+            border-bottom: none;
+        }
+
+        .measurement-name {
+            font-weight: 600;
+            color: #555555;
+        }
+
+        .measurement-value {
+            color: #800020;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .measurement-empty {
+            background-color: #fff3cd;
+            border: 1px solid #ffe69c;
+            color: #856404;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .custom-badge {
+            display: inline-block;
+            background-color: #800020;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .rental-box {
+            background-color: #fffaf0;
+            border: 1px solid #ead9a6;
+            border-radius: 9px;
+            padding: 13px;
+            margin-top: 10px;
+        }
+
+        .rental-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .rental-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 5px 0;
+            border-bottom: 1px solid #eadfbd;
+            font-size: 13px;
+        }
+
+        .rental-row:last-child {
+            border-bottom: none;
+        }
+
+        .rental-label {
+            font-weight: 600;
+            color: #666666;
+        }
+
+        .rental-value {
+            color: #800020;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .sale-box {
+            background-color: #f1fff7;
+            border: 1px solid #b7dfc5;
+            border-radius: 9px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .sale-title {
+            color: #198754;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .buy-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 9px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .buy-title {
+            color: #495057;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .customize-box {
+            background-color: #faf5ff;
+            border: 1px solid #cbb7e9;
+            border-radius: 9px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .customize-title {
+            color: #4c3575;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .refund-complete {
+            color: #198754;
+            font-weight: 700;
+        }
+
+        .refund-pending {
+            color: #856404;
+            font-weight: 700;
+        }
 
         .back-btn {
             background-color: #800020;
@@ -257,10 +417,10 @@
             display: inline-block;
         }
 
-            .back-btn:hover {
-                background-color: #650019;
-                color: white;
-            }
+        .back-btn:hover {
+            background-color: #650019;
+            color: white;
+        }
 
         .print-btn {
             background-color: #d4af37;
@@ -270,11 +430,9 @@
             border-radius: 7px;
         }
 
-            .print-btn:hover {
-                background-color: #c39d25;
-            }
-
-
+        .print-btn:hover {
+            background-color: #c39d25;
+        }
 
         .status-update-box {
             background-color: #fffaf0;
@@ -283,10 +441,10 @@
             padding: 20px;
         }
 
-            .status-update-box h5 {
-                color: #800020;
-                font-weight: 600;
-            }
+        .status-update-box h5 {
+            color: #800020;
+            font-weight: 600;
+        }
 
         .status-select {
             height: 45px;
@@ -304,12 +462,10 @@
             font-weight: 600;
         }
 
-            .update-status-btn:hover {
-                background-color: #650019;
-                color: white;
-            }
-
-
+        .update-status-btn:hover {
+            background-color: #650019;
+            color: white;
+        }
 
         .flow-container {
             display: flex;
@@ -333,8 +489,6 @@
             font-weight: bold;
         }
 
-
-
         @@media print {
 
             .no-print {
@@ -349,16 +503,45 @@
                 box-shadow: none;
                 border: 1px solid #dddddd;
             }
+
+            .measurement-box,
+            .rental-box,
+            .sale-box,
+            .customize-box,
+            .buy-box {
+                break-inside: avoid;
+            }
+        }
+
+        @@media (max-width: 768px) {
+
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+
+            .measurement-row,
+            .rental-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+            }
+
+            .measurement-value,
+            .rental-value {
+                text-align: left;
+            }
         }
 
     </style>
 
 </head>
 
-
 <body>
-
-
 
     <div class="page-header">
 
@@ -384,7 +567,6 @@
 
                 </div>
 
-
                 <div class="no-print">
 
                     <button type="button"
@@ -396,7 +578,6 @@
                         Print
 
                     </button>
-
 
                     <a asp-controller="Shopkeeper"
                        asp-action="Orders"
@@ -416,10 +597,7 @@
 
     </div>
 
-
     <div class="container-fluid">
-
-
 
         @if (TempData["Success"] != null)
         {
@@ -437,7 +615,6 @@
             </div>
         }
 
-
         @if (TempData["Error"] != null)
         {
             <div class="alert alert-danger alert-dismissible fade show no-print">
@@ -454,8 +631,6 @@
             </div>
         }
 
-
-
         <div class="card">
 
             <div class="card-header">
@@ -466,12 +641,9 @@
 
             </div>
 
-
             <div class="card-body">
 
                 <div class="row">
-
-
 
                     <div class="col-md-3">
 
@@ -482,15 +654,12 @@
                             </span>
 
                             <span class="info-value">
-
                                 #@Model.OrderId
-
                             </span>
 
                         </div>
 
                     </div>
-
 
                     <div class="col-md-3">
 
@@ -502,16 +671,13 @@
 
                             <span class="info-value">
 
-                                @Model.CreatedDate.ToString(
-                                "dd MMM yyyy hh:mm tt")
+                                @Model.CreatedDate.ToString("dd MMM yyyy hh:mm tt")
 
                             </span>
 
                         </div>
 
                     </div>
-
-
 
                     <div class="col-md-3">
 
@@ -524,16 +690,14 @@
                             <span class="info-value">
 
                                 @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
-                                                                ? "Not specified"
-                                                                : Model.PaymentMethod)
+                                    ? "Not specified"
+                                    : Model.PaymentMethod)
 
                             </span>
 
                         </div>
 
                     </div>
-
-
 
                     <div class="col-md-3">
 
@@ -563,8 +727,6 @@
 
         </div>
 
-
-
         <div class="card no-print">
 
             <div class="card-header">
@@ -574,7 +736,6 @@
                 Update Order Status
 
             </div>
-
 
             <div class="card-body">
 
@@ -601,18 +762,15 @@
 
                         </p>
 
-
                         <form asp-controller="Shopkeeper"
                               asp-action="UpdateOrderStatus"
                               method="post">
 
                             @Html.AntiForgeryToken()
 
-
                             <input type="hidden"
                                    name="id"
                                    value="@Model.OrderId" />
-
 
                             <div class="row align-items-end">
 
@@ -625,7 +783,6 @@
 
                                     </label>
 
-
                                     <select name="status"
                                             id="status"
                                             class="form-select status-select"
@@ -634,7 +791,6 @@
                                         <option value="">
                                             -- Select Status --
                                         </option>
-
 
                                         @foreach (var nextStatus in nextStatuses)
                                         {
@@ -650,7 +806,6 @@
                                     </select>
 
                                 </div>
-
 
                                 <div class="col-md-4 mt-3 mt-md-0">
 
@@ -668,9 +823,6 @@
                             </div>
 
                         </form>
-
-
-
 
                         <div class="flow-container">
 
@@ -780,11 +932,7 @@
 
         </div>
 
-
-
         <div class="row">
-
-
 
             <div class="col-lg-4">
 
@@ -797,7 +945,6 @@
                         Customer Information
 
                     </div>
-
 
                     <div class="card-body">
 
@@ -818,7 +965,6 @@
 
                             </div>
 
-
                             <div class="info-row">
 
                                 <span class="info-label">
@@ -832,7 +978,6 @@
                                 </span>
 
                             </div>
-
 
                             <div class="info-row">
 
@@ -872,8 +1017,6 @@
 
             </div>
 
-
-
             <div class="col-lg-4">
 
                 <div class="card">
@@ -885,7 +1028,6 @@
                         Shop Information
 
                     </div>
-
 
                     <div class="card-body">
 
@@ -906,7 +1048,6 @@
 
                             </div>
 
-
                             <div class="info-row">
 
                                 <span class="info-label">
@@ -921,7 +1062,6 @@
 
                             </div>
 
-
                             <div class="info-row">
 
                                 <span class="info-label">
@@ -935,7 +1075,6 @@
                                 </span>
 
                             </div>
-
 
                             <div class="info-row">
 
@@ -975,7 +1114,6 @@
 
             </div>
 
-
             <div class="col-lg-4">
 
                 <div class="card">
@@ -987,7 +1125,6 @@
                         Delivery Information
 
                     </div>
-
 
                     <div class="card-body">
 
@@ -1008,7 +1145,6 @@
 
                             </div>
 
-
                             <div class="info-row">
 
                                 <span class="info-label">
@@ -1022,7 +1158,6 @@
                                 </span>
 
                             </div>
-
 
                             <div class="info-row">
 
@@ -1064,8 +1199,6 @@
 
         </div>
 
-
-
         <div class="card">
 
             <div class="card-header">
@@ -1075,7 +1208,6 @@
                 Delivery Address
 
             </div>
-
 
             <div class="card-body">
 
@@ -1093,7 +1225,6 @@
 
                 </div>
 
-
                 @if (!string.IsNullOrWhiteSpace(Model.Notes))
                 {
 
@@ -1102,7 +1233,6 @@
                         <strong>
                             Customer Notes
                         </strong>
-
 
                         <div class="notes-box mt-2">
 
@@ -1118,8 +1248,6 @@
 
         </div>
 
-
-
         <div class="card">
 
             <div class="card-header">
@@ -1130,13 +1258,11 @@
 
             </div>
 
-
             <div class="card-body p-0">
 
                 <div class="table-responsive">
 
                     <table class="table table-hover mb-0">
-
 
                         <thead>
 
@@ -1148,6 +1274,10 @@
 
                                 <th>
                                     Product
+                                </th>
+
+                                <th>
+                                    Order Type
                                 </th>
 
                                 <th>
@@ -1166,18 +1296,24 @@
 
                         </thead>
 
-
                         <tbody>
 
                             @if (Model.OrderDetails != null &&
-                                                        Model.OrderDetails.Any())
+                                 Model.OrderDetails.Any())
                             {
 
                                 int number = 1;
 
-
                                 foreach (var detail in Model.OrderDetails)
                                 {
+
+                                    string purchaseType =
+                                        string.IsNullOrWhiteSpace(detail.PurchaseType)
+                                            ? "Buy"
+                                            : detail.PurchaseType.Trim();
+
+                                    string normalizedPurchaseType =
+                                        purchaseType.ToLowerInvariant();
 
                                     <tr>
 
@@ -1187,41 +1323,45 @@
 
                                         </td>
 
-
                                         <td>
 
                                             @if (detail.Product != null)
                                             {
 
-                                                <div class="d-flex align-items-center">
+                                                <div>
 
+                                                    <div class="d-flex align-items-center">
 
-                                                    @if (!string.IsNullOrEmpty(
-                                                                                            detail.Product.Image))
-                                                    {
+                                                        @if (!string.IsNullOrEmpty(detail.Product.Image))
+                                                        {
 
-                                                        <img src="@detail.Product.Image"
-                                                             class="product-img me-3"
-                                                             alt="Product" />
+                                                            <img src="@detail.Product.Image"
+                                                                 class="product-img me-3"
+                                                                 alt="Product" />
 
-                                                    }
-                                                    else
-                                                    {
+                                                        }
+                                                        else
+                                                        {
 
-                                                        <div class="product-img me-3 d-flex align-items-center justify-content-center">
+                                                            <div class="product-img me-3 d-flex align-items-center justify-content-center">
 
-                                                            <i class="bi bi-image text-muted"></i>
+                                                                <i class="bi bi-image text-muted"></i>
+
+                                                            </div>
+
+                                                        }
+
+                                                        <div>
+
+                                                            <strong>
+
+                                                                @detail.Product.ProductName
+
+                                                            </strong>
 
                                                         </div>
 
-                                                    }
-
-
-                                                    <strong>
-
-                                                        @detail.Product.ProductName
-
-                                                    </strong>
+                                                    </div>
 
                                                 </div>
 
@@ -1237,41 +1377,620 @@
 
                                             }
 
-                                </td>
+                                        </td>
 
+                                        <td>
 
-                                <td>
+                                            @if (normalizedPurchaseType == "rent")
+                                            {
 
-                                    Rs.
+                                                <span class="type-badge type-rent">
 
-                                    @detail.UnitPrice.ToString("N2")
+                                                    <i class="bi bi-arrow-repeat"></i>
 
-                                </td>
+                                                    Rent
 
+                                                </span>
 
-                                <td>
+                                            }
+                                            else if (normalizedPurchaseType == "customize")
+                                            {
 
-                                    @detail.Quantity
+                                                <span class="type-badge type-customize">
 
-                                </td>
+                                                    <i class="bi bi-rulers"></i>
 
+                                                    Customize
 
-                                <td class="text-end fw-bold">
+                                                </span>
 
-                                    Rs.
+                                            }
+                                            else if (normalizedPurchaseType == "sale")
+                                            {
 
-                                    @(
-                                                                        (detail.UnitPrice *
-                                                                        detail.Quantity)
-                                                                        .ToString("N2")
-                                                                        )
+                                                <span class="type-badge type-sale">
 
-                                </td>
+                                                    <i class="bi bi-tag"></i>
+
+                                                    Sale
+
+                                                </span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="type-badge type-buy">
+
+                                                    <i class="bi bi-bag"></i>
+
+                                                    Buy
+
+                                                </span>
+
+                                            }
+
+                                        </td>
+
+                                        <td>
+
+                                            Rs.
+
+                                            @detail.UnitPrice.ToString("N2")
+
+                                        </td>
+
+                                        <td>
+
+                                            @detail.Quantity
+
+                                        </td>
+
+                                        <td class="text-end fw-bold">
+
+                                            Rs.
+
+                                            @(
+                                                (detail.UnitPrice * detail.Quantity)
+                                                .ToString("N2")
+                                            )
+
+                                        </td>
 
                                     </tr>
 
+                                    <tr>
 
-                                                        number++;
+                                        <td></td>
+
+                                        <td colspan="5">
+
+                                            @if (normalizedPurchaseType == "rent")
+                                            {
+
+                                                <div class="rental-box">
+
+                                                    <div class="rental-title">
+
+                                                        <i class="bi bi-arrow-repeat"></i>
+
+                                                        Rental Information
+
+                                                    </div>
+
+                                                    <div class="rental-row">
+
+                                                        <span class="rental-label">
+
+                                                            Rental Price
+
+                                                        </span>
+
+                                                        <span class="rental-value">
+
+                                                            Rs.
+                                                            @detail.UnitPrice.ToString("N2")
+
+                                                        </span>
+
+                                                    </div>
+
+                                                    <div class="rental-row">
+
+                                                        <span class="rental-label">
+
+                                                            Rental Security
+
+                                                        </span>
+
+                                                        <span class="rental-value">
+
+                                                            Rs.
+                                                            @(
+                                                                (detail.RentalSecurity * detail.Quantity)
+                                                                .ToString("N2")
+                                                            )
+
+                                                        </span>
+
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.RentalDuration))
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Rental Duration
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.RentalDuration
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.RentalConditions))
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Rental Conditions
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.RentalConditions
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    <div class="rental-row">
+
+                                                        <span class="rental-label">
+
+                                                            Return Status
+
+                                                        </span>
+
+                                                        <span class="rental-value">
+
+                                                            @(string.IsNullOrWhiteSpace(detail.RentalReturnStatus)
+                                                                ? "Awaiting Return"
+                                                                : detail.RentalReturnStatus)
+
+                                                        </span>
+
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.ReturnMethod))
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Return Method
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.ReturnMethod
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    @if (detail.ReturnRequestedDate.HasValue)
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Return Requested
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.ReturnRequestedDate.Value.ToString(
+                                                                    "dd MMM yyyy hh:mm tt")
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    @if (detail.DressReturnedDate.HasValue)
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Dress Returned
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.DressReturnedDate.Value.ToString(
+                                                                    "dd MMM yyyy hh:mm tt")
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.InspectionResult))
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Inspection Result
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                @detail.InspectionResult
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    }
+
+                                                    @if (detail.SecurityRefunded)
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Security Refund Status
+
+                                                            </span>
+
+                                                            <span class="refund-complete">
+
+                                                                Refund Completed
+
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Refund Amount
+
+                                                            </span>
+
+                                                            <span class="rental-value">
+
+                                                                Rs.
+                                                                @detail.RefundAmount.ToString("N2")
+
+                                                            </span>
+
+                                                        </div>
+
+                                                        @if (!string.IsNullOrWhiteSpace(detail.SecurityRefundMethod))
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Refund Method
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundMethod
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(detail.SecurityRefundAccount))
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Refund Account
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundAccount
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                        @if (detail.SecurityRefundDate.HasValue)
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Refund Date
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundDate.Value.ToString(
+                                                                        "dd MMM yyyy hh:mm tt")
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(detail.SecurityRefundTransactionId))
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Refund Transaction ID
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundTransactionId
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <div class="rental-row">
+
+                                                            <span class="rental-label">
+
+                                                                Security Refund Status
+
+                                                            </span>
+
+                                                            <span class="refund-pending">
+
+                                                                Refund Pending
+
+                                                            </span>
+
+                                                        </div>
+
+                                                        @if (!string.IsNullOrWhiteSpace(detail.SecurityRefundMethod))
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Customer Refund Method
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundMethod
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(detail.SecurityRefundAccount))
+                                                        {
+
+                                                            <div class="rental-row">
+
+                                                                <span class="rental-label">
+
+                                                                    Refund Account
+
+                                                                </span>
+
+                                                                <span class="rental-value">
+
+                                                                    @detail.SecurityRefundAccount
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        }
+
+                                                    }
+
+                                                </div>
+
+                                            }
+                                            else if (normalizedPurchaseType == "customize")
+                                            {
+
+                                                <div class="customize-box">
+
+                                                    <div class="customize-title">
+
+                                                        <i class="bi bi-rulers"></i>
+
+                                                        Customization Information
+
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.CustomMeasurements))
+                                                    {
+
+                                                        <div class="measurement-box">
+
+                                                            <div class="measurement-title">
+
+                                                                <i class="bi bi-rulers"></i>
+
+                                                                Customer Measurements
+
+                                                            </div>
+
+                                                            @foreach (var measurement in detail.CustomMeasurements.Split(
+                                                                " | ",
+                                                                StringSplitOptions.RemoveEmptyEntries))
+                                                            {
+
+                                                                var parts = measurement.Split(
+                                                                    ':',
+                                                                    2,
+                                                                    StringSplitOptions.RemoveEmptyEntries);
+
+                                                                if (parts.Length == 2)
+                                                                {
+
+                                                                    <div class="measurement-row">
+
+                                                                        <span class="measurement-name">
+
+                                                                            @parts[0].Trim()
+
+                                                                        </span>
+
+                                                                        <span class="measurement-value">
+
+                                                                            @parts[1].Trim()
+
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                }
+                                                                else
+                                                                {
+
+                                                                    <div class="measurement-row">
+
+                                                                        <span class="measurement-name">
+
+                                                                            @measurement.Trim()
+
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                }
+
+                                                            }
+
+                                                        </div>
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <div class="measurement-empty">
+
+                                                            <i class="bi bi-exclamation-circle"></i>
+
+                                                            Customer measurements were not provided.
+
+                                                        </div>
+
+                                                    }
+
+                                                </div>
+
+                                            }
+                                            else if (normalizedPurchaseType == "sale")
+                                            {
+
+                                                <div class="sale-box">
+
+                                                    <div class="sale-title">
+
+                                                        <i class="bi bi-tag-fill"></i>
+
+                                                        Sale Product
+
+                                                    </div>
+
+                                                    <div class="small text-muted mt-1">
+
+                                                        This product was purchased using its sale price.
+
+                                                    </div>
+
+                                                </div>
+
+                                            }
+                                            else
+                                            {
+
+                                                <div class="buy-box">
+
+                                                    <div class="buy-title">
+
+                                                        <i class="bi bi-bag-fill"></i>
+
+                                                        Regular Purchase
+
+                                                    </div>
+
+                                                    <div class="small text-muted mt-1">
+
+                                                        This product was purchased at its regular price.
+
+                                                    </div>
+
+                                                </div>
+
+                                            }
+
+                                        </td>
+
+                                    </tr>
+
+                                    number++;
 
                                 }
 
@@ -1281,7 +2000,7 @@
 
                                 <tr>
 
-                                    <td colspan="5"
+                                    <td colspan="6"
                                         class="text-center text-muted py-4">
 
                                         <i class="bi bi-bag-x fs-3"></i>
@@ -1308,11 +2027,7 @@
 
         </div>
 
-
-
         <div class="row">
-
-
 
             <div class="col-lg-6">
 
@@ -1326,12 +2041,9 @@
 
                     </div>
 
-
                     <div class="card-body">
 
                         <div class="payment-box">
-
-
 
                             <div class="info-row">
 
@@ -1342,14 +2054,12 @@
                                 <span class="info-value">
 
                                     @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
-                                                                        ? "Not specified"
-                                                                        : Model.PaymentMethod)
+                                        ? "Not specified"
+                                        : Model.PaymentMethod)
 
                                 </span>
 
                             </div>
-
-
 
                             <div class="info-row">
 
@@ -1360,14 +2070,12 @@
                                 <span class="info-value">
 
                                     @(string.IsNullOrWhiteSpace(Model.PaymentStatus)
-                                                                        ? "Pending"
-                                                                        : Model.PaymentStatus)
+                                        ? "Pending"
+                                        : Model.PaymentStatus)
 
                                 </span>
 
                             </div>
-
-
 
                             <div class="info-row">
 
@@ -1381,9 +2089,7 @@
                                     {
 
                                         <span class="badge bg-success">
-
                                             Yes
-
                                         </span>
 
                                     }
@@ -1391,9 +2097,7 @@
                                     {
 
                                         <span class="badge bg-warning text-dark">
-
                                             No
-
                                         </span>
 
                                     }
@@ -1401,8 +2105,6 @@
                                 </span>
 
                             </div>
-
-
 
                             @if (Model.PaymentDate.HasValue)
                             {
@@ -1416,13 +2118,13 @@
                                     <span class="info-value">
 
                                         @Model.PaymentDate.Value.ToString(
-                                        "dd MMM yyyy hh:mm tt")
+                                            "dd MMM yyyy hh:mm tt")
 
-                                </span>
+                                    </span>
 
-                            </div>
+                                </div>
 
-                                                        }
+                            }
 
                         </div>
 
@@ -1431,8 +2133,6 @@
                 </div>
 
             </div>
-
-
 
             <div class="col-lg-6">
 
@@ -1446,12 +2146,9 @@
 
                     </div>
 
-
                     <div class="card-body">
 
                         <div class="total-box">
-
-
 
                             <div class="total-row">
 
@@ -1469,7 +2166,6 @@
 
                             </div>
 
-
                             <div class="total-row">
 
                                 <span>
@@ -1485,8 +2181,6 @@
                                 </strong>
 
                             </div>
-
-
 
                             <div class="total-row">
 
@@ -1504,7 +2198,26 @@
 
                             </div>
 
+                            @if (Model.RefundableSecurity > 0)
+                            {
 
+                                <div class="total-row">
+
+                                    <span>
+                                        Refundable Rental Security
+                                    </span>
+
+                                    <strong>
+
+                                        Rs.
+
+                                        @Model.RefundableSecurity.ToString("N2")
+
+                                    </strong>
+
+                                </div>
+
+                            }
 
                             <div class="total-row grand-total">
 
@@ -1522,7 +2235,6 @@
 
                             </div>
 
-
                         </div>
 
                     </div>
@@ -1532,7 +2244,6 @@
             </div>
 
         </div>
-
 
         <div class="card">
 
@@ -1544,12 +2255,9 @@
 
             </div>
 
-
             <div class="card-body">
 
                 <div class="row">
-
-
 
                     <div class="col-md-4">
 
@@ -1573,9 +2281,6 @@
 
                     </div>
 
-
-
-
                     <div class="col-md-4">
 
                         <div class="info-row">
@@ -1588,18 +2293,15 @@
 
                             <span class="info-value">
 
-                                @(string.IsNullOrWhiteSpace(
-                                                                Model.ShopkeeperPaymentStatus)
-                                                                ? "Pending"
-                                                                : Model.ShopkeeperPaymentStatus)
+                                @(string.IsNullOrWhiteSpace(Model.ShopkeeperPaymentStatus)
+                                    ? "Pending"
+                                    : Model.ShopkeeperPaymentStatus)
 
                             </span>
 
                         </div>
 
                     </div>
-
-
 
                     <div class="col-md-4">
 
@@ -1617,9 +2319,9 @@
                                 {
 
                                     @Model.ShopkeeperPaymentDate.Value.ToString(
-                                    "dd MMM yyyy hh:mm tt")
+                                        "dd MMM yyyy hh:mm tt")
 
-                                                                }
+                                }
                                 else
                                 {
 
@@ -1643,8 +2345,6 @@
 
         </div>
 
-
-
         <div class="card">
 
             <div class="card-header">
@@ -1655,11 +2355,9 @@
 
             </div>
 
-
             <div class="card-body">
 
                 <div class="row">
-
 
                     <div class="col-md-3">
 
@@ -1673,18 +2371,15 @@
 
                             <span class="info-value">
 
-                                @(string.IsNullOrWhiteSpace(
-                                                                Model.DeliveryPaymentStatus)
-                                                                ? "Pending"
-                                                                : Model.DeliveryPaymentStatus)
+                                @(string.IsNullOrWhiteSpace(Model.DeliveryPaymentStatus)
+                                    ? "Pending"
+                                    : Model.DeliveryPaymentStatus)
 
                             </span>
 
                         </div>
 
                     </div>
-
-
 
                     <div class="col-md-3">
 
@@ -1708,9 +2403,6 @@
 
                     </div>
 
-
-
-
                     <div class="col-md-3">
 
                         <div class="info-row">
@@ -1727,9 +2419,9 @@
                                 {
 
                                     @Model.DeliveryCollectionDate.Value.ToString(
-                                    "dd MMM yyyy hh:mm tt")
+                                        "dd MMM yyyy hh:mm tt")
 
-                                                                }
+                                }
                                 else
                                 {
 
@@ -1747,8 +2439,6 @@
 
                     </div>
 
-
-
                     <div class="col-md-3">
 
                         <div class="info-row">
@@ -1765,9 +2455,9 @@
                                 {
 
                                     @Model.DeliveryPaymentDate.Value.ToString(
-                                    "dd MMM yyyy hh:mm tt")
+                                        "dd MMM yyyy hh:mm tt")
 
-                                                                }
+                                }
                                 else
                                 {
 
@@ -1791,9 +2481,6 @@
 
         </div>
 
-
-
-
         <div class="card">
 
             <div class="card-header">
@@ -1804,11 +2491,9 @@
 
             </div>
 
-
             <div class="card-body">
 
                 <div class="row align-items-center">
-
 
                     <div class="col-md-8">
 
@@ -1826,7 +2511,6 @@
 
                     </div>
 
-
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
 
                         <span class="status-badge @statusClass">
@@ -1843,9 +2527,7 @@
 
         </div>
 
-
         <div class="d-flex justify-content-between mb-4 no-print">
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Orders"
@@ -1857,7 +2539,6 @@
 
             </a>
 
-
             <button type="button"
                     onclick="window.print()"
                     class="btn btn-warning">
@@ -1868,17 +2549,12 @@
 
             </button>
 
-
         </div>
-
 
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
     </script>
-
 
 </body>
 

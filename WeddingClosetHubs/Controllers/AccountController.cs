@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -16,16 +17,14 @@ namespace WeddingClosetHubs.Controllers
             _context = context;
         }
 
-
         private string NormalizeCNIC(string cnic)
         {
             return cnic
-            .Trim()
-            .Replace(" ", "");
+                .Trim()
+                .Replace(" ", "");
         }
 
-
-        private const long MaxImageSize = 5 * 1024 * 1024; // 5 MB
+        private const long MaxImageSize = 5 * 1024 * 1024;
 
         private static readonly string[] AllowedImageExtensions =
         {
@@ -38,15 +37,13 @@ namespace WeddingClosetHubs.Controllers
         {
             "Saddar",
             "6th Road",
-            "Askari 7"
+            "Liaqat Bagh"
         };
-
 
         [HttpGet]
         public async Task<IActionResult> Register()
         {
             await LoadRoles();
-
             return View();
         }
 
@@ -54,7 +51,6 @@ namespace WeddingClosetHubs.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
             User user,
-
             string? ShopName,
             string? ShopCategory,
             string? ShopPhone,
@@ -63,7 +59,6 @@ namespace WeddingClosetHubs.Controllers
             IFormFile? ShopFrontPhoto,
             IFormFile? ShopInsidePhoto,
             IFormFile? ShopSignboardPhoto,
-
             string? CNIC,
             IFormFile? CNICFrontImage,
             IFormFile? CNICBackImage,
@@ -71,21 +66,15 @@ namespace WeddingClosetHubs.Controllers
             string? MotorbikeNumber,
             string? PreferredZone)
         {
-            
             if (!ModelState.IsValid)
             {
                 await LoadRoles();
-
                 return View(user);
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Name))
             {
-                ModelState.AddModelError(
-                    "Name",
-                    "Name is required."
-                );
+                ModelState.AddModelError("Name", "Name is required.");
             }
             else
             {
@@ -107,9 +96,7 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-                if (!Regex.IsMatch(
-                    user.Name,
-                    @"^[A-Za-z ]+$"))
+                if (!Regex.IsMatch(user.Name, @"^[A-Za-z ]+$"))
                 {
                     ModelState.AddModelError(
                         "Name",
@@ -118,20 +105,15 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Email))
             {
-                ModelState.AddModelError(
-                    "Email",
-                    "Email is required."
-                );
+                ModelState.AddModelError("Email", "Email is required.");
             }
             else
             {
                 user.Email = user.Email.Trim().ToLowerInvariant();
 
-                if (!new EmailAddressAttribute()
-                    .IsValid(user.Email))
+                if (!new EmailAddressAttribute().IsValid(user.Email))
                 {
                     ModelState.AddModelError(
                         "Email",
@@ -139,7 +121,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
             }
-
 
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
@@ -161,7 +142,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Phone))
             {
                 ModelState.AddModelError(
@@ -182,8 +162,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
-           
             if (!string.IsNullOrWhiteSpace(user.Phone))
             {
                 string normalizedPhone =
@@ -204,12 +182,11 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Address))
             {
                 ModelState.AddModelError(
                     "Address",
-                    "Complete address is required."
+                    "Address is required."
                 );
             }
             else
@@ -220,23 +197,13 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "Address",
-                        "Only Rawalpindi addresses are allowed."
-                    );
-                }
-                else if (!HasDetailedAddress(user.Address))
-                {
-                    ModelState.AddModelError(
-                        "Address",
-                        "Please enter a complete address including house/shop number, street/road, area and Rawalpindi."
+                        "Please enter an address in Rawalpindi."
                     );
                 }
             }
 
-
             var role = await _context.Roles
-                .FirstOrDefaultAsync(
-                    r => r.RoleId == user.RoleId
-                );
+                .FirstOrDefaultAsync(r => r.RoleId == user.RoleId);
 
             if (role == null)
             {
@@ -246,10 +213,8 @@ namespace WeddingClosetHubs.Controllers
                 );
 
                 await LoadRoles();
-
                 return View(user);
             }
-
 
             if (role.RoleName == "Admin")
             {
@@ -259,10 +224,8 @@ namespace WeddingClosetHubs.Controllers
                 );
 
                 await LoadRoles();
-
                 return View(user);
             }
-
 
             if (string.IsNullOrWhiteSpace(user.Password))
             {
@@ -281,9 +244,7 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-                if (!Regex.IsMatch(
-                    user.Password,
-                    @"[A-Z]"))
+                if (!Regex.IsMatch(user.Password, @"[A-Z]"))
                 {
                     ModelState.AddModelError(
                         "Password",
@@ -291,9 +252,7 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-                if (!Regex.IsMatch(
-                    user.Password,
-                    @"[a-z]"))
+                if (!Regex.IsMatch(user.Password, @"[a-z]"))
                 {
                     ModelState.AddModelError(
                         "Password",
@@ -301,9 +260,7 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-                if (!Regex.IsMatch(
-                    user.Password,
-                    @"\d"))
+                if (!Regex.IsMatch(user.Password, @"\d"))
                 {
                     ModelState.AddModelError(
                         "Password",
@@ -311,7 +268,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
             }
-
 
             if (role.RoleName == "Shopkeeper")
             {
@@ -342,7 +298,6 @@ namespace WeddingClosetHubs.Controllers
                         );
                     }
                 }
-
 
                 if (string.IsNullOrWhiteSpace(ShopCategory))
                 {
@@ -384,7 +339,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (string.IsNullOrWhiteSpace(ShopAddress))
                 {
                     ModelState.AddModelError(
@@ -400,14 +354,7 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopAddress",
-                            "Only shops located in Rawalpindi can register."
-                        );
-                    }
-                    else if (!HasDetailedAddress(ShopAddress))
-                    {
-                        ModelState.AddModelError(
-                            "ShopAddress",
-                            "Please enter complete shop address including shop/house number, street/road, area and Rawalpindi."
+                            "Please enter a shop address in Rawalpindi."
                         );
                     }
                 }
@@ -425,7 +372,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (!IsAllowedImage(ShopFrontPhoto))
                 {
                     ModelState.AddModelError(
@@ -434,7 +380,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-
                 if (!IsAllowedImage(ShopInsidePhoto))
                 {
                     ModelState.AddModelError(
@@ -442,7 +387,6 @@ namespace WeddingClosetHubs.Controllers
                         "Shop inside photo must be JPG, JPEG or PNG and maximum 5 MB."
                     );
                 }
-
 
                 if (!IsAllowedImage(ShopSignboardPhoto))
                 {
@@ -453,10 +397,8 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (role.RoleName == "Delivery")
             {
-                
                 if (string.IsNullOrWhiteSpace(CNIC))
                 {
                     ModelState.AddModelError(
@@ -477,18 +419,14 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
-                if (!string.IsNullOrWhiteSpace(CNIC) &&
-                    IsValidCNIC(CNIC))
+                if (!string.IsNullOrWhiteSpace(CNIC) && IsValidCNIC(CNIC))
                 {
-                    string normalizedCNIC =
-                        NormalizeCNIC(CNIC);
+                    string normalizedCNIC = NormalizeCNIC(CNIC);
 
                     bool cnicExists =
-                        await _context.DeliveryBoys
-                            .AnyAsync(d =>
-                                d.CNIC == normalizedCNIC
-                            );
+                        await _context.DeliveryBoys.AnyAsync(d =>
+                            d.CNIC == normalizedCNIC
+                        );
 
                     if (cnicExists)
                     {
@@ -515,7 +453,6 @@ namespace WeddingClosetHubs.Controllers
                     );
                 }
 
-
                 if (string.IsNullOrWhiteSpace(VehicleType))
                 {
                     ModelState.AddModelError(
@@ -533,7 +470,6 @@ namespace WeddingClosetHubs.Controllers
                         "Only Motorbike is allowed for delivery."
                     );
                 }
-
 
                 if (string.IsNullOrWhiteSpace(MotorbikeNumber))
                 {
@@ -564,19 +500,16 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (!string.IsNullOrWhiteSpace(MotorbikeNumber))
                 {
                     string normalizedMotorbike =
                         MotorbikeNumber.Trim().ToUpperInvariant();
 
                     bool motorbikeExists =
-                        await _context.DeliveryBoys
-                            .AnyAsync(d =>
-                                d.MotorbikeNumber != null &&
-                                d.MotorbikeNumber.ToUpper()
-                                    == normalizedMotorbike
-                            );
+                        await _context.DeliveryBoys.AnyAsync(d =>
+                            d.MotorbikeNumber != null &&
+                            d.MotorbikeNumber.ToUpper() == normalizedMotorbike
+                        );
 
                     if (motorbikeExists)
                     {
@@ -586,7 +519,6 @@ namespace WeddingClosetHubs.Controllers
                         );
                     }
                 }
-
 
                 if (string.IsNullOrWhiteSpace(PreferredZone))
                 {
@@ -618,7 +550,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (!ModelState.IsValid)
             {
                 foreach (var item in ModelState)
@@ -632,285 +563,181 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 await LoadRoles();
-
                 return View(user);
             }
 
-
-            user.Email =
-                user.Email!.Trim().ToLowerInvariant();
-
-            user.Name =
-                user.Name!.Trim();
-
-            user.Phone =
-                NormalizePhone(user.Phone!);
-
-            user.Address =
-                user.Address!.Trim();
-
+            user.Email = user.Email!.Trim().ToLowerInvariant();
+            user.Name = user.Name!.Trim();
+            user.Phone = NormalizePhone(user.Phone!);
+            user.Address = user.Address!.Trim();
             user.Status = true;
-
             user.CreatedDate = DateTime.Now;
 
             if (role.RoleName == "Customer")
             {
                 user.IsApproved = true;
-
                 user.ApprovedDate = DateTime.Now;
             }
             else
             {
                 user.IsApproved = false;
-
                 user.ApprovedDate = null;
             }
-
 
             using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
-               
                 _context.Users.Add(user);
-
                 await _context.SaveChangesAsync();
-
 
                 if (role.RoleName == "Shopkeeper")
                 {
-                    string shopFolder =
-                        Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot",
-                            "uploads",
-                            "shops"
-                        );
+                    string shopFolder = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "uploads",
+                        "shops"
+                    );
 
                     if (!Directory.Exists(shopFolder))
                     {
                         Directory.CreateDirectory(shopFolder);
                     }
 
-
                     string frontFileName =
-                        Guid.NewGuid().ToString()
-                        + Path.GetExtension(
-                            ShopFrontPhoto!.FileName
-                        ).ToLowerInvariant();
+                        Guid.NewGuid().ToString() +
+                        Path.GetExtension(ShopFrontPhoto!.FileName)
+                            .ToLowerInvariant();
 
                     string frontFilePath =
-                        Path.Combine(
-                            shopFolder,
-                            frontFileName
-                        );
+                        Path.Combine(shopFolder, frontFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            frontFilePath,
-                            FileMode.Create))
+                    using (var stream = new FileStream(
+                        frontFilePath,
+                        FileMode.Create))
                     {
                         await ShopFrontPhoto.CopyToAsync(stream);
                     }
 
-
                     string insideFileName =
-                        Guid.NewGuid().ToString()
-                        + Path.GetExtension(
-                            ShopInsidePhoto!.FileName
-                        ).ToLowerInvariant();
+                        Guid.NewGuid().ToString() +
+                        Path.GetExtension(ShopInsidePhoto!.FileName)
+                            .ToLowerInvariant();
 
                     string insideFilePath =
-                        Path.Combine(
-                            shopFolder,
-                            insideFileName
-                        );
+                        Path.Combine(shopFolder, insideFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            insideFilePath,
-                            FileMode.Create))
+                    using (var stream = new FileStream(
+                        insideFilePath,
+                        FileMode.Create))
                     {
                         await ShopInsidePhoto.CopyToAsync(stream);
                     }
 
-
                     string signboardFileName =
-                        Guid.NewGuid().ToString()
-                        + Path.GetExtension(
-                            ShopSignboardPhoto!.FileName
-                        ).ToLowerInvariant();
+                        Guid.NewGuid().ToString() +
+                        Path.GetExtension(ShopSignboardPhoto!.FileName)
+                            .ToLowerInvariant();
 
                     string signboardFilePath =
-                        Path.Combine(
-                            shopFolder,
-                            signboardFileName
-                        );
+                        Path.Combine(shopFolder, signboardFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            signboardFilePath,
-                            FileMode.Create))
+                    using (var stream = new FileStream(
+                        signboardFilePath,
+                        FileMode.Create))
                     {
                         await ShopSignboardPhoto.CopyToAsync(stream);
                     }
 
-
                     var shop = new Shop
                     {
                         ShopkeeperId = user.UserId,
-
-                        ShopName =
-                            ShopName!.Trim(),
-
-                        ShopCategory =
-                            ShopCategory!.Trim(),
-
-                        ShopPhone =
-                            NormalizePhone(ShopPhone!),
-
-                        ShopAddress =
-                            ShopAddress!.Trim(),
-
+                        ShopName = ShopName!.Trim(),
+                        ShopCategory = ShopCategory!.Trim(),
+                        ShopPhone = NormalizePhone(ShopPhone!),
+                        ShopAddress = ShopAddress!.Trim(),
                         ShopDescription =
-                            string.IsNullOrWhiteSpace(
-                                ShopDescription)
+                            string.IsNullOrWhiteSpace(ShopDescription)
                                 ? null
                                 : ShopDescription.Trim(),
-
-                        ShopFrontPhoto =
-                            "/uploads/shops/"
-                            + frontFileName,
-
-                        ShopInsidePhoto =
-                            "/uploads/shops/"
-                            + insideFileName,
-
-                        ShopSignboardPhoto =
-                            "/uploads/shops/"
-                            + signboardFileName,
-
+                        ShopFrontPhoto = "/uploads/shops/" + frontFileName,
+                        ShopInsidePhoto = "/uploads/shops/" + insideFileName,
+                        ShopSignboardPhoto = "/uploads/shops/" + signboardFileName,
                         IsApproved = false,
-
                         Status = false,
-
                         ApprovedDate = null
                     };
 
-
                     _context.Shops.Add(shop);
-
                     await _context.SaveChangesAsync();
                 }
 
-
                 if (role.RoleName == "Delivery")
                 {
-                    string uploadFolder =
-                        Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot",
-                            "uploads",
-                            "cnic"
-                        );
+                    string uploadFolder = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "uploads",
+                        "cnic"
+                    );
 
                     if (!Directory.Exists(uploadFolder))
                     {
                         Directory.CreateDirectory(uploadFolder);
                     }
 
-
-                  
                     string frontFileName =
-                        Guid.NewGuid().ToString()
-                        + Path.GetExtension(
-                            CNICFrontImage!.FileName
-                        ).ToLowerInvariant();
+                        Guid.NewGuid().ToString() +
+                        Path.GetExtension(CNICFrontImage!.FileName)
+                            .ToLowerInvariant();
 
                     string frontFilePath =
-                        Path.Combine(
-                            uploadFolder,
-                            frontFileName
-                        );
+                        Path.Combine(uploadFolder, frontFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            frontFilePath,
-                            FileMode.Create))
+                    using (var stream = new FileStream(
+                        frontFilePath,
+                        FileMode.Create))
                     {
                         await CNICFrontImage.CopyToAsync(stream);
                     }
 
-
                     string backFileName =
-                        Guid.NewGuid().ToString()
-                        + Path.GetExtension(
-                            CNICBackImage!.FileName
-                        ).ToLowerInvariant();
+                        Guid.NewGuid().ToString() +
+                        Path.GetExtension(CNICBackImage!.FileName)
+                            .ToLowerInvariant();
 
                     string backFilePath =
-                        Path.Combine(
-                            uploadFolder,
-                            backFileName
-                        );
+                        Path.Combine(uploadFolder, backFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            backFilePath,
-                            FileMode.Create))
+                    using (var stream = new FileStream(
+                        backFilePath,
+                        FileMode.Create))
                     {
                         await CNICBackImage.CopyToAsync(stream);
                     }
 
-
-                    
                     var deliveryBoy = new DeliveryBoy
                     {
                         UserId = user.UserId,
-
-                        CNIC =
-                            CNIC!.Trim(),
-
+                        CNIC = CNIC!.Trim(),
                         MotorbikeNumber =
-                            MotorbikeNumber!
-                                .Trim()
-                                .ToUpperInvariant(),
-
-                        PreferredZone =
-                            PreferredZone!.Trim(),
-
-                        CNICFrontImage =
-                            "/uploads/cnic/"
-                            + frontFileName,
-
-                        CNICBackImage =
-                            "/uploads/cnic/"
-                            + backFileName,
-
+                            MotorbikeNumber!.Trim().ToUpperInvariant(),
+                        PreferredZone = PreferredZone!.Trim(),
+                        CNICFrontImage = "/uploads/cnic/" + frontFileName,
+                        CNICBackImage = "/uploads/cnic/" + backFileName,
                         AssignedZone = null,
-
-                        VerificationStatus =
-                            "Pending",
-
+                        VerificationStatus = "Pending",
                         AdminNotes = null,
-
                         RejectionReason = null,
-
                         ApprovedDate = null,
-
-                        CreatedDate =
-                            DateTime.Now
+                        CreatedDate = DateTime.Now
                     };
 
-
-                    _context.DeliveryBoys.Add(
-                        deliveryBoy
-                    );
-
+                    _context.DeliveryBoys.Add(deliveryBoy);
                     await _context.SaveChangesAsync();
                 }
-
 
                 await transaction.CommitAsync();
             }
@@ -920,18 +747,13 @@ namespace WeddingClosetHubs.Controllers
 
                 ModelState.AddModelError(
                     "",
-                    "Registration failed: "
-                    + (
-                        ex.InnerException?.Message
-                        ?? ex.Message
-                    )
+                    "Registration failed: " +
+                    (ex.InnerException?.Message ?? ex.Message)
                 );
 
                 await LoadRoles();
-
                 return View(user);
             }
-
 
             if (role.RoleName == "Customer")
             {
@@ -949,17 +771,14 @@ namespace WeddingClosetHubs.Controllers
                     "Delivery account registration submitted successfully. Please wait for Admin verification and approval.";
             }
 
-
             return RedirectToAction("Login");
         }
-
 
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -968,37 +787,25 @@ namespace WeddingClosetHubs.Controllers
             string password,
             string roleName)
         {
-            
             if (string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error =
-                    "Please enter your email.";
-
+                ViewBag.Error = "Please enter your email.";
                 return View();
             }
-
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error =
-                    "Please enter your password.";
-
+                ViewBag.Error = "Please enter your password.";
                 return View();
             }
-
 
             if (string.IsNullOrWhiteSpace(roleName))
             {
-                ViewBag.Error =
-                    "Please select an account type.";
-
+                ViewBag.Error = "Please select an account type.";
                 return View();
             }
 
-
-            email =
-                email.Trim().ToLowerInvariant();
-
+            email = email.Trim().ToLowerInvariant();
 
             var user = await _context.Users
                 .Include(u => u.Role)
@@ -1011,7 +818,6 @@ namespace WeddingClosetHubs.Controllers
                     u.Role.RoleName == roleName
                 );
 
-
             if (user == null)
             {
                 ViewBag.Error =
@@ -1019,7 +825,6 @@ namespace WeddingClosetHubs.Controllers
 
                 return View();
             }
-
 
             if (!user.IsApproved)
             {
@@ -1045,27 +850,13 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
-            HttpContext.Session.SetInt32(
-                "UserId",
-                user.UserId
-            );
-
-
-            HttpContext.Session.SetString(
-                "UserName",
-                user.Name ?? ""
-            );
-
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("UserName", user.Name ?? "");
 
             if (user.Role!.RoleName == "Customer")
             {
-                HttpContext.Session.SetInt32(
-                    "CustomerId",
-                    user.UserId
-                );
+                HttpContext.Session.SetInt32("CustomerId", user.UserId);
             }
-
 
             if (user.RoleId.HasValue)
             {
@@ -1075,58 +866,31 @@ namespace WeddingClosetHubs.Controllers
                 );
             }
 
-
             HttpContext.Session.SetString(
                 "RoleName",
                 user.Role!.RoleName
             );
 
-
             switch (user.Role.RoleName)
             {
                 case "Admin":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Admin"
-                    );
-
+                    return RedirectToAction("Dashboard", "Admin");
 
                 case "Shopkeeper":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Shopkeeper"
-                    );
-
+                    return RedirectToAction("Dashboard", "Shopkeeper");
 
                 case "Customer":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Customer"
-                    );
-
+                    return RedirectToAction("Dashboard", "Customer");
 
                 case "Delivery":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Delivery"
-                    );
-
+                    return RedirectToAction("Dashboard", "Delivery");
 
                 default:
-
                     HttpContext.Session.Clear();
-
-                    ViewBag.Error =
-                        "Invalid account type.";
-
+                    ViewBag.Error = "Invalid account type.";
                     return View();
             }
         }
-
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -1134,32 +898,23 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(
-            string email)
+        public async Task<IActionResult> ForgotPassword(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error =
-                    "Please enter your email address.";
-
+                ViewBag.Error = "Please enter your email address.";
                 return View();
             }
 
-
-            email =
-                email.Trim().ToLowerInvariant();
-
+            email = email.Trim().ToLowerInvariant();
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(
-                    u =>
-                        u.Email != null &&
-                        u.Email.ToLower() == email
+                .FirstOrDefaultAsync(u =>
+                    u.Email != null &&
+                    u.Email.ToLower() == email
                 );
-
 
             if (user == null)
             {
@@ -1169,45 +924,28 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
             if (!user.Status)
             {
-                ViewBag.Error =
-                    "This account is currently disabled.";
-
+                ViewBag.Error = "This account is currently disabled.";
                 return View();
             }
 
+            TempData["ResetUserId"] = user.UserId;
 
-            TempData["ResetUserId"] =
-                user.UserId;
-
-
-            return RedirectToAction(
-                "ResetPassword"
-            );
+            return RedirectToAction("ResetPassword");
         }
-
 
         [HttpGet]
         public IActionResult ResetPassword()
         {
             if (TempData["ResetUserId"] == null)
             {
-                return RedirectToAction(
-                    "ForgotPassword"
-                );
+                return RedirectToAction("ForgotPassword");
             }
 
-
-            TempData.Keep(
-                "ResetUserId"
-            );
-
-
+            TempData.Keep("ResetUserId");
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1217,146 +955,89 @@ namespace WeddingClosetHubs.Controllers
         {
             if (TempData["ResetUserId"] == null)
             {
-                return RedirectToAction(
-                    "ForgotPassword"
-                );
+                return RedirectToAction("ForgotPassword");
             }
 
+            int userId = Convert.ToInt32(TempData["ResetUserId"]);
 
-            int userId =
-                Convert.ToInt32(
-                    TempData["ResetUserId"]
-                );
-
-
-          
             if (string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error =
-                    "Please enter a new password.";
-
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                ViewBag.Error = "Please enter a new password.";
+                TempData.Keep("ResetUserId");
                 return View();
             }
-
 
             if (password.Length < 8)
             {
                 ViewBag.Error =
                     "Password must contain at least 8 characters.";
 
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                TempData.Keep("ResetUserId");
                 return View();
             }
 
-
-            if (!Regex.IsMatch(
-                password,
-                @"[A-Z]"))
+            if (!Regex.IsMatch(password, @"[A-Z]"))
             {
                 ViewBag.Error =
                     "Password must contain at least one uppercase letter.";
 
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                TempData.Keep("ResetUserId");
                 return View();
             }
 
-
-            if (!Regex.IsMatch(
-                password,
-                @"[a-z]"))
+            if (!Regex.IsMatch(password, @"[a-z]"))
             {
                 ViewBag.Error =
                     "Password must contain at least one lowercase letter.";
 
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                TempData.Keep("ResetUserId");
                 return View();
             }
 
-
-           
-            if (!Regex.IsMatch(
-                password,
-                @"\d"))
+            if (!Regex.IsMatch(password, @"\d"))
             {
                 ViewBag.Error =
                     "Password must contain at least one number.";
 
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                TempData.Keep("ResetUserId");
                 return View();
             }
-
 
             if (password != confirmPassword)
             {
                 ViewBag.Error =
                     "Password and confirm password do not match.";
 
-                TempData.Keep(
-                    "ResetUserId"
-                );
-
+                TempData.Keep("ResetUserId");
                 return View();
             }
 
-
             var user = await _context.Users
-                .FirstOrDefaultAsync(
-                    u => u.UserId == userId
-                );
-
+                .FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
             {
-                ViewBag.Error =
-                    "User account could not be found.";
-
+                ViewBag.Error = "User account could not be found.";
                 return View();
             }
-
 
             user.Password = password;
 
             await _context.SaveChangesAsync();
 
-
             TempData["Success"] =
                 "Your password has been reset successfully. You can now login.";
 
-
-            return RedirectToAction(
-                "Login"
-            );
+            return RedirectToAction("Login");
         }
-
 
         [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-
-            return RedirectToAction(
-                "Login"
-            );
+            return RedirectToAction("Login");
         }
 
-
-        
         private bool IsPakistaniPhone(string? phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
@@ -1364,40 +1045,32 @@ namespace WeddingClosetHubs.Controllers
 
             phone = phone.Trim();
 
-           
-
             return Regex.IsMatch(
                 phone,
                 @"^(03\d{2}-?\d{7}|(\+92|0092)-?3\d{2}-?\d{7})$"
             );
         }
 
-
-        
         private string NormalizePhone(string phone)
         {
             phone = phone.Trim();
 
-            
             phone = phone
                 .Replace(" ", "")
                 .Replace("-", "");
 
             if (phone.StartsWith("+92"))
             {
-                phone =
-                    "0" + phone.Substring(3);
+                phone = "0" + phone.Substring(3);
             }
 
             if (phone.StartsWith("0092"))
             {
-                phone =
-                    "0" + phone.Substring(4);
+                phone = "0" + phone.Substring(4);
             }
 
             return phone;
         }
-
 
         private bool IsValidCNIC(string? cnic)
         {
@@ -1406,124 +1079,45 @@ namespace WeddingClosetHubs.Controllers
 
             cnic = cnic.Trim();
 
-          
             return Regex.IsMatch(
                 cnic,
                 @"^\d{5}-\d{7}-\d$"
             );
         }
 
-
         private bool IsRawalpindiAddress(string? address)
         {
             if (string.IsNullOrWhiteSpace(address))
                 return false;
 
-            string value =
-                address.Trim().ToLowerInvariant();
-
-            return value.Contains("rawalpindi");
+            return address.Contains(
+                "Rawalpindi",
+                StringComparison.OrdinalIgnoreCase
+            );
         }
-
-
-        private bool HasDetailedAddress(string? address)
-        {
-            if (string.IsNullOrWhiteSpace(address))
-                return false;
-
-            string value =
-                address.Trim().ToLowerInvariant();
-
-
-            bool hasNumber =
-                Regex.IsMatch(
-                    value,
-                    @"\b\d+[a-zA-Z]?(?:[-/]\d+)?\b"
-                );
-
-
-
-
-            bool hasStreet =
-                value.Contains("street") ||
-                value.Contains("st ") ||
-                value.Contains("road") ||
-                value.Contains("rd ") ||
-                value.Contains("lane") ||
-                value.Contains("block") ||
-                value.Contains("sector") ||
-                value.Contains("phase") ||
-                value.Contains("mohalla") ||
-                value.Contains("colony");
-
-
-
-
-            bool hasArea =
-                value.Contains("saddar") ||
-                value.Contains("6th road") ||
-                value.Contains("sixth road") ||
-                value.Contains("askari") ||
-                value.Contains("scheme") ||
-                value.Contains("satellite town") ||
-                value.Contains("commercial market") ||
-                value.Contains("chandni chowk") ||
-                value.Contains("peshawar road") ||
-                value.Contains("murree road") ||
-                value.Contains("committee chowk") ||
-                value.Contains("bahria") ||
-                value.Contains("chaklala") ||
-                value.Contains("westridge") ||
-                value.Contains("lalazar") ||
-                value.Contains("dhoke") ||
-                value.Contains("tench") ||
-                value.Contains("adiala") ||
-                value.Contains("koral");
-
-
-            bool hasRawalpindi =
-                value.Contains("rawalpindi");
-
-
-            return hasNumber &&
-                   hasStreet &&
-                   hasArea &&
-                   hasRawalpindi;
-        }
-
 
         private bool IsAllowedImage(IFormFile? file)
         {
-            if (file == null ||
-                file.Length == 0)
+            if (file == null || file.Length == 0)
             {
                 return false;
             }
-
 
             if (file.Length > MaxImageSize)
             {
                 return false;
             }
 
-
             string extension =
-                Path.GetExtension(
-                    file.FileName
-                ).ToLowerInvariant();
+                Path.GetExtension(file.FileName).ToLowerInvariant();
 
-
-            if (!AllowedImageExtensions.Contains(
-                extension))
+            if (!AllowedImageExtensions.Contains(extension))
             {
                 return false;
             }
 
-
             string contentType =
-                file.ContentType?.ToLowerInvariant()
-                ?? "";
-
+                file.ContentType?.ToLowerInvariant() ?? "";
 
             if (contentType != "image/jpeg" &&
                 contentType != "image/png")
@@ -1531,22 +1125,15 @@ namespace WeddingClosetHubs.Controllers
                 return false;
             }
 
-
             return true;
         }
 
-
         private async Task LoadRoles()
         {
-            ViewBag.Roles =
-                await _context.Roles
-                    .Where(
-                        r => r.RoleName != "Admin"
-                    )
-                    .OrderBy(
-                        r => r.RoleId
-                    )
-                    .ToListAsync();
+            ViewBag.Roles = await _context.Roles
+                .Where(r => r.RoleName != "Admin")
+                .OrderBy(r => r.RoleId)
+                .ToListAsync();
         }
     }
 }

@@ -14,10 +14,6 @@
         ViewBag.SubCategories as List<string>
         ?? new List<string>();
 
-    var standardSizes =
-        ViewBag.StandardSizes as List<string>
-        ?? new List<string>();
-
     string categoryDataJson =
         ViewBag.CategoryDataJson as string ?? "{}";
 }
@@ -100,10 +96,10 @@
             border-radius: 7px;
         }
 
-            .btn-save:hover {
-                background: #5f0018;
-                color: white;
-            }
+        .btn-save:hover {
+            background: #5f0018;
+            color: white;
+        }
 
         .btn-cancel {
             background: #6c757d;
@@ -112,10 +108,10 @@
             border-radius: 7px;
         }
 
-            .btn-cancel:hover {
-                background: #5a6268;
-                color: white;
-            }
+        .btn-cancel:hover {
+            background: #5a6268;
+            color: white;
+        }
 
         .measurement-box {
             background: #fff8e1;
@@ -161,22 +157,22 @@
             transition: .2s ease;
         }
 
-            .option-card:hover {
-                border-color: #d4af37;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
-            }
+        .option-card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+        }
 
-            .option-card.sale-card {
-                background: #fffafa;
-            }
+        .option-card.sale-card {
+            background: #fffafa;
+        }
 
-            .option-card.rental-card {
-                background: #fffdf5;
-            }
+        .option-card.rental-card {
+            background: #fffdf5;
+        }
 
-            .option-card.negotiation-card {
-                background: #faf7fb;
-            }
+        .option-card.negotiation-card {
+            background: #faf7fb;
+        }
 
         .option-title {
             color: #800020;
@@ -225,10 +221,6 @@
             font-size: 14px;
         }
 
-        .buy-disabled-note {
-            display: none;
-        }
-
         @@media (max-width: 768px) {
 
             .main-container {
@@ -246,6 +238,7 @@
             .brand {
                 font-size: 18px;
             }
+
         }
 
     </style>
@@ -503,13 +496,6 @@
                             -- Select Size --
                         </option>
 
-                        @foreach (var size in standardSizes)
-                        {
-                            <option value="@size">
-                                @size
-                            </option>
-                        }
-
                     </select>
 
                     <span asp-validation-for="Size"
@@ -528,7 +514,8 @@
 
                     <select name="Size"
                             id="shoeSize"
-                            class="form-select">
+                            class="form-select"
+                            disabled>
 
                         <option value="">
                             -- Select Shoe Size --
@@ -1136,9 +1123,9 @@
         const shopCategory =
             @Html.Raw(
                 System.Text.Json.JsonSerializer.Serialize(
-                        shopCategory.ToLowerInvariant()
+                    shopCategory.ToLowerInvariant()
                 )
-                        );
+            );
 
         const subCategoryData =
             @Html.Raw(categoryDataJson);
@@ -1154,6 +1141,9 @@
 
         const customBox =
             document.getElementById("customMeasurementBox");
+
+        const hasCustomMeasurement =
+            document.getElementById("hasCustomMeasurement");
 
         const normalSizeSection =
             document.getElementById("normalSizeSection");
@@ -1231,6 +1221,66 @@
 
         ];
 
+        const clothingSizes = [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+        ];
+
+        const shoeSizes = [
+            "36",
+            "37",
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45"
+        ];
+
+        function setClothingSizes() {
+
+            sizeSelect.innerHTML =
+                '<option value="">-- Select Size --</option>';
+
+            clothingSizes.forEach(function (size) {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = size;
+                option.textContent = size;
+
+                sizeSelect.appendChild(option);
+
+            });
+
+        }
+
+        function setShoeSizes() {
+
+            shoeSize.innerHTML =
+                '<option value="">-- Select Shoe Size --</option>';
+
+            shoeSizes.forEach(function (size) {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = size;
+                option.textContent = size;
+
+                shoeSize.appendChild(option);
+
+            });
+
+        }
+
         function loadSubCategories() {
 
             const selectedCategory =
@@ -1249,7 +1299,7 @@
                 Object.keys(subCategoryData).find(function (key) {
 
                     return key.toLowerCase() ===
-                           selectedCategory.toLowerCase();
+                        selectedCategory.toLowerCase();
 
                 });
 
@@ -1282,20 +1332,32 @@
 
         function updateProductOptions() {
 
-            const selected =
+            const selectedCategory =
+                categorySelect.value
+                    .trim()
+                    .toLowerCase();
+
+            const selectedSubCategory =
                 subCategorySelect.value
                     .trim()
                     .toLowerCase();
 
+            const combinedCategory =
+                selectedCategory + " " + selectedSubCategory;
+
             customBox.style.display = "none";
 
-            shoeSizeSection.style.display = "none";
+            hasCustomMeasurement.checked = false;
 
             normalSizeSection.style.display = "block";
+
+            shoeSizeSection.style.display = "none";
 
             sizeSelect.disabled = false;
 
             shoeSize.disabled = true;
+
+            setClothingSizes();
 
             if (
                 shopCategory === "footwear" ||
@@ -1312,6 +1374,8 @@
 
                 shoeSize.disabled = false;
 
+                setShoeSizes();
+
                 return;
             }
 
@@ -1321,6 +1385,8 @@
             ) {
 
                 normalSizeSection.style.display = "none";
+
+                shoeSizeSection.style.display = "none";
 
                 productType.value = "Jewellery";
 
@@ -1338,6 +1404,8 @@
 
                 normalSizeSection.style.display = "none";
 
+                shoeSizeSection.style.display = "none";
+
                 productType.value = "Accessories";
 
                 sizeSelect.disabled = true;
@@ -1352,16 +1420,22 @@
                 shopCategory === "guest wear"
             ) {
 
+                normalSizeSection.style.display = "block";
+
+                shoeSizeSection.style.display = "none";
+
                 productType.value =
                     "Wedding Guest Wear";
-
-                customBox.style.display = "none";
-
-                normalSizeSection.style.display = "block";
 
                 sizeSelect.disabled = false;
 
                 shoeSize.disabled = true;
+
+                customBox.style.display = "none";
+
+                hasCustomMeasurement.checked = false;
+
+                setClothingSizes();
 
                 return;
             }
@@ -1369,15 +1443,15 @@
             const isDress =
                 dressKeywords.some(function (keyword) {
 
-                    return selected.includes(keyword);
+                    return combinedCategory.includes(keyword);
 
                 });
 
             if (isDress) {
 
-                customBox.style.display = "block";
-
                 normalSizeSection.style.display = "block";
+
+                shoeSizeSection.style.display = "none";
 
                 productType.value =
                     "Dress / Custom Size";
@@ -1386,8 +1460,16 @@
 
                 shoeSize.disabled = true;
 
+                customBox.style.display = "block";
+
+                setClothingSizes();
+
                 return;
             }
+
+            normalSizeSection.style.display = "block";
+
+            shoeSizeSection.style.display = "none";
 
             productType.value =
                 "Standard Product";
@@ -1395,6 +1477,8 @@
             sizeSelect.disabled = false;
 
             shoeSize.disabled = true;
+
+            setClothingSizes();
 
         }
 
@@ -1715,6 +1799,10 @@
             "DOMContentLoaded",
             function () {
 
+                setClothingSizes();
+
+                setShoeSizes();
+
                 if (shopCategory) {
 
                     const matchingOption =
@@ -1756,4 +1844,3 @@
 </body>
 
 </html>
-

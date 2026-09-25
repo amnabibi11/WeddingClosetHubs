@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WeddingClosetHubs.Models;
 
@@ -11,9 +12,11 @@ using WeddingClosetHubs.Models;
 namespace WeddingClosetHubs.Migrations
 {
     [DbContext(typeof(WeddingClosetHubsContext))]
-    partial class WeddingClosetHubsContextModelSnapshot : ModelSnapshot
+    [Migration("20260923084045_AddCompleteRentalReturnRefundFlow")]
+    partial class AddCompleteRentalReturnRefundFlow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -432,14 +435,6 @@ namespace WeddingClosetHubs.Migrations
 
                     b.Property<decimal>("RefundAmount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("RefundPreferenceAccount")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("RefundPreferenceMethod")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("RentalConditions")
                         .HasColumnType("nvarchar(max)");

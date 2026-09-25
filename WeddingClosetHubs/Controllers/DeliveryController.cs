@@ -20,18 +20,13 @@ namespace WeddingClosetHubs.Controllers
 
         private bool IsDeliveryLoggedIn()
         {
-            int? userId =
-                HttpContext.Session.GetInt32("UserId");
-
-            string? role =
-                HttpContext.Session.GetString("RoleName");
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            string? role = HttpContext.Session.GetString("RoleName");
 
             return userId.HasValue &&
                    userId.Value > 0 &&
                    !string.IsNullOrWhiteSpace(role) &&
-                   role.Equals(
-                       "Delivery",
-                       StringComparison.OrdinalIgnoreCase);
+                   role.Equals("Delivery", StringComparison.OrdinalIgnoreCase);
         }
 
         private int? GetDeliveryUserId()
@@ -43,15 +38,12 @@ namespace WeddingClosetHubs.Controllers
         {
             HttpContext.Session.Clear();
 
-            return RedirectToAction(
-                "Login",
-                "Account");
+            return RedirectToAction("Login", "Account");
         }
 
         private async Task<DeliveryBoy?> GetDeliveryBoy()
         {
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return null;
@@ -65,24 +57,18 @@ namespace WeddingClosetHubs.Controllers
 
         private async Task<bool> IsApprovedDeliveryBoy()
         {
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             if (deliveryBoy == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(
-                    deliveryBoy.VerificationStatus))
-            {
+            if (string.IsNullOrWhiteSpace(deliveryBoy.VerificationStatus))
                 return false;
-            }
 
             if (!deliveryBoy.VerificationStatus.Equals(
                     "Approved",
                     StringComparison.OrdinalIgnoreCase))
-            {
                 return false;
-            }
 
             if (deliveryBoy.User == null)
                 return false;
@@ -95,7 +81,6 @@ namespace WeddingClosetHubs.Controllers
 
             return true;
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -110,27 +95,21 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Your delivery account has not been approved by admin.";
 
-                return RedirectToAction(
-                    "Login",
-                    "Account");
+                return RedirectToAction("Login", "Account");
             }
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             if (deliveryBoy == null)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                deliveryBoy.UserId;
-
+            int deliveryUserId = deliveryBoy.UserId;
 
             int totalAssigned =
                 await _context.Orders
                     .CountAsync(o =>
                         o.DeliveryId == deliveryUserId &&
                         o.OrderStatus != "Cancelled");
-
 
             int activeOrders =
                 await _context.Orders
@@ -148,7 +127,6 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Out for Delivery"
                         ));
 
-
             int deliveredOrders =
                 await _context.Orders
                     .CountAsync(o =>
@@ -158,7 +136,6 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Delivered" ||
                             o.OrderStatus == "Completed"
                         ));
-
 
             int codOrders =
                 await _context.Orders
@@ -170,7 +147,6 @@ namespace WeddingClosetHubs.Controllers
                             o.PaymentMethod == "Cash on Delivery"
                         ));
 
-
             decimal codCollected =
                 await _context.Orders
                     .Where(o =>
@@ -181,9 +157,7 @@ namespace WeddingClosetHubs.Controllers
                             o.PaymentMethod == "Cash on Delivery"
                         ) &&
                         o.DeliveryCollectedAmount > 0)
-                    .SumAsync(o =>
-                        o.DeliveryCollectedAmount);
-
+                    .SumAsync(o => o.DeliveryCollectedAmount);
 
             decimal totalEarnings =
                 await _context.Orders
@@ -194,9 +168,7 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Delivered" ||
                             o.OrderStatus == "Completed"
                         ))
-                    .SumAsync(o =>
-                        o.DeliveryCharges);
-
+                    .SumAsync(o => o.DeliveryCharges);
 
             decimal paidEarnings =
                 await _context.Orders
@@ -208,9 +180,7 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Completed"
                         ) &&
                         o.DeliveryPaymentStatus == "Paid")
-                    .SumAsync(o =>
-                        o.DeliveryPaidAmount);
-
+                    .SumAsync(o => o.DeliveryPaidAmount);
 
             decimal pendingEarnings =
                 await _context.Orders
@@ -222,88 +192,45 @@ namespace WeddingClosetHubs.Controllers
                             o.OrderStatus == "Completed"
                         ) &&
                         o.DeliveryPaymentStatus != "Paid")
-                    .SumAsync(o =>
-                        o.DeliveryCharges);
+                    .SumAsync(o => o.DeliveryCharges);
 
+            ViewBag.PaymentMethod = deliveryBoy.PaymentMethod;
+            ViewBag.PaymentAccount = deliveryBoy.PaymentAccount;
 
-            ViewBag.PaymentMethod =
-                deliveryBoy.PaymentMethod;
-
-            ViewBag.PaymentAccount =
-                deliveryBoy.PaymentAccount;
-
-
-            string accountStatus;
-
-            if (deliveryBoy.User != null &&
+            string accountStatus =
+                deliveryBoy.User != null &&
                 deliveryBoy.User.IsApproved &&
                 deliveryBoy.User.Status &&
                 string.Equals(
                     deliveryBoy.VerificationStatus,
                     "Approved",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                accountStatus = "Active";
-            }
-            else
-            {
-                accountStatus = "Pending";
-            }
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "Active"
+                    : "Pending";
 
-            ViewBag.VerificationStatus =
-                accountStatus;
-
-            
-            ViewBag.DeliveryBoy =
-                deliveryBoy;
-
-            ViewBag.TotalAssigned =
-                totalAssigned;
-
-            ViewBag.ActiveOrders =
-                activeOrders;
-
-            ViewBag.PendingOrders =
-                activeOrders;
-
-            ViewBag.DeliveredOrders =
-                deliveredOrders;
-
-            ViewBag.CompletedOrders =
-                deliveredOrders;
-
-            
-
-            ViewBag.CodOrders =
-                codOrders;
-
-            ViewBag.CodCollected =
-                codCollected;
-
-            ViewBag.TotalEarnings =
-                totalEarnings;
-
-            ViewBag.PaidEarnings =
-                paidEarnings;
-
-            ViewBag.PendingEarnings =
-                pendingEarnings;
-
-            ViewBag.PendingPayment =
-                pendingEarnings;
+            ViewBag.VerificationStatus = accountStatus;
+            ViewBag.DeliveryBoy = deliveryBoy;
+            ViewBag.TotalAssigned = totalAssigned;
+            ViewBag.ActiveOrders = activeOrders;
+            ViewBag.PendingOrders = activeOrders;
+            ViewBag.DeliveredOrders = deliveredOrders;
+            ViewBag.CompletedOrders = deliveredOrders;
+            ViewBag.CodOrders = codOrders;
+            ViewBag.CodCollected = codCollected;
+            ViewBag.TotalEarnings = totalEarnings;
+            ViewBag.PaidEarnings = paidEarnings;
+            ViewBag.PendingEarnings = pendingEarnings;
+            ViewBag.PendingPayment = pendingEarnings;
 
             ViewBag.AssignedZone =
-                string.IsNullOrWhiteSpace(
-                    deliveryBoy.AssignedZone)
+                string.IsNullOrWhiteSpace(deliveryBoy.AssignedZone)
                     ? "Not Assigned"
                     : deliveryBoy.AssignedZone.Trim();
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
-            ViewBag.CurrentUserId =
-                deliveryUserId;
+            ViewBag.CurrentUserId = deliveryUserId;
 
             return View();
         }
@@ -317,14 +244,12 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             if (deliveryBoy == null)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                deliveryBoy.UserId;
+            int deliveryUserId = deliveryBoy.UserId;
 
             string assignedZone =
                 deliveryBoy.AssignedZone?.Trim() ?? "";
@@ -346,30 +271,33 @@ namespace WeddingClosetHubs.Controllers
                                     o.OrderStatus == "Ready" ||
                                     o.OrderStatus == "Confirmed"
                                 ) &&
-                                !string.IsNullOrWhiteSpace(
-                                    assignedZone) &&
-                                !string.IsNullOrWhiteSpace(
-                                    o.DeliveryAddress) &&
-                                o.DeliveryAddress.Contains(
-                                    assignedZone)
+                                !string.IsNullOrWhiteSpace(assignedZone) &&
+                                !string.IsNullOrWhiteSpace(o.DeliveryAddress) &&
+                                o.DeliveryAddress.Contains(assignedZone)
+                            )
+                            ||
+                            (
+                                o.DeliveryId == null &&
+                                o.OrderDetails.Any(od =>
+                                    od.PurchaseType == "Rent" &&
+                                    od.RentalReturnStatus == "Return Requested") &&
+                                !string.IsNullOrWhiteSpace(assignedZone) &&
+                                !string.IsNullOrWhiteSpace(o.DeliveryAddress) &&
+                                o.DeliveryAddress.Contains(assignedZone)
                             )
                         ))
-                    .OrderByDescending(
-                        o => o.CreatedDate)
+                    .OrderByDescending(o => o.CreatedDate)
                     .ToListAsync();
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
-                string.IsNullOrWhiteSpace(
-                    assignedZone)
+                string.IsNullOrWhiteSpace(assignedZone)
                     ? "Not Assigned"
                     : assignedZone;
 
-            ViewBag.CurrentUserId =
-                deliveryUserId;
+            ViewBag.CurrentUserId = deliveryUserId;
 
             return View(orders);
         }
@@ -383,13 +311,11 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            return RedirectToAction(
-                "Orders");
+            return RedirectToAction("Orders");
         }
 
         [HttpGet]
-        public async Task<IActionResult> OrderDetails(
-            int id)
+        public async Task<IActionResult> OrderDetails(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
@@ -397,59 +323,49 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             if (deliveryBoy == null)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                deliveryBoy.UserId;
+            int deliveryUserId = deliveryBoy.UserId;
 
             string assignedZone =
                 deliveryBoy.AssignedZone?.Trim() ?? "";
 
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Shop)
-                    .Include(o => o.Delivery)
-                    .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Product)
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id);
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                .Include(o => o.Delivery)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
-                TempData["Error"] =
-                    "Order not found.";
-
-                return RedirectToAction(
-                    "Orders");
+                TempData["Error"] = "Order not found.";
+                return RedirectToAction("Orders");
             }
 
             if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "Cancelled orders are not available.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             string orderStatus =
-                string.IsNullOrWhiteSpace(
-                    order.OrderStatus)
+                string.IsNullOrWhiteSpace(order.OrderStatus)
                     ? "Pending"
                     : order.OrderStatus.Trim();
 
             bool belongsToDeliveryBoy =
                 order.DeliveryId.HasValue &&
-                order.DeliveryId.Value ==
-                deliveryUserId;
+                order.DeliveryId.Value == deliveryUserId;
 
             bool isReady =
                 orderStatus.Equals(
@@ -464,47 +380,95 @@ namespace WeddingClosetHubs.Controllers
             bool availableInZone =
                 !order.DeliveryId.HasValue &&
                 (isReady || isConfirmed) &&
-                !string.IsNullOrWhiteSpace(
-                    assignedZone) &&
-                !string.IsNullOrWhiteSpace(
-                    order.DeliveryAddress) &&
+                !string.IsNullOrWhiteSpace(assignedZone) &&
+                !string.IsNullOrWhiteSpace(order.DeliveryAddress) &&
                 order.DeliveryAddress.Contains(
                     assignedZone,
                     StringComparison.OrdinalIgnoreCase);
 
+            bool rentalReturnAvailable =
+                !order.DeliveryId.HasValue &&
+                !string.IsNullOrWhiteSpace(assignedZone) &&
+                !string.IsNullOrWhiteSpace(order.DeliveryAddress) &&
+                order.DeliveryAddress.Contains(
+                    assignedZone,
+                    StringComparison.OrdinalIgnoreCase) &&
+                order.OrderDetails.Any(d =>
+                    string.Equals(
+                        d.PurchaseType,
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(
+                        d.RentalReturnStatus,
+                        "Return Requested",
+                        StringComparison.OrdinalIgnoreCase));
+
+            bool assignedRentalReturn =
+                belongsToDeliveryBoy &&
+                order.OrderDetails.Any(d =>
+                    string.Equals(
+                        d.PurchaseType,
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    (
+                        string.Equals(
+                            d.RentalReturnStatus,
+                            "Return Requested",
+                            StringComparison.OrdinalIgnoreCase)
+                        ||
+                        string.Equals(
+                            d.RentalReturnStatus,
+                            "Return Picked Up",
+                            StringComparison.OrdinalIgnoreCase)
+                    ));
+
             if (!belongsToDeliveryBoy &&
-                !availableInZone)
+                !availableInZone &&
+                !rentalReturnAvailable &&
+                !assignedRentalReturn)
             {
                 TempData["Error"] =
                     "You are not authorized to view this order.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
-            ViewBag.CurrentUserId =
-                deliveryUserId;
+            ViewBag.CurrentUserId = deliveryUserId;
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
-                string.IsNullOrWhiteSpace(
-                    assignedZone)
+                string.IsNullOrWhiteSpace(assignedZone)
                     ? "Not Assigned"
                     : assignedZone;
 
-            ViewBag.OrderStatus =
-                orderStatus;
+            ViewBag.OrderStatus = orderStatus;
+
+            ViewBag.IsRentalReturn =
+                order.OrderDetails.Any(d =>
+                    string.Equals(
+                        d.PurchaseType,
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    (
+                        string.Equals(
+                            d.RentalReturnStatus,
+                            "Return Requested",
+                            StringComparison.OrdinalIgnoreCase)
+                        ||
+                        string.Equals(
+                            d.RentalReturnStatus,
+                            "Return Picked Up",
+                            StringComparison.OrdinalIgnoreCase)
+                    ));
 
             return View(order);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AcceptOrder(
-            int id)
+        public async Task<IActionResult> AcceptOrder(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
@@ -512,202 +476,155 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             if (deliveryBoy == null)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                deliveryBoy.UserId;
+            int deliveryUserId = deliveryBoy.UserId;
 
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Shop)
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id);
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
-                TempData["Error"] =
-                    "Order not found.";
-
-                return RedirectToAction(
-                    "Orders");
+                TempData["Error"] = "Order not found.";
+                return RedirectToAction("Orders");
             }
 
             if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "Cancelled orders cannot be accepted.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             string currentStatus =
-                string.IsNullOrWhiteSpace(
-                    order.OrderStatus)
+                string.IsNullOrWhiteSpace(order.OrderStatus)
                     ? "Pending"
                     : order.OrderStatus.Trim();
 
-            if (order.DeliveryId.HasValue)
+            bool isReady =
+                currentStatus.Equals(
+                    "Ready",
+                    StringComparison.OrdinalIgnoreCase);
+
+            bool isConfirmed =
+                currentStatus.Equals(
+                    "Confirmed",
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!isReady && !isConfirmed)
             {
-                if (order.DeliveryId.Value ==
-                    deliveryUserId)
-                {
-                    if (currentStatus.Equals(
-                            "Ready",
-                            StringComparison.OrdinalIgnoreCase)
-                        ||
-                        currentStatus.Equals(
-                            "Confirmed",
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        order.OrderStatus =
-                            "Assigned";
+                TempData["Error"] =
+                    $"This order cannot be accepted in its current status: {currentStatus}.";
 
-                        await CreateNotification(
-                            order.CustomerId,
-                            "Delivery Assignment Confirmed",
-                            $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has confirmed delivery of Order #{order.OrderId}.",
-                            "Order",
-                            order.OrderId);
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id });
+            }
 
-                        var admin =
-                            await GetAdmin();
-
-                        if (admin != null)
-                        {
-                            await CreateNotification(
-                                admin.UserId,
-                                "Delivery Assignment Confirmed",
-                                $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} confirmed Order #{order.OrderId}.",
-                                "Order",
-                                order.OrderId);
-                        }
-
-                        await _context.SaveChangesAsync();
-
-                        TempData["Success"] =
-                            $"Order #{order.OrderId} is now assigned to you.";
-
-                        return RedirectToAction(
-                            "OrderDetails",
-                            new
-                            {
-                                id = order.OrderId
-                            });
-                    }
-
-                    TempData["Error"] =
-                        "This order is already assigned to you.";
-
-                    return RedirectToAction(
-                        "OrderDetails",
-                        new
-                        {
-                            id = order.OrderId
-                        });
-                }
-
+            if (order.DeliveryId.HasValue &&
+                order.DeliveryId.Value != deliveryUserId)
+            {
                 TempData["Error"] =
                     "This order has already been assigned to another delivery boy.";
 
                 return RedirectToAction(
-                    "Orders");
+                    "OrderDetails",
+                    new { id });
             }
 
-            if (!currentStatus.Equals(
-                    "Ready",
-                    StringComparison.OrdinalIgnoreCase)
-                &&
-                !currentStatus.Equals(
-                    "Confirmed",
-                    StringComparison.OrdinalIgnoreCase))
+            if (!order.DeliveryId.HasValue)
             {
-                TempData["Error"] =
-                    "This order is not available for delivery.";
+                string assignedZone =
+                    deliveryBoy.AssignedZone?.Trim() ?? "";
 
-                return RedirectToAction(
-                    "Orders");
-            }
+                if (string.IsNullOrWhiteSpace(assignedZone))
+                {
+                    TempData["Error"] =
+                        "Admin has not assigned a delivery zone to you.";
 
-            string assignedZone =
-                deliveryBoy.AssignedZone?.Trim() ?? "";
+                    return RedirectToAction("Orders");
+                }
 
-            if (string.IsNullOrWhiteSpace(
-                    assignedZone))
-            {
-                TempData["Error"] =
-                    "Admin has not assigned a delivery zone to you.";
+                if (string.IsNullOrWhiteSpace(order.DeliveryAddress))
+                {
+                    TempData["Error"] =
+                        "This order does not have a delivery address.";
 
-                return RedirectToAction(
-                    "Orders");
-            }
+                    return RedirectToAction("Orders");
+                }
 
-            if (string.IsNullOrWhiteSpace(
-                    order.DeliveryAddress))
-            {
-                TempData["Error"] =
-                    "This order does not have a delivery address.";
-
-                return RedirectToAction(
-                    "Orders");
-            }
-
-            if (!order.DeliveryAddress.Contains(
+                if (!order.DeliveryAddress.Contains(
                     assignedZone,
                     StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "This order is outside your assigned delivery zone.";
+                {
+                    TempData["Error"] =
+                        "This order is outside your assigned delivery zone.";
 
-                return RedirectToAction(
-                    "Orders");
-            }
+                    return RedirectToAction("Orders");
+                }
 
-            order.DeliveryId =
-                deliveryUserId;
+                order.DeliveryId = deliveryUserId;
 
-            order.OrderStatus =
-                "Assigned";
-
-            await CreateNotification(
-                order.CustomerId,
-                "Delivery Boy Assigned",
-                $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has been assigned to your Order #{order.OrderId}.",
-                "Order",
-                order.OrderId);
-
-            var assignedAdmin =
-                await GetAdmin();
-
-            if (assignedAdmin != null)
-            {
                 await CreateNotification(
-                    assignedAdmin.UserId,
-                    "Order Accepted by Delivery Boy",
-                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has accepted Order #{order.OrderId}.",
+                    order.CustomerId,
+                    "Delivery Boy Assigned",
+                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has been assigned to your Order #{order.OrderId}.",
                     "Order",
                     order.OrderId);
+
+                var assignedAdmin = await GetAdmin();
+
+                if (assignedAdmin != null)
+                {
+                    await CreateNotification(
+                        assignedAdmin.UserId,
+                        "Order Accepted by Delivery Boy",
+                        $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has accepted Order #{order.OrderId}.",
+                        "Order",
+                        order.OrderId);
+                }
             }
+            else
+            {
+                await CreateNotification(
+                    order.CustomerId,
+                    "Delivery Assignment Confirmed",
+                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has confirmed delivery of Order #{order.OrderId}.",
+                    "Order",
+                    order.OrderId);
+
+                var admin = await GetAdmin();
+
+                if (admin != null)
+                {
+                    await CreateNotification(
+                        admin.UserId,
+                        "Delivery Assignment Confirmed",
+                        $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} confirmed Order #{order.OrderId}.",
+                        "Order",
+                        order.OrderId);
+                }
+            }
+
+            order.OrderStatus = "Assigned";
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                $"Order #{order.OrderId} has been assigned to you.";
+                $"Order #{order.OrderId} is now assigned to you.";
 
             return RedirectToAction(
                 "OrderDetails",
-                new
-                {
-                    id = order.OrderId
-                });
+                new { id = order.OrderId });
         }
 
         [HttpPost]
@@ -722,42 +639,39 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Shop)
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id &&
-                        o.DeliveryId == deliveryUserId);
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.DeliveryId == deliveryUserId);
 
             if (order == null)
             {
                 TempData["Error"] =
                     "Order not found or it is not assigned to you.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "Cancelled orders cannot be updated.";
 
                 return RedirectToAction(
-                    "Orders");
+                    "OrderDetails",
+                    new { id });
             }
 
             if (string.IsNullOrWhiteSpace(status))
@@ -770,23 +684,20 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            status =
-                status.Trim();
+            status = status.Trim();
 
             string currentStatus =
-                string.IsNullOrWhiteSpace(
-                    order.OrderStatus)
+                string.IsNullOrWhiteSpace(order.OrderStatus)
                     ? "Pending"
                     : order.OrderStatus.Trim();
 
-           
             if (status.Equals(
-                    "Picked Up",
-                    StringComparison.OrdinalIgnoreCase))
+                "Picked Up",
+                StringComparison.OrdinalIgnoreCase))
             {
                 if (!currentStatus.Equals(
-                        "Assigned",
-                        StringComparison.OrdinalIgnoreCase))
+                    "Assigned",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     TempData["Error"] =
                         $"Order must be Assigned before it can be marked as Picked Up. Current status: {currentStatus}.";
@@ -796,8 +707,7 @@ namespace WeddingClosetHubs.Controllers
                         new { id });
                 }
 
-                order.OrderStatus =
-                    "Picked Up";
+                order.OrderStatus = "Picked Up";
 
                 await CreateNotification(
                     order.CustomerId,
@@ -806,14 +716,13 @@ namespace WeddingClosetHubs.Controllers
                     "Order",
                     order.OrderId);
             }
-
             else if (status.Equals(
-                         "Out for Delivery",
-                         StringComparison.OrdinalIgnoreCase))
+                "Out for Delivery",
+                StringComparison.OrdinalIgnoreCase))
             {
                 if (!currentStatus.Equals(
-                        "Picked Up",
-                        StringComparison.OrdinalIgnoreCase))
+                    "Picked Up",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     TempData["Error"] =
                         $"Order must be Picked Up before it can be marked as Out for Delivery. Current status: {currentStatus}.";
@@ -823,8 +732,7 @@ namespace WeddingClosetHubs.Controllers
                         new { id });
                 }
 
-                order.OrderStatus =
-                    "Out for Delivery";
+                order.OrderStatus = "Out for Delivery";
 
                 await CreateNotification(
                     order.CustomerId,
@@ -833,14 +741,13 @@ namespace WeddingClosetHubs.Controllers
                     "Order",
                     order.OrderId);
             }
-
             else if (status.Equals(
-                         "Delivered",
-                         StringComparison.OrdinalIgnoreCase))
+                "Delivered",
+                StringComparison.OrdinalIgnoreCase))
             {
                 if (!currentStatus.Equals(
-                        "Out for Delivery",
-                        StringComparison.OrdinalIgnoreCase))
+                    "Out for Delivery",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     TempData["Error"] =
                         $"Order must be Out for Delivery before it can be marked as Delivered. Current status: {currentStatus}.";
@@ -851,8 +758,7 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 bool isCod =
-                    IsCashOnDelivery(
-                        order.PaymentMethod);
+                    IsCashOnDelivery(order.PaymentMethod);
 
                 if (isCod &&
                     order.DeliveryCollectedAmount <
@@ -866,11 +772,8 @@ namespace WeddingClosetHubs.Controllers
                         new { id });
                 }
 
-                order.OrderStatus =
-                    "Delivered";
-
-                order.DeliveryPaymentStatus =
-                    "Pending";
+                order.OrderStatus = "Delivered";
+                order.DeliveryPaymentStatus = "Pending";
 
                 await CreateNotification(
                     order.CustomerId,
@@ -889,8 +792,7 @@ namespace WeddingClosetHubs.Controllers
                         order.OrderId);
                 }
 
-                var admin =
-                    await GetAdmin();
+                var admin = await GetAdmin();
 
                 if (admin != null)
                 {
@@ -900,16 +802,15 @@ namespace WeddingClosetHubs.Controllers
                         $"Order #{order.OrderId} has been delivered. Delivery payout of Rs. {order.DeliveryCharges:N2} is pending.",
                         "Payment",
                         order.OrderId);
-
-                    await CreateNotification(
-                        deliveryUserId,
-                        "Delivery Completed",
-                        $"Order #{order.OrderId} was delivered successfully. Your delivery payment of Rs. {order.DeliveryCharges:N2} is now pending Admin payment.",
-                        "Payment",
-                        order.OrderId);
                 }
-            }
 
+                await CreateNotification(
+                    deliveryUserId,
+                    "Delivery Completed",
+                    $"Order #{order.OrderId} was delivered successfully. Your delivery payment of Rs. {order.DeliveryCharges:N2} is now pending Admin payment.",
+                    "Payment",
+                    order.OrderId);
+            }
             else
             {
                 TempData["Error"] =
@@ -932,8 +833,7 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StartDelivery(
-            int id)
+        public async Task<IActionResult> StartDelivery(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
@@ -941,46 +841,41 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            var order =
-                await _context.Orders
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id &&
-                        o.DeliveryId ==
-                        userId.Value);
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.DeliveryId == userId.Value);
 
             if (order == null)
             {
                 TempData["Error"] =
                     "Order not found or it is not assigned to you.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "Cancelled orders cannot be started.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             string currentStatus =
                 order.OrderStatus?.Trim() ?? "";
 
             if (currentStatus.Equals(
-                    "Assigned",
-                    StringComparison.OrdinalIgnoreCase))
+                "Assigned",
+                StringComparison.OrdinalIgnoreCase))
             {
                 return await UpdateDeliveryStatus(
                     id,
@@ -988,8 +883,8 @@ namespace WeddingClosetHubs.Controllers
             }
 
             if (currentStatus.Equals(
-                    "Picked Up",
-                    StringComparison.OrdinalIgnoreCase))
+                "Picked Up",
+                StringComparison.OrdinalIgnoreCase))
             {
                 return await UpdateDeliveryStatus(
                     id,
@@ -1006,8 +901,7 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeliverOrder(
-            int id)
+        public async Task<IActionResult> DeliverOrder(int id)
         {
             return await UpdateDeliveryStatus(
                 id,
@@ -1016,8 +910,7 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CollectCOD(
-            int id)
+        public async Task<IActionResult> CollectCOD(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
@@ -1025,35 +918,31 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id &&
-                        o.DeliveryId == deliveryUserId);
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.DeliveryId == deliveryUserId);
 
             if (order == null)
             {
                 TempData["Error"] =
                     "Order not found or it is not assigned to you.";
 
-                return RedirectToAction(
-                    "Orders");
+                return RedirectToAction("Orders");
             }
 
             if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "COD cannot be collected for a cancelled order.";
@@ -1063,8 +952,7 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            if (!IsCashOnDelivery(
-                    order.PaymentMethod))
+            if (!IsCashOnDelivery(order.PaymentMethod))
             {
                 TempData["Error"] =
                     "This order is not a Cash on Delivery order.";
@@ -1085,13 +973,11 @@ namespace WeddingClosetHubs.Controllers
             }
 
             string currentStatus =
-                order.OrderStatus?.Trim() ??
-                "Pending";
+                order.OrderStatus?.Trim() ?? "Pending";
 
             if (!currentStatus.Equals(
                     "Picked Up",
-                    StringComparison.OrdinalIgnoreCase)
-                &&
+                    StringComparison.OrdinalIgnoreCase) &&
                 !currentStatus.Equals(
                     "Out for Delivery",
                     StringComparison.OrdinalIgnoreCase))
@@ -1104,8 +990,7 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            decimal collectedAmount =
-                order.TotalAmount;
+            decimal collectedAmount = order.TotalAmount;
 
             if (collectedAmount <= 0)
             {
@@ -1117,29 +1002,14 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            order.DeliveryCollectedAmount =
-                collectedAmount;
-
-            order.DeliveryCollectionDate =
-                DateTime.Now;
-
-            order.DeliveryCashHandedToAdmin =
-                false;
-
-            order.DeliveryCashHandoverDate =
-                null;
-
-            order.DeliveryCashHandoverNotes =
-                null;
-
-            order.PaymentStatus =
-                "Pending";
-
-            order.PaymentReceived =
-                false;
-
-            order.PaymentDate =
-                null;
+            order.DeliveryCollectedAmount = collectedAmount;
+            order.DeliveryCollectionDate = DateTime.Now;
+            order.DeliveryCashHandedToAdmin = false;
+            order.DeliveryCashHandoverDate = null;
+            order.DeliveryCashHandoverNotes = null;
+            order.PaymentStatus = "Pending";
+            order.PaymentReceived = false;
+            order.PaymentDate = null;
 
             await CreateNotification(
                 order.CustomerId,
@@ -1148,8 +1018,7 @@ namespace WeddingClosetHubs.Controllers
                 "Payment",
                 order.OrderId);
 
-            var admin =
-                await GetAdmin();
+            var admin = await GetAdmin();
 
             if (admin != null)
             {
@@ -1171,171 +1040,6 @@ namespace WeddingClosetHubs.Controllers
                 new { id });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CollectCodPayment(
-            int id,
-            decimal collectedAmount)
-        {
-            if (!IsDeliveryLoggedIn())
-                return DeliveryLogin();
-
-            if (!await IsApprovedDeliveryBoy())
-                return DeliveryLogin();
-
-            int? userId =
-                GetDeliveryUserId();
-
-            if (!userId.HasValue)
-                return DeliveryLogin();
-
-            int deliveryUserId =
-                userId.Value;
-
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id &&
-                        o.DeliveryId == deliveryUserId);
-
-            if (order == null)
-            {
-                TempData["Error"] =
-                    "Order not found or it is not assigned to you.";
-
-                return RedirectToAction(
-                    "Orders");
-            }
-
-            if (string.Equals(
-                    order.OrderStatus,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "COD cannot be collected for a cancelled order.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            if (!IsCashOnDelivery(
-                    order.PaymentMethod))
-            {
-                TempData["Error"] =
-                    "This order is not a Cash on Delivery order.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            if (order.DeliveryCollectedAmount > 0)
-            {
-                TempData["Error"] =
-                    "COD payment has already been collected.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            string currentStatus =
-                order.OrderStatus?.Trim() ??
-                "Pending";
-
-            if (!currentStatus.Equals(
-                    "Picked Up",
-                    StringComparison.OrdinalIgnoreCase)
-                &&
-                !currentStatus.Equals(
-                    "Out for Delivery",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "COD can only be collected after pickup.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            if (collectedAmount <= 0)
-            {
-                TempData["Error"] =
-                    "Please enter a valid collected amount.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            if (collectedAmount != order.TotalAmount)
-            {
-                TempData["Error"] =
-                    $"Customer must pay the exact order total of Rs. {order.TotalAmount:N2}.";
-
-                return RedirectToAction(
-                    "OrderDetails",
-                    new { id });
-            }
-
-            order.DeliveryCollectedAmount =
-                collectedAmount;
-
-            order.DeliveryCollectionDate =
-                DateTime.Now;
-
-            order.DeliveryCashHandedToAdmin =
-                false;
-
-            order.DeliveryCashHandoverDate =
-                null;
-
-            order.DeliveryCashHandoverNotes =
-                null;
-
-            order.PaymentStatus =
-                "Pending";
-
-            order.PaymentReceived =
-                false;
-
-            order.PaymentDate =
-                null;
-
-            await CreateNotification(
-                order.CustomerId,
-                "COD Cash Collected",
-                $"The delivery boy has collected Rs. {collectedAmount:N2} for Order #{order.OrderId}. Payment is awaiting Admin confirmation.",
-                "Payment",
-                order.OrderId);
-
-            var admin =
-                await GetAdmin();
-
-            if (admin != null)
-            {
-                await CreateNotification(
-                    admin.UserId,
-                    "COD Cash Awaiting Handover",
-                    $"Delivery boy collected Rs. {collectedAmount:N2} for Order #{order.OrderId}. Please confirm when the cash is handed over.",
-                    "Payment",
-                    order.OrderId);
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] =
-                $"COD cash of Rs. {collectedAmount:N2} has been recorded. Payment remains Pending until Admin confirms receipt.";
-
-            return RedirectToAction(
-                "OrderDetails",
-                new { id });
-        }
-
         [HttpGet]
         public async Task<IActionResult> Collections()
         {
@@ -1345,32 +1049,27 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
-            var orders =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Where(o =>
-                        o.DeliveryId == deliveryUserId &&
-                        o.OrderStatus != "Cancelled" &&
-                        o.DeliveryCollectedAmount > 0)
-                    .OrderByDescending(
-                        o => o.DeliveryCollectionDate)
-                    .ToListAsync();
+            var orders = await _context.Orders
+                .Include(o => o.Customer)
+                .Where(o =>
+                    o.DeliveryId == deliveryUserId &&
+                    o.OrderStatus != "Cancelled" &&
+                    o.DeliveryCollectedAmount > 0)
+                .OrderByDescending(
+                    o => o.DeliveryCollectionDate)
+                .ToListAsync();
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             ViewBag.DeliveryName =
-                deliveryBoy?.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy?.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -1378,13 +1077,11 @@ namespace WeddingClosetHubs.Controllers
                     ? "Not Assigned"
                     : deliveryBoy!.AssignedZone!.Trim();
 
-            ViewBag.CurrentUserId =
-                deliveryUserId;
+            ViewBag.CurrentUserId = deliveryUserId;
 
             return View(orders);
         }
 
-       
         [HttpGet]
         public async Task<IActionResult> Payments()
         {
@@ -1394,14 +1091,12 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
             var deliveryBoy =
                 await _context.DeliveryBoys
@@ -1413,8 +1108,7 @@ namespace WeddingClosetHubs.Controllers
                 return DeliveryLogin();
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -1422,14 +1116,9 @@ namespace WeddingClosetHubs.Controllers
                     ? "Not Assigned"
                     : deliveryBoy.AssignedZone.Trim();
 
-            ViewBag.CurrentUserId =
-                deliveryUserId;
-
-            ViewBag.PaymentMethod =
-                deliveryBoy.PaymentMethod;
-
-            ViewBag.PaymentAccount =
-                deliveryBoy.PaymentAccount;
+            ViewBag.CurrentUserId = deliveryUserId;
+            ViewBag.PaymentMethod = deliveryBoy.PaymentMethod;
+            ViewBag.PaymentAccount = deliveryBoy.PaymentAccount;
 
             var orders =
                 await _context.Orders
@@ -1451,8 +1140,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentDetails(
-            int id)
+        public async Task<IActionResult> PaymentDetails(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
@@ -1460,14 +1148,12 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
             var order =
                 await _context.Orders
@@ -1483,16 +1169,13 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Payment record not found.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
-            var deliveryBoy =
-                await GetDeliveryBoy();
+            var deliveryBoy = await GetDeliveryBoy();
 
             ViewBag.DeliveryName =
-                deliveryBoy?.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy?.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -1524,19 +1207,16 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            string method =
-                paymentMethod?.Trim() ?? "";
+            string method = paymentMethod?.Trim() ?? "";
 
             if (!method.Equals(
                     "Easypaisa",
-                    StringComparison.OrdinalIgnoreCase)
-                &&
+                    StringComparison.OrdinalIgnoreCase) &&
                 !method.Equals(
                     "JazzCash",
                     StringComparison.OrdinalIgnoreCase))
@@ -1544,8 +1224,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Please select either Easypaisa or JazzCash.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
             method =
@@ -1563,8 +1242,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Please enter your Easypaisa/JazzCash account number.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
             if (account.Length < 10 ||
@@ -1573,8 +1251,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Please enter a valid Easypaisa/JazzCash account number.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
             var deliveryBoy =
@@ -1587,15 +1264,11 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Delivery profile not found.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
-            deliveryBoy.PaymentMethod =
-                method;
-
-            deliveryBoy.PaymentAccount =
-                account;
+            deliveryBoy.PaymentMethod = method;
+            deliveryBoy.PaymentAccount = account;
 
             await _context.SaveChangesAsync();
 
@@ -1610,8 +1283,7 @@ namespace WeddingClosetHubs.Controllers
             TempData["Success"] =
                 $"{method} payment receiving method and account saved successfully.";
 
-            return RedirectToAction(
-                "Payments");
+            return RedirectToAction("Payments");
         }
 
         [HttpPost]
@@ -1627,14 +1299,12 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                userId.Value;
+            int deliveryUserId = userId.Value;
 
             var order =
                 await _context.Orders
@@ -1647,8 +1317,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Payment record not found.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
             if (string.Equals(
@@ -1659,8 +1328,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Payment cannot be updated for a cancelled order.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
             if (string.Equals(
@@ -1676,13 +1344,11 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            string method =
-                paymentMethod?.Trim() ?? "";
+            string method = paymentMethod?.Trim() ?? "";
 
             if (!method.Equals(
                     "Easypaisa",
-                    StringComparison.OrdinalIgnoreCase)
-                &&
+                    StringComparison.OrdinalIgnoreCase) &&
                 !method.Equals(
                     "JazzCash",
                     StringComparison.OrdinalIgnoreCase))
@@ -1736,27 +1402,19 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Delivery profile not found.";
 
-                return RedirectToAction(
-                    "Payments");
+                return RedirectToAction("Payments");
             }
 
-            deliveryBoy.PaymentMethod =
-                method;
+            deliveryBoy.PaymentMethod = method;
+            deliveryBoy.PaymentAccount = account;
 
-            deliveryBoy.PaymentAccount =
-                account;
-
-            order.DeliveryPaymentMethod =
-                method;
-
-            order.DeliveryPaymentAccount =
-                account;
+            order.DeliveryPaymentMethod = method;
+            order.DeliveryPaymentAccount = account;
 
             if (string.IsNullOrWhiteSpace(
                     order.DeliveryPaymentStatus))
             {
-                order.DeliveryPaymentStatus =
-                    "Pending";
+                order.DeliveryPaymentStatus = "Pending";
             }
 
             await _context.SaveChangesAsync();
@@ -1778,8 +1436,7 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
@@ -1802,19 +1459,16 @@ namespace WeddingClosetHubs.Controllers
                     .ToListAsync();
 
             ViewBag.UnreadNotificationCount =
-                notifications.Count(n =>
-                    !n.IsRead);
+                notifications.Count(n => !n.IsRead);
 
             ViewBag.ReadNotificationCount =
-                notifications.Count(n =>
-                    n.IsRead);
+                notifications.Count(n => n.IsRead);
 
             ViewBag.TotalNotificationCount =
                 notifications.Count;
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -1830,14 +1484,12 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkNotificationRead(
-            int id)
+        public async Task<IActionResult> MarkNotificationRead(int id)
         {
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
@@ -1850,14 +1502,11 @@ namespace WeddingClosetHubs.Controllers
 
             if (notification != null)
             {
-                notification.IsRead =
-                    true;
-
+                notification.IsRead = true;
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(
-                "Notifications");
+            return RedirectToAction("Notifications");
         }
 
         [HttpPost]
@@ -1867,8 +1516,7 @@ namespace WeddingClosetHubs.Controllers
             if (!IsDeliveryLoggedIn())
                 return DeliveryLogin();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return DeliveryLogin();
@@ -1880,11 +1528,9 @@ namespace WeddingClosetHubs.Controllers
                         !n.IsRead)
                     .ToListAsync();
 
-            foreach (var notification
-                     in notifications)
+            foreach (var notification in notifications)
             {
-                notification.IsRead =
-                    true;
+                notification.IsRead = true;
             }
 
             await _context.SaveChangesAsync();
@@ -1892,8 +1538,7 @@ namespace WeddingClosetHubs.Controllers
             TempData["Success"] =
                 "All notifications marked as read.";
 
-            return RedirectToAction(
-                "Notifications");
+            return RedirectToAction("Notifications");
         }
 
         [HttpGet]
@@ -1905,14 +1550,12 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? currentUserId =
-                GetDeliveryUserId();
+            int? currentUserId = GetDeliveryUserId();
 
             if (!currentUserId.HasValue)
                 return DeliveryLogin();
 
-            int deliveryUserId =
-                currentUserId.Value;
+            int deliveryUserId = currentUserId.Value;
 
             var deliveryBoy =
                 await _context.DeliveryBoys
@@ -1940,7 +1583,6 @@ namespace WeddingClosetHubs.Controllers
                     .Select(o => new
                     {
                         o.CustomerId,
-
                         ShopkeeperId =
                             o.Shop != null
                                 ? o.Shop.ShopkeeperId
@@ -1950,19 +1592,15 @@ namespace WeddingClosetHubs.Controllers
 
             var customerIds =
                 deliveryOrders
-                    .Where(x =>
-                        x.CustomerId > 0)
-                    .Select(x =>
-                        x.CustomerId)
+                    .Where(x => x.CustomerId > 0)
+                    .Select(x => x.CustomerId)
                     .Distinct()
                     .ToList();
 
             var shopkeeperIds =
                 deliveryOrders
-                    .Where(x =>
-                        x.ShopkeeperId > 0)
-                    .Select(x =>
-                        x.ShopkeeperId)
+                    .Where(x => x.ShopkeeperId > 0)
+                    .Select(x => x.ShopkeeperId)
                     .Distinct()
                     .ToList();
 
@@ -1991,18 +1629,12 @@ namespace WeddingClosetHubs.Controllers
                     .OrderBy(u => u.Name)
                     .ToList();
 
-            ViewBag.ChatUsers =
-                chatUsers;
-
-            ViewBag.SelectedUserId =
-                userId;
-
-            ViewBag.CurrentUserId =
-                deliveryUserId;
+            ViewBag.ChatUsers = chatUsers;
+            ViewBag.SelectedUserId = userId;
+            ViewBag.CurrentUserId = deliveryUserId;
 
             ViewBag.DeliveryName =
-                deliveryBoy.User?.Name ??
-                "Delivery Boy";
+                deliveryBoy.User?.Name ?? "Delivery Boy";
 
             ViewBag.AssignedZone =
                 string.IsNullOrWhiteSpace(
@@ -2026,17 +1658,14 @@ namespace WeddingClosetHubs.Controllers
                     .Where(m =>
                         (
                             m.SenderId == deliveryUserId &&
-                            chatUserIds.Contains(
-                                m.ReceiverId)
+                            chatUserIds.Contains(m.ReceiverId)
                         )
                         ||
                         (
                             m.ReceiverId == deliveryUserId &&
-                            chatUserIds.Contains(
-                                m.SenderId)
+                            chatUserIds.Contains(m.SenderId)
                         ))
-                    .OrderByDescending(
-                        m => m.SentDate)
+                    .OrderByDescending(m => m.SentDate)
                     .ToListAsync();
 
             var conversations =
@@ -2047,20 +1676,15 @@ namespace WeddingClosetHubs.Controllers
                             chatMessages
                                 .Where(m =>
                                     (
-                                        m.SenderId ==
-                                        deliveryUserId &&
-                                        m.ReceiverId ==
-                                        u.UserId
+                                        m.SenderId == deliveryUserId &&
+                                        m.ReceiverId == u.UserId
                                     )
                                     ||
                                     (
-                                        m.SenderId ==
-                                        u.UserId &&
-                                        m.ReceiverId ==
-                                        deliveryUserId
+                                        m.SenderId == u.UserId &&
+                                        m.ReceiverId == deliveryUserId
                                     ))
-                                .OrderByDescending(
-                                    m => m.SentDate)
+                                .OrderByDescending(m => m.SentDate)
                                 .ToList();
 
                         var lastMessage =
@@ -2068,40 +1692,26 @@ namespace WeddingClosetHubs.Controllers
 
                         return new
                         {
-                            UserId =
-                                u.UserId,
-
-                            UserName =
-                                u.Name ??
-                                "User",
-
-                            RoleName =
-                                u.Role?.RoleName ??
-                                "User",
-
+                            UserId = u.UserId,
+                            UserName = u.Name ?? "User",
+                            RoleName = u.Role?.RoleName ?? "User",
                             LastMessage =
                                 lastMessage?.Message ??
                                 "No messages yet",
-
                             LastMessageDate =
                                 lastMessage?.SentDate ??
                                 DateTime.MinValue,
-
                             UnreadCount =
                                 userMessages.Count(m =>
-                                    m.ReceiverId ==
-                                        deliveryUserId &&
+                                    m.ReceiverId == deliveryUserId &&
                                     !m.IsRead)
                         };
                     })
-                    .OrderByDescending(
-                        c => c.LastMessageDate)
-                    .ThenBy(
-                        c => c.UserName)
+                    .OrderByDescending(c => c.LastMessageDate)
+                    .ThenBy(c => c.UserName)
                     .ToList();
 
-            ViewBag.Conversations =
-                conversations;
+            ViewBag.Conversations = conversations;
 
             ViewBag.ChatPlaceholder =
                 userId.HasValue
@@ -2123,17 +1733,14 @@ namespace WeddingClosetHubs.Controllers
                     TempData["Error"] =
                         "You can only chat with Admin, customers or shopkeepers connected to your deliveries.";
 
-                    return RedirectToAction(
-                        "Chat");
+                    return RedirectToAction("Chat");
                 }
 
                 ViewBag.SelectedUserName =
-                    selectedUser.Name ??
-                    "User";
+                    selectedUser.Name ?? "User";
 
                 ViewBag.SelectedUserRole =
-                    selectedUser.Role?.RoleName ??
-                    "User";
+                    selectedUser.Role?.RoleName ?? "User";
 
                 ViewBag.ChatPlaceholder =
                     $"Message {selectedUser.Name}...";
@@ -2144,34 +1751,27 @@ namespace WeddingClosetHubs.Controllers
                         .Include(m => m.Receiver)
                         .Where(m =>
                             (
-                                m.SenderId ==
-                                deliveryUserId &&
-                                m.ReceiverId ==
-                                userId.Value
+                                m.SenderId == deliveryUserId &&
+                                m.ReceiverId == userId.Value
                             )
                             ||
                             (
-                                m.SenderId ==
-                                userId.Value &&
-                                m.ReceiverId ==
-                                deliveryUserId
+                                m.SenderId == userId.Value &&
+                                m.ReceiverId == deliveryUserId
                             ))
-                        .OrderBy(
-                            m => m.SentDate)
+                        .OrderBy(m => m.SentDate)
                         .ToListAsync();
 
                 var unreadMessages =
                     messages
                         .Where(m =>
-                            m.ReceiverId ==
-                                deliveryUserId &&
+                            m.ReceiverId == deliveryUserId &&
                             !m.IsRead)
                         .ToList();
 
                 foreach (var msg in unreadMessages)
                 {
-                    msg.IsRead =
-                        true;
+                    msg.IsRead = true;
                 }
 
                 if (unreadMessages.Any())
@@ -2181,12 +1781,8 @@ namespace WeddingClosetHubs.Controllers
             }
             else
             {
-                ViewBag.SelectedUserName =
-                    "";
-
-                ViewBag.SelectedUserRole =
-                    "";
-
+                ViewBag.SelectedUserName = "";
+                ViewBag.SelectedUserRole = "";
                 ViewBag.ChatPlaceholder =
                     "Select Admin, customer or shopkeeper...";
             }
@@ -2206,22 +1802,19 @@ namespace WeddingClosetHubs.Controllers
             if (!await IsApprovedDeliveryBoy())
                 return DeliveryLogin();
 
-            int? currentUserId =
-                GetDeliveryUserId();
+            int? currentUserId = GetDeliveryUserId();
 
             if (!currentUserId.HasValue)
                 return DeliveryLogin();
 
-            int senderId =
-                currentUserId.Value;
+            int senderId = currentUserId.Value;
 
             if (receiverId <= 0)
             {
                 TempData["Error"] =
                     "Please select a user.";
 
-                return RedirectToAction(
-                    nameof(Chat));
+                return RedirectToAction(nameof(Chat));
             }
 
             if (receiverId == senderId)
@@ -2229,8 +1822,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "You cannot send a message to yourself.";
 
-                return RedirectToAction(
-                    nameof(Chat));
+                return RedirectToAction(nameof(Chat));
             }
 
             if (string.IsNullOrWhiteSpace(message))
@@ -2240,10 +1832,7 @@ namespace WeddingClosetHubs.Controllers
 
                 return RedirectToAction(
                     nameof(Chat),
-                    new
-                    {
-                        userId = receiverId
-                    });
+                    new { userId = receiverId });
             }
 
             var receiver =
@@ -2258,8 +1847,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Receiver not found or disabled.";
 
-                return RedirectToAction(
-                    nameof(Chat));
+                return RedirectToAction(nameof(Chat));
             }
 
             bool receiverIsAdmin =
@@ -2277,12 +1865,10 @@ namespace WeddingClosetHubs.Controllers
                             o.DeliveryId == senderId &&
                             o.OrderStatus != "Cancelled")
                         .AnyAsync(o =>
-                            o.CustomerId == receiverId
-                            ||
+                            o.CustomerId == receiverId ||
                             (
                                 o.Shop != null &&
-                                o.Shop.ShopkeeperId ==
-                                    receiverId
+                                o.Shop.ShopkeeperId == receiverId
                             ));
 
                 if (!receiverAllowed)
@@ -2290,8 +1876,7 @@ namespace WeddingClosetHubs.Controllers
                     TempData["Error"] =
                         "You can only chat with Admin, customers or shopkeepers connected to your deliveries.";
 
-                    return RedirectToAction(
-                        nameof(Chat));
+                    return RedirectToAction(nameof(Chat));
                 }
             }
 
@@ -2301,24 +1886,14 @@ namespace WeddingClosetHubs.Controllers
             var chatMessage =
                 new ChatMessage
                 {
-                    SenderId =
-                        senderId,
-
-                    ReceiverId =
-                        receiverId,
-
-                    Message =
-                        message.Trim(),
-
-                    IsRead =
-                        false,
-
-                    SentDate =
-                        DateTime.Now
+                    SenderId = senderId,
+                    ReceiverId = receiverId,
+                    Message = message.Trim(),
+                    IsRead = false,
+                    SentDate = DateTime.Now
                 };
 
-            _context.ChatMessages.Add(
-                chatMessage);
+            _context.ChatMessages.Add(chatMessage);
 
             string notificationTitle;
             string notificationMessage;
@@ -2350,12 +1925,8 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction(
                 nameof(Chat),
-                new
-                {
-                    userId = receiverId
-                });
+                new { userId = receiverId });
         }
-       
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2378,28 +1949,27 @@ namespace WeddingClosetHubs.Controllers
 
             if (messageId <= 0 || receiverId <= 0)
             {
-                TempData["Error"] = "Invalid message.";
+                TempData["Error"] =
+                    "Invalid message.";
+
                 return RedirectToAction(nameof(Chat));
             }
 
-           
-            var chatMessage = await _context.ChatMessages
-                .FirstOrDefaultAsync(m =>
-                    m.ChatMessageId == messageId);
+            var chatMessage =
+                await _context.ChatMessages
+                    .FirstOrDefaultAsync(m =>
+                        m.ChatMessageId == messageId);
 
             if (chatMessage == null)
             {
-                TempData["Error"] = "Message not found.";
+                TempData["Error"] =
+                    "Message not found.";
 
                 return RedirectToAction(
                     nameof(Chat),
-                    new
-                    {
-                        userId = receiverId
-                    });
+                    new { userId = receiverId });
             }
 
-          
             if (chatMessage.SenderId != deliveryUserId)
             {
                 TempData["Error"] =
@@ -2407,42 +1977,32 @@ namespace WeddingClosetHubs.Controllers
 
                 return RedirectToAction(
                     nameof(Chat),
-                    new
-                    {
-                        userId = receiverId
-                    });
+                    new { userId = receiverId });
             }
 
-            
             if (chatMessage.ReceiverId != receiverId)
             {
-                TempData["Error"] = "Invalid conversation.";
+                TempData["Error"] =
+                    "Invalid conversation.";
 
                 return RedirectToAction(
                     nameof(Chat),
-                    new
-                    {
-                        userId = receiverId
-                    });
+                    new { userId = receiverId });
             }
 
-           
             chatMessage.IsDeleted = true;
-            chatMessage.Message = "This message was deleted.";
+            chatMessage.Message =
+                "This message was deleted.";
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction(
                 nameof(Chat),
-                new
-                {
-                    userId = receiverId
-                });
+                new { userId = receiverId });
         }
-       
+
         [HttpGet]
-        public async Task<IActionResult> GetMessages(
-            int userId)
+        public async Task<IActionResult> GetMessages(int userId)
         {
             if (!IsDeliveryLoggedIn())
                 return Unauthorized();
@@ -2474,40 +2034,29 @@ namespace WeddingClosetHubs.Controllers
             bool isConnectedUser =
                 await _context.Orders
                     .Where(o =>
-                        o.DeliveryId ==
-                            deliveryUserId &&
-                        o.OrderStatus !=
-                            "Cancelled")
+                        o.DeliveryId == deliveryUserId &&
+                        o.OrderStatus != "Cancelled")
                     .AnyAsync(o =>
-                        o.CustomerId ==
-                            userId
-                        ||
+                        o.CustomerId == userId ||
                         (
                             o.Shop != null &&
-                            o.Shop.ShopkeeperId ==
-                                userId
+                            o.Shop.ShopkeeperId == userId
                         ));
 
-            if (!isAdmin &&
-                !isConnectedUser)
-            {
+            if (!isAdmin && !isConnectedUser)
                 return Forbid();
-            }
 
             var unreadMessages =
                 await _context.ChatMessages
                     .Where(m =>
-                        m.SenderId ==
-                            userId &&
-                        m.ReceiverId ==
-                            deliveryUserId &&
+                        m.SenderId == userId &&
+                        m.ReceiverId == deliveryUserId &&
                         !m.IsRead)
                     .ToListAsync();
 
             foreach (var msg in unreadMessages)
             {
-                msg.IsRead =
-                    true;
+                msg.IsRead = true;
             }
 
             if (unreadMessages.Any())
@@ -2519,20 +2068,15 @@ namespace WeddingClosetHubs.Controllers
                 await _context.ChatMessages
                     .Where(m =>
                         (
-                            m.SenderId ==
-                                deliveryUserId &&
-                            m.ReceiverId ==
-                                userId
+                            m.SenderId == deliveryUserId &&
+                            m.ReceiverId == userId
                         )
                         ||
                         (
-                            m.SenderId ==
-                                userId &&
-                            m.ReceiverId ==
-                                deliveryUserId
+                            m.SenderId == userId &&
+                            m.ReceiverId == deliveryUserId
                         ))
-                    .OrderBy(
-                        m => m.SentDate)
+                    .OrderBy(m => m.SentDate)
                     .Select(m => new
                     {
                         m.ChatMessageId,
@@ -2554,8 +2098,7 @@ namespace WeddingClosetHubs.Controllers
             if (!IsDeliveryLoggedIn())
                 return Unauthorized();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return Unauthorized();
@@ -2563,8 +2106,7 @@ namespace WeddingClosetHubs.Controllers
             int count =
                 await _context.ChatMessages
                     .CountAsync(m =>
-                        m.ReceiverId ==
-                            userId.Value &&
+                        m.ReceiverId == userId.Value &&
                         !m.IsRead);
 
             return Json(new
@@ -2579,8 +2121,7 @@ namespace WeddingClosetHubs.Controllers
             if (!IsDeliveryLoggedIn())
                 return Unauthorized();
 
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return Unauthorized();
@@ -2588,8 +2129,7 @@ namespace WeddingClosetHubs.Controllers
             int count =
                 await _context.Notifications
                     .CountAsync(n =>
-                        n.UserId ==
-                            userId.Value &&
+                        n.UserId == userId.Value &&
                         !n.IsRead);
 
             return Json(new
@@ -2609,8 +2149,7 @@ namespace WeddingClosetHubs.Controllers
 
         private async Task<string> GetCurrentDeliveryName()
         {
-            int? userId =
-                GetDeliveryUserId();
+            int? userId = GetDeliveryUserId();
 
             if (!userId.HasValue)
                 return "Delivery Boy";
@@ -2620,21 +2159,15 @@ namespace WeddingClosetHubs.Controllers
                     .FirstOrDefaultAsync(u =>
                         u.UserId == userId.Value);
 
-            return user?.Name ??
-                   "Delivery Boy";
+            return user?.Name ?? "Delivery Boy";
         }
 
-        private bool IsCashOnDelivery(
-            string? paymentMethod)
+        private bool IsCashOnDelivery(string? paymentMethod)
         {
-            if (string.IsNullOrWhiteSpace(
-                    paymentMethod))
-            {
+            if (string.IsNullOrWhiteSpace(paymentMethod))
                 return false;
-            }
 
-            string method =
-                paymentMethod.Trim();
+            string method = paymentMethod.Trim();
 
             return method.Equals(
                        "COD",
@@ -2670,39 +2203,25 @@ namespace WeddingClosetHubs.Controllers
             var notification =
                 new Notification
                 {
-                    UserId =
-                        userId,
-
+                    UserId = userId,
                     Title =
-                        string.IsNullOrWhiteSpace(
-                            title)
+                        string.IsNullOrWhiteSpace(title)
                             ? "Notification"
                             : title.Trim(),
-
                     Message =
-                        string.IsNullOrWhiteSpace(
-                            message)
+                        string.IsNullOrWhiteSpace(message)
                             ? ""
                             : message.Trim(),
-
                     Type =
-                        string.IsNullOrWhiteSpace(
-                            type)
+                        string.IsNullOrWhiteSpace(type)
                             ? "General"
                             : type.Trim(),
-
-                    OrderId =
-                        orderId,
-
-                    IsRead =
-                        false,
-
-                    CreatedDate =
-                        DateTime.Now
+                    OrderId = orderId,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
                 };
 
-            _context.Notifications.Add(
-                notification);
+            _context.Notifications.Add(notification);
         }
 
         [HttpGet]

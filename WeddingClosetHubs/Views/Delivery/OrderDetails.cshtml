@@ -1,154 +1,130 @@
 ﻿@model WeddingClosetHubs.Models.Order
 
 @{
-    ViewData["Title"] = "Order Details";
-    Layout = null;
+ViewData["Title"] = "Order Details";
+Layout = null;
 
 
+string deliveryName = ViewBag.DeliveryName as string ?? "Delivery Boy";
+string assignedZone = ViewBag.AssignedZone as string ?? "Not Assigned";
 
-    string deliveryName = ViewBag.DeliveryName as string ?? "Delivery Boy";
-    string assignedZone = ViewBag.AssignedZone as string ?? "Not Assigned";
+int currentUserId = 0;
 
-
-
-    int currentUserId = 0;
-
-    if (ViewBag.CurrentUserId != null)
+if (ViewBag.CurrentUserId != null)
+{
+    try
     {
-        try
-        {
-            currentUserId = Convert.ToInt32(ViewBag.CurrentUserId);
-        }
-        catch
-        {
-            currentUserId = 0;
-        }
+        currentUserId = Convert.ToInt32(ViewBag.CurrentUserId);
     }
+    catch
+    {
+        currentUserId = 0;
+    }
+}
 
+string status = string.IsNullOrWhiteSpace(Model?.OrderStatus)
+    ? "Pending"
+    : Model.OrderStatus.Trim();
 
+bool isReady = status.Equals("Ready", StringComparison.OrdinalIgnoreCase);
+bool isConfirmed = status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase);
+bool isAssigned = status.Equals("Assigned", StringComparison.OrdinalIgnoreCase);
+bool isPickedUp = status.Equals("Picked Up", StringComparison.OrdinalIgnoreCase);
+bool isOutForDelivery = status.Equals("Out for Delivery", StringComparison.OrdinalIgnoreCase);
+bool isDelivered = status.Equals("Delivered", StringComparison.OrdinalIgnoreCase);
+bool isCompleted = status.Equals("Completed", StringComparison.OrdinalIgnoreCase);
+bool isCancelled = status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase);
 
+bool hasDeliveryAssigned = Model?.DeliveryId.HasValue == true;
 
-    string status = string.IsNullOrWhiteSpace(Model?.OrderStatus)
-        ? "Pending"
-        : Model.OrderStatus.Trim();
+bool assignedToCurrent =
+    hasDeliveryAssigned &&
+    currentUserId > 0 &&
+    Model!.DeliveryId!.Value == currentUserId;
 
+bool assignedToAnother =
+    hasDeliveryAssigned &&
+    currentUserId > 0 &&
+    Model!.DeliveryId!.Value != currentUserId;
 
+bool isCod =
+    !string.IsNullOrWhiteSpace(Model?.PaymentMethod) &&
+    (
+        Model.PaymentMethod.Equals("COD", StringComparison.OrdinalIgnoreCase) ||
+        Model.PaymentMethod.Equals("Cash on Delivery", StringComparison.OrdinalIgnoreCase) ||
+        Model.PaymentMethod.Contains("Cash", StringComparison.OrdinalIgnoreCase)
+    );
 
-
-    bool isReady =
-        status.Equals("Ready", StringComparison.OrdinalIgnoreCase);
-
-    bool isConfirmed =
-        status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase);
-
-    bool isAssignedStatus =
-        status.Equals("Assigned", StringComparison.OrdinalIgnoreCase);
-
-    bool isPickedUp =
-        status.Equals("Picked Up", StringComparison.OrdinalIgnoreCase);
-
-    bool isOutForDelivery =
-        status.Equals("Out for Delivery", StringComparison.OrdinalIgnoreCase);
-
-    bool isDelivered =
-        status.Equals("Delivered", StringComparison.OrdinalIgnoreCase);
-
-    bool isCompleted =
-        status.Equals("Completed", StringComparison.OrdinalIgnoreCase);
-
-
-
-
-    bool isCod =
-        !string.IsNullOrWhiteSpace(Model?.PaymentMethod)
-        &&
-        (
-            Model.PaymentMethod.Equals(
-                "COD",
-                StringComparison.OrdinalIgnoreCase)
-
-            ||
-
-            Model.PaymentMethod.Equals(
-                "Cash on Delivery",
-                StringComparison.OrdinalIgnoreCase)
-
-            ||
-
-            Model.PaymentMethod.Contains(
-                "Cash",
-                StringComparison.OrdinalIgnoreCase)
-        );
-
-
-
-
-    bool codCollected =
+bool codCollected =
+    !isCod ||
+    (
         Model != null &&
-        Model.DeliveryCollectedAmount > 0;
+        Model.TotalAmount > 0 &&
+        Model.DeliveryCollectedAmount >= Model.TotalAmount
+    );
 
+bool canPickReadyOrder =
+    isReady &&
+    hasDeliveryAssigned &&
+    assignedToCurrent;
 
+bool canAcceptUnassignedOrder =
+    (isReady || isConfirmed) &&
+    !hasDeliveryAssigned;
 
+bool canPickUp =
+    isAssigned &&
+    assignedToCurrent;
 
-    bool isAssigned =
-        Model != null &&
-        Model.DeliveryId.HasValue &&
-        Model.DeliveryId.Value == currentUserId;
+bool canStartDelivery =
+    isPickedUp &&
+    assignedToCurrent;
 
+bool canCollectCod =
+    isCod &&
+    !codCollected &&
+    assignedToCurrent &&
+    (isPickedUp || isOutForDelivery);
 
+bool canMarkDelivered =
+    isOutForDelivery &&
+    assignedToCurrent &&
+    codCollected;
 
+int progressStep =
+    isReady || isConfirmed ? 1 :
+    isAssigned ? 2 :
+    isPickedUp ? 3 :
+    isOutForDelivery ? 4 :
+    isDelivered || isCompleted ? 5 : 0;
 
-    bool assignedToAnother =
-        Model != null &&
-        Model.DeliveryId.HasValue &&
-        Model.DeliveryId.Value != currentUserId;
+string statusClass =
+    isReady || isConfirmed ? "ready" :
+    isAssigned ? "assigned" :
+    isPickedUp ? "picked" :
+    isOutForDelivery ? "out" :
+    isDelivered || isCompleted ? "delivered" :
+    isCancelled ? "cancelled" :
+    "pending";
 
+string statusIcon =
+    isReady || isConfirmed ? "fa-box" :
+    isAssigned ? "fa-user-check" :
+    isPickedUp ? "fa-box-open" :
+    isOutForDelivery ? "fa-motorcycle" :
+    isDelivered || isCompleted ? "fa-circle-check" :
+    isCancelled ? "fa-ban" :
+    "fa-clock";
 
+decimal productTotal = Model?.ProductTotal ?? 0;
+decimal deliveryCharges = Model?.DeliveryCharges ?? 0;
+decimal serviceFee = Model?.ServiceFee ?? 0;
+decimal totalAmount = Model?.TotalAmount ?? 0;
+decimal collectedAmount = Model?.DeliveryCollectedAmount ?? 0;
+decimal deliveryPaidAmount = Model?.DeliveryPaidAmount ?? 0;
 
-
-    string statusClass =
-        isReady || isConfirmed
-            ? "status-ready"
-        : isAssignedStatus
-            ? "status-assigned"
-        : isPickedUp
-            ? "status-picked"
-        : isOutForDelivery
-            ? "status-out"
-        : isDelivered || isCompleted
-            ? "status-delivered"
-        : "status-default";
-
-
-
-    string statusIcon =
-        isReady || isConfirmed
-            ? "fa-box"
-        : isAssignedStatus
-            ? "fa-user-check"
-        : isPickedUp
-            ? "fa-box-open"
-        : isOutForDelivery
-            ? "fa-motorcycle"
-        : isDelivered || isCompleted
-            ? "fa-circle-check"
-        : "fa-clock";
-
-
-
-
-    int progressStep =
-        isReady || isConfirmed
-            ? 1
-        : isAssignedStatus
-            ? 2
-        : isPickedUp
-            ? 3
-        : isOutForDelivery
-            ? 4
-        : isDelivered || isCompleted
-            ? 5
-        : 0;
+string paymentStatus = Model?.PaymentStatus ?? "Pending";
+string deliveryPaymentStatus = Model?.DeliveryPaymentStatus ?? "Pending";
 
 
 }
@@ -160,802 +136,835 @@
 <head>
 
 
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0" />
 
-    <title>
-        Order #@Model.OrderId - Delivery
-    </title>
+<title>Order #@Model.OrderId - Delivery</title>
 
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
+<link rel="preconnect"
+      href="https://fonts.googleapis.com" />
 
+<link rel="preconnect"
+      href="https://fonts.googleapis.com" />
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin />
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
 
+<style>
 
+    * {
+        box-sizing: border-box;
+    }
 
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com" />
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background: #f6f4f1;
+        color: #333;
+    }
 
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin />
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 250px;
+        height: 100vh;
+        background: #800020;
+        color: white;
+        z-index: 1000;
+        box-shadow: 4px 0 18px rgba(0,0,0,0.12);
+    }
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-          rel="stylesheet" />
+    .brand {
+        text-align: center;
+        padding: 25px 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
 
+    .brand-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #d4af37;
+        color: #800020;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-size: 24px;
+    }
 
-    <style>
+    .brand h4 {
+        margin: 0;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+    }
 
-        * {
-            box-sizing: border-box;
+    .brand small {
+        color: #eadfb8;
+        font-size: 11px;
+    }
+
+    .nav-menu {
+        padding: 20px 12px;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        color: #fff;
+        text-decoration: none;
+        padding: 13px 15px;
+        border-radius: 8px;
+        margin-bottom: 7px;
+        font-size: 13px;
+        transition: .2s;
+    }
+
+    .nav-link i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        background: #d4af37;
+        color: #800020;
+    }
+
+    .logout-link {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .main {
+        margin-left: 250px;
+        min-height: 100vh;
+    }
+
+    .topbar {
+        height: 75px;
+        background: #fff;
+        border-bottom: 1px solid #e7e1db;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+    }
+
+    .topbar-title h2 {
+        margin: 0;
+        color: #800020;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .topbar-title p {
+        margin: 3px 0 0;
+        color: #999;
+        font-size: 11px;
+    }
+
+    .delivery-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .profile-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #800020;
+        color: #d4af37;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-info strong {
+        display: block;
+        font-size: 13px;
+    }
+
+    .profile-info span {
+        color: #999;
+        font-size: 10px;
+    }
+
+    .content {
+        padding: 28px 30px 40px;
+    }
+
+    .back-link {
+        color: #800020;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .back-link:hover {
+        color: #5f0018;
+    }
+
+    .hero-card {
+        background: linear-gradient(135deg, #800020, #640018);
+        color: white;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(128,0,32,.16);
+    }
+
+    .hero-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .hero-order {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .hero-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+        background: rgba(212,175,55,.18);
+        color: #d4af37;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .hero-order h3 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .hero-order p {
+        margin: 4px 0 0;
+        color: #ead7dc;
+        font-size: 11px;
+    }
+
+    .hero-status {
+        padding: 10px 16px;
+        border-radius: 20px;
+        background: #d4af37;
+        color: #800020;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 22px;
+    }
+
+    .summary-item {
+        background: rgba(255,255,255,.09);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 10px;
+        padding: 13px;
+    }
+
+    .summary-item span {
+        display: block;
+        color: #e7cfd5;
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+
+    .summary-item strong {
+        font-size: 12px;
+        color: #fff;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid #eee6df;
+        border-radius: 14px;
+        padding: 21px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 14px rgba(0,0,0,.03);
+    }
+
+    .card-header-custom {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding-bottom: 14px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .card-header-custom i {
+        color: #d4af37;
+        font-size: 15px;
+    }
+
+    .card-header-custom h5 {
+        margin: 0;
+        color: #800020;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .info-item {
+        display: flex;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid #f1eeee;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-icon {
+        width: 31px;
+        height: 31px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background: #f8edf1;
+        color: #800020;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .info-text {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .info-label {
+        display: block;
+        color: #999;
+        font-size: 9px;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        display: block;
+        color: #333;
+        font-size: 12px;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .address {
+        line-height: 1.6;
+    }
+
+    .timeline-card {
+        overflow-x: auto;
+    }
+
+    .timeline {
+        min-width: 620px;
+        display: flex;
+        position: relative;
+        justify-content: space-between;
+        padding: 5px 20px;
+    }
+
+    .timeline:before {
+        content: "";
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        top: 22px;
+        height: 3px;
+        background: #e8e4df;
+    }
+
+    .timeline-step {
+        position: relative;
+        z-index: 1;
+        width: 20%;
+        text-align: center;
+    }
+
+    .timeline-circle {
+        width: 38px;
+        height: 38px;
+        margin: 0 auto 8px;
+        border-radius: 50%;
+        background: #eee;
+        color: #999;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 1px #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .timeline-step.active .timeline-circle {
+        background: #800020;
+        color: white;
+        box-shadow: 0 0 0 2px #800020;
+    }
+
+    .timeline-step.current .timeline-circle {
+        background: #d4af37;
+        color: #800020;
+        box-shadow: 0 0 0 2px #d4af37;
+    }
+
+    .timeline-label {
+        font-size: 9px;
+        color: #999;
+        font-weight: 500;
+    }
+
+    .timeline-step.active .timeline-label,
+    .timeline-step.current .timeline-label {
+        color: #800020;
+        font-weight: 700;
+    }
+
+    .products-wrapper {
+        overflow-x: auto;
+    }
+
+    .products-table {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+    }
+
+    .products-table th {
+        background: #faf7f3;
+        color: #800020;
+        font-size: 10px;
+        padding: 12px;
+        text-align: left;
+        font-weight: 700;
+    }
+
+    .products-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 11px;
+        vertical-align: middle;
+    }
+
+    .products-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .product-image {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f3f0ec;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .price {
+        font-weight: 600;
+        color: #800020;
+    }
+
+    .payment-method {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #faf8f5;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 15px;
+    }
+
+    .payment-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 9px;
+        background: #f8efd5;
+        color: #967000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .payment-method strong {
+        display: block;
+        font-size: 13px;
+    }
+
+    .payment-method span {
+        color: #999;
+        font-size: 10px;
+    }
+
+    .amount-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 11px;
+    }
+
+    .amount-row:last-child {
+        border-bottom: none;
+    }
+
+    .amount-row span {
+        color: #777;
+    }
+
+    .amount-row strong {
+        color: #333;
+        text-align: right;
+    }
+
+    .total-row {
+        margin-top: 5px;
+        padding-top: 14px;
+    }
+
+    .total-row span,
+    .total-row strong {
+        color: #800020;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .cod-panel {
+        background: #fffaf0;
+        border: 1px solid #f0e1b7;
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 15px;
+    }
+
+    .cod-panel h6 {
+        color: #8c6800;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .cod-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 11px;
+        border-radius: 15px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .cod-success {
+        background: #e5f6ec;
+        color: #198754;
+    }
+
+    .cod-pending {
+        background: #fff0c7;
+        color: #977000;
+    }
+
+    .delivery-earning {
+        background: #f8f4e7;
+        border-radius: 10px;
+        padding: 17px;
+        margin-bottom: 15px;
+    }
+
+    .delivery-earning span {
+        display: block;
+        color: #800020;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .delivery-earning strong {
+        color: #800020;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .delivery-earning small {
+        display: block;
+        color: #888;
+        font-size: 9px;
+        margin-top: 3px;
+    }
+
+    .notes {
+        background: #faf8f5;
+        border-radius: 9px;
+        padding: 15px;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .action-card {
+        border: 2px solid #eadfc0;
+        background: #fff;
+    }
+
+    .action-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 16px;
+    }
+
+    .action-title h5 {
+        margin: 0;
+        color: #800020;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .current-status {
+        padding: 13px 15px;
+        background: #faf7f3;
+        border-radius: 9px;
+        margin-bottom: 18px;
+        font-size: 11px;
+    }
+
+    .current-status strong {
+        color: #800020;
+    }
+
+    .assignment {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 8px;
+        font-weight: 600;
+    }
+
+    .assignment.you {
+        color: #198754;
+    }
+
+    .assignment.other {
+        color: #dc3545;
+    }
+
+    .assignment.none {
+        color: #977000;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 17px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .btn-gold {
+        background: #d4af37;
+        color: #800020;
+    }
+
+    .btn-gold:hover {
+        background: #b99522;
+        color: #800020;
+    }
+
+    .btn-maroon {
+        background: #800020;
+        color: white;
+    }
+
+    .btn-maroon:hover {
+        background: #650018;
+        color: white;
+    }
+
+    .btn-green {
+        background: #198754;
+        color: white;
+    }
+
+    .btn-green:hover {
+        background: #146c43;
+        color: white;
+    }
+
+    .warning-box {
+        width: 100%;
+        background: #fff4d6;
+        color: #896900;
+        border-radius: 9px;
+        padding: 13px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .success-box {
+        width: 100%;
+        background: #e5f6ec;
+        color: #198754;
+        border-radius: 9px;
+        padding: 14px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .danger-box {
+        width: 100%;
+        background: #fce8eb;
+        color: #b02a37;
+        border-radius: 9px;
+        padding: 14px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .info-box {
+        width: 100%;
+        background: #eaf3fa;
+        color: #1769aa;
+        border-radius: 9px;
+        padding: 14px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .flash-message {
+        border-radius: 9px;
+        padding: 12px 15px;
+        margin-bottom: 18px;
+        font-size: 11px;
+    }
+
+    @@media (max-width: 992px) {
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
-
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: #f7f5f2;
-            color: #333;
-        }
-
-
-
 
         .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100vh;
-            background: #800020;
-            color: white;
-            padding-top: 20px;
-            z-index: 1000;
-            box-shadow: 3px 0 15px rgba(0,0,0,0.12);
+            width: 75px;
+        }
+
+        .brand h4,
+        .brand small,
+        .nav-link span {
+            display: none;
         }
 
         .brand {
-            text-align: center;
-            padding: 15px 10px 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding: 18px 5px;
         }
 
         .brand-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: #d4af37;
-            color: #800020;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            font-size: 24px;
-        }
-
-        .brand h4 {
-            margin: 0;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .brand small {
-            color: #eadfb8;
-        }
-
-        .nav-menu {
-            padding: 20px 12px;
+            width: 42px;
+            height: 42px;
+            font-size: 17px;
         }
 
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            color: #fff;
-            text-decoration: none;
-            padding: 13px 15px;
-            margin-bottom: 7px;
-            border-radius: 8px;
-            transition: 0.25s;
-            font-size: 14px;
+            justify-content: center;
+            padding: 13px 5px;
         }
 
-            .nav-link i {
-                width: 20px;
-                text-align: center;
-            }
-
-            .nav-link:hover,
-            .nav-link.active {
-                background: #d4af37;
-                color: #800020;
-            }
-
-        .logout-link {
-            margin-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.15);
-            padding-top: 20px;
+        .main {
+            margin-left: 75px;
         }
-
-
-
-
-        .main-content {
-            margin-left: 250px;
-            min-height: 100vh;
-        }
-
-
-
 
         .topbar {
-            height: 75px;
-            background: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            border-bottom: 1px solid #e7e2dc;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            padding: 0 18px;
         }
-
-        .page-title h2 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 700;
-            color: #800020;
-        }
-
-        .page-title p {
-            margin: 3px 0 0;
-            color: #888;
-            font-size: 12px;
-        }
-
-        .profile-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .profile-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: #800020;
-            color: #d4af37;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-        }
-
-        .profile-info strong {
-            display: block;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .profile-info span {
-            font-size: 11px;
-            color: #888;
-        }
-
-
-
-
 
         .content {
-            padding: 30px;
-        }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            color: #800020;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 18px;
-        }
-
-            .back-link:hover {
-                color: #5f0018;
-            }
-
-
-
-        .order-title-card {
-            background: #fff;
-            border: 1px solid #eee7df;
-            border-radius: 14px;
-            padding: 23px 25px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .order-title h3 {
-            color: #800020;
-            font-size: 21px;
-            font-weight: 700;
-            margin: 0 0 5px;
-        }
-
-        .order-title p {
-            color: #888;
-            margin: 0;
-            font-size: 12px;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .status-ready {
-            background: #fff4d6;
-            color: #967000;
-        }
-
-        .status-assigned {
-            background: #e9e4f8;
-            color: #6046a0;
-        }
-
-        .status-picked {
-            background: #e5f0fa;
-            color: #1769aa;
-        }
-
-        .status-out {
-            background: #fce9dc;
-            color: #c65c17;
-        }
-
-        .status-delivered {
-            background: #e5f6ec;
-            color: #198754;
-        }
-
-        .status-default {
-            background: #eeeeee;
-            color: #666;
-        }
-
-
-
-
-        .status-card {
-            background: #fff;
-            border: 1px solid #eee7df;
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 20px;
-        }
-
-        .status-card-title {
-            color: #800020;
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .status-timeline {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            position: relative;
-        }
-
-            .status-timeline::before {
-                content: "";
-                position: absolute;
-                top: 17px;
-                left: 8%;
-                right: 8%;
-                height: 3px;
-                background: #e9e5df;
-                z-index: 0;
-            }
-
-        .timeline-item {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            flex: 1;
-        }
-
-        .timeline-circle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #eee;
-            color: #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 1px #ddd;
-            font-size: 12px;
-        }
-
-        .timeline-item.active .timeline-circle {
-            background: #800020;
-            color: #fff;
-            box-shadow: 0 0 0 2px #800020;
-        }
-
-        .timeline-item.current .timeline-circle {
-            background: #d4af37;
-            color: #800020;
-            box-shadow: 0 0 0 2px #d4af37;
-        }
-
-        .timeline-label {
-            font-size: 9px;
-            color: #999;
-            font-weight: 500;
-        }
-
-        .timeline-item.active .timeline-label,
-        .timeline-item.current .timeline-label {
-            color: #800020;
-            font-weight: 700;
-        }
-
-
-
-        .detail-card {
-            background: #fff;
-            border: 1px solid #eee7df;
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 20px;
-            height: 100%;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.03);
-        }
-
-        .card-title {
-            color: #800020;
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-            .card-title i {
-                color: #d4af37;
-                margin-right: 7px;
-            }
-
-
-
-
-        .info-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1eeee;
-            font-size: 12px;
-        }
-
-            .info-row:last-child {
-                border-bottom: none;
-            }
-
-        .info-icon {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-            border-radius: 7px;
-            background: #f7eaf0;
-            color: #800020;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .info-content {
-            flex: 1;
-        }
-
-        .info-label {
-            display: block;
-            color: #999;
-            font-size: 10px;
-            margin-bottom: 3px;
-        }
-
-        .info-value {
-            color: #333;
-            font-weight: 600;
-            font-size: 12px;
-            word-break: break-word;
-        }
-
-        .address-value {
-            line-height: 1.6;
-        }
-
-
-
-
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-            .product-table th {
-                background: #faf7f3;
-                color: #800020;
-                font-size: 11px;
-                padding: 12px;
-                text-align: left;
-                font-weight: 700;
-            }
-
-            .product-table td {
-                padding: 13px 12px;
-                border-bottom: 1px solid #eee;
-                font-size: 12px;
-                vertical-align: middle;
-            }
-
-            .product-table tr:last-child td {
-                border-bottom: none;
-            }
-
-        .product-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .product-image {
-            width: 45px;
-            height: 45px;
-            border-radius: 7px;
-            object-fit: cover;
-            background: #f3f0ec;
-        }
-
-
-
-
-        .payment-method {
-            padding: 13px;
-            border-radius: 9px;
-            margin-bottom: 15px;
-            background: #faf9f7;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .payment-method-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 9px;
-            background: #f8efd5;
-            color: #977300;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .payment-method strong {
-            display: block;
-            color: #333;
-            font-size: 13px;
-        }
-
-        .payment-method small {
-            color: #999;
-            font-size: 10px;
-        }
-
-        .amount-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 12px;
-        }
-
-            .amount-row:last-child {
-                border-bottom: none;
-            }
-
-            .amount-row span {
-                color: #777;
-            }
-
-            .amount-row strong {
-                color: #333;
-                text-align: right;
-            }
-
-            .amount-row.total {
-                margin-top: 4px;
-                padding-top: 14px;
-            }
-
-                .amount-row.total span,
-                .amount-row.total strong {
-                    color: #800020;
-                    font-weight: 700;
-                    font-size: 15px;
-                }
-
-
-
-
-        .cod-box {
-            background: #fffaf0;
-            border: 1px solid #f1e4bd;
-            border-radius: 10px;
-            padding: 17px;
-            margin-top: 15px;
-        }
-
-        .cod-title {
-            color: #906c00;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .cod-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 11px;
-            border-radius: 15px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .cod-collected {
-            background: #e5f6ec;
-            color: #198754;
-        }
-
-        .cod-pending {
-            background: #fff0c7;
-            color: #977000;
-        }
-
-
-
-
-        .earning-box {
-            background: #f8f4e7;
-            border-radius: 10px;
-            padding: 17px;
-            margin-top: 15px;
-        }
-
-        .earning-title {
-            color: #800020;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .earning-amount {
-            color: #800020;
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        .earning-status {
-            font-size: 11px;
-            color: #777;
-            margin-top: 3px;
-        }
-
-
-
-
-        .action-card {
-            background: #fff;
-            border: 1px solid #eee7df;
-            border-radius: 14px;
             padding: 20px;
-            margin-bottom: 20px;
+        }
+    }
+
+    @@media (max-width: 650px) {
+
+        .summary-grid {
+            grid-template-columns: 1fr 1fr;
         }
 
-            .action-card h5 {
-                color: #800020;
-                font-size: 15px;
-                font-weight: 700;
-                margin-bottom: 15px;
-            }
-
-        .current-status-box {
-            background: #faf7f3;
-            border: 1px solid #eee7df;
-            border-radius: 9px;
-            padding: 13px;
-            margin-bottom: 15px;
-            font-size: 12px;
+        .hero-top {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-            .current-status-box strong {
-                color: #800020;
-            }
-
-        .action-buttons {
-            display: flex;
-            gap: 9px;
-            flex-wrap: wrap;
-            align-items: center;
+        .profile-info {
+            display: none;
         }
 
-        .btn-maroon {
-            background: #800020;
-            border: 1px solid #800020;
-            color: #fff;
-            font-size: 12px;
-            padding: 9px 15px;
-            border-radius: 7px;
+        .content {
+            padding: 15px;
         }
 
-            .btn-maroon:hover {
-                background: #650018;
-                border-color: #650018;
-                color: #fff;
-            }
-
-        .btn-gold {
-            background: #d4af37;
-            border: 1px solid #d4af37;
-            color: #800020;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 9px 15px;
-            border-radius: 7px;
+        .topbar-title h2 {
+            font-size: 17px;
         }
 
-            .btn-gold:hover {
-                background: #b99522;
-                color: #800020;
-            }
-
-        .btn-green {
-            background: #198754;
-            border: 1px solid #198754;
-            color: white;
-            font-size: 12px;
-            padding: 9px 15px;
-            border-radius: 7px;
+        .hero-card {
+            padding: 18px;
         }
 
-            .btn-green:hover {
-                background: #146c43;
-                border-color: #146c43;
-                color: white;
-            }
-
-        .completed-message {
-            background: #e5f6ec;
-            color: #198754;
-            border-radius: 9px;
-            padding: 14px;
-            font-size: 12px;
-            font-weight: 600;
+        .card {
+            padding: 16px;
         }
+    }
 
-        .not-assigned-message {
-            background: #fff4d6;
-            color: #896900;
-            border-radius: 9px;
-            padding: 14px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .cod-warning {
-            background: #fff4d6;
-            color: #896900;
-            border-radius: 9px;
-            padding: 12px 14px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 12px;
-        }
-
-
-
-        @@media (max-width: 767px) {
-
-            .sidebar {
-                width: 70px;
-            }
-
-            .brand h4,
-            .brand small,
-            .nav-link span {
-                display: none;
-            }
-
-            .brand {
-                padding: 15px 5px;
-            }
-
-            .brand-icon {
-                width: 42px;
-                height: 42px;
-                font-size: 17px;
-            }
-
-            .nav-link {
-                justify-content: center;
-                padding: 13px 5px;
-            }
-
-            .main-content {
-                margin-left: 70px;
-            }
-
-            .topbar {
-                padding: 0 15px;
-            }
-
-            .profile-info {
-                display: none;
-            }
-
-            .content {
-                padding: 15px;
-            }
-
-            .order-title-card {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .product-table {
-                min-width: 600px;
-            }
-
-            .table-wrapper {
-                overflow-x: auto;
-            }
-
-            .status-timeline {
-                overflow-x: auto;
-                min-width: 650px;
-            }
-
-            .status-card {
-                overflow-x: auto;
-            }
-        }
-
-    </style>
+</style>
 
 
 </head>
@@ -963,520 +972,409 @@
 <body>
 
 
+<aside class="sidebar">
 
-    <aside class="sidebar">
+    <div class="brand">
 
-        <div class="brand">
+        <div class="brand-icon">
+            <i class="fa-solid fa-motorcycle"></i>
+        </div>
 
-            <div class="brand-icon">
-                <i class="fa-solid fa-motorcycle"></i>
-            </div>
+        <h4>Wedding Closet</h4>
 
-            <h4>Wedding Closet</h4>
+        <small>Delivery Panel</small>
 
-            <small>Delivery Panel</small>
+    </div>
+
+    <div class="nav-menu">
+
+        <a asp-controller="Delivery"
+           asp-action="Dashboard"
+           class="nav-link">
+
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Dashboard</span>
+
+        </a>
+
+        <a asp-controller="Delivery"
+           asp-action="Orders"
+           class="nav-link active">
+
+            <i class="fa-solid fa-box"></i>
+            <span>Orders</span>
+
+        </a>
+
+        <a asp-controller="Delivery"
+           asp-action="Payments"
+           class="nav-link">
+
+            <i class="fa-solid fa-money-bill-wave"></i>
+            <span>Payments</span>
+
+        </a>
+
+        <a asp-controller="Delivery"
+           asp-action="Notifications"
+           class="nav-link">
+
+            <i class="fa-solid fa-bell"></i>
+            <span>Notifications</span>
+
+        </a>
+
+        <a asp-controller="Delivery"
+           asp-action="Chat"
+           class="nav-link">
+
+            <i class="fa-solid fa-comments"></i>
+            <span>Chat</span>
+
+        </a>
+
+        <div class="logout-link">
+
+            <a asp-controller="Account"
+               asp-action="Logout"
+               class="nav-link">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+
+            </a>
 
         </div>
 
+    </div>
 
-        <div class="nav-menu">
+</aside>
 
-            <a asp-controller="Delivery"
-               asp-action="Dashboard"
-               class="nav-link">
+<main class="main">
 
-                <i class="fa-solid fa-gauge-high"></i>
+    <header class="topbar">
 
-                <span>Dashboard</span>
+        <div class="topbar-title">
 
-            </a>
+            <h2>Order Details</h2>
 
+            <p>Complete order and delivery information</p>
 
-            <a asp-controller="Delivery"
-               asp-action="Orders"
-               class="nav-link active">
+        </div>
 
-                <i class="fa-solid fa-box"></i>
+        <div class="delivery-profile">
 
-                <span>Orders</span>
+            <div class="profile-icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
 
-            </a>
+            <div class="profile-info">
 
+                <strong>@deliveryName</strong>
 
-            <a asp-controller="Delivery"
-               asp-action="Payments"
-               class="nav-link">
-
-                <i class="fa-solid fa-money-bill-wave"></i>
-
-                <span>Payments</span>
-
-            </a>
-
-
-            <a asp-controller="Delivery"
-               asp-action="Notifications"
-               class="nav-link">
-
-                <i class="fa-solid fa-bell"></i>
-
-                <span>Notifications</span>
-
-            </a>
-
-
-            <a asp-controller="Delivery"
-               asp-action="Chat"
-               class="nav-link">
-
-                <i class="fa-solid fa-comments"></i>
-
-                <span>Chat</span>
-
-            </a>
-
-
-            <div class="logout-link">
-
-                <a asp-controller="Account"
-                   asp-action="Logout"
-                   class="nav-link">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <span>Logout</span>
-
-                </a>
+                <span>Delivery Boy</span>
 
             </div>
 
         </div>
 
-    </aside>
+    </header>
 
+    <div class="content">
 
+        <a asp-controller="Delivery"
+           asp-action="Orders"
+           class="back-link">
 
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Orders
 
-    <main class="main-content">
+        </a>
 
+        @if (TempData["Success"] != null)
+        {
 
+            <div class="alert alert-success flash-message">
 
+                <i class="fa-solid fa-circle-check me-2"></i>
 
-        <header class="topbar">
-
-            <div class="page-title">
-
-                <h2>Order Details</h2>
-
-                <p>
-                    Delivery order information
-                </p>
-
-            </div>
-
-
-            <div class="profile-area">
-
-                <div class="profile-icon">
-
-                    <i class="fa-solid fa-user"></i>
-
-                </div>
-
-
-                <div class="profile-info">
-
-                    <strong>
-                        @deliveryName
-                    </strong>
-
-                    <span>
-                        Delivery Boy
-                    </span>
-
-                </div>
+                @TempData["Success"]
 
             </div>
 
-        </header>
+        }
 
+        @if (TempData["Error"] != null)
+        {
 
+            <div class="alert alert-danger flash-message">
 
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
 
-        <div class="content">
+                @TempData["Error"]
 
+            </div>
 
+        }
 
-            <a asp-controller="Delivery"
-               asp-action="Orders"
-               class="back-link">
+        <div class="hero-card">
 
-                <i class="fa-solid fa-arrow-left"></i>
+            <div class="hero-top">
 
-                Back to Orders
+                <div class="hero-order">
 
-            </a>
+                    <div class="hero-icon">
 
+                        <i class="fa-solid @statusIcon"></i>
 
+                    </div>
 
+                    <div>
 
-            <div class="order-title-card">
+                        <h3>Order #@Model.OrderId</h3>
 
-                <div class="order-title">
+                        <p>
+                            Placed on
+                            @Model.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+                        </p>
 
-                    <h3>
-
-                        <i class="fa-solid fa-box me-2"></i>
-
-                        Order #@Model.OrderId
-
-                    </h3>
-
-
-                    <p>
-
-                        Placed on
-                        @Model.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
-
-                    </p>
+                    </div>
 
                 </div>
 
-
-                <span class="status-badge @statusClass">
+                <div class="hero-status">
 
                     <i class="fa-solid @statusIcon"></i>
 
                     @status
 
-                </span>
+                </div>
 
             </div>
 
+            <div class="summary-grid">
 
+                <div class="summary-item">
 
+                    <span>Customer</span>
 
-            <div class="status-card">
-
-                <div class="status-card-title">
-
-                    <i class="fa-solid fa-route me-2"></i>
-
-                    Order Delivery Status
+                    <strong>
+                        @(Model.Customer?.Name ?? "N/A")
+                    </strong>
 
                 </div>
 
+                <div class="summary-item">
 
-                <div class="status-timeline">
+                    <span>Payment</span>
 
+                    <strong>
+                        @(isCod ? "Cash on Delivery" : (Model.PaymentMethod ?? "Online Payment"))
+                    </strong>
 
+                </div>
 
+                <div class="summary-item">
 
-                    <div class="timeline-item
+                    <span>Total Amount</span>
+
+                    <strong>
+                        Rs. @totalAmount.ToString("N2")
+                    </strong>
+
+                </div>
+
+                <div class="summary-item">
+
+                    <span>Delivery Zone</span>
+
+                    <strong>
+                        @assignedZone
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card timeline-card">
+
+            <div class="card-header-custom">
+
+                <i class="fa-solid fa-route"></i>
+
+                <h5>Delivery Progress</h5>
+
+            </div>
+
+            <div class="timeline">
+
+                <div class="timeline-step
                      @(progressStep >= 1 ? "active" : "")
                      @(progressStep == 1 ? "current" : "")">
 
-                        <div class="timeline-circle">
-                            <i class="fa-solid fa-box"></i>
-                        </div>
-
-                        <div class="timeline-label">
-                            Ready
-                        </div>
-
+                    <div class="timeline-circle">
+                        <i class="fa-solid fa-box"></i>
                     </div>
 
+                    <div class="timeline-label">
+                        Ready
+                    </div>
 
+                </div>
 
-
-                    <div class="timeline-item
+                <div class="timeline-step
                      @(progressStep >= 2 ? "active" : "")
                      @(progressStep == 2 ? "current" : "")">
 
-                        <div class="timeline-circle">
-                            <i class="fa-solid fa-user-check"></i>
-                        </div>
-
-                        <div class="timeline-label">
-                            Assigned
-                        </div>
-
+                    <div class="timeline-circle">
+                        <i class="fa-solid fa-user-check"></i>
                     </div>
 
+                    <div class="timeline-label">
+                        Assigned
+                    </div>
 
+                </div>
 
-
-                    <div class="timeline-item
+                <div class="timeline-step
                      @(progressStep >= 3 ? "active" : "")
                      @(progressStep == 3 ? "current" : "")">
 
-                        <div class="timeline-circle">
-                            <i class="fa-solid fa-box-open"></i>
-                        </div>
-
-                        <div class="timeline-label">
-                            Picked Up
-                        </div>
-
+                    <div class="timeline-circle">
+                        <i class="fa-solid fa-box-open"></i>
                     </div>
 
+                    <div class="timeline-label">
+                        Picked Up
+                    </div>
 
+                </div>
 
-
-                    <div class="timeline-item
+                <div class="timeline-step
                      @(progressStep >= 4 ? "active" : "")
                      @(progressStep == 4 ? "current" : "")">
 
-                        <div class="timeline-circle">
-                            <i class="fa-solid fa-motorcycle"></i>
-                        </div>
-
-                        <div class="timeline-label">
-                            Out for Delivery
-                        </div>
-
+                    <div class="timeline-circle">
+                        <i class="fa-solid fa-motorcycle"></i>
                     </div>
 
+                    <div class="timeline-label">
+                        Out for Delivery
+                    </div>
 
+                </div>
 
-
-                    <div class="timeline-item
+                <div class="timeline-step
                      @(progressStep >= 5 ? "active" : "")
                      @(progressStep == 5 ? "current" : "")">
 
-                        <div class="timeline-circle">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
+                    <div class="timeline-circle">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
 
-                        <div class="timeline-label">
-                            Delivered
-                        </div>
-
+                    <div class="timeline-label">
+                        Delivered
                     </div>
 
                 </div>
 
             </div>
 
+        </div>
 
+        <div class="row g-4">
 
-            <div class="row g-4">
+            <div class="col-lg-6">
 
+                <div class="card">
 
+                    <div class="card-header-custom">
 
+                        <i class="fa-solid fa-user"></i>
 
-                <div class="col-lg-6">
+                        <h5>Customer Information</h5>
 
-                    <div class="detail-card">
+                    </div>
 
-                        <div class="card-title">
+                    <div class="info-item">
 
+                        <div class="info-icon">
                             <i class="fa-solid fa-user"></i>
-
-                            Customer Information
-
                         </div>
 
+                        <div class="info-text">
 
-                        <div class="info-row">
+                            <span class="info-label">
+                                Customer Name
+                            </span>
 
-                            <div class="info-icon">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Customer Name
-                                </span>
-
-                                <span class="info-value">
-
-                                    @(Model.Customer?.Name ?? "N/A")
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <div class="info-icon">
-                                <i class="fa-solid fa-phone"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Phone
-                                </span>
-
-                                <span class="info-value">
-
-                                    @(Model.Customer?.Phone ?? "N/A")
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <div class="info-icon">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Email
-                                </span>
-
-                                <span class="info-value">
-
-                                    @(Model.Customer?.Email ?? "N/A")
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <div class="info-icon">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Delivery Address
-                                </span>
-
-                                <span class="info-value address-value">
-
-                                    @(string.IsNullOrWhiteSpace(Model.DeliveryAddress)
-                                                                        ? "Address not available"
-                                                                        : Model.DeliveryAddress)
-
-                                </span>
-
-                            </div>
+                            <span class="info-value">
+                                @(Model.Customer?.Name ?? "N/A")
+                            </span>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="info-item">
 
+                        <div class="info-icon">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
 
+                        <div class="info-text">
 
+                            <span class="info-label">
+                                Phone
+                            </span>
 
-                <div class="col-lg-6">
-
-                    <div class="detail-card">
-
-                        <div class="card-title">
-
-                            <i class="fa-solid fa-store"></i>
-
-                            Shop Information
+                            <span class="info-value">
+                                @(Model.Customer?.Phone ?? "N/A")
+                            </span>
 
                         </div>
 
+                    </div>
 
-                        <div class="info-row">
+                    <div class="info-item">
 
-                            <div class="info-icon">
-                                <i class="fa-solid fa-store"></i>
-                            </div>
+                        <div class="info-icon">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
 
-                            <div class="info-content">
+                        <div class="info-text">
 
-                                <span class="info-label">
-                                    Shop Name
-                                </span>
+                            <span class="info-label">
+                                Email
+                            </span>
 
-                                <span class="info-value">
-
-                                    @(Model.Shop?.ShopName ?? "N/A")
-
-                                </span>
-
-                            </div>
+                            <span class="info-value">
+                                @(Model.Customer?.Email ?? "N/A")
+                            </span>
 
                         </div>
 
+                    </div>
 
-                        <div class="info-row">
+                    <div class="info-item">
 
-                            <div class="info-icon">
-                                <i class="fa-solid fa-phone"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Shop Phone
-                                </span>
-
-                                <span class="info-value">
-
-                                    @(Model.Shop?.ShopPhone ?? "N/A")
-
-                                </span>
-
-                            </div>
-
+                        <div class="info-icon">
+                            <i class="fa-solid fa-location-dot"></i>
                         </div>
 
+                        <div class="info-text">
 
-                        <div class="info-row">
+                            <span class="info-label">
+                                Delivery Address
+                            </span>
 
-                            <div class="info-icon">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Shop Address
-                                </span>
-
-                                <span class="info-value address-value">
-
-                                    @(Model.Shop?.ShopAddress ?? "N/A")
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="info-row">
-
-                            <div class="info-icon">
-                                <i class="fa-solid fa-map-pin"></i>
-                            </div>
-
-                            <div class="info-content">
-
-                                <span class="info-label">
-                                    Assigned Delivery Zone
-                                </span>
-
-                                <span class="info-value">
-                                    @assignedZone
-                                </span>
-
-                            </div>
+                            <span class="info-value address">
+                                @(string.IsNullOrWhiteSpace(Model.DeliveryAddress)
+                                    ? "Address not available"
+                                    : Model.DeliveryAddress)
+                            </span>
 
                         </div>
 
@@ -1486,528 +1384,537 @@
 
             </div>
 
+            <div class="col-lg-6">
 
+                <div class="card">
 
+                    <div class="card-header-custom">
 
-            <div class="detail-card">
+                        <i class="fa-solid fa-store"></i>
 
-                <div class="card-title">
+                        <h5>Shop Information</h5>
 
-                    <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
 
-                    Order Products
+                    <div class="info-item">
+
+                        <div class="info-icon">
+                            <i class="fa-solid fa-store"></i>
+                        </div>
+
+                        <div class="info-text">
+
+                            <span class="info-label">
+                                Shop Name
+                            </span>
+
+                            <span class="info-value">
+                                @(Model.Shop?.ShopName ?? "N/A")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-icon">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+
+                        <div class="info-text">
+
+                            <span class="info-label">
+                                Shop Phone
+                            </span>
+
+                            <span class="info-value">
+                                @(Model.Shop?.ShopPhone ?? "N/A")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+
+                        <div class="info-text">
+
+                            <span class="info-label">
+                                Shop Address
+                            </span>
+
+                            <span class="info-value address">
+                                @(Model.Shop?.ShopAddress ?? "N/A")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-icon">
+                            <i class="fa-solid fa-map-pin"></i>
+                        </div>
+
+                        <div class="info-text">
+
+                            <span class="info-label">
+                                Delivery Zone
+                            </span>
+
+                            <span class="info-value">
+                                @assignedZone
+                            </span>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
+            </div>
 
-                @if (Model.OrderDetails != null &&
-                                Model.OrderDetails.Any())
-                {
+        </div>
 
-                    <div class="table-wrapper">
+        <div class="card">
 
-                        <table class="product-table">
+            <div class="card-header-custom">
 
-                            <thead>
+                <i class="fa-solid fa-bag-shopping"></i>
+
+                <h5>Order Products</h5>
+
+            </div>
+
+            @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+            {
+
+                <div class="products-wrapper">
+
+                    <table class="products-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var detail in Model.OrderDetails)
+                            {
+
+                                decimal lineAmount =
+                                    detail.UnitPrice * detail.Quantity;
 
                                 <tr>
 
-                                    <th>Product</th>
+                                    <td>
 
-                                    <th>Price</th>
+                                        <div class="d-flex align-items-center gap-3">
 
-                                    <th>Quantity</th>
+                                            @if (detail.Product != null &&
+                                                 !string.IsNullOrWhiteSpace(detail.Product.Image))
+                                            {
 
-                                    <th>Amount</th>
+                                                <img src="@Url.Content(detail.Product.Image)"
+                                                     class="product-image"
+                                                     alt="@detail.Product.ProductName" />
 
-                                </tr>
+                                            }
+                                            else
+                                            {
 
-                            </thead>
+                                                <div class="product-image d-flex align-items-center justify-content-center">
 
+                                                    <i class="fa-solid fa-image text-muted"></i>
 
-                            <tbody>
+                                                </div>
 
-                                @foreach (var detail in Model.OrderDetails)
-                                {
+                                            }
 
-                                    decimal lineAmount =
-                                    detail.UnitPrice * detail.Quantity;
+                                            <div>
 
-
-                                    <tr>
-
-                                        <td>
-
-                                            <div class="d-flex align-items-center gap-3">
-
-                                                @if (detail.Product != null &&
-                                                                                        !string.IsNullOrWhiteSpace(detail.Product.Image))
-                                                {
-
-                                                    <img src="@Url.Content(detail.Product.Image)"
-                                                         class="product-image"
-                                                         alt="Product" />
-
-                                                }
-                                                else
-                                                {
-
-                                                    <div class="product-image d-flex align-items-center justify-content-center">
-
-                                                        <i class="fa-solid fa-image text-muted"></i>
-
-                                                    </div>
-
-                                                }
-
-
-                                                <span class="product-name">
-
+                                                <div class="product-name">
                                                     @(detail.Product?.ProductName ?? "Product")
+                                                </div>
 
-                                                </span>
+                                                @if (!string.IsNullOrWhiteSpace(detail.PurchaseType))
+                                                {
+
+                                                    <small class="text-muted">
+                                                        @detail.PurchaseType
+                                                    </small>
+
+                                                }
 
                                             </div>
 
-                                        </td>
+                                        </div>
 
+                                    </td>
 
-                                        <td>
+                                    <td class="price">
+                                        Rs. @detail.UnitPrice.ToString("N2")
+                                    </td>
 
-                                            Rs.
-                                            @detail.UnitPrice.ToString("N2")
+                                    <td>
+                                        @detail.Quantity
+                                    </td>
 
-                                        </td>
+                                    <td class="price">
+                                        Rs. @lineAmount.ToString("N2")
+                                    </td>
 
+                                </tr>
 
-                                        <td>
-                                            @detail.Quantity
-                                        </td>
+                            }
 
+                        </tbody>
 
-                                        <td>
-
-                                            <strong>
-
-                                                Rs.
-                                                @lineAmount.ToString("N2")
-
-                                            </strong>
-
-                                        </td>
-
-                                    </tr>
-
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                }
-                else
-                {
-
-                    <div class="text-center text-muted py-4">
-
-                        <i class="fa-solid fa-box-open fa-2x mb-2"></i>
-
-                        <p class="mb-0">
-                            No products found for this order.
-                        </p>
-
-                    </div>
-
-                }
-
-            </div>
-
-
-
-
-            <div class="row g-4">
-
-
-
-
-                <div class="col-lg-6">
-
-                    <div class="detail-card">
-
-                        <div class="card-title">
-
-                            <i class="fa-solid fa-credit-card"></i>
-
-                            Payment Information
-
-                        </div>
-
-
-                        <div class="payment-method">
-
-                            <div class="payment-method-icon">
-
-                                @if (isCod)
-                                {
-                                    <i class="fa-solid fa-money-bill-wave"></i>
-                                }
-                                else
-                                {
-                                    <i class="fa-solid fa-credit-card"></i>
-                                }
-
-                            </div>
-
-
-                            <div>
-
-                                <strong>
-
-                                    @(isCod
-                                                                        ? "Cash on Delivery"
-                                                                        : (Model.PaymentMethod ?? "Online Payment"))
-
-                                </strong>
-
-
-                                <small>
-
-                                    Payment Status:
-                                    @(Model.PaymentStatus ?? "Pending")
-
-                                </small>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="amount-row">
-
-                            <span>
-                                Product Total
-                            </span>
-
-                            <strong>
-                                Rs. @Model.ProductTotal.ToString("N2")
-                            </strong>
-
-                        </div>
-
-
-                        <div class="amount-row">
-
-                            <span>
-                                Delivery Charges
-                            </span>
-
-                            <strong>
-                                Rs. @Model.DeliveryCharges.ToString("N2")
-                            </strong>
-
-                        </div>
-
-
-                        <div class="amount-row">
-
-                            <span>
-                                Service Fee
-                            </span>
-
-                            <strong>
-                                Rs. @Model.ServiceFee.ToString("N2")
-                            </strong>
-
-                        </div>
-
-
-                        <div class="amount-row total">
-
-                            <span>
-                                Total Amount
-                            </span>
-
-                            <strong>
-                                Rs. @Model.TotalAmount.ToString("N2")
-                            </strong>
-
-                        </div>
-
-
-                        @if (isCod)
-                        {
-
-                            <div class="cod-box">
-
-                                <div class="cod-title">
-
-                                    <i class="fa-solid fa-money-bill-wave me-1"></i>
-
-                                    Cash on Delivery
-
-                                </div>
-
-
-                                <div class="amount-row">
-
-                                    <span>
-                                        Amount to Collect
-                                    </span>
-
-                                    <strong>
-                                        Rs. @Model.TotalAmount.ToString("N2")
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="amount-row">
-
-                                    <span>
-                                        Collected Amount
-                                    </span>
-
-                                    <strong>
-                                        Rs. @Model.DeliveryCollectedAmount.ToString("N2")
-                                    </strong>
-
-                                </div>
-
-
-                                @if (codCollected)
-                                {
-
-                                    <span class="cod-status cod-collected">
-
-                                        <i class="fa-solid fa-circle-check"></i>
-
-                                        COD Collected
-
-                                    </span>
-
-                                }
-                                else
-                                {
-
-                                    <span class="cod-status cod-pending">
-
-                                        <i class="fa-solid fa-clock"></i>
-
-                                        COD Not Collected
-
-                                    </span>
-
-                                }
-
-                            </div>
-
-                        }
-
-                    </div>
+                    </table>
 
                 </div>
 
-
-
-
-                <div class="col-lg-6">
-
-                    <div class="detail-card">
-
-                        <div class="card-title">
-
-                            <i class="fa-solid fa-wallet"></i>
-
-                            Delivery Payment
-
-                        </div>
-
-
-                        <div class="earning-box">
-
-                            <div class="earning-title">
-                                Delivery Charges
-                            </div>
-
-
-                            <div class="earning-amount">
-
-                                Rs. @Model.DeliveryCharges.ToString("N2")
-
-                            </div>
-
-
-                            <div class="earning-status">
-
-                                Amount payable to delivery boy by Admin
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="amount-row">
-
-                            <span>
-                                Payment Status
-                            </span>
-
-
-                            <strong>
-
-                                @if (
-                                                                (Model.DeliveryPaymentStatus ?? "")
-                                                                .Equals(
-                                                                "Paid",
-                                                                StringComparison.OrdinalIgnoreCase))
-                                {
-
-                                    <span class="text-success">
-
-                                        <i class="fa-solid fa-circle-check me-1"></i>
-
-                                        Paid
-
-                                    </span>
-
-                                }
-                                else
-                                {
-
-                                    <span class="text-warning">
-
-                                        <i class="fa-solid fa-clock me-1"></i>
-
-                                        Pending
-
-                                    </span>
-
-                                }
-
-                            </strong>
-
-                        </div>
-
-
-                        @if (!string.IsNullOrWhiteSpace(Model.DeliveryPaymentMethod))
-                        {
-
-                            <div class="amount-row">
-
-                                <span>
-                                    Payment Method
-                                </span>
-
-                                <strong>
-                                    @Model.DeliveryPaymentMethod
-                                </strong>
-
-                            </div>
-
-                        }
-
-
-                        @if (!string.IsNullOrWhiteSpace(Model.DeliveryPaymentAccount))
-                        {
-
-                            <div class="amount-row">
-
-                                <span>
-                                    Payment Account
-                                </span>
-
-                                <strong>
-                                    @Model.DeliveryPaymentAccount
-                                </strong>
-
-                            </div>
-
-                        }
-
-
-                        @if (Model.DeliveryPaymentDate.HasValue)
-                        {
-
-                            <div class="amount-row">
-
-                                <span>
-                                    Payment Date
-                                </span>
-
-                                <strong>
-
-                                    @Model.DeliveryPaymentDate.Value.ToString("dd MMM yyyy")
-
-                                </strong>
-
-                            </div>
-
-                        }
-
-
-                        <div class="amount-row total">
-
-                            <span>
-                                Amount Received
-                            </span>
-
-                            <strong>
-                                Rs. @Model.DeliveryPaidAmount.ToString("N2")
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            }
+            else
             {
 
-                <div class="detail-card">
+                <div class="text-center text-muted py-4">
 
-                    <div class="card-title">
+                    <i class="fa-solid fa-box-open fa-2x mb-2"></i>
 
-                        <i class="fa-solid fa-note-sticky"></i>
-
-                        Customer / Order Notes
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <div class="info-icon">
-
-                            <i class="fa-solid fa-comment"></i>
-
-                        </div>
-
-
-                        <div class="info-content">
-
-                            <span class="info-value address-value">
-
-                                @Model.Notes
-
-                            </span>
-
-                        </div>
-
-                    </div>
+                    <p class="mb-0">
+                        No products found.
+                    </p>
 
                 </div>
 
             }
 
+        </div>
 
+        <div class="row g-4">
 
-            <div class="action-card">
+            <div class="col-lg-6">
+
+                <div class="card">
+
+                    <div class="card-header-custom">
+
+                        <i class="fa-solid fa-credit-card"></i>
+
+                        <h5>Payment Information</h5>
+
+                    </div>
+
+                    <div class="payment-method">
+
+                        <div class="payment-icon">
+
+                            <i class="fa-solid @(isCod ? "fa-money-bill-wave" : "fa-credit-card")"></i>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                @(isCod
+                                    ? "Cash on Delivery"
+                                    : (Model.PaymentMethod ?? "Online Payment"))
+                            </strong>
+
+                            <span>
+                                Payment Status: @paymentStatus
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="amount-row">
+
+                        <span>Product Total</span>
+
+                        <strong>
+                            Rs. @productTotal.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                    <div class="amount-row">
+
+                        <span>Service Fee</span>
+
+                        <strong>
+                            Rs. @serviceFee.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                    <div class="amount-row">
+
+                        <span>Delivery Charges</span>
+
+                        <strong>
+                            Rs. @deliveryCharges.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                    <div class="amount-row total-row">
+
+                        <span>Total Amount</span>
+
+                        <strong>
+                            Rs. @totalAmount.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                    @if (isCod)
+                    {
+
+                        <div class="cod-panel">
+
+                            <h6>
+
+                                <i class="fa-solid fa-money-bill-wave me-1"></i>
+
+                                COD Collection
+
+                            </h6>
+
+                            <div class="amount-row">
+
+                                <span>
+                                    Amount to Collect
+                                </span>
+
+                                <strong>
+                                    Rs. @totalAmount.ToString("N2")
+                                </strong>
+
+                            </div>
+
+                            <div class="amount-row">
+
+                                <span>
+                                    Collected Amount
+                                </span>
+
+                                <strong>
+                                    Rs. @collectedAmount.ToString("N2")
+                                </strong>
+
+                            </div>
+
+                            @if (codCollected)
+                            {
+
+                                <span class="cod-status cod-success">
+
+                                    <i class="fa-solid fa-circle-check"></i>
+
+                                    COD Collected
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="cod-status cod-pending">
+
+                                    <i class="fa-solid fa-clock"></i>
+
+                                    COD Pending
+
+                                </span>
+
+                            }
+
+                        </div>
+
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <div class="card">
+
+                    <div class="card-header-custom">
+
+                        <i class="fa-solid fa-wallet"></i>
+
+                        <h5>Delivery Payment</h5>
+
+                    </div>
+
+                    <div class="delivery-earning">
+
+                        <span>
+                            Delivery Charges
+                        </span>
+
+                        <strong>
+                            Rs. @deliveryCharges.ToString("N2")
+                        </strong>
+
+                        <small>
+                            Amount payable to delivery boy by Admin
+                        </small>
+
+                    </div>
+
+                    <div class="amount-row">
+
+                        <span>
+                            Payment Status
+                        </span>
+
+                        <strong>
+
+                            @if (deliveryPaymentStatus.Equals(
+                                "Paid",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+
+                                <span class="text-success">
+
+                                    <i class="fa-solid fa-circle-check me-1"></i>
+
+                                    Paid
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="text-warning">
+
+                                    <i class="fa-solid fa-clock me-1"></i>
+
+                                    Pending
+
+                                </span>
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.DeliveryPaymentMethod))
+                    {
+
+                        <div class="amount-row">
+
+                            <span>
+                                Payment Method
+                            </span>
+
+                            <strong>
+                                @Model.DeliveryPaymentMethod
+                            </strong>
+
+                        </div>
+
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.DeliveryPaymentAccount))
+                    {
+
+                        <div class="amount-row">
+
+                            <span>
+                                Payment Account
+                            </span>
+
+                            <strong>
+                                @Model.DeliveryPaymentAccount
+                            </strong>
+
+                        </div>
+
+                    }
+
+                    @if (Model.DeliveryPaymentDate.HasValue)
+                    {
+
+                        <div class="amount-row">
+
+                            <span>
+                                Payment Date
+                            </span>
+
+                            <strong>
+                                @Model.DeliveryPaymentDate.Value.ToString("dd MMM yyyy")
+                            </strong>
+
+                        </div>
+
+                    }
+
+                    <div class="amount-row total-row">
+
+                        <span>
+                            Amount Received
+                        </span>
+
+                        <strong>
+                            Rs. @deliveryPaidAmount.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+
+            <div class="card">
+
+                <div class="card-header-custom">
+
+                    <i class="fa-solid fa-note-sticky"></i>
+
+                    <h5>Order Notes</h5>
+
+                </div>
+
+                <div class="notes">
+                    @Model.Notes
+                </div>
+
+            </div>
+
+        }
+
+        <div class="card action-card">
+
+            <div class="action-title">
 
                 <h5>
 
@@ -2017,369 +1924,313 @@
 
                 </h5>
 
+            </div>
 
+            <div class="current-status">
 
+                Current Status:
 
-                <div class="current-status-box">
+                <strong>
+                    @status
+                </strong>
 
-                    Current Order Status:
-
-                    <strong>
-                        @status
-                    </strong>
-
-
-                    @if (isAssigned)
-                    {
-
-                        <span class="text-success ms-2">
-
-                            <i class="fa-solid fa-user-check"></i>
-
-                            Assigned to you
-
-                        </span>
-
-                    }
-                    else if (assignedToAnother)
-                    {
-
-                        <span class="text-danger ms-2">
-
-                            <i class="fa-solid fa-user-lock"></i>
-
-                            Assigned to another delivery boy
-
-                        </span>
-
-                    }
-                    else
-                    {
-
-                        <span class="text-warning ms-2">
-
-                            <i class="fa-solid fa-user-clock"></i>
-
-                            Not assigned
-
-                        </span>
-
-                    }
-
-                </div>
-
-
-
-                @if (!isAssigned)
+                @if (assignedToCurrent)
                 {
 
+                    <span class="assignment you">
 
-                    @if ((isReady || isConfirmed) && !assignedToAnother)
-                    {
+                        <i class="fa-solid fa-user-check"></i>
 
-                        <div class="action-buttons">
+                        Assigned to You
 
-                            <form asp-controller="Delivery"
-                                  asp-action="AcceptOrder"
-                                  method="post">
+                    </span>
 
-                                @Html.AntiForgeryToken()
+                }
+                else if (assignedToAnother)
+                {
 
-                                <input type="hidden"
-                                       name="id"
-                                       value="@Model.OrderId" />
+                    <span class="assignment other">
 
-                                <button type="submit"
-                                        class="btn btn-gold"
-                                        onclick="return confirm('Do you want to pick this order?');">
+                        <i class="fa-solid fa-user-lock"></i>
 
-                                    <i class="fa-solid fa-hand-pointer me-1"></i>
+                        Assigned to Another Delivery Boy
 
-                                    Pick Order
+                    </span>
 
-                                </button>
+                }
+                else
+                {
 
-                            </form>
+                    <span class="assignment none">
 
-                        </div>
+                        <i class="fa-solid fa-user-clock"></i>
 
-                    }
-                    else if (assignedToAnother)
-                    {
+                        Not Assigned
 
-                        <div class="not-assigned-message">
-
-                            <i class="fa-solid fa-user-lock me-2"></i>
-
-                            This order is assigned to another delivery boy.
-
-                        </div>
-
-                    }
-                    else
-                    {
-
-                        <div class="not-assigned-message">
-
-                            <i class="fa-solid fa-circle-info me-2"></i>
-
-                            This order is not currently available for you.
-
-                        </div>
-
-                    }
+                    </span>
 
                 }
 
+            </div>
 
-                @if (isAssigned)
+            <div class="actions">
+
+                @if (canPickReadyOrder)
                 {
 
-                    <div class="action-buttons">
+                    <form asp-controller="Delivery"
+                          asp-action="AcceptOrder"
+                          method="post">
 
+                        @Html.AntiForgeryToken()
 
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
 
-                        @if (isAssignedStatus)
+                        <button type="submit"
+                                class="action-btn btn-gold"
+                                onclick="return confirm('This order is ready. Do you want to pick this order?');">
+
+                            <i class="fa-solid fa-box-open me-1"></i>
+
+                            Pick / Accept Order
+
+                        </button>
+
+                    </form>
+
+                }
+                else if (canAcceptUnassignedOrder)
+                {
+
+                    <form asp-controller="Delivery"
+                          asp-action="AcceptOrder"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+                        <button type="submit"
+                                class="action-btn btn-gold"
+                                onclick="return confirm('Do you want to accept this order for delivery?');">
+
+                            <i class="fa-solid fa-hand-pointer me-1"></i>
+
+                            Pick Order
+
+                        </button>
+
+                    </form>
+
+                }
+
+                @if (canPickUp)
+                {
+
+                    <form asp-controller="Delivery"
+                          asp-action="UpdateDeliveryStatus"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+                        <input type="hidden"
+                               name="status"
+                               value="Picked Up" />
+
+                        <button type="submit"
+                                class="action-btn btn-maroon"
+                                onclick="return confirm('Confirm that you picked up this order from the shop?');">
+
+                            <i class="fa-solid fa-box-open me-1"></i>
+
+                            Picked Up
+
+                        </button>
+
+                    </form>
+
+                }
+
+                @if (canStartDelivery)
+                {
+
+                    <form asp-controller="Delivery"
+                          asp-action="UpdateDeliveryStatus"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+                        <input type="hidden"
+                               name="status"
+                               value="Out for Delivery" />
+
+                        <button type="submit"
+                                class="action-btn btn-maroon"
+                                onclick="return confirm('Start delivery for this order?');">
+
+                            <i class="fa-solid fa-motorcycle me-1"></i>
+
+                            Start Delivery
+
+                        </button>
+
+                    </form>
+
+                }
+
+                @if (canCollectCod)
+                {
+
+                    <form asp-controller="Delivery"
+                          asp-action="CollectCOD"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+                        <button type="submit"
+                                class="action-btn btn-gold"
+                                onclick="return confirm('Confirm that you collected Rs. @totalAmount.ToString("N2") from the customer?');">
+
+                            <i class="fa-solid fa-money-bill-wave me-1"></i>
+
+                            Collect COD
+
+                        </button>
+
+                    </form>
+
+                }
+
+                @if (isCod &&
+                     !codCollected &&
+                     assignedToCurrent &&
+                     isOutForDelivery)
+                {
+
+                    <div class="warning-box">
+
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+
+                        Collect the full COD amount before marking the order as delivered.
+
+                    </div>
+
+                }
+
+                @if (canMarkDelivered)
+                {
+
+                    <form asp-controller="Delivery"
+                          asp-action="UpdateDeliveryStatus"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderId" />
+
+                        <input type="hidden"
+                               name="status"
+                               value="Delivered" />
+
+                        <button type="submit"
+                                class="action-btn btn-green"
+                                onclick="return confirm('Confirm that this order has been delivered to the customer?');">
+
+                            <i class="fa-solid fa-circle-check me-1"></i>
+
+                            Mark Delivered
+
+                        </button>
+
+                    </form>
+
+                }
+
+                @if (assignedToAnother)
+                {
+
+                    <div class="danger-box">
+
+                        <i class="fa-solid fa-user-lock me-2"></i>
+
+                        This order is assigned to another delivery boy. You cannot change its delivery status.
+
+                    </div>
+
+                }
+
+                @if (isDelivered || isCompleted)
+                {
+
+                    <div class="success-box">
+
+                        <i class="fa-solid fa-circle-check me-2"></i>
+
+                        This order has been successfully delivered.
+
+                        @if (deliveryPaymentStatus.Equals(
+                            "Pending",
+                            StringComparison.OrdinalIgnoreCase))
                         {
 
-                            <form asp-controller="Delivery"
-                                  asp-action="UpdateDeliveryStatus"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <input type="hidden"
-                                       name="id"
-                                       value="@Model.OrderId" />
-
-                                <input type="hidden"
-                                       name="status"
-                                       value="Picked Up" />
-
-                                <button type="submit"
-                                        class="btn btn-maroon"
-                                        onclick="return confirm('Confirm that you picked up this order from the shop?');">
-
-                                    <i class="fa-solid fa-box-open me-1"></i>
-
-                                    Picked Up
-
-                                </button>
-
-                            </form>
+                            <span class="ms-2">
+                                Delivery payment is pending from Admin.
+                            </span>
 
                         }
 
+                    </div>
 
-                        @if (isReady || isConfirmed)
-                        {
+                }
 
-                            <form asp-controller="Delivery"
-                                  asp-action="AcceptOrder"
-                                  method="post">
+                @if (isCancelled)
+                {
 
-                                @Html.AntiForgeryToken()
+                    <div class="danger-box">
 
-                                <input type="hidden"
-                                       name="id"
-                                       value="@Model.OrderId" />
+                        <i class="fa-solid fa-ban me-2"></i>
 
-                                <button type="submit"
-                                        class="btn btn-gold"
-                                        onclick="return confirm('Confirm this order assignment?');">
+                        This order has been cancelled. No delivery action is available.
 
-                                    <i class="fa-solid fa-user-check me-1"></i>
+                    </div>
 
-                                    Confirm Assignment
+                }
 
-                                </button>
+                @if (!isCancelled &&
+                     !isDelivered &&
+                     !isCompleted &&
+                     !assignedToAnother &&
+                     !canPickReadyOrder &&
+                     !canAcceptUnassignedOrder &&
+                     !canPickUp &&
+                     !canStartDelivery &&
+                     !canCollectCod &&
+                     !canMarkDelivered)
+                {
 
-                            </form>
+                    <div class="info-box">
 
-                        }
+                        <i class="fa-solid fa-circle-info me-2"></i>
 
-
-
-                        @if (isPickedUp)
-                        {
-
-                            <form asp-controller="Delivery"
-                                  asp-action="UpdateDeliveryStatus"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <input type="hidden"
-                                       name="id"
-                                       value="@Model.OrderId" />
-
-                                <input type="hidden"
-                                       name="status"
-                                       value="Out for Delivery" />
-
-                                <button type="submit"
-                                        class="btn btn-maroon"
-                                        onclick="return confirm('Start delivery for this order?');">
-
-                                    <i class="fa-solid fa-motorcycle me-1"></i>
-
-                                    Start Delivery
-
-                                </button>
-
-                            </form>
-
-                        }
-
-
-                        @if (
-                                            isCod &&
-                                            !codCollected &&
-                                            (isPickedUp || isOutForDelivery))
-                        {
-
-                            <form asp-controller="Delivery"
-                                  asp-action="CollectCOD"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <input type="hidden"
-                                       name="id"
-                                       value="@Model.OrderId" />
-
-                                <button type="submit"
-                                        class="btn btn-gold"
-                                        onclick="return confirm('Confirm that you collected Rs. @Model.TotalAmount.ToString("N2") from the customer?');">
-
-                                    <i class="fa-solid fa-money-bill-wave me-1"></i>
-
-                                    Collect COD
-
-                                </button>
-
-                            </form>
-
-                        }
-
-
-
-                        @if (
-                                            isCod &&
-                                            !codCollected &&
-                                            isOutForDelivery)
-                        {
-
-                            <div class="cod-warning w-100">
-
-                                <i class="fa-solid fa-triangle-exclamation me-2"></i>
-
-                                COD payment must be collected before
-                                marking this order as delivered.
-
-                            </div>
-
-                        }
-
-
-
-                        @if (isPickedUp || isOutForDelivery)
-                        {
-
-                            bool canDeliver =
-                            !isCod || codCollected;
-
-
-                            if (canDeliver)
-                            {
-
-                                <form asp-controller="Delivery"
-                                      asp-action="UpdateDeliveryStatus"
-                                      method="post">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="id"
-                                           value="@Model.OrderId" />
-
-                                    <input type="hidden"
-                                           name="status"
-                                           value="Delivered" />
-
-                                    <button type="submit"
-                                            class="btn btn-green"
-                                            onclick="return confirm('Confirm that this order has been delivered?');">
-
-                                        <i class="fa-solid fa-circle-check me-1"></i>
-
-                                        Mark Delivered
-
-                                    </button>
-
-                                </form>
-
-                            }
-
-                        }
-
-
-
-                        @if (isDelivered || isCompleted)
-                        {
-
-                            <div class="completed-message w-100">
-
-                                <i class="fa-solid fa-circle-check me-2"></i>
-
-                                This order has been successfully delivered.
-
-
-                                @if (
-                                                        (Model.DeliveryPaymentStatus ?? "")
-                                                        .Equals(
-                                                        "Pending",
-                                                        StringComparison.OrdinalIgnoreCase))
-                                {
-
-                                    <span class="ms-2">
-
-                                        Delivery payment is pending from Admin.
-
-                                    </span>
-
-                                }
-
-                            </div>
-
-                        }
-
-
-                        @if (
-                                            !isReady &&
-                                            !isConfirmed &&
-                                            !isAssignedStatus &&
-                                            !isPickedUp &&
-                                            !isOutForDelivery &&
-                                            !isDelivered &&
-                                            !isCompleted)
-                        {
-
-                            <div class="not-assigned-message w-100">
-
-                                <i class="fa-solid fa-clock me-2"></i>
-
-                                Current order status is
-
-                                <strong>
-                                    @status
-                                </strong>.
-
-                                No delivery action is available at this stage.
-
-                            </div>
-
-                        }
+                        No delivery action is currently available. The next action will become available when the order status changes.
 
                     </div>
 
@@ -2389,12 +2240,11 @@
 
         </div>
 
-    </main>
+    </div>
 
+</main>
 
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
 </body>

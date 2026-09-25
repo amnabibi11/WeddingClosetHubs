@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WeddingClosetHubs.Models;
 
@@ -11,9 +12,11 @@ using WeddingClosetHubs.Models;
 namespace WeddingClosetHubs.Migrations
 {
     [DbContext(typeof(WeddingClosetHubsContext))]
-    partial class WeddingClosetHubsContextModelSnapshot : ModelSnapshot
+    [Migration("20260923092255_AddCustomerRentalRefundPreference")]
+    partial class AddCustomerRentalRefundPreference
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

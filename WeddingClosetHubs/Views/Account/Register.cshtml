@@ -69,7 +69,7 @@
                                   class="text-danger">
                             </span>
 
-                            
+
 
                         </div>
 
@@ -100,7 +100,7 @@
                         </div>
 
 
-                        
+
 
                         <div class="mb-3">
 
@@ -167,7 +167,7 @@
                                   class="text-danger">
                             </span>
 
-                           
+
 
                         </div>
 
@@ -176,7 +176,7 @@
                             <label asp-for="Address"
                                    class="form-label">
 
-                                Complete Address
+                                Address
                                 <span class="text-danger">*</span>
 
                             </label>
@@ -186,15 +186,12 @@
                                       id="address"
                                       rows="3"
                                       maxlength="500"
-                                      placeholder="House/Shop No, Street/Road, Area, Rawalpindi"></textarea>
+                                      placeholder="Enter your address in Rawalpindi"></textarea>
 
                             <span asp-validation-for="Address"
                                   class="text-danger">
                             </span>
 
-                            <small class="text-muted">
-                                Enter your complete Rawalpindi address.
-                            </small>
 
                         </div>
 
@@ -253,7 +250,7 @@
                                     Customer Registration
                                 </h5>
 
-                                
+
 
                             </div>
 
@@ -351,7 +348,7 @@
                                               id="shopCategoryError">
                                         </span>
 
-                                        
+
 
                                     </div>
 
@@ -391,7 +388,7 @@
                                                   class="form-control"
                                                   rows="3"
                                                   maxlength="500"
-                                                  placeholder="Complete shop address in Rawalpindi"></textarea>
+                                                  placeholder="Enter shop address in Rawalpindi"></textarea>
 
                                         <span class="text-danger"
                                               id="shopAddressError">
@@ -631,7 +628,7 @@
                                     </div>
 
 
-                                    
+
 
                                     <div class="mb-3">
 
@@ -703,7 +700,7 @@
                                             </option>
 
                                             <option value="Askari 7">
-                                                Askari 7
+                                                Liaqat Bagh
                                             </option>
 
                                         </select>
@@ -779,7 +776,7 @@
                     </form>
 
 
-                    
+
 
                     <div class="text-center mt-3">
 
@@ -1040,7 +1037,7 @@
                         }
 
 
-                       
+
 
                         value =
                             value.replace(
@@ -1049,7 +1046,7 @@
                             );
 
 
-                      
+
 
                         if (value.length > 11) {
 
@@ -1062,7 +1059,7 @@
                         }
 
 
-                        
+
 
                         if (value.length > 4) {
 
@@ -1190,7 +1187,7 @@
             }
 
 
-           
+
 
             document
                 .getElementById("shopFrontPhoto")
@@ -1237,7 +1234,7 @@
                 );
 
 
-           
+
 
             document
                 .getElementById("cnicFrontImage")
@@ -1462,13 +1459,11 @@
                         }
 
 
-                        if (
-                            shopAddress.length < 10
-                        ) {
+                        if (!shopAddress) {
 
                             setError(
                                 "shopAddressError",
-                                "Please enter a complete shop address."
+                                "Shop address is required."
                             );
 
                             valid = false;
@@ -1489,19 +1484,6 @@
 
                         }
 
-
-                        if (
-                            shopDescription.length < 10
-                        ) {
-
-                            setError(
-                                "shopDescriptionError",
-                                "Please provide a shop description."
-                            );
-
-                            valid = false;
-
-                        }
 
                         const shopFront =
                             document

@@ -52,6 +52,9 @@ namespace WeddingClosetHubs.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal DeliveryCharges { get; set; }
 
+         [Column(TypeName = "decimal(18,2)")]
+        public decimal RefundableSecurity { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal ServiceFee { get; set; }
 
