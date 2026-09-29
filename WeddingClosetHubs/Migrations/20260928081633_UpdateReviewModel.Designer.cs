@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WeddingClosetHubs.Models;
 
@@ -11,9 +12,11 @@ using WeddingClosetHubs.Models;
 namespace WeddingClosetHubs.Migrations
 {
     [DbContext(typeof(WeddingClosetHubsContext))]
-    partial class WeddingClosetHubsContextModelSnapshot : ModelSnapshot
+    [Migration("20260928081633_UpdateReviewModel")]
+    partial class UpdateReviewModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -725,6 +728,7 @@ namespace WeddingClosetHubs.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int?>("ProductId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("Rating")
@@ -1087,7 +1091,8 @@ namespace WeddingClosetHubs.Migrations
                     b.HasOne("WeddingClosetHubs.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("WeddingClosetHubs.Models.Shop", "Shop")
                         .WithMany()

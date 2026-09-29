@@ -3,9 +3,408 @@
 @{
     ViewData["Title"] = "Orders";
     Layout = null;
+
+    var orders = Model?.ToList()
+        ?? new List<WeddingClosetHubs.Models.Order>();
+
+    string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? ""
+            : value.Trim();
+    }
+
+    bool ContainsText(string? value, string text)
+    {
+        string current = Normalize(value);
+
+        return current.Contains(
+            text,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool IsStatus(string? value, params string[] statuses)
+    {
+        string current = Normalize(value);
+
+        return statuses.Any(status =>
+            current.Equals(
+                status,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    bool IsPendingStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Pending",
+            "Awaiting Confirmation",
+            "Waiting for Confirmation");
+    }
+
+    bool IsConfirmedStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Confirmed",
+            "Accepted",
+            "Order Confirmed",
+            "Confirmed by Shopkeeper",
+            "Confirmed By Shopkeeper",
+            "Accepted by Shopkeeper");
+    }
+
+    bool IsProcessingStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Processing",
+            "In Processing",
+            "Order Processing");
+    }
+
+    bool IsReadyStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Ready",
+            "Ready for Delivery",
+            "Ready For Delivery");
+    }
+
+    bool IsAssignedStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Assigned",
+            "Delivery Assigned",
+            "Assigned to Delivery");
+    }
+
+    bool IsPickedUpStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Picked Up",
+            "PickedUp",
+            "Order Picked Up");
+    }
+
+    bool IsOutForDeliveryStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Out for Delivery",
+            "Out For Delivery",
+            "Shipped");
+    }
+
+    bool IsDeliveredStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Delivered",
+            "Order Delivered");
+    }
+
+    bool IsCompletedStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Completed",
+            "Order Completed");
+    }
+
+    bool IsCancelledStatus(string? value)
+    {
+        return IsStatus(
+            value,
+            "Cancelled",
+            "Canceled",
+            "Order Cancelled",
+            "Order Canceled");
+    }
+
+    bool IsCustomizeType(string? value)
+    {
+        string current = Normalize(value);
+
+        if (string.IsNullOrWhiteSpace(current))
+            return false;
+
+        return current.Contains(
+            "custom",
+            StringComparison.OrdinalIgnoreCase)
+            ||
+            current.Contains(
+                "customize",
+                StringComparison.OrdinalIgnoreCase)
+            ||
+            current.Contains(
+                "customized",
+                StringComparison.OrdinalIgnoreCase)
+            ||
+            current.Contains(
+                "customization",
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool IsBuyType(string? value)
+    {
+        string current = Normalize(value);
+
+        if (string.IsNullOrWhiteSpace(current))
+            return true;
+
+        if (IsCustomizeType(current))
+        {
+            return current.Contains(
+                "buy",
+                StringComparison.OrdinalIgnoreCase)
+                ||
+                current.Contains(
+                    "purchase",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        return current.Equals(
+                   "Buy",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Purchase",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Purchase Order",
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool IsSaleType(string? value)
+    {
+        string current = Normalize(value);
+
+        if (string.IsNullOrWhiteSpace(current))
+            return false;
+
+        return current.Equals(
+                   "Sale",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Sell",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Sale Order",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               (
+                   IsCustomizeType(current)
+                   &&
+                   current.Contains(
+                       "sale",
+                       StringComparison.OrdinalIgnoreCase)
+               )
+               ||
+               (
+                   IsCustomizeType(current)
+                   &&
+                   current.Contains(
+                       "sell",
+                       StringComparison.OrdinalIgnoreCase)
+               );
+    }
+
+    bool IsRentType(string? value)
+    {
+        string current = Normalize(value);
+
+        if (string.IsNullOrWhiteSpace(current))
+            return false;
+
+        return current.Equals(
+                   "Rent",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Rental",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               current.Equals(
+                   "Rental Order",
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               (
+                   IsCustomizeType(current)
+                   &&
+                   (
+                       current.Contains(
+                           "rent",
+                           StringComparison.OrdinalIgnoreCase)
+                       ||
+                       current.Contains(
+                           "rental",
+                           StringComparison.OrdinalIgnoreCase)
+                   )
+               );
+    }
+
+    string GetTypeLabel(string? value)
+    {
+        string current = Normalize(value);
+
+        if (string.IsNullOrWhiteSpace(current))
+            return "Buy";
+
+        bool customize = IsCustomizeType(current);
+        bool rent = IsRentType(current);
+        bool sale = IsSaleType(current);
+        bool buy = IsBuyType(current);
+
+        if (customize)
+        {
+            if (rent && buy)
+                return "Customize / Buy / Rent";
+
+            if (rent && sale)
+                return "Customize / Sale / Rent";
+
+            if (rent)
+                return "Customize / Rent";
+
+            if (sale && buy)
+                return "Customize / Buy / Sale";
+
+            if (sale)
+                return "Customize / Sale";
+
+            if (buy)
+                return "Customize / Buy";
+
+            return "Customize";
+        }
+
+        if (rent)
+            return "Rent";
+
+        if (sale)
+            return "Sale";
+
+        if (buy)
+            return "Buy";
+
+        return current;
+    }
+
+    bool IsPaid(string? value)
+    {
+        return IsStatus(
+            value,
+            "Paid",
+            "Received",
+            "Payment Received",
+            "Payment Completed",
+            "Completed");
+    }
+
+    int totalOrders = orders.Count;
+
+    int pendingOrders = orders.Count(o =>
+        IsPendingStatus(o.OrderStatus));
+
+    int confirmedOrders = orders.Count(o =>
+        IsConfirmedStatus(o.OrderStatus));
+
+    int processingOrders = orders.Count(o =>
+        IsProcessingStatus(o.OrderStatus));
+
+    int readyOrders = orders.Count(o =>
+        IsReadyStatus(o.OrderStatus));
+
+    int assignedOrders = orders.Count(o =>
+        IsAssignedStatus(o.OrderStatus));
+
+    int pickedUpOrders = orders.Count(o =>
+        IsPickedUpStatus(o.OrderStatus));
+
+    int outForDeliveryOrders = orders.Count(o =>
+        IsOutForDeliveryStatus(o.OrderStatus));
+
+    int deliveredOrders = orders.Count(o =>
+        IsDeliveredStatus(o.OrderStatus));
+
+    int completedOrders = orders.Count(o =>
+        IsCompletedStatus(o.OrderStatus));
+
+    int cancelledOrders = orders.Count(o =>
+        IsCancelledStatus(o.OrderStatus));
+
+    int buyOrders = orders.Count(o =>
+        o.OrderDetails != null &&
+        o.OrderDetails.Any(d =>
+            IsBuyType(d.PurchaseType)));
+
+    int saleOrders = orders.Count(o =>
+        o.OrderDetails != null &&
+        o.OrderDetails.Any(d =>
+            IsSaleType(d.PurchaseType)));
+
+    int rentOrders = orders.Count(o =>
+        o.OrderDetails != null &&
+        o.OrderDetails.Any(d =>
+            IsRentType(d.PurchaseType)));
+
+    int customizeOrders = orders.Count(o =>
+        o.OrderDetails != null &&
+        o.OrderDetails.Any(d =>
+            IsCustomizeType(d.PurchaseType)));
+
+    int paidOrders = orders.Count(o =>
+        o.PaymentReceived ||
+        IsPaid(o.PaymentStatus));
+
+    int unpaidOrders = Math.Max(
+        0,
+        totalOrders - paidOrders);
+    int assignedDeliveryOrders = orders.Count(o =>
+        o.DeliveryId.HasValue && o.DeliveryId.Value > 0);
+
+
+    int unassignedDeliveryOrders = Math.Max(
+        0,
+        totalOrders - assignedDeliveryOrders);
+
+    decimal totalProductAmount = orders.Sum(o =>
+        o.ProductTotal);
+
+    decimal totalOrderAmount = orders.Sum(o =>
+        o.TotalAmount);
+
+    decimal totalShopkeeperAmount = orders.Sum(o =>
+        o.ShopkeeperAmount);
+
+    var actualPurchaseTypes = orders
+        .Where(o => o.OrderDetails != null)
+        .SelectMany(o => o.OrderDetails!)
+        .Select(d =>
+            string.IsNullOrWhiteSpace(d.PurchaseType)
+                ? "[NULL / EMPTY]"
+                : d.PurchaseType.Trim())
+        .GroupBy(
+            value => value,
+            StringComparer.OrdinalIgnoreCase)
+        .Select(group => new
+        {
+            Name = group.First(),
+            Count = group.Count()
+        })
+        .OrderByDescending(x => x.Count)
+        .ToList();
 }
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -15,7 +414,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0" />
 
-    <title>Orders - Wedding Closet Hub</title>
+    <title>Orders - Wedding Closet Hubs</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet" />
@@ -25,132 +424,298 @@
 
     <style>
 
+        :root {
+            --maroon: #800020;
+            --dark-maroon: #620018;
+            --gold: #d4af37;
+            --light-gold: #fbf6e6;
+            --light-maroon: #f9eef2;
+            --border: #ece7e9;
+            --text: #333;
+            --muted: #777;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background: #f7f4f5;
+            margin: 0;
+            background: #f6f4f5;
             font-family: Arial, sans-serif;
-            color: #333;
+            color: var(--text);
         }
 
         .navbar-custom {
-            background: #800020;
+            background: linear-gradient(135deg, var(--maroon), #690019);
             padding: 15px 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.12);
         }
 
         .brand {
-            color: #d4af37;
+            color: var(--gold);
             font-size: 23px;
-            font-weight: bold;
+            font-weight: 700;
             text-decoration: none;
         }
 
-        .brand:hover {
-            color: #d4af37;
+            .brand:hover {
+                color: var(--gold);
+            }
+
+        .dashboard-btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 9px 15px;
         }
 
         .page-container {
-            padding: 35px;
+            padding: 32px;
+            max-width: 1900px;
+            margin: auto;
         }
 
         .page-title {
-            color: #800020;
-            font-weight: bold;
+            color: var(--maroon);
+            font-weight: 700;
             margin-bottom: 5px;
         }
 
         .page-subtitle {
-            color: #777;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .summary-section-title {
+            color: var(--maroon);
+            font-weight: 700;
+            margin: 25px 0 12px;
+            font-size: 16px;
         }
 
         .summary-box {
             background: white;
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
             height: 100%;
+            border: 1px solid var(--border);
+            transition: .2s ease;
         }
 
+            .summary-box:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 7px 20px rgba(0,0,0,.09);
+            }
+
         .summary-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f8e9ed;
-            color: #800020;
+            background: var(--light-maroon);
+            color: var(--maroon);
             font-size: 22px;
+            flex-shrink: 0;
         }
 
         .summary-number {
             font-size: 25px;
-            font-weight: bold;
-            color: #800020;
+            font-weight: 700;
+            color: var(--maroon);
+            line-height: 1.1;
         }
 
         .summary-label {
-            color: #777;
-            font-size: 14px;
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .summary-description {
+            color: #999;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .status-card-pending .summary-icon {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-card-confirmed .summary-icon {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-card-processing .summary-icon {
+            background: #e2d9f3;
+            color: #432874;
+        }
+
+        .status-card-ready .summary-icon {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-card-assigned .summary-icon {
+            background: #e8def8;
+            color: #563d7c;
+        }
+
+        .status-card-picked .summary-icon {
+            background: #d9edf7;
+            color: #31708f;
+        }
+
+        .status-card-out .summary-icon {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-card-delivered .summary-icon {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-card-completed .summary-icon {
+            background: #d1e7dd;
+            color: #198754;
+        }
+
+        .status-card-cancelled .summary-icon {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .type-buy .summary-icon {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .type-sale .summary-icon {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .type-customize .summary-icon {
+            background: #e2d9f3;
+            color: #432874;
+        }
+
+        .type-rent .summary-icon {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .payment-paid-card .summary-icon {
+            background: #d1e7dd;
+            color: #198754;
+        }
+
+        .payment-unpaid-card .summary-icon {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
+        .delivery-assigned-card .summary-icon {
+            background: #d1e7dd;
+            color: #198754;
+        }
+
+        .delivery-unassigned-card .summary-icon {
+            background: #fff3cd;
+            color: #856404;
         }
 
         .orders-box {
             background: white;
-            border-radius: 14px;
-            box-shadow: 0 3px 14px rgba(0,0,0,.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.07);
             overflow: hidden;
+            border: 1px solid var(--border);
+            margin-top: 28px;
         }
 
         .orders-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid #eee;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .orders-header h5 {
-            color: #800020;
-            font-weight: bold;
-            margin: 0;
+            .orders-header h5 {
+                color: var(--maroon);
+                font-weight: 700;
+                margin: 0;
+            }
+
+        .orders-count {
+            background: var(--light-maroon);
+            color: var(--maroon);
+            border-radius: 20px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .table {
             margin-bottom: 0;
         }
 
-        .table thead th {
-            background: #800020;
-            color: white;
-            font-size: 14px;
-            padding: 14px 12px;
-            white-space: nowrap;
-        }
+            .table thead th {
+                background: var(--maroon);
+                color: white;
+                font-size: 12px;
+                font-weight: 700;
+                padding: 14px 12px;
+                white-space: nowrap;
+                border: none;
+            }
 
-        .table tbody td {
-            padding: 15px 12px;
-            vertical-align: middle;
-            font-size: 14px;
-        }
+            .table tbody td {
+                padding: 15px 12px;
+                vertical-align: middle;
+                font-size: 13px;
+                border-bottom: 1px solid #f0edef;
+            }
 
-        .table tbody tr:hover {
-            background: #fff8fa;
-        }
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table tbody tr:hover {
+                background: #fff9fb;
+            }
 
         .order-id {
-            color: #800020;
-            font-weight: bold;
+            color: var(--maroon);
+            font-weight: 700;
+            font-size: 14px;
         }
 
         .customer-name {
-            font-weight: 600;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .customer-email {
+            font-size: 11px;
+            color: #888;
         }
 
         .amount {
-            font-weight: bold;
-            color: #800020;
+            color: var(--maroon);
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .status-badge {
             padding: 7px 11px;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             display: inline-block;
             white-space: nowrap;
         }
@@ -175,6 +740,26 @@
             color: #0f5132;
         }
 
+        .status-assigned {
+            background: #e8def8;
+            color: #563d7c;
+        }
+
+        .status-picked {
+            background: #d9edf7;
+            color: #31708f;
+        }
+
+        .status-out {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-delivered {
+            background: #cff4fc;
+            color: #055160;
+        }
+
         .status-completed {
             background: #198754;
             color: white;
@@ -185,103 +770,214 @@
             color: white;
         }
 
+        .status-other {
+            background: #e9ecef;
+            color: #495057;
+        }
+
         .payment-paid {
             color: #198754;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .payment-pending {
             color: #dc3545;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .payment-method {
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
         }
 
         .type-badge {
-            padding: 6px 10px;
+            padding: 6px 9px;
             border-radius: 15px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             display: inline-block;
             margin: 2px;
             white-space: nowrap;
         }
 
-        .type-buy {
+        .type-buy-badge {
             background: #e9ecef;
             color: #495057;
         }
 
-        .type-sale {
+        .type-sale-badge {
             background: #fff3cd;
             color: #856404;
         }
 
-        .type-customize {
+        .type-customize-badge {
             background: #e2d9f3;
             color: #432874;
         }
 
-        .type-rent {
+        .type-rent-badge {
             background: #d1e7dd;
             color: #0f5132;
         }
 
         .type-container {
-            max-width: 180px;
-        }
-
-        .rental-info {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .rental-info strong {
-            color: #800020;
-        }
-
-        .view-btn {
-            background: #800020;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 7px 12px;
-            text-decoration: none;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        .view-btn:hover {
-            background: #5f0018;
-            color: white;
-        }
-
-        .empty-box {
-            padding: 70px 20px;
-            text-align: center;
-        }
-
-        .empty-box i {
-            font-size: 55px;
-            color: #ccc;
-        }
-
-        .empty-box h4 {
-            margin-top: 15px;
-            color: #555;
+            max-width: 210px;
         }
 
         .order-products {
             font-size: 12px;
             color: #666;
-            line-height: 1.6;
+            line-height: 1.55;
+            min-width: 180px;
         }
 
-        .order-products strong {
-            color: #333;
+            .order-products strong {
+                color: #333;
+            }
+
+        .product-line {
+            padding-bottom: 7px;
+            margin-bottom: 7px;
+            border-bottom: 1px dashed #e5e1e3;
+        }
+
+            .product-line:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+        .rental-return {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 4px 7px;
+            border-radius: 8px;
+            background: #f8f1d8;
+            color: #705a00;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .delivery-assigned {
+            color: #198754;
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .delivery-none {
+            color: #888;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .payment-status {
+            white-space: nowrap;
+        }
+
+        .view-btn {
+            background: var(--maroon);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 8px 13px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+            .view-btn:hover {
+                background: var(--dark-maroon);
+                color: white;
+            }
+
+        .date-text {
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+            .date-text strong {
+                color: #444;
+            }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .empty-box {
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+            .empty-box i {
+                font-size: 58px;
+                color: var(--gold);
+            }
+
+            .empty-box h4 {
+                margin-top: 15px;
+                color: var(--maroon);
+                font-weight: 700;
+            }
+
+        .amount-summary {
+            background: linear-gradient(135deg, var(--maroon), #690019);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .amount-summary-title {
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .amount-summary-value {
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .amount-summary-label {
+            color: rgba(255,255,255,.75);
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .section-note {
+            color: #999;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .type-check {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .type-check-title {
+            color: var(--maroon);
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .raw-type {
+            display: inline-block;
+            background: #f4f1f2;
+            color: #555;
+            padding: 6px 9px;
+            border-radius: 8px;
+            margin: 3px;
+            font-size: 11px;
         }
 
         @@media(max-width: 992px) {
@@ -294,8 +990,35 @@
                 overflow-x: auto;
             }
 
-            .orders-box table {
-                min-width: 1500px;
+                .orders-box table {
+                    min-width: 1750px;
+                }
+
+            .navbar-custom {
+                padding: 14px 18px;
+            }
+
+            .brand {
+                font-size: 19px;
+            }
+        }
+
+        @@media(max-width: 576px) {
+
+            .page-container {
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .summary-box {
+                padding: 16px;
+            }
+
+            .summary-number {
+                font-size: 22px;
             }
         }
 
@@ -307,21 +1030,23 @@
 
     <nav class="navbar-custom">
 
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center gap-3">
 
             <a asp-controller="Shopkeeper"
                asp-action="Dashboard"
                class="brand">
 
-                Wedding Closet Hub
+                <i class="bi bi-gem me-2"></i>
+
+                Wedding Closet Hubs
 
             </a>
 
             <a asp-controller="Shopkeeper"
                asp-action="Dashboard"
-               class="btn btn-light">
+               class="btn btn-light dashboard-btn">
 
-                <i class="bi bi-speedometer2"></i>
+                <i class="bi bi-speedometer2 me-1"></i>
 
                 Dashboard
 
@@ -333,33 +1058,13 @@
 
     <div class="page-container">
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">
 
-                <i class="bi bi-check-circle"></i>
-
-                @TempData["Success"]
-
-            </div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">
-
-                <i class="bi bi-exclamation-circle"></i>
-
-                @TempData["Error"]
-
-            </div>
-        }
 
         <div class="mb-4">
 
             <h2 class="page-title">
 
-                <i class="bi bi-bag-check"></i>
+                <i class="bi bi-bag-check me-2"></i>
 
                 Orders
 
@@ -367,52 +1072,19 @@
 
             <p class="page-subtitle">
 
-                View and manage Buy, Sale, Customize and Rent orders received for your shop.
+                View and manage all Buy, Sale, Customize and Rent orders received by your shop.
 
             </p>
 
         </div>
 
-        @{
-            int totalOrders = Model?.Count() ?? 0;
+        <div class="summary-section-title">
 
-            int pendingOrders =
-                Model?.Count(x =>
-                    string.Equals(x.OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase)) ?? 0;
+            <i class="bi bi-bar-chart-fill me-1"></i>
 
-            int acceptedOrders =
-                Model?.Count(x =>
-                    string.Equals(x.OrderStatus, "Confirmed", StringComparison.OrdinalIgnoreCase)) ?? 0;
+            Overall Orders
 
-            int completedOrders =
-                Model?.Count(x =>
-                    string.Equals(x.OrderStatus, "Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
-
-            int rentOrders =
-                Model?.Count(x =>
-                    x.OrderDetails != null &&
-                    x.OrderDetails.Any(d =>
-                        string.Equals(d.PurchaseType, "Rent", StringComparison.OrdinalIgnoreCase))) ?? 0;
-
-            int customizeOrders =
-                Model?.Count(x =>
-                    x.OrderDetails != null &&
-                    x.OrderDetails.Any(d =>
-                        string.Equals(d.PurchaseType, "Customize", StringComparison.OrdinalIgnoreCase))) ?? 0;
-
-            int saleOrders =
-                Model?.Count(x =>
-                    x.OrderDetails != null &&
-                    x.OrderDetails.Any(d =>
-                        string.Equals(d.PurchaseType, "Sale", StringComparison.OrdinalIgnoreCase))) ?? 0;
-
-            int buyOrders =
-                Model?.Count(x =>
-                    x.OrderDetails != null &&
-                    x.OrderDetails.Any(d =>
-                        string.IsNullOrWhiteSpace(d.PurchaseType) ||
-                        string.Equals(d.PurchaseType, "Buy", StringComparison.OrdinalIgnoreCase))) ?? 0;
-        }
+        </div>
 
         <div class="row g-3 mb-4">
 
@@ -436,6 +1108,10 @@
                                 Total Orders
                             </div>
 
+                            <div class="summary-description">
+                                All orders received by your shop
+                            </div>
+
                         </div>
 
                     </div>
@@ -446,7 +1122,7 @@
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box status-card-pending">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -464,6 +1140,10 @@
                                 Pending Orders
                             </div>
 
+                            <div class="summary-description">
+                                Waiting for shopkeeper action
+                            </div>
+
                         </div>
 
                     </div>
@@ -474,7 +1154,7 @@
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box status-card-confirmed">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -485,11 +1165,15 @@
                         <div>
 
                             <div class="summary-number">
-                                @acceptedOrders
+                                @confirmedOrders
                             </div>
 
                             <div class="summary-label">
-                                Confirmed Orders
+                                Confirmed / Accepted
+                            </div>
+
+                            <div class="summary-description">
+                                Orders accepted by the shop
                             </div>
 
                         </div>
@@ -502,22 +1186,166 @@
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box status-card-processing">
 
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-                            <i class="bi bi-check-circle"></i>
+                            <i class="bi bi-gear"></i>
                         </div>
 
                         <div>
 
                             <div class="summary-number">
-                                @completedOrders
+                                @processingOrders
                             </div>
 
                             <div class="summary-label">
-                                Completed Orders
+                                Processing
+                            </div>
+
+                            <div class="summary-description">
+                                Orders currently being prepared
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="summary-section-title">
+
+            <i class="bi bi-truck me-1"></i>
+
+            Order Progress
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-ready">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @readyOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Ready for Delivery
+                            </div>
+
+                            <div class="summary-description">
+                                Ready for delivery assignment
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-assigned">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @assignedOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Delivery Assigned
+                            </div>
+
+                            <div class="summary-description">
+                                A delivery person is assigned
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-picked">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-box-arrow-up"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @pickedUpOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Picked Up
+                            </div>
+
+                            <div class="summary-description">
+                                Order collected by delivery
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-out">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-truck"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @outForDeliveryOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Out for Delivery
+                            </div>
+
+                            <div class="summary-description">
+                                Shipped / out for delivery
                             </div>
 
                         </div>
@@ -532,9 +1360,166 @@
 
         <div class="row g-3 mb-4">
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-delivered">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-house-check"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @deliveredOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Delivered
+                            </div>
+
+                            <div class="summary-description">
+                                Order delivered to customer
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-completed">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @completedOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Completed
+                            </div>
+
+                            <div class="summary-description">
+                                Fully completed orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box status-card-cancelled">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @cancelledOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Cancelled
+                            </div>
+
+                            <div class="summary-description">
+                                Cancelled orders
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
 
                 <div class="summary-box">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-list-check"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+
+                                @(pendingOrders +
+                                                                confirmedOrders +
+                                                                processingOrders +
+                                                                readyOrders +
+                                                                assignedOrders +
+                                                                pickedUpOrders +
+                                                                outForDeliveryOrders +
+                                                                deliveredOrders +
+                                                                completedOrders +
+                                                                cancelledOrders)
+
+                            </div>
+
+                            <div class="summary-label">
+                                Status-Tracked Orders
+                            </div>
+
+                            <div class="summary-description">
+                                Orders covered by status cards
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="summary-section-title">
+
+            <i class="bi bi-tags me-1"></i>
+
+            Order Types
+
+        </div>
+
+        <div class="section-note">
+
+            Customize orders are counted separately even when their purchase type also contains Buy, Rent or Sale.
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box type-buy">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -552,6 +1537,10 @@
                                 Buy Orders
                             </div>
 
+                            <div class="summary-description">
+                                Orders containing Buy items
+                            </div>
+
                         </div>
 
                     </div>
@@ -560,9 +1549,9 @@
 
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box type-sale">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -580,6 +1569,10 @@
                                 Sale Orders
                             </div>
 
+                            <div class="summary-description">
+                                Orders containing Sale items
+                            </div>
+
                         </div>
 
                     </div>
@@ -588,9 +1581,9 @@
 
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box type-customize">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -608,6 +1601,10 @@
                                 Customize Orders
                             </div>
 
+                            <div class="summary-description">
+                                Customize / Buy / Rent / Sale
+                            </div>
+
                         </div>
 
                     </div>
@@ -616,9 +1613,9 @@
 
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box type-rent">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -636,8 +1633,224 @@
                                 Rental Orders
                             </div>
 
+                            <div class="summary-description">
+                                Orders containing Rent items
+                            </div>
+
                         </div>
 
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="summary-section-title">
+
+            <i class="bi bi-credit-card me-1"></i>
+
+            Payment & Delivery
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box payment-paid-card">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @paidOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Paid / Received
+                            </div>
+
+                            <div class="summary-description">
+                                Orders with payment received
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box payment-unpaid-card">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @unpaidOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Unpaid / Pending
+                            </div>
+
+                            <div class="summary-description">
+                                Orders awaiting payment
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box delivery-assigned-card">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @assignedDeliveryOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Delivery Assigned
+                            </div>
+
+                            <div class="summary-description">
+                                Orders assigned to delivery
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="summary-box delivery-unassigned-card">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="summary-icon">
+                            <i class="bi bi-person-dash"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="summary-number">
+                                @unassignedDeliveryOrders
+                            </div>
+
+                            <div class="summary-label">
+                                Delivery Not Assigned
+                            </div>
+
+                            <div class="summary-description">
+                                Orders without delivery assignment
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="summary-section-title">
+
+            <i class="bi bi-wallet2 me-1"></i>
+
+            Amount Summary
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-4 col-md-6">
+
+                <div class="amount-summary">
+
+                    <div class="amount-summary-title">
+                        PRODUCT AMOUNT
+                    </div>
+
+                    <div class="amount-summary-value">
+                        Rs. @totalProductAmount.ToString("N2")
+                    </div>
+
+                    <div class="amount-summary-label">
+                        Total product value across all orders
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+
+                <div class="amount-summary">
+
+                    <div class="amount-summary-title">
+                        TOTAL ORDER VALUE
+                    </div>
+
+                    <div class="amount-summary-value">
+                        Rs. @totalOrderAmount.ToString("N2")
+                    </div>
+
+                    <div class="amount-summary-label">
+                        Total customer order value
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-4 col-md-12">
+
+                <div class="amount-summary">
+
+                    <div class="amount-summary-title">
+                        SHOPKEEPER AMOUNT
+                    </div>
+
+                    <div class="amount-summary-value">
+                        Rs. @totalShopkeeperAmount.ToString("N2")
+                    </div>
+
+                    <div class="amount-summary-label">
+                        Total shopkeeper settlement amount
                     </div>
 
                 </div>
@@ -650,17 +1863,33 @@
 
             <div class="orders-header">
 
-                <h5>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <i class="bi bi-list-check"></i>
+                    <div>
 
-                    All Orders
+                        <h5>
 
-                </h5>
+                            <i class="bi bi-list-check me-1"></i>
+
+                            All Orders
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Orders received by your shop
+                        </small>
+
+                    </div>
+
+                    <div class="orders-count">
+                        @totalOrders Orders
+                    </div>
+
+                </div>
 
             </div>
 
-            @if (Model != null && Model.Any())
+            @if (orders.Any())
             {
 
                 <div class="table-responsive">
@@ -671,57 +1900,19 @@
 
                             <tr>
 
-                                <th>
-                                    Order
-                                </th>
-
-                                <th>
-                                    Customer
-                                </th>
-
-                                <th>
-                                    Order Type
-                                </th>
-
-                                <th>
-                                    Products
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                    Product Amount
-                                </th>
-
-                                <th>
-                                    Total
-                                </th>
-
-                                <th>
-                                    Payment
-                                </th>
-
-                                <th>
-                                    Order Status
-                                </th>
-
-                                <th>
-                                    Delivery
-                                </th>
-
-                                <th>
-                                    Shopkeeper Amount
-                                </th>
-
-                                <th>
-                                    Payment Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Order Type</th>
+                                <th>Products</th>
+                                <th>Date</th>
+                                <th>Product Amount</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Order Status</th>
+                                <th>Delivery</th>
+                                <th>Shopkeeper Amount</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
 
                             </tr>
 
@@ -729,8 +1920,60 @@
 
                         <tbody>
 
-                            @foreach (var order in Model)
+                            @foreach (var order in orders)
                             {
+
+                                string currentStatus =
+                                string.IsNullOrWhiteSpace(order.OrderStatus)
+                                ? "Unknown"
+                                : order.OrderStatus.Trim();
+
+                                string statusClass = "status-other";
+
+                                if (IsPendingStatus(currentStatus))
+                                {
+                                    statusClass = "status-pending";
+                                }
+                                else if (IsCancelledStatus(currentStatus))
+                                {
+                                    statusClass = "status-cancelled";
+                                }
+                                else if (IsCompletedStatus(currentStatus))
+                                {
+                                    statusClass = "status-completed";
+                                }
+                                else if (IsDeliveredStatus(currentStatus))
+                                {
+                                    statusClass = "status-delivered";
+                                }
+                                else if (IsOutForDeliveryStatus(currentStatus))
+                                {
+                                    statusClass = "status-out";
+                                }
+                                else if (IsPickedUpStatus(currentStatus))
+                                {
+                                    statusClass = "status-picked";
+                                }
+                                else if (IsAssignedStatus(currentStatus))
+                                {
+                                    statusClass = "status-assigned";
+                                }
+                                else if (IsReadyStatus(currentStatus))
+                                {
+                                    statusClass = "status-ready";
+                                }
+                                else if (IsProcessingStatus(currentStatus))
+                                {
+                                    statusClass = "status-processing";
+                                }
+                                else if (IsConfirmedStatus(currentStatus))
+                                {
+                                    statusClass = "status-confirmed";
+                                }
+
+                                bool paymentReceived =
+                                order.PaymentReceived ||
+                                IsPaid(order.PaymentStatus);
 
                                 <tr>
 
@@ -746,23 +1989,22 @@
 
                                         @if (order.Customer != null)
                                         {
-
                                             <div class="customer-name">
                                                 @order.Customer.Name
                                             </div>
 
-                                            <small class="text-muted">
-                                                @order.Customer.Email
-                                            </small>
-
+                                            @if (!string.IsNullOrWhiteSpace(order.Customer.Email))
+                                            {
+                                                <div class="customer-email">
+                                                    @order.Customer.Email
+                                                </div>
+                                            }
                                         }
                                         else
                                         {
-
                                             <span class="text-muted">
                                                 Customer unavailable
                                             </span>
-
                                         }
 
                                     </td>
@@ -771,60 +2013,82 @@
 
                                         <div class="type-container">
 
-                                            @if (order.OrderDetails != null && order.OrderDetails.Any())
+                                            @if (order.OrderDetails != null &&
+                                                                                order.OrderDetails.Any())
                                             {
-
                                                 var purchaseTypes =
-                                                    order.OrderDetails
-                                                        .Select(d =>
-                                                            string.IsNullOrWhiteSpace(d.PurchaseType)
-                                                                ? "Buy"
-                                                                : d.PurchaseType.Trim())
-                                                        .Distinct(StringComparer.OrdinalIgnoreCase)
-                                                        .ToList();
+                                                order.OrderDetails
+                                                .Select(d =>
+                                                string.IsNullOrWhiteSpace(d.PurchaseType)
+                                                ? "Buy"
+                                                : d.PurchaseType.Trim())
+                                                .Distinct(
+                                                StringComparer.OrdinalIgnoreCase)
+                                                .ToList();
 
                                                 foreach (var type in purchaseTypes)
                                                 {
+                                                    bool customize =
+                                                    IsCustomizeType(type);
 
-                                                    if (type.Equals("Rent", StringComparison.OrdinalIgnoreCase))
+                                                    bool buy =
+                                                    IsBuyType(type);
+
+                                                    bool rent =
+                                                    IsRentType(type);
+
+                                                    bool sale =
+                                                    IsSaleType(type);
+
+                                                    if (customize)
                                                     {
-                                                        <span class="type-badge type-rent">
-                                                            <i class="bi bi-calendar-heart"></i>
-                                                            Rent
-                                                        </span>
-                                                    }
-                                                    else if (type.Equals("Customize", StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        <span class="type-badge type-customize">
-                                                            <i class="bi bi-pencil-square"></i>
+                                                        <span class="type-badge type-customize-badge">
+                                                            <i class="bi bi-pencil-square me-1"></i>
                                                             Customize
                                                         </span>
                                                     }
-                                                    else if (type.Equals("Sale", StringComparison.OrdinalIgnoreCase))
+
+                                                    if (buy)
                                                     {
-                                                        <span class="type-badge type-sale">
-                                                            <i class="bi bi-tag"></i>
-                                                            Sale
-                                                        </span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="type-badge type-buy">
-                                                            <i class="bi bi-bag"></i>
+                                                        <span class="type-badge type-buy-badge">
+                                                            <i class="bi bi-bag me-1"></i>
                                                             Buy
                                                         </span>
                                                     }
 
-                                                }
+                                                    if (sale)
+                                                    {
+                                                        <span class="type-badge type-sale-badge">
+                                                            <i class="bi bi-tag me-1"></i>
+                                                            Sale
+                                                        </span>
+                                                    }
 
+                                                    if (rent)
+                                                    {
+                                                        <span class="type-badge type-rent-badge">
+                                                            <i class="bi bi-calendar-heart me-1"></i>
+                                                            Rent
+                                                        </span>
+                                                    }
+
+                                                    if (!customize &&
+                                                    !buy &&
+                                                    !sale &&
+                                                    !rent)
+                                                    {
+                                                        <span class="type-badge type-buy-badge">
+                                                            @type
+                                                        </span>
+                                                    }
+                                                }
                                             }
                                             else
                                             {
-
-                                                <span class="type-badge type-buy">
+                                                <span class="type-badge type-buy-badge">
+                                                    <i class="bi bi-bag me-1"></i>
                                                     Buy
                                                 </span>
-
                                             }
 
                                         </div>
@@ -835,18 +2099,17 @@
 
                                         <div class="order-products">
 
-                                            @if (order.OrderDetails != null && order.OrderDetails.Any())
+                                            @if (order.OrderDetails != null &&
+                                                                                order.OrderDetails.Any())
                                             {
-
                                                 foreach (var detail in order.OrderDetails)
                                                 {
-
                                                     string productType =
-                                                        string.IsNullOrWhiteSpace(detail.PurchaseType)
-                                                            ? "Buy"
-                                                            : detail.PurchaseType.Trim();
+                                                    string.IsNullOrWhiteSpace(detail.PurchaseType)
+                                                    ? "Buy"
+                                                    : detail.PurchaseType.Trim();
 
-                                                    <div class="mb-1">
+                                                    <div class="product-line">
 
                                                         <strong>
                                                             @(detail.Product?.ProductName ?? "Product")
@@ -858,43 +2121,71 @@
 
                                                         <br />
 
-                                                        @if (productType.Equals("Rent", StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            <span class="text-success">
-                                                                Rent
-                                                            </span>
-                                                        }
-                                                        else if (productType.Equals("Customize", StringComparison.OrdinalIgnoreCase))
+                                                        @if (IsCustomizeType(productType))
                                                         {
                                                             <span class="text-primary">
+                                                                <i class="bi bi-pencil-square me-1"></i>
                                                                 Customize
                                                             </span>
+
+                                                            @if (IsBuyType(productType))
+                                                            {
+                                                                <span class="text-muted ms-1">
+                                                                    / Buy
+                                                                </span>
+                                                            }
+
+                                                            @if (IsSaleType(productType))
+                                                            {
+                                                                <span class="text-warning ms-1">
+                                                                    / Sale
+                                                                </span>
+                                                            }
+
+                                                            @if (IsRentType(productType))
+                                                            {
+                                                                <span class="text-success ms-1">
+                                                                    / Rent
+                                                                </span>
+                                                            }
                                                         }
-                                                        else if (productType.Equals("Sale", StringComparison.OrdinalIgnoreCase))
+                                                        else if (IsRentType(productType))
+                                                        {
+                                                            <span class="text-success">
+                                                                <i class="bi bi-calendar-heart me-1"></i>
+                                                                Rent
+                                                            </span>
+
+                                                            @if (!string.IsNullOrWhiteSpace(detail.RentalReturnStatus))
+                                                            {
+                                                                <span class="rental-return">
+                                                                    @detail.RentalReturnStatus
+                                                                </span>
+                                                            }
+                                                        }
+                                                        else if (IsSaleType(productType))
                                                         {
                                                             <span class="text-warning">
+                                                                <i class="bi bi-tag me-1"></i>
                                                                 Sale
                                                             </span>
                                                         }
                                                         else
                                                         {
                                                             <span class="text-muted">
+                                                                <i class="bi bi-bag me-1"></i>
                                                                 Buy
                                                             </span>
                                                         }
 
                                                     </div>
-
                                                 }
-
                                             }
                                             else
                                             {
-
                                                 <span class="text-muted">
                                                     No products
                                                 </span>
-
                                             }
 
                                         </div>
@@ -903,13 +2194,19 @@
 
                                     <td>
 
-                                        @order.CreatedDate.ToString("dd MMM yyyy")
+                                        <div class="date-text">
 
-                                        <br />
+                                            <strong>
+                                                @order.CreatedDate.ToString("dd MMM yyyy")
+                                            </strong>
 
-                                        <small class="text-muted">
-                                            @order.CreatedDate.ToString("hh:mm tt")
-                                        </small>
+                                            <br />
+
+                                            <small class="text-muted">
+                                                @order.CreatedDate.ToString("hh:mm tt")
+                                            </small>
+
+                                        </div>
 
                                     </td>
 
@@ -933,99 +2230,72 @@
 
                                         <div class="payment-method">
 
-                                            @if (order.PaymentMethod == "Cash on Delivery")
+                                            @if (string.Equals(
+                                                                                order.PaymentMethod,
+                                                                                "Cash on Delivery",
+                                                                                StringComparison.OrdinalIgnoreCase))
                                             {
-                                                <i class="bi bi-cash"></i>
+                                                <i class="bi bi-cash me-1"></i>
                                                 <span>COD</span>
                                             }
-                                            else if (order.PaymentMethod == "Easypaisa")
+                                            else if (string.Equals(
+                                            order.PaymentMethod,
+                                            "Easypaisa",
+                                            StringComparison.OrdinalIgnoreCase))
                                             {
-                                                <i class="bi bi-phone"></i>
+                                                <i class="bi bi-phone me-1"></i>
                                                 <span>Easypaisa</span>
                                             }
-                                            else if (order.PaymentMethod == "JazzCash")
+                                            else if (string.Equals(
+                                            order.PaymentMethod,
+                                            "JazzCash",
+                                            StringComparison.OrdinalIgnoreCase))
                                             {
-                                                <i class="bi bi-phone"></i>
+                                                <i class="bi bi-phone me-1"></i>
                                                 <span>JazzCash</span>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(
+                                            order.PaymentMethod))
+                                            {
+                                                @order.PaymentMethod
                                             }
                                             else
                                             {
-                                                @order.PaymentMethod
+                                                <span class="text-muted">
+                                                    Not Selected
+                                                </span>
                                             }
 
                                         </div>
 
-                                        @if (order.PaymentReceived)
+                                        @if (paymentReceived)
                                         {
-
                                             <small class="payment-paid">
 
-                                                <i class="bi bi-check-circle"></i>
+                                                <i class="bi bi-check-circle-fill me-1"></i>
 
                                                 Received
 
                                             </small>
-
                                         }
                                         else
                                         {
-
                                             <small class="payment-pending">
 
-                                                <i class="bi bi-clock"></i>
+                                                <i class="bi bi-clock me-1"></i>
 
                                                 Pending
 
                                             </small>
-
                                         }
 
                                     </td>
 
                                     <td>
 
-                                        @if (order.OrderStatus == "Pending")
-                                        {
-                                            <span class="status-badge status-pending">
-                                                Pending
-                                            </span>
-                                        }
-                                        else if (order.OrderStatus == "Confirmed")
-                                        {
-                                            <span class="status-badge status-confirmed">
-                                                Confirmed
-                                            </span>
-                                        }
-                                        else if (order.OrderStatus == "Processing")
-                                        {
-                                            <span class="status-badge status-processing">
-                                                Processing
-                                            </span>
-                                        }
-                                        else if (order.OrderStatus == "Ready")
-                                        {
-                                            <span class="status-badge status-ready">
-                                                Ready
-                                            </span>
-                                        }
-                                        else if (order.OrderStatus == "Completed")
-                                        {
-                                            <span class="status-badge status-completed">
-                                                Completed
-                                            </span>
-                                        }
-                                        else if (order.OrderStatus == "Cancelled")
-                                        {
-                                            <span class="status-badge status-cancelled">
-                                                Cancelled
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @order.OrderStatus
-                                            </span>
-                                        }
+                                        <span class="status-badge @statusClass">
+                                            @currentStatus
+                                        </span>
 
                                     </td>
 
@@ -1033,27 +2303,23 @@
 
                                         @if (order.Delivery != null)
                                         {
+                                            <span class="delivery-assigned">
 
-                                            <span class="text-success fw-semibold">
-
-                                                <i class="bi bi-person-check"></i>
+                                                <i class="bi bi-person-check-fill me-1"></i>
 
                                                 @order.Delivery.Name
 
                                             </span>
-
                                         }
                                         else
                                         {
+                                            <span class="delivery-none">
 
-                                            <span class="text-muted">
-
-                                                <i class="bi bi-hourglass"></i>
+                                                <i class="bi bi-person-dash me-1"></i>
 
                                                 Not Assigned
 
                                             </span>
-
                                         }
 
                                     </td>
@@ -1068,30 +2334,33 @@
 
                                     <td>
 
-                                        @if (order.ShopkeeperPaymentStatus == "Paid")
-                                        {
+                                        <div class="payment-status">
 
-                                            <span class="payment-paid">
+                                            @if (IsPaid(order.ShopkeeperPaymentStatus))
+                                            {
+                                                <span class="payment-paid">
 
-                                                <i class="bi bi-check-circle"></i>
+                                                    <i class="bi bi-check-circle-fill me-1"></i>
 
-                                                Paid
+                                                    Paid
 
-                                            </span>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="payment-pending">
 
-                                        }
-                                        else
-                                        {
+                                                    <i class="bi bi-clock me-1"></i>
 
-                                            <span class="payment-pending">
+                                                    @(string.IsNullOrWhiteSpace(
+                                                                                            order.ShopkeeperPaymentStatus)
+                                                                                            ? "Pending"
+                                                                                            : order.ShopkeeperPaymentStatus)
 
-                                                <i class="bi bi-clock"></i>
+                                    </span>
+                                                                        }
 
-                                                Pending
-
-                                            </span>
-
-                                        }
+                                        </div>
 
                                     </td>
 
@@ -1102,7 +2371,7 @@
                                            asp-route-id="@order.OrderId"
                                            class="view-btn">
 
-                                            <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye me-1"></i>
 
                                             View
 
@@ -1111,7 +2380,6 @@
                                     </td>
 
                                 </tr>
-
                             }
 
                         </tbody>
@@ -1132,10 +2400,8 @@
                         No Orders Found
                     </h4>
 
-                    <p class="text-muted">
-
+                    <p class="mb-0">
                         There are currently no orders for your shop.
-
                     </p>
 
                 </div>
@@ -1143,6 +2409,62 @@
             }
 
         </div>
+
+        @if (actualPurchaseTypes.Any())
+        {
+            <div class="orders-box">
+
+                <div class="orders-header">
+
+                    <div>
+
+                        <h5>
+                            <i class="bi bi-database-check me-1"></i>
+                            Purchase Type Check
+                        </h5>
+
+                        <small class="text-muted">
+                            These are the actual PurchaseType values stored in OrderDetails.
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="p-4">
+
+                    <div class="type-check">
+
+                        <div class="type-check-title">
+                            Database Purchase Types
+                        </div>
+
+                        @foreach (var type in actualPurchaseTypes)
+                        {
+                            <span class="raw-type">
+
+                                @type.Name
+
+                                <strong>
+                                    (@type.Count)
+                                </strong>
+
+                                @if (IsCustomizeType(type.Name))
+                                {
+                                    <span class="text-primary ms-1">
+                                        → Customize
+                                    </span>
+                                }
+
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
 
     </div>
 

@@ -1,0 +1,1152 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.OrderDetail>
+
+@{
+    ViewData["Title"] = "Rental Orders";
+    Layout = null;
+
+    string shopName = ViewBag.ShopName as string ?? "Shopkeeper";
+
+    string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? ""
+            : value.Trim();
+    }
+
+    bool IsStatus(string? value, params string[] statuses)
+    {
+        string current = Normalize(value);
+
+        return statuses.Any(status =>
+            current.Equals(
+                status,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    bool IsReturnRequested(string? value)
+    {
+        return IsStatus(
+            value,
+            "Return Requested");
+    }
+
+    bool IsReturnPickedUp(string? value)
+    {
+        return IsStatus(
+            value,
+            "Return Picked Up",
+            "Picked Up");
+    }
+
+    bool IsReturnedToShop(string? value)
+    {
+        return IsStatus(
+            value,
+            "Returned to Shop");
+    }
+
+    bool IsInspected(string? value)
+    {
+        return IsStatus(
+            value,
+            "Inspected");
+    }
+
+    bool IsRefunded(string? value)
+    {
+        return IsStatus(
+            value,
+            "Refunded");
+    }
+
+    bool IsReturnIssue(string? value)
+    {
+        return IsStatus(
+            value,
+            "Return Issue");
+    }
+
+    bool IsResolvedNoRefund(string? value)
+    {
+        return IsStatus(
+            value,
+            "Resolved - No Refund");
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Rental Orders - Wedding Closet Hubs</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+
+    <style>
+
+        body {
+            background: #f8f6f3;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #800020;
+        }
+
+        .navbar-brand,
+        .navbar-text {
+            color: #fff !important;
+        }
+
+        .page-title {
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .gold {
+            color: #d4af37;
+        }
+
+        .rental-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.08);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .rental-card .card-header {
+            background: #800020;
+            color: white;
+            font-weight: 600;
+        }
+
+        .info-label {
+            color: #777;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-picked {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        .status-shop {
+            background: #e0cffc;
+            color: #59359a;
+        }
+
+        .status-inspected {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-refunded {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-issue {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-no-refund {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .status-other {
+            background: #f1f3f5;
+            color: #495057;
+        }
+
+        .btn-maroon {
+            background: #800020;
+            border-color: #800020;
+            color: white;
+        }
+
+        .btn-maroon:hover {
+            background: #660019;
+            border-color: #660019;
+            color: white;
+        }
+
+        .empty-box {
+            background: white;
+            border-radius: 15px;
+            padding: 50px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+        }
+
+        .empty-icon {
+            font-size: 55px;
+            color: #d4af37;
+        }
+
+        .section-title {
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .receive-box {
+            background: #f8fff9;
+            border: 1px solid #b7dfc2;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .receive-title {
+            color: #198754;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .damage-box {
+            background: #fff5f5;
+            border: 1px solid #f1b0b7;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .damage-title {
+            color: #dc3545;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .flow-box {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .flow-step {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .flow-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .flow-active {
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .flow-complete {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .flow-pending {
+            color: #777;
+        }
+
+        .important-box {
+            background: #fff8e1;
+            border: 1px solid #ead48b;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .confirm-btn {
+            font-weight: 700;
+            padding: 11px 15px;
+        }
+
+        .damage-btn {
+            font-weight: 700;
+            padding: 11px 15px;
+        }
+
+        .return-status-text {
+            font-size: 13px;
+        }
+
+        .issue-details {
+            background: #fff;
+            border: 1px solid #f1b0b7;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            color: #842029;
+        }
+
+        .no-refund-details {
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            color: #495057;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+
+        <div class="container">
+
+            <a class="navbar-brand fw-bold"
+               asp-controller="Shopkeeper"
+               asp-action="Dashboard">
+
+                <i class="bi bi-shop"></i>
+
+                Wedding Closet Hubs
+
+            </a>
+
+            <span class="navbar-text">
+
+                @shopName
+
+            </span>
+
+        </div>
+
+    </nav>
+
+    <div class="container py-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2 class="page-title mb-1">
+
+                    <i class="bi bi-arrow-repeat gold"></i>
+
+                    Rental Orders
+
+                </h2>
+
+                <p class="text-muted mb-0">
+
+                    Manage rented dresses and rental returns.
+
+                </p>
+
+            </div>
+
+            <a asp-controller="Shopkeeper"
+               asp-action="Dashboard"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Dashboard
+
+            </a>
+
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+
+            </div>
+        }
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-box">
+
+                <div class="empty-icon">
+
+                    <i class="bi bi-bag-x"></i>
+
+                </div>
+
+                <h4 class="section-title mt-3">
+
+                    No Rental Orders
+
+                </h4>
+
+                <p class="text-muted">
+
+                    There are currently no rental orders for your shop.
+
+                </p>
+
+            </div>
+        }
+        else
+        {
+
+            <div class="row g-4">
+
+                @foreach (var item in Model)
+                {
+                    var order = item.Order;
+
+                    var product = item.Product;
+
+                    string rentalStatus =
+                        Normalize(item.RentalReturnStatus);
+
+                    if (string.IsNullOrWhiteSpace(rentalStatus))
+                    {
+                        rentalStatus = "Pending";
+                    }
+
+                    bool returnRequested =
+                        IsReturnRequested(rentalStatus);
+
+                    bool returnPickedUp =
+                        IsReturnPickedUp(rentalStatus);
+
+                    bool returnedToShop =
+                        IsReturnedToShop(rentalStatus);
+
+                    bool inspected =
+                        IsInspected(rentalStatus);
+
+                    bool refunded =
+                        IsRefunded(rentalStatus);
+
+                    bool returnIssue =
+                        IsReturnIssue(rentalStatus);
+
+                    bool resolvedNoRefund =
+                        IsResolvedNoRefund(rentalStatus);
+
+                    bool canConfirmReceipt =
+                        returnedToShop;
+
+                    string statusClass =
+                        "status-other";
+
+                    if (returnRequested)
+                    {
+                        statusClass = "status-pending";
+                    }
+                    else if (returnPickedUp)
+                    {
+                        statusClass = "status-picked";
+                    }
+                    else if (returnedToShop)
+                    {
+                        statusClass = "status-shop";
+                    }
+                    else if (inspected)
+                    {
+                        statusClass = "status-inspected";
+                    }
+                    else if (refunded)
+                    {
+                        statusClass = "status-refunded";
+                    }
+                    else if (returnIssue)
+                    {
+                        statusClass = "status-issue";
+                    }
+                    else if (resolvedNoRefund)
+                    {
+                        statusClass = "status-no-refund";
+                    }
+
+                    <div class="col-lg-6 col-xl-4">
+
+                        <div class="card rental-card">
+
+                            <div class="card-header d-flex justify-content-between align-items-center">
+
+                                <span>
+
+                                    <i class="bi bi-receipt"></i>
+
+                                    Order #@order?.OrderId
+
+                                </span>
+
+                                <span class="small">
+
+                                    Rental
+
+                                </span>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="mb-3">
+
+                                    <span class="info-label">
+
+                                        Product
+
+                                    </span>
+
+                                    <div class="info-value fw-bold">
+
+                                        @(product?.ProductName ?? "Product")
+
+                                    </div>
+
+                                </div>
+
+                                <div class="row g-3 mb-3">
+
+                                    <div class="col-6">
+
+                                        <span class="info-label">
+
+                                            Quantity
+
+                                        </span>
+
+                                        <div class="info-value">
+
+                                            @item.Quantity
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-6">
+
+                                        <span class="info-label">
+
+                                            Rental Price
+
+                                        </span>
+
+                                        <div class="info-value">
+
+                                            Rs. @item.UnitPrice.ToString("N0")
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <span class="info-label">
+
+                                        Customer
+
+                                    </span>
+
+                                    <div class="info-value">
+
+                                        @(order?.Customer?.Name ?? "Customer")
+
+                                    </div>
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <span class="info-label">
+
+                                        Delivery Address
+
+                                    </span>
+
+                                    <div class="info-value">
+
+                                        @(order?.DeliveryAddress ?? "Not available")
+
+                                    </div>
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <span class="info-label d-block mb-1">
+
+                                        Rental Return Status
+
+                                    </span>
+
+                                    <span class="status-badge @statusClass">
+
+                                        @rentalStatus
+
+                                    </span>
+
+                                </div>
+
+                                @if (order != null)
+                                {
+                                    <div class="mb-3">
+
+                                        <span class="info-label">
+
+                                            Order Date
+
+                                        </span>
+
+                                        <div class="info-value">
+
+                                            @order.CreatedDate.ToString("dd MMM yyyy")
+
+                                        </div>
+
+                                    </div>
+                                }
+
+                                <div class="flow-box mb-3">
+
+                                    <div class="fw-bold mb-2"
+                                         style="color:#800020;">
+
+                                        <i class="bi bi-diagram-3"></i>
+
+                                        Return Process
+
+                                    </div>
+
+                                    <div class="flow-step @(returnRequested || returnPickedUp || returnedToShop || inspected || refunded || returnIssue || resolvedNoRefund ? "flow-complete" : "flow-pending")">
+
+                                        @if (returnRequested || returnPickedUp || returnedToShop || inspected || refunded || returnIssue || resolvedNoRefund)
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-circle"></i>
+                                        }
+
+                                        Return Requested
+
+                                    </div>
+
+                                    <div class="flow-step @(returnPickedUp || returnedToShop || inspected || refunded || returnIssue || resolvedNoRefund ? "flow-complete" : returnRequested ? "flow-active" : "flow-pending")">
+
+                                        @if (returnPickedUp || returnedToShop || inspected || refunded || returnIssue || resolvedNoRefund)
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-circle"></i>
+                                        }
+
+                                        Delivery Pickup
+
+                                    </div>
+
+                                    <div class="flow-step @(inspected || refunded || returnIssue || resolvedNoRefund ? "flow-complete" : returnedToShop ? "flow-active" : "flow-pending")">
+
+                                        @if (inspected || refunded || returnIssue || resolvedNoRefund)
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        }
+                                        else if (returnedToShop)
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-circle"></i>
+                                        }
+
+                                        Shopkeeper Receipt & Inspection
+
+                                    </div>
+
+                                    <div class="flow-step @(refunded || resolvedNoRefund ? "flow-complete" : inspected ? "flow-active" : returnIssue ? "flow-active" : "flow-pending")">
+
+                                        @if (refunded || resolvedNoRefund)
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        }
+                                        else if (inspected)
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                        }
+                                        else if (returnIssue)
+                                        {
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-circle"></i>
+                                        }
+
+                                        Security Refund / Admin Review
+
+                                    </div>
+
+                                </div>
+
+                                <hr />
+
+                                @if (canConfirmReceipt)
+                                {
+                                    <div class="receive-box mb-3">
+
+                                        <div class="receive-title mb-2">
+
+                                            <i class="bi bi-box-seam-fill"></i>
+
+                                            Returned Dress Has Arrived
+
+                                        </div>
+
+                                        <div class="small text-muted mb-3">
+
+                                            The delivery boy has returned the
+                                            rental dress to your shop. Please
+                                            physically inspect the dress and
+                                            choose the appropriate action.
+
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+
+                                            <form asp-controller="Shopkeeper"
+                                                  asp-action="ConfirmRentalDressReceived"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.OrderDetailId" />
+
+                                                <button type="submit"
+                                                        class="btn btn-success w-100 confirm-btn"
+                                                        onclick="return confirm('Have you received and inspected this rental dress and confirmed that it is in good condition?');">
+
+                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                    Confirm Received - Good Condition
+
+                                                </button>
+
+                                            </form>
+
+                                            <button type="button"
+                                                    class="btn btn-outline-danger w-100 damage-btn"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#damageForm-@item.OrderDetailId">
+
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                                Report Damage / Return Issue
+
+                                            </button>
+
+                                        </div>
+
+                                        <div class="collapse mt-3"
+                                             id="damageForm-@item.OrderDetailId">
+
+                                            <div class="damage-box">
+
+                                                <div class="damage-title mb-2">
+
+                                                    <i class="bi bi-exclamation-octagon-fill"></i>
+
+                                                    Report Rental Damage
+
+                                                </div>
+
+                                                <div class="small text-muted mb-3">
+
+                                                    Describe the damage or problem
+                                                    found during inspection.
+                                                    Admin will review this
+                                                    information before processing
+                                                    the security refund.
+
+                                                </div>
+
+                                                <form asp-controller="Shopkeeper"
+                                                      asp-action="RejectRentalReturn"
+                                                      method="post">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@item.OrderDetailId" />
+
+                                                    <div class="mb-3">
+
+                                                        <label class="form-label fw-semibold">
+
+                                                            Damage / Issue Details
+
+                                                        </label>
+
+                                                        <textarea name="notes"
+                                                                  class="form-control"
+                                                                  rows="4"
+                                                                  required
+                                                                  maxlength="1000"
+                                                                  placeholder="Example: The dress has a large stain on the front and the zip is damaged."></textarea>
+
+                                                    </div>
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger w-100"
+                                                            onclick="return confirm('Are you sure you want to report this rental return as damaged or having an issue?');">
+
+                                                        <i class="bi bi-exclamation-octagon-fill"></i>
+
+                                                        Submit Damage Report
+
+                                                    </button>
+
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="important-box mb-3">
+
+                                        <i class="bi bi-info-circle-fill text-warning"></i>
+
+                                        If the dress is in good condition, choose
+                                        <strong>Confirm Received - Good Condition</strong>.
+                                        If you find damage, choose
+                                        <strong>Report Damage / Return Issue</strong>.
+
+                                    </div>
+                                }
+                                else if (inspected)
+                                {
+                                    <div class="alert alert-success mb-0">
+
+                                        <i class="bi bi-clipboard-check-fill"></i>
+
+                                        <strong>
+                                            Receipt & Inspection Completed
+                                        </strong>
+
+                                        <br />
+
+                                        You have received and inspected this
+                                        rental dress. The rental security is now
+                                        ready for Admin refund processing.
+
+                                    </div>
+                                }
+                                else if (refunded)
+                                {
+                                    <div class="alert alert-primary mb-0">
+
+                                        <i class="bi bi-cash-coin"></i>
+
+                                        <strong>
+                                            Security Refunded
+                                        </strong>
+
+                                        <br />
+
+                                        Admin has completed the rental security
+                                        refund.
+
+                                        @if (item.RefundAmount > 0)
+                                        {
+                                            <div class="mt-2 small">
+
+                                                <strong>
+                                                    Refund Amount:
+                                                </strong>
+
+                                                Rs. @item.RefundAmount.ToString("N0")
+
+                                            </div>
+                                        }
+
+                                        @if (item.DamageDeduction > 0)
+                                        {
+                                            <div class="mt-1 small">
+
+                                                <strong>
+                                                    Damage Deduction:
+                                                </strong>
+
+                                                Rs. @item.DamageDeduction.ToString("N0")
+
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(item.SecurityRefundNotes))
+                                        {
+                                            <hr />
+
+                                            <strong>
+                                                Admin Notes:
+                                            </strong>
+
+                                            <div class="no-refund-details mt-2">
+
+                                                @item.SecurityRefundNotes
+
+                                            </div>
+                                        }
+
+                                    </div>
+                                }
+                                else if (resolvedNoRefund)
+                                {
+                                    <div class="alert alert-secondary mb-0">
+
+                                        <i class="bi bi-shield-x"></i>
+
+                                        <strong>
+                                            Rental Return Resolved - No Refund
+                                        </strong>
+
+                                        <br />
+
+                                        Admin has reviewed the reported
+                                        rental return issue and resolved
+                                        the case without refunding the
+                                        rental security.
+
+                                        @if (item.DamageDeduction > 0)
+                                        {
+                                            <div class="mt-2 small">
+
+                                                <strong>
+                                                    Security Retained:
+                                                </strong>
+
+                                                Rs. @item.DamageDeduction.ToString("N0")
+
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(item.SecurityRefundNotes))
+                                        {
+                                            <hr />
+
+                                            <strong>
+                                                Admin Resolution Notes:
+                                            </strong>
+
+                                            <div class="no-refund-details mt-2">
+
+                                                @item.SecurityRefundNotes
+
+                                            </div>
+                                        }
+
+                                        <div class="mt-2 small text-muted">
+
+                                            No further action is required
+                                            from the shopkeeper for this
+                                            rental return.
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else if (returnRequested)
+                                {
+                                    <div class="alert alert-warning mb-0">
+
+                                        <i class="bi bi-hourglass-split"></i>
+
+                                        <strong>
+                                            Waiting for Delivery Pickup
+                                        </strong>
+
+                                        <br />
+
+                                        The customer has requested the rental
+                                        return. The delivery boy must pick up
+                                        the dress first.
+
+                                    </div>
+                                }
+                                else if (returnPickedUp)
+                                {
+                                    <div class="alert alert-info mb-0">
+
+                                        <i class="bi bi-truck"></i>
+
+                                        <strong>
+                                            Dress Picked Up by Delivery
+                                        </strong>
+
+                                        <br />
+
+                                        The delivery boy has picked up the
+                                        returned dress from the customer and
+                                        must deliver it to your shop.
+
+                                    </div>
+                                }
+                                else if (returnIssue)
+                                {
+                                    <div class="alert alert-danger mb-0">
+
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                        <strong>
+                                            Rental Return Issue / Damage Reported
+                                        </strong>
+
+                                        <br />
+
+                                        A problem has been reported with this
+                                        returned rental dress.
+
+                                        @if (!string.IsNullOrWhiteSpace(item.ReturnNotes))
+                                        {
+                                            <hr />
+
+                                            <strong>
+                                                Issue Details:
+                                            </strong>
+
+                                            <div class="issue-details mt-2">
+
+                                                @item.ReturnNotes
+
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(item.InspectionResult))
+                                        {
+                                            <div class="mt-2 small">
+
+                                                <strong>
+                                                    Inspection Result:
+                                                </strong>
+
+                                                @item.InspectionResult
+
+                                            </div>
+                                        }
+
+                                        <div class="mt-2 small">
+
+                                            Admin has been notified and can
+                                            review the issue before processing
+                                            the rental security.
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else if (returnedToShop)
+                                {
+                                    <div class="alert alert-warning mb-0">
+
+                                        <i class="bi bi-shop"></i>
+
+                                        <strong>
+                                            Returned to Shop
+                                        </strong>
+
+                                        <br />
+
+                                        The dress has arrived at your shop.
+                                        Please confirm receipt and complete
+                                        the inspection.
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-light border mb-0">
+
+                                        <i class="bi bi-info-circle"></i>
+
+                                        Current rental return status:
+
+                                        <strong>
+                                            @rentalStatus
+                                        </strong>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        }
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

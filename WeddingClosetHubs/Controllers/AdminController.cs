@@ -17,11 +17,11 @@ namespace WeddingClosetHubs.Controllers
         private const string DeliveryRole = "Delivery";
 
         private static readonly string[] ValidDeliveryZones =
-        {
+        [
             "Saddar",
             "6th Road",
             "Liaqat Bagh"
-        };
+        ];
 
 
 
@@ -45,12 +45,13 @@ namespace WeddingClosetHubs.Controllers
 
 
 
-        private IActionResult AdminLoginRedirect()
+        private RedirectToActionResult AdminLoginRedirect()
         {
             return RedirectToAction(
                 "Login",
                 "Account");
         }
+
 
 
 
@@ -221,7 +222,9 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.CompletedOrders =
                 await _context.Orders
                     .CountAsync(o =>
-                        o.OrderStatus == "Completed");
+                        o.OrderStatus == "Completed" ||
+                        o.OrderStatus == "Delivered");
+
 
             ViewBag.CancelledOrders =
                 await _context.Orders
@@ -817,7 +820,7 @@ namespace WeddingClosetHubs.Controllers
             var deliveryBoys =
                 await _context.DeliveryBoys
                     .Include(d => d.User)
-                    .ThenInclude(u => u.Role)
+                    .ThenInclude(u => u!.Role)
                     .OrderByDescending(d => d.CreatedDate)
                     .ToListAsync();
 
@@ -837,7 +840,7 @@ namespace WeddingClosetHubs.Controllers
             var delivery =
                 await _context.DeliveryBoys
                     .Include(d => d.User)
-                    .ThenInclude(u => u.Role)
+                    .ThenInclude(u => u!.Role)
                     .FirstOrDefaultAsync(d =>
                         d.DeliveryBoyId == id);
 
@@ -1247,41 +1250,43 @@ namespace WeddingClosetHubs.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Shop)
-                    .ThenInclude(s => s.Shopkeeper)
+                    .ThenInclude(s => s!.Shopkeeper)
                 .Include(o => o.Delivery)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
-                .FirstOrDefaultAsync(o =>
-                    o.OrderId == id &&
-                    o.OrderStatus != "Cancelled");
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
-                TempData["Error"] =
-                    "Order not found or the order has been cancelled.";
+                TempData["Error"] = "Order not found.";
 
                 return RedirectToAction("Orders");
             }
 
+            if (IsCancelledOrder(order))
+            {
+                TempData["Error"] =
+                    "This order has been cancelled.";
 
-            var deliveryBoys =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .Include(u => u.DeliveryBoy)
-                    .Where(u =>
-                        u.Role != null &&
-                        u.Role.RoleName == DeliveryRole &&
-                        u.IsApproved &&
-                        u.Status &&
-                        u.DeliveryBoy != null &&
-                        u.DeliveryBoy.VerificationStatus == "Approved" &&
-                        u.DeliveryBoy.AssignedZone != null &&
-                        u.DeliveryBoy.AssignedZone != "")
-                    .OrderBy(u => u.Name)
-                    .ToListAsync();
+                return RedirectToAction("Orders");
+            }
 
-            ViewBag.DeliveryBoys =
-                deliveryBoys;
+            var deliveryBoys = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.DeliveryBoy)
+                .Where(u =>
+                    u.Role != null &&
+                    u.Role.RoleName == DeliveryRole &&
+                    u.IsApproved &&
+                    u.Status &&
+                    u.DeliveryBoy != null &&
+                    u.DeliveryBoy.VerificationStatus == "Approved" &&
+                    u.DeliveryBoy.AssignedZone != null &&
+                    u.DeliveryBoy.AssignedZone != "")
+                .OrderBy(u => u.Name)
+                .ToListAsync();
+
+            ViewBag.DeliveryBoys = deliveryBoys;
 
             return View(order);
         }
@@ -1290,28 +1295,22 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignDeliveryBoy(
-            int id,
-            int deliveryId)
+     int id,
+     int deliveryId)
         {
             if (!IsAdmin())
             {
                 return AdminLoginRedirect();
             }
 
-
-            var order =
-                await _context.Orders
-                    .FirstOrDefaultAsync(o =>
-                        o.OrderId == id);
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
-                TempData["Error"] =
-                    "Order not found.";
-
+                TempData["Error"] = "Order not found.";
                 return RedirectToAction("Orders");
             }
-
 
             if (IsCancelledOrder(order))
             {
@@ -1321,19 +1320,17 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Orders");
             }
 
-
-            var deliveryBoy =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .Include(u => u.DeliveryBoy)
-                    .FirstOrDefaultAsync(u =>
-                        u.UserId == deliveryId &&
-                        u.Role != null &&
-                        u.Role.RoleName == DeliveryRole &&
-                        u.IsApproved &&
-                        u.Status &&
-                        u.DeliveryBoy != null &&
-                        u.DeliveryBoy.VerificationStatus == "Approved");
+            var deliveryBoy = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.DeliveryBoy)
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == deliveryId &&
+                    u.Role != null &&
+                    u.Role.RoleName == DeliveryRole &&
+                    u.IsApproved &&
+                    u.Status &&
+                    u.DeliveryBoy != null &&
+                    u.DeliveryBoy.VerificationStatus == "Approved");
 
             if (deliveryBoy == null)
             {
@@ -1345,10 +1342,8 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-
-            if (deliveryBoy.DeliveryBoy == null ||
-                string.IsNullOrWhiteSpace(
-                    deliveryBoy.DeliveryBoy.AssignedZone))
+            if (string.IsNullOrWhiteSpace(
+                deliveryBoy.DeliveryBoy.AssignedZone))
             {
                 TempData["Error"] =
                     "This delivery boy does not have an assigned zone.";
@@ -1358,12 +1353,8 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            order.DeliveryId =deliveryBoy.UserId;
-             order.OrderStatus= "Ready" ;  
-
-
-           
-
+            order.DeliveryId = deliveryBoy.UserId;
+            order.OrderStatus = "Ready";
 
             await CreateNotification(
                 deliveryBoy.UserId,
@@ -1375,13 +1366,12 @@ namespace WeddingClosetHubs.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                $"Order #{order.OrderId} assigned to {deliveryBoy.Name} successfully.";
+                $"Order #{order.OrderId} assigned to {deliveryBoy.Name} successfully. Order status is Ready.";
 
             return RedirectToAction(
                 "OrderDetails",
                 new { id });
         }
-
 
 
         [HttpGet]
@@ -1551,6 +1541,10 @@ namespace WeddingClosetHubs.Controllers
                 order.PaymentStatus = "Paid";
                 order.PaymentDate =
                     order.DeliveryCashHandoverDate ?? DateTime.Now;
+                if (order.OrderStatus == "Delivered")
+                {
+                    order.OrderStatus = "Completed";
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -1581,6 +1575,10 @@ namespace WeddingClosetHubs.Controllers
             order.PaymentReceived = true;
             order.PaymentStatus = "Paid";
             order.PaymentDate = DateTime.Now;
+            if (order.OrderStatus == "Delivered")
+            {
+                order.OrderStatus = "Completed";
+            }
 
             await _context.SaveChangesAsync();
 
@@ -1595,8 +1593,8 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmCODHandover(
-            int id,
-            string? notes)
+      int id,
+      string? notes)
         {
             if (!IsAdmin())
             {
@@ -1605,7 +1603,6 @@ namespace WeddingClosetHubs.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.Delivery)
-
                 .Include(o => o.Customer)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
@@ -1646,8 +1643,6 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-
-
             if (order.DeliveryCollectedAmount < order.TotalAmount)
             {
                 TempData["Error"] =
@@ -1657,7 +1652,6 @@ namespace WeddingClosetHubs.Controllers
                     nameof(PaymentDetails),
                     new { id });
             }
-
 
             if (order.DeliveryCashHandedToAdmin)
             {
@@ -1669,24 +1663,22 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-
             order.DeliveryCashHandedToAdmin = true;
 
-            order.DeliveryCashHandoverDate =
-                DateTime.Now;
+            order.DeliveryCashHandoverDate = DateTime.Now;
 
             order.DeliveryCashHandoverNotes =
                 string.IsNullOrWhiteSpace(notes)
                     ? null
                     : notes.Trim();
 
-
             order.PaymentReceived = true;
             order.PaymentStatus = "Paid";
             order.PaymentDate = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            order.OrderStatus = "Completed";
 
+            await _context.SaveChangesAsync();
 
             if (order.Customer != null)
             {
@@ -1698,8 +1690,6 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderId);
             }
 
-
-
             if (order.Delivery != null)
             {
                 await CreateNotification(
@@ -1710,16 +1700,13 @@ namespace WeddingClosetHubs.Controllers
                     order.OrderId);
             }
 
-            await _context.SaveChangesAsync();
-
             TempData["Success"] =
-                $"COD cash of Rs. {order.DeliveryCollectedAmount:N0} has been received and customer payment is now marked Paid.";
+                $"COD cash of Rs. {order.DeliveryCollectedAmount:N0} has been received and the order is now marked Completed.";
 
             return RedirectToAction(
                 nameof(PaymentDetails),
                 new { id });
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2688,12 +2675,12 @@ namespace WeddingClosetHubs.Controllers
             }
 
             string[] allowedExtensions =
-            {
+            [
                 ".jpg",
                 ".jpeg",
                 ".png",
                 ".webp"
-            };
+            ];
 
             string extension =
                 Path.GetExtension(
@@ -2878,8 +2865,8 @@ namespace WeddingClosetHubs.Controllers
                     LastMessageDate =
                         lastMessage?.SentDate,
 
-                    UnreadCount =
-                        unreadCount
+                    UnreadCount =unreadCount
+                        
                 });
             }
 
@@ -3608,84 +3595,17 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> InspectRental(
-        int id,
-        string inspectionResult,
-        string? adminNotes)
-        {
-            if (!IsAdmin())
-            {
-                return AdminLoginRedirect();
-            }
-
-
-            var detail = await _context.OrderDetails
-                .Include(d => d.Order)
-                .FirstOrDefaultAsync(d => d.OrderDetailId == id);
-
-            if (detail == null)
-            {
-                return NotFound();
-            }
-
-            if (!string.Equals(
-                detail.PurchaseType,
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "This order item is not a rental.";
-
-                return RedirectToAction("RentalOrders");
-            }
-
-            if (!string.Equals(
-                detail.RentalReturnStatus,
-                "Returned",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "The dress must be returned by the shopkeeper before inspection.";
-
-                return RedirectToAction("RentalOrders");
-            }
-
-            if (string.IsNullOrWhiteSpace(inspectionResult))
-            {
-                TempData["Error"] =
-                    "Please select an inspection result.";
-
-                return RedirectToAction("RentalOrders");
-            }
-
-            detail.InspectionResult = inspectionResult;
-            detail.RentalReturnStatus = "Inspected";
-            detail.SecurityRefundNotes = adminNotes;
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] =
-                "Rental inspection has been recorded.";
-
-            return RedirectToAction("RentalOrders");
-
-
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefundRentalSecurity(
-        int id,
-        string refundMethod,
-        string? refundAccount,
-        string? transactionId,
-        string? refundNotes)
+      int id,
+      string refundMethod,
+      string? refundAccount,
+      string? transactionId,
+      string? refundNotes)
         {
             if (!IsAdmin())
             {
                 return AdminLoginRedirect();
             }
-
 
             var detail = await _context.OrderDetails
                 .Include(d => d.Order)
@@ -3713,7 +3633,7 @@ namespace WeddingClosetHubs.Controllers
                 StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "The dress must be returned and inspected before the security can be refunded.";
+                    "The dress must be received and inspected by the shopkeeper before the security can be refunded.";
 
                 return RedirectToAction("RentalOrders");
             }
@@ -3758,15 +3678,19 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("RentalOrders");
             }
 
+            if (string.IsNullOrWhiteSpace(transactionId))
+            {
+                TempData["Error"] =
+                    "Transaction ID is required to record the security refund.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
             detail.SecurityRefunded = true;
             detail.SecurityRefundDate = DateTime.Now;
-            detail.SecurityRefundMethod = refundMethod;
+            detail.SecurityRefundMethod = refundMethod.Trim();
             detail.SecurityRefundAccount = refundAccount.Trim();
-            detail.SecurityRefundTransactionId =
-                string.IsNullOrWhiteSpace(transactionId)
-                    ? null
-                    : transactionId.Trim();
-
+            detail.SecurityRefundTransactionId = transactionId.Trim();
             detail.SecurityRefundNotes = refundNotes;
             detail.RentalReturnStatus = "Refunded";
 
@@ -3776,8 +3700,261 @@ namespace WeddingClosetHubs.Controllers
                 "Rental security refund has been recorded successfully.";
 
             return RedirectToAction("RentalOrders");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveRentalReturnIssue(
+    int id,
+    string resolution,
+    decimal? refundAmount,
+    string? refundMethod,
+    string? refundAccount,
+    string? transactionId,
+    string? refundNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
 
+            var detail = await _context.OrderDetails
+                .Include(d => d.Order)
+                    .ThenInclude(o => o.Customer)
+                .Include(d => d.Product)
+                .FirstOrDefaultAsync(d => d.OrderDetailId == id);
 
+            if (detail == null)
+            {
+                TempData["Error"] = "Rental item not found.";
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (!string.Equals(
+                detail.PurchaseType,
+                "Rent",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This order item is not a rental.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (!string.Equals(
+                detail.RentalReturnStatus,
+                "Return Issue",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This rental does not require an Admin return issue resolution.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (detail.SecurityRefunded)
+            {
+                TempData["Error"] =
+                    "This rental security has already been processed.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (detail.RentalSecurity <= 0)
+            {
+                TempData["Error"] =
+                    "There is no refundable security amount for this rental.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (string.IsNullOrWhiteSpace(resolution))
+            {
+                TempData["Error"] =
+                    "Please select a resolution.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            resolution = resolution.Trim();
+
+            var securityAmount =
+                detail.RentalSecurity * detail.Quantity;
+
+            if (string.Equals(
+                resolution,
+                "Full Refund",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.IsNullOrWhiteSpace(refundMethod))
+                {
+                    TempData["Error"] =
+                        "Refund method is required for a full refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (!string.Equals(
+                        refundMethod,
+                        "Easypaisa",
+                        StringComparison.OrdinalIgnoreCase)
+                    &&
+                    !string.Equals(
+                        refundMethod,
+                        "JazzCash",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "Invalid refund method. Only Easypaisa and JazzCash are allowed.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (string.IsNullOrWhiteSpace(refundAccount))
+                {
+                    TempData["Error"] =
+                        "Account number is required for the refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (string.IsNullOrWhiteSpace(transactionId))
+                {
+                    TempData["Error"] =
+                        "Transaction ID is required to record the refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                detail.DamageDeduction = 0;
+                detail.RefundAmount = securityAmount;
+
+                detail.SecurityRefunded = true;
+                detail.SecurityRefundDate = DateTime.Now;
+                detail.SecurityRefundMethod = refundMethod.Trim();
+                detail.SecurityRefundAccount = refundAccount.Trim();
+                detail.SecurityRefundTransactionId = transactionId.Trim();
+
+                detail.SecurityRefundNotes =
+                    string.IsNullOrWhiteSpace(refundNotes)
+                        ? "Full security refund approved by Admin after rental return issue review."
+                        : refundNotes.Trim();
+
+                detail.RentalReturnStatus = "Refunded";
+            }
+            else if (string.Equals(
+                resolution,
+                "Partial Refund",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                if (!refundAmount.HasValue ||
+                    refundAmount.Value <= 0)
+                {
+                    TempData["Error"] =
+                        "Enter a valid partial refund amount.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (refundAmount.Value >= securityAmount)
+                {
+                    TempData["Error"] =
+                        "For a partial refund, the refund amount must be less than the total security amount.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (string.IsNullOrWhiteSpace(refundMethod))
+                {
+                    TempData["Error"] =
+                        "Refund method is required for a partial refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (!string.Equals(
+                        refundMethod,
+                        "Easypaisa",
+                        StringComparison.OrdinalIgnoreCase)
+                    &&
+                    !string.Equals(
+                        refundMethod,
+                        "JazzCash",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "Invalid refund method. Only Easypaisa and JazzCash are allowed.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (string.IsNullOrWhiteSpace(refundAccount))
+                {
+                    TempData["Error"] =
+                        "Account number is required for the partial refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                if (string.IsNullOrWhiteSpace(transactionId))
+                {
+                    TempData["Error"] =
+                        "Transaction ID is required to record the partial refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                detail.RefundAmount = refundAmount.Value;
+                detail.DamageDeduction =
+                    securityAmount - refundAmount.Value;
+
+                detail.SecurityRefunded = true;
+                detail.SecurityRefundDate = DateTime.Now;
+                detail.SecurityRefundMethod = refundMethod.Trim();
+                detail.SecurityRefundAccount = refundAccount.Trim();
+                detail.SecurityRefundTransactionId = transactionId.Trim();
+
+                detail.SecurityRefundNotes =
+                    string.IsNullOrWhiteSpace(refundNotes)
+                        ? "Partial security refund approved by Admin after rental return issue review."
+                        : refundNotes.Trim();
+
+                detail.RentalReturnStatus = "Refunded";
+            }
+            else if (string.Equals(
+                resolution,
+                "No Refund",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                detail.DamageDeduction = securityAmount;
+                detail.RefundAmount = 0;
+
+                detail.SecurityRefunded = false;
+                detail.SecurityRefundDate = DateTime.Now;
+                detail.SecurityRefundMethod = null;
+                detail.SecurityRefundAccount = null;
+                detail.SecurityRefundTransactionId = null;
+
+                detail.SecurityRefundNotes =
+                    string.IsNullOrWhiteSpace(refundNotes)
+                        ? "No security refund approved by Admin after rental return issue review."
+                        : refundNotes.Trim();
+
+                detail.RentalReturnStatus = "Resolved - No Refund";
+            }
+            else
+            {
+                TempData["Error"] =
+                    "Invalid rental return resolution.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Rental return issue has been resolved successfully.";
+
+            return RedirectToAction("RentalOrders");
         }
 
         [HttpGet]

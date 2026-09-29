@@ -277,11 +277,6 @@
             line-height: 1.5;
         }
 
-        .no-measurement {
-            color: #856404;
-            font-size: 13px;
-        }
-
         .payment-option {
             border: 2px solid #e5e5e5;
             border-radius: 10px;
@@ -401,6 +396,11 @@
             color: white;
         }
 
+        .place-order-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
         .back-btn {
             border: 1px solid #800020;
             color: #800020;
@@ -449,6 +449,12 @@
             color: #665200;
         }
 
+        .checkout-alert {
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
         @@media (max-width: 768px) {
 
             .page-wrapper {
@@ -477,7 +483,6 @@
             .grand-total {
                 font-size: 19px;
             }
-
         }
 
     </style>
@@ -553,6 +558,8 @@
             Confirm your delivery information, saved measurements and payment method.
 
         </p>
+
+        
 
         @if (Model == null || !Model.Any())
         {
@@ -631,9 +638,6 @@
                                     orders for delivery within
                                     <strong>Rawalpindi only</strong>.
 
-                                    Orders for other cities cannot be placed
-                                    at this time.
-
                                 </div>
 
                                 <div class="mb-3">
@@ -670,13 +674,6 @@
 
                                     </div>
 
-                                    <small class="text-muted">
-
-                                        Currently, only Rawalpindi is available
-                                        for delivery.
-
-                                    </small>
-
                                 </div>
 
                                 <div class="mb-3">
@@ -696,15 +693,22 @@
                                               rows="4"
                                               maxlength="500"
                                               required
-                                              placeholder="Enter complete Rawalpindi delivery address"></textarea>
+                                              placeholder="Example: House 123, Street 5, Saddar, Rawalpindi"></textarea>
 
                                     <div id="addressError"
                                          class="field-error">
 
-                                        Please enter your complete delivery
-                                        address.
+                                        Please enter a complete delivery
+                                        address located in Rawalpindi.
 
                                     </div>
+
+                                    <small class="text-muted">
+
+                                        Please include "Rawalpindi" in the
+                                        delivery address.
+
+                                    </small>
 
                                 </div>
 
@@ -784,7 +788,7 @@
 
                                     decimal rentalSecurity =
                                         isRentPurchase
-                                            ? product.RentalSecurity?? 0m
+                                            ? product.RentalSecurity ?? 0m
                                             : 0m;
 
                                     decimal rentalSecurityTotal =
@@ -899,18 +903,18 @@
 
                                                     </div>
 
-                                                    @if (rentalSecurity > 0)
-                                                    {
-                                                        <div class="rental-security-box">
+                                                    <div class="rental-security-box">
 
-                                                            <div class="rental-security-title">
+                                                        <div class="rental-security-title">
 
-                                                                <i class="bi bi-shield-check"></i>
+                                                            <i class="bi bi-shield-check"></i>
 
-                                                                Refundable Security
+                                                            Refundable Security
 
-                                                            </div>
+                                                        </div>
 
+                                                        @if (rentalSecurity > 0)
+                                                        {
                                                             <div class="rental-security-amount">
 
                                                                 Rs. @rentalSecurityTotal.ToString("N2")
@@ -936,31 +940,18 @@
                                                                 conditions.
 
                                                             </div>
-
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="rental-security-box">
-
-                                                            <div class="rental-security-title">
-
-                                                                <i class="bi bi-shield-check"></i>
-
-                                                                Refundable Security
-
-                                                            </div>
-
+                                                        }
+                                                        else
+                                                        {
                                                             <div class="rental-security-text">
 
                                                                 No refundable security has been
                                                                 set for this rental product.
 
                                                             </div>
+                                                        }
 
-                                                        </div>
-                                                    }
-
+                                                    </div>
                                                 }
 
                                                 @if (isNegotiatedPurchase)
@@ -995,7 +986,6 @@
                                                             These measurements were entered
                                                             on the customization page and
                                                             will be sent to the shopkeeper.
-                                                            You do not need to enter them again.
 
                                                         </div>
 
@@ -1337,8 +1327,7 @@
 
                                         <small class="text-muted">
 
-                                            Upload a clear screenshot of your
-                                            successful payment.
+                                            JPG, JPEG, PNG or WEBP, maximum 5 MB.
 
                                         </small>
 
@@ -1349,6 +1338,83 @@
                             </div>
 
                         </div>
+
+                        @if (refundableSecurity > 0)
+                        {
+                            <div class="checkout-card">
+
+                                <div class="card-header-custom">
+
+                                    <i class="bi bi-arrow-repeat"></i>
+
+                                    Rental Security Refund
+
+                                </div>
+
+                                <div class="card-body-custom">
+
+                                    <div class="mb-3">
+
+                                        <label for="refundPreferenceMethod"
+                                               class="form-label">
+
+                                            Refund Method
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <select name="RefundPreferenceMethod"
+                                                id="refundPreferenceMethod"
+                                                class="form-select">
+
+                                            <option value="">
+                                                -- Select Refund Method --
+                                            </option>
+
+                                            <option value="Easypaisa">
+                                                Easypaisa
+                                            </option>
+
+                                            <option value="JazzCash">
+                                                JazzCash
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label for="refundPreferenceAccount"
+                                               class="form-label">
+
+                                            Refund Account Number
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="RefundPreferenceAccount"
+                                               id="refundPreferenceAccount"
+                                               class="form-control"
+                                               maxlength="20"
+                                               placeholder="Enter Easypaisa or JazzCash account number" />
+
+                                        <small class="text-muted">
+
+                                            This account will be used for
+                                            refundable rental security.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
 
                         <div class="checkout-card">
 
@@ -1377,8 +1443,8 @@
                                 <div id="termsError"
                                      class="field-error">
 
-                                    Please accept the terms before placing
-                                    the order.
+                                    Please accept the confirmation before
+                                    placing the order.
 
                                 </div>
 
@@ -1537,6 +1603,7 @@
                             </div>
 
                             <button type="submit"
+                                    id="placeOrderButton"
                                     class="place-order-btn">
 
                                 <i class="bi bi-check-circle"></i>
@@ -1632,7 +1699,6 @@
                     '</span>';
 
             }
-
         }
 
         document.getElementById("checkoutForm")
@@ -1647,7 +1713,6 @@
                     document.getElementById("cityError");
 
                 cityError.style.display = "none";
-
                 deliveryCity.classList.remove("is-invalid");
 
                 if (deliveryCity.value !== "Rawalpindi") {
@@ -1655,11 +1720,9 @@
                     valid = false;
 
                     cityError.style.display = "block";
-
                     deliveryCity.classList.add("is-invalid");
 
                     deliveryCity.focus();
-
                 }
 
                 var deliveryAddress =
@@ -1668,24 +1731,42 @@
                 var addressError =
                     document.getElementById("addressError");
 
-                addressError.style.display = "none";
+                var address =
+                    deliveryAddress.value.trim();
 
+                addressError.style.display = "none";
                 deliveryAddress.classList.remove("is-invalid");
 
-                if (deliveryAddress.value.trim() === "") {
+                if (address.length < 10) {
 
                     valid = false;
+
+                    addressError.textContent =
+                        "Please enter a complete delivery address.";
 
                     addressError.style.display = "block";
 
                     deliveryAddress.classList.add("is-invalid");
 
                     if (deliveryCity.value === "Rawalpindi") {
-
                         deliveryAddress.focus();
-
                     }
 
+                }
+                else if (!address.toLowerCase().includes("rawalpindi")) {
+
+                    valid = false;
+
+                    addressError.textContent =
+                        "Please include Rawalpindi in your delivery address.";
+
+                    addressError.style.display = "block";
+
+                    deliveryAddress.classList.add("is-invalid");
+
+                    if (deliveryCity.value === "Rawalpindi") {
+                        deliveryAddress.focus();
+                    }
                 }
 
                 var paymentMethod =
@@ -1698,7 +1779,6 @@
                     valid = false;
 
                     alert("Please select a payment method.");
-
                 }
 
                 if (paymentMethod &&
@@ -1720,7 +1800,6 @@
                         );
 
                         transactionId.focus();
-
                     }
 
                     if (transactionImage.files.length === 0) {
@@ -1732,9 +1811,53 @@
                         );
 
                         transactionImage.focus();
+                    }
+                    else if (transactionImage.files[0].size >
+                             5 * 1024 * 1024) {
 
+                        valid = false;
+
+                        alert(
+                            "Payment screenshot must be 5 MB or smaller."
+                        );
+
+                        transactionImage.focus();
+                    }
+                }
+
+                var refundMethod =
+                    document.getElementById(
+                        "refundPreferenceMethod"
+                    );
+
+                var refundAccount =
+                    document.getElementById(
+                        "refundPreferenceAccount"
+                    );
+
+                if (refundMethod && refundAccount) {
+
+                    if (refundMethod.value === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please select the rental security refund method."
+                        );
+
+                        refundMethod.focus();
                     }
 
+                    if (refundAccount.value.trim() === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please enter the rental security refund account number."
+                        );
+
+                        refundAccount.focus();
+                    }
                 }
 
                 var terms =
@@ -1752,7 +1875,6 @@
                     termsError.style.display = "block";
 
                     terms.focus();
-
                 }
 
                 if (!valid) {
@@ -1760,7 +1882,6 @@
                     event.preventDefault();
 
                     return false;
-
                 }
 
                 var confirmation =
@@ -1773,11 +1894,36 @@
                     event.preventDefault();
 
                     return false;
-
                 }
+
+                var button =
+                    document.getElementById(
+                        "placeOrderButton"
+                    );
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                    'Placing Order...';
 
                 return true;
 
+            });
+
+        document.getElementById("deliveryAddress")
+            ?.addEventListener("input", function () {
+
+                var address = this.value.trim();
+
+                if (address.toLowerCase().includes("rawalpindi")) {
+
+                    this.classList.remove("is-invalid");
+
+                    document.getElementById(
+                        "addressError"
+                    ).style.display = "none";
+                }
             });
 
     </script>

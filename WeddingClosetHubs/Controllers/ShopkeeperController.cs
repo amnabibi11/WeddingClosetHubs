@@ -3,124 +3,126 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using WeddingClosetHubs.Models;
 
 namespace WeddingClosetHubs.Controllers
 {
-   public class ShopkeeperController : Controller
-{
-    private readonly WeddingClosetHubsContext _context;
-    private readonly IWebHostEnvironment _environment;
-
-    public ShopkeeperController(
-        WeddingClosetHubsContext context,
-        IWebHostEnvironment environment)
+    public class ShopkeeperController : Controller
     {
-        _context = context;
-        _environment = environment;
-    }
+        private readonly WeddingClosetHubsContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-    private const string ShopkeeperRole = "Shopkeeper";
-    private const string AdminRole = "Admin";
-    private const string CustomerRole = "Customer";
-    private const string DeliveryRole = "Delivery";
+        public ShopkeeperController(
+            WeddingClosetHubsContext context,
+            IWebHostEnvironment environment)
+        {
+            _context = context;
+            _environment = environment;
+        }
 
-    private const decimal FixedDeliveryCharges = 300m;
-    private const decimal ServiceFeePercentage = 10m;
+        private const string ShopkeeperRole = "Shopkeeper";
+        private const string AdminRole = "Admin";
+        private const string CustomerRole = "Customer";
+        private const string DeliveryRole = "Delivery";
 
-    private static readonly string[] AllowedProductImageExtensions =
-    {
+        private const decimal FixedDeliveryCharges = 300m;
+        private const decimal ServiceFeePercentage = 10m;
+
+        private static readonly string[] AllowedProductImageExtensions =
+        {
         ".jpg",
         ".jpeg",
         ".png",
         ".webp"
     };
 
-    private bool IsShopkeeper()
-    {
-        int? userId = HttpContext.Session.GetInt32("UserId");
-        string? roleName = HttpContext.Session.GetString("RoleName");
-
-        return userId.HasValue &&
-               string.Equals(
-                   roleName,
-                   ShopkeeperRole,
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    private int? GetShopkeeperId()
-    {
-        if (!IsShopkeeper())
-            return null;
-
-        return HttpContext.Session.GetInt32("UserId");
-    }
-
-    private async Task<Shop?> GetMyShop()
-    {
-        int? shopkeeperId = GetShopkeeperId();
-
-        if (!shopkeeperId.HasValue)
-            return null;
-
-        return await _context.Shops
-            .Include(s => s.Shopkeeper)
-            .FirstOrDefaultAsync(
-                s => s.ShopkeeperId == shopkeeperId.Value);
-    }
-
-    private static bool IsCancelledOrder(Order order)
-    {
-        return string.Equals(
-            order.OrderStatus,
-            "Cancelled",
-            StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsActiveOrderStatus(string? status)
-    {
-        return !string.Equals(
-            status,
-            "Cancelled",
-            StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsCompletedOrder(string? status)
-    {
-        return string.Equals(
-                   status,
-                   "Delivered",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               string.Equals(
-                   status,
-                   "Completed",
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsCodPayment(string? paymentMethod)
-    {
-        if (string.IsNullOrWhiteSpace(paymentMethod))
-            return false;
-
-        return paymentMethod.Contains(
-                   "cash",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               string.Equals(
-                   paymentMethod.Trim(),
-                   "COD",
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    private Dictionary<string, List<string>> GetCategoryData()
-    {
-        return new Dictionary<string, List<string>>(
-            StringComparer.OrdinalIgnoreCase)
+        private bool IsShopkeeper()
         {
-            ["Dress"] = new List<string>
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            string? roleName = HttpContext.Session.GetString("RoleName");
+
+            return userId.HasValue &&
+                   string.Equals(
+                       roleName,
+                       ShopkeeperRole,
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        private int? GetShopkeeperId()
+        {
+            if (!IsShopkeeper())
+                return null;
+
+            return HttpContext.Session.GetInt32("UserId");
+        }
+
+        private async Task<Shop?> GetMyShop()
+        {
+            int? shopkeeperId = GetShopkeeperId();
+
+            if (!shopkeeperId.HasValue)
+                return null;
+
+            return await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(
+                    s => s.ShopkeeperId == shopkeeperId.Value);
+        }
+
+        private static bool IsCancelledOrder(Order order)
+        {
+            return string.Equals(
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsActiveOrderStatus(string? status)
+        {
+            return !string.Equals(
+                status,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsCompletedOrder(string? status)
+        {
+            return string.Equals(
+                       status,
+                       "Delivered",
+                       StringComparison.OrdinalIgnoreCase)
+                   ||
+                   string.Equals(
+                       status,
+                       "Completed",
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsCodPayment(string? paymentMethod)
+        {
+            if (string.IsNullOrWhiteSpace(paymentMethod))
+                return false;
+
+            return paymentMethod.Contains(
+                       "cash",
+                       StringComparison.OrdinalIgnoreCase)
+                   ||
+                   string.Equals(
+                       paymentMethod.Trim(),
+                       "COD",
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        private Dictionary<string, List<string>> GetCategoryData()
+        {
+            return new Dictionary<string, List<string>>(
+                StringComparer.OrdinalIgnoreCase)
+            {
+                ["Dress"] = new List<string>
             {
                 "Bridal Dress",
                 "Lehenga",
@@ -144,7 +146,7 @@ namespace WeddingClosetHubs.Controllers
                 "Shalwar Kameez"
             },
 
-            ["Wedding Guest Wear"] = new List<string>
+                ["Wedding Guest Wear"] = new List<string>
             {
                 "Party Dress",
                 "Maxi",
@@ -156,7 +158,7 @@ namespace WeddingClosetHubs.Controllers
                 "Kurta Pajama"
             },
 
-            ["Footwear"] = new List<string>
+                ["Footwear"] = new List<string>
             {
                 "Bridal Shoes",
                 "Heels",
@@ -169,7 +171,7 @@ namespace WeddingClosetHubs.Controllers
                 "Wedding Shoes"
             },
 
-            ["Jewellery"] = new List<string>
+                ["Jewellery"] = new List<string>
             {
                 "Necklace",
                 "Earrings",
@@ -181,7 +183,7 @@ namespace WeddingClosetHubs.Controllers
                 "Bridal Jewellery Set"
             },
 
-            ["Accessories"] = new List<string>
+                ["Accessories"] = new List<string>
             {
                 "Clutch",
                 "Handbag",
@@ -194,106 +196,106 @@ namespace WeddingClosetHubs.Controllers
                 "Bow Tie",
                 "Belt"
             }
-        };
-    }
-
-    private Dictionary<string, List<string>> GetAllowedCategoryDataForShop(
-        string? shopCategory)
-    {
-        var allCategories = GetCategoryData();
-
-        string normalized =
-            (shopCategory ?? string.Empty)
-            .Trim()
-            .ToLowerInvariant()
-            .Replace("-", " ");
-
-        var result =
-            new Dictionary<string, List<string>>(
-                StringComparer.OrdinalIgnoreCase);
-
-        if (normalized.Contains("guest"))
-        {
-            result["Wedding Guest Wear"] =
-                allCategories["Wedding Guest Wear"];
-
-            return result;
+            };
         }
 
-        if (normalized.Contains("footwear") ||
-            normalized.Contains("shoe"))
+        private Dictionary<string, List<string>> GetAllowedCategoryDataForShop(
+            string? shopCategory)
         {
-            result["Footwear"] =
-                allCategories["Footwear"];
+            var allCategories = GetCategoryData();
 
-            return result;
-        }
+            string normalized =
+                (shopCategory ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant()
+                .Replace("-", " ");
 
-        if (normalized.Contains("jewellery") ||
-            normalized.Contains("jewelry"))
-        {
-            result["Jewellery"] =
-                allCategories["Jewellery"];
+            var result =
+                new Dictionary<string, List<string>>(
+                    StringComparer.OrdinalIgnoreCase);
 
-            return result;
-        }
-
-        if (normalized.Contains("accessor"))
-        {
-            result["Accessories"] =
-                allCategories["Accessories"];
-
-            return result;
-        }
-
-        if (normalized.Contains("dress") ||
-            normalized.Contains("bridal") ||
-            normalized.Contains("bride") ||
-            normalized.Contains("groom") ||
-            normalized.Contains("gents") ||
-            normalized.Contains("men"))
-        {
-            result["Dress"] =
-                allCategories["Dress"];
-
-            return result;
-        }
-
-        foreach (var category in allCategories)
-        {
-            if (string.Equals(
-                    category.Key,
-                    shopCategory?.Trim(),
-                    StringComparison.OrdinalIgnoreCase))
+            if (normalized.Contains("guest"))
             {
-                result[category.Key] = category.Value;
-                break;
+                result["Wedding Guest Wear"] =
+                    allCategories["Wedding Guest Wear"];
+
+                return result;
             }
+
+            if (normalized.Contains("footwear") ||
+                normalized.Contains("shoe"))
+            {
+                result["Footwear"] =
+                    allCategories["Footwear"];
+
+                return result;
+            }
+
+            if (normalized.Contains("jewellery") ||
+                normalized.Contains("jewelry"))
+            {
+                result["Jewellery"] =
+                    allCategories["Jewellery"];
+
+                return result;
+            }
+
+            if (normalized.Contains("accessor"))
+            {
+                result["Accessories"] =
+                    allCategories["Accessories"];
+
+                return result;
+            }
+
+            if (normalized.Contains("dress") ||
+                normalized.Contains("bridal") ||
+                normalized.Contains("bride") ||
+                normalized.Contains("groom") ||
+                normalized.Contains("gents") ||
+                normalized.Contains("men"))
+            {
+                result["Dress"] =
+                    allCategories["Dress"];
+
+                return result;
+            }
+
+            foreach (var category in allCategories)
+            {
+                if (string.Equals(
+                        category.Key,
+                        shopCategory?.Trim(),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    result[category.Key] = category.Value;
+                    break;
+                }
+            }
+
+            return result;
         }
 
-        return result;
-    }
+        private void PrepareProductForm(Shop shop)
+        {
+            var allowedData =
+                GetAllowedCategoryDataForShop(shop.ShopCategory);
 
-    private void PrepareProductForm(Shop shop)
-    {
-        var allowedData =
-            GetAllowedCategoryDataForShop(shop.ShopCategory);
+            ViewBag.ShopCategory =
+                shop.ShopCategory;
 
-        ViewBag.ShopCategory =
-            shop.ShopCategory;
+            ViewBag.ProductCategories =
+                allowedData.Keys.ToList();
 
-        ViewBag.ProductCategories =
-            allowedData.Keys.ToList();
+            ViewBag.SubCategories =
+                allowedData.Values
+                    .SelectMany(x => x)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
 
-        ViewBag.SubCategories =
-            allowedData.Values
-                .SelectMany(x => x)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-        ViewBag.StandardSizes =
-            new List<string>
-            {
+            ViewBag.StandardSizes =
+                new List<string>
+                {
                 "XS",
                 "S",
                 "M",
@@ -310,102 +312,102 @@ namespace WeddingClosetHubs.Controllers
                 "43",
                 "44",
                 "45"
-            };
+                };
 
-        ViewBag.CategoryDataJson =
-            JsonSerializer.Serialize(allowedData);
-    }
-
-    private void SetProductType(
-        Product product,
-        string? shopCategory)
-    {
-        string normalized =
-            (shopCategory ?? string.Empty)
-            .Trim()
-            .ToLowerInvariant()
-            .Replace("-", " ");
-
-        if (normalized.Contains("footwear") ||
-            normalized.Contains("shoe"))
-        {
-            product.ProductType = "Footwear";
-            return;
+            ViewBag.CategoryDataJson =
+                JsonSerializer.Serialize(allowedData);
         }
 
-        if (normalized.Contains("jewellery") ||
-            normalized.Contains("jewelry"))
+        private void SetProductType(
+            Product product,
+            string? shopCategory)
         {
-            product.ProductType = "Jewellery";
-            return;
+            string normalized =
+                (shopCategory ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant()
+                .Replace("-", " ");
+
+            if (normalized.Contains("footwear") ||
+                normalized.Contains("shoe"))
+            {
+                product.ProductType = "Footwear";
+                return;
+            }
+
+            if (normalized.Contains("jewellery") ||
+                normalized.Contains("jewelry"))
+            {
+                product.ProductType = "Jewellery";
+                return;
+            }
+
+            if (normalized.Contains("accessor"))
+            {
+                product.ProductType = "Accessories";
+                return;
+            }
+
+            if (normalized.Contains("guest"))
+            {
+                product.ProductType = "Wedding Guest Wear";
+                return;
+            }
+
+            if (normalized.Contains("dress") ||
+                normalized.Contains("bridal") ||
+                normalized.Contains("bride") ||
+                normalized.Contains("groom") ||
+                normalized.Contains("gents") ||
+                normalized.Contains("men"))
+            {
+                product.ProductType = "Dress / Custom Size";
+                return;
+            }
+
+            product.ProductType = "Standard";
         }
 
-        if (normalized.Contains("accessor"))
+        private void ValidateProductSizing(Product product)
         {
-            product.ProductType = "Accessories";
-            return;
-        }
+            string category =
+                product.Category?.Trim() ?? string.Empty;
 
-        if (normalized.Contains("guest"))
-        {
-            product.ProductType = "Wedding Guest Wear";
-            return;
-        }
+            string subcategory =
+                product.Subcategory?.Trim() ?? string.Empty;
 
-        if (normalized.Contains("dress") ||
-            normalized.Contains("bridal") ||
-            normalized.Contains("bride") ||
-            normalized.Contains("groom") ||
-            normalized.Contains("gents") ||
-            normalized.Contains("men"))
-        {
-            product.ProductType = "Dress / Custom Size";
-            return;
-        }
+            string categoryLower =
+                category.ToLowerInvariant();
 
-        product.ProductType = "Standard";
-    }
+            string subcategoryLower =
+                subcategory.ToLowerInvariant();
 
-    private void ValidateProductSizing(Product product)
-    {
-        string category =
-            product.Category?.Trim() ?? string.Empty;
+            bool isFootwear =
+                categoryLower.Contains("footwear") ||
+                categoryLower.Contains("shoe") ||
+                subcategoryLower.Contains("footwear") ||
+                subcategoryLower.Contains("shoe");
 
-        string subcategory =
-            product.Subcategory?.Trim() ?? string.Empty;
+            bool isJewellery =
+                categoryLower.Contains("jewellery") ||
+                categoryLower.Contains("jewelry") ||
+                subcategoryLower.Contains("jewellery") ||
+                subcategoryLower.Contains("jewelry");
 
-        string categoryLower =
-            category.ToLowerInvariant();
+            bool isAccessories =
+                categoryLower.Contains("accessories") ||
+                categoryLower.Contains("accessory") ||
+                subcategoryLower.Contains("accessories") ||
+                subcategoryLower.Contains("accessory");
 
-        string subcategoryLower =
-            subcategory.ToLowerInvariant();
+            bool isWeddingGuestWear =
+                categoryLower.Contains("wedding guest wear") ||
+                categoryLower.Contains("guest wear") ||
+                subcategoryLower.Contains("wedding guest wear") ||
+                subcategoryLower.Contains("guest wear");
 
-        bool isFootwear =
-            categoryLower.Contains("footwear") ||
-            categoryLower.Contains("shoe") ||
-            subcategoryLower.Contains("footwear") ||
-            subcategoryLower.Contains("shoe");
-
-        bool isJewellery =
-            categoryLower.Contains("jewellery") ||
-            categoryLower.Contains("jewelry") ||
-            subcategoryLower.Contains("jewellery") ||
-            subcategoryLower.Contains("jewelry");
-
-        bool isAccessories =
-            categoryLower.Contains("accessories") ||
-            categoryLower.Contains("accessory") ||
-            subcategoryLower.Contains("accessories") ||
-            subcategoryLower.Contains("accessory");
-
-        bool isWeddingGuestWear =
-            categoryLower.Contains("wedding guest wear") ||
-            categoryLower.Contains("guest wear") ||
-            subcategoryLower.Contains("wedding guest wear") ||
-            subcategoryLower.Contains("guest wear");
-
-        string[] dressKeywords =
-        {
+            string[] dressKeywords =
+            {
             "dress",
             "lehenga",
             "gown",
@@ -428,13 +430,13 @@ namespace WeddingClosetHubs.Controllers
             "shirt & trouser"
         };
 
-        bool isDress =
-            dressKeywords.Any(keyword =>
-                categoryLower.Contains(keyword) ||
-                subcategoryLower.Contains(keyword));
+            bool isDress =
+                dressKeywords.Any(keyword =>
+                    categoryLower.Contains(keyword) ||
+                    subcategoryLower.Contains(keyword));
 
-        string[] standardSizes =
-        {
+            string[] standardSizes =
+            {
             "XS",
             "S",
             "M",
@@ -443,8 +445,8 @@ namespace WeddingClosetHubs.Controllers
             "XXL"
         };
 
-        string[] shoeSizes =
-        {
+            string[] shoeSizes =
+            {
             "36",
             "37",
             "38",
@@ -457,89 +459,89 @@ namespace WeddingClosetHubs.Controllers
             "45"
         };
 
-        if (isFootwear)
-        {
-            if (string.IsNullOrWhiteSpace(product.Size))
+            if (isFootwear)
             {
-                ModelState.AddModelError(
-                    "Size",
-                    "Please select a shoe size.");
-            }
-            else if (!shoeSizes.Contains(product.Size.Trim()))
-            {
-                ModelState.AddModelError(
-                    "Size",
-                    "Please select a valid shoe size from 36 to 45.");
-            }
+                if (string.IsNullOrWhiteSpace(product.Size))
+                {
+                    ModelState.AddModelError(
+                        "Size",
+                        "Please select a shoe size.");
+                }
+                else if (!shoeSizes.Contains(product.Size.Trim()))
+                {
+                    ModelState.AddModelError(
+                        "Size",
+                        "Please select a valid shoe size from 36 to 45.");
+                }
 
-            product.HasCustomMeasurement = false;
-            product.CustomMeasurements = null;
-            product.SizeType = null;
-
-            return;
-        }
-
-        if (isJewellery || isAccessories)
-        {
-            product.Size = null;
-            product.SizeType = null;
-            product.HasCustomMeasurement = false;
-            product.CustomMeasurements = null;
-
-            return;
-        }
-
-        if (isWeddingGuestWear)
-        {
-            if (string.IsNullOrWhiteSpace(product.Size) ||
-                !standardSizes.Contains(
-                    product.Size.Trim(),
-                    StringComparer.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError(
-                    "Size",
-                    "Please select a valid size from XS to XXL.");
-            }
-
-            product.HasCustomMeasurement = false;
-            product.CustomMeasurements = null;
-
-            return;
-        }
-
-        if (isDress)
-        {
-            if (string.IsNullOrWhiteSpace(product.Size) ||
-                !standardSizes.Contains(
-                    product.Size.Trim(),
-                    StringComparer.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError(
-                    "Size",
-                    "Please select a valid size from XS to XXL.");
-            }
-
-            if (!product.HasCustomMeasurement)
-            {
+                product.HasCustomMeasurement = false;
                 product.CustomMeasurements = null;
+                product.SizeType = null;
+
+                return;
             }
 
-            return;
-        }
+            if (isJewellery || isAccessories)
+            {
+                product.Size = null;
+                product.SizeType = null;
+                product.HasCustomMeasurement = false;
+                product.CustomMeasurements = null;
 
-        if (!string.IsNullOrWhiteSpace(product.Size) &&
-            !standardSizes.Contains(
-                product.Size.Trim(),
-                StringComparer.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(
-                "Size",
-                "Please select a valid size from XS to XXL.");
-        }
+                return;
+            }
 
-        product.HasCustomMeasurement = false;
-        product.CustomMeasurements = null;
-    }
+            if (isWeddingGuestWear)
+            {
+                if (string.IsNullOrWhiteSpace(product.Size) ||
+                    !standardSizes.Contains(
+                        product.Size.Trim(),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(
+                        "Size",
+                        "Please select a valid size from XS to XXL.");
+                }
+
+                product.HasCustomMeasurement = false;
+                product.CustomMeasurements = null;
+
+                return;
+            }
+
+            if (isDress)
+            {
+                if (string.IsNullOrWhiteSpace(product.Size) ||
+                    !standardSizes.Contains(
+                        product.Size.Trim(),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(
+                        "Size",
+                        "Please select a valid size from XS to XXL.");
+                }
+
+                if (!product.HasCustomMeasurement)
+                {
+                    product.CustomMeasurements = null;
+                }
+
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(product.Size) &&
+                !standardSizes.Contains(
+                    product.Size.Trim(),
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(
+                    "Size",
+                    "Please select a valid size from XS to XXL.");
+            }
+
+            product.HasCustomMeasurement = false;
+            product.CustomMeasurements = null;
+        }
 
 
 
@@ -2125,9 +2127,7 @@ namespace WeddingClosetHubs.Controllers
                 .Include(o => o.Delivery)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
-                .Where(o =>
-                    o.ShopId == shop.ShopId &&
-                    o.OrderStatus != "Cancelled")
+                .Where(o => o.ShopId == shop.ShopId)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
 
@@ -2145,7 +2145,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View(orders);
         }
-
 
         public async Task<IActionResult> OrderDetails(int id)
         {
@@ -2208,7 +2207,8 @@ namespace WeddingClosetHubs.Controllers
                     d.Order != null &&
                     d.Order.ShopId == shop.ShopId &&
                     d.Order.OrderStatus != "Cancelled" &&
-                    d.PurchaseType == "Rent")
+                    d.PurchaseType != null &&
+                    d.PurchaseType.Contains("Rent"))
                 .OrderByDescending(d => d.Order!.CreatedDate)
                 .ToListAsync();
 
@@ -2223,6 +2223,7 @@ namespace WeddingClosetHubs.Controllers
 
             return View(rentalOrders);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2251,10 +2252,8 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("RentalOrders");
             }
 
-            if (!string.Equals(
-                detail.PurchaseType,
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(detail.PurchaseType) ||
+                !detail.PurchaseType.Contains("Rent"))
             {
                 TempData["Error"] = "This order item is not a rental.";
                 return RedirectToAction("RentalOrders");
@@ -2269,22 +2268,30 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("RentalOrders");
             }
 
+            var rentalReturnStatus =
+                detail.RentalReturnStatus?.Trim() ?? "";
+
             if (!string.Equals(
-                detail.RentalReturnStatus,
-                "Return Picked Up",
-                StringComparison.OrdinalIgnoreCase))
+                    rentalReturnStatus,
+                    "Return Picked Up",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(
+                    rentalReturnStatus,
+                    "Returned to Shop",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "The delivery person must pick up the returned dress before the shopkeeper can confirm receipt.";
+                    "The returned dress has not yet been delivered to the shop.";
 
                 return RedirectToAction("RentalOrders");
             }
 
-            detail.RentalReturnStatus = "Returned";
+            detail.RentalReturnStatus = "Inspected";
             detail.DressReceivedDate = DateTime.Now;
             detail.DressReturnedDate = DateTime.Now;
-
-            await _context.SaveChangesAsync();
+            detail.InspectionResult = "Passed";
+            detail.SecurityRefundNotes =
+                "Dress received and inspected by shopkeeper.";
 
             var adminUsers = await _context.Users
                 .Include(u => u.Role)
@@ -2300,9 +2307,9 @@ namespace WeddingClosetHubs.Controllers
                 _context.Notifications.Add(new Notification
                 {
                     UserId = adminUserId,
-                    Title = "Rental Dress Returned",
+                    Title = "Rental Dress Ready for Security Refund",
                     Message =
-                        $"Rental dress from Order #{detail.OrderId} has been returned to {shop.ShopName} and is ready for inspection.",
+                        $"Rental dress from Order #{detail.OrderId} was received and inspected by {shop.ShopName}. The security is ready for refund processing.",
                     Type = "Rental Return",
                     OrderId = detail.OrderId,
                     IsRead = false,
@@ -2313,16 +2320,17 @@ namespace WeddingClosetHubs.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Rental dress receipt has been confirmed. Admin has been notified for inspection.";
+                "Rental dress has been received and inspected. Admin has been notified for security refund.";
 
             return RedirectToAction("RentalOrders");
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectRentalReturn(
-            int id,
-            string? notes)
+     int id,
+     string? notes)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -2347,31 +2355,56 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("RentalOrders");
             }
 
-            if (!string.Equals(
-                detail.PurchaseType,
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(detail.PurchaseType) ||
+                !detail.PurchaseType.Contains("Rent"))
             {
                 TempData["Error"] = "This order item is not a rental.";
                 return RedirectToAction("RentalOrders");
             }
 
-            if (!string.Equals(
-                detail.RentalReturnStatus,
-                "Return Picked Up",
+            if (string.Equals(
+                detail.Order!.OrderStatus,
+                "Cancelled",
                 StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "The rental dress must be received from the delivery person before processing the return.";
+                    "Cancelled orders cannot be processed.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            var rentalReturnStatus =
+                detail.RentalReturnStatus?.Trim() ?? "";
+
+            if (!string.Equals(
+                    rentalReturnStatus,
+                    "Return Picked Up",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(
+                    rentalReturnStatus,
+                    "Returned to Shop",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "The rental dress must be delivered to the shop before processing the return.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
+            if (string.IsNullOrWhiteSpace(notes))
+            {
+                TempData["Error"] =
+                    "Please enter the damage or return issue details.";
 
                 return RedirectToAction("RentalOrders");
             }
 
             detail.RentalReturnStatus = "Return Issue";
-            detail.ReturnNotes = notes;
+            detail.InspectionResult = "Failed";
+            detail.ReturnNotes = notes.Trim();
             detail.DressReceivedDate = DateTime.Now;
-
-            await _context.SaveChangesAsync();
+            detail.SecurityRefundNotes =
+                $"Rental return issue reported by shopkeeper: {notes.Trim()}";
 
             var customerId = detail.Order!.CustomerId;
 
@@ -2380,20 +2413,45 @@ namespace WeddingClosetHubs.Controllers
                 UserId = customerId,
                 Title = "Rental Return Issue",
                 Message =
-                    $"There is an issue with the returned rental dress from Order #{detail.OrderId}. {notes}",
+                    $"There is an issue with the returned rental dress from Order #{detail.OrderId}. {notes.Trim()}",
                 Type = "Rental Return",
                 OrderId = detail.OrderId,
                 IsRead = false,
                 CreatedDate = DateTime.Now
             });
 
+            var adminUsers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u =>
+                    u.Role != null &&
+                    u.Role.RoleName == AdminRole &&
+                    u.Status)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            foreach (var adminUserId in adminUsers)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = adminUserId,
+                    Title = "Rental Return Damage Reported",
+                    Message =
+                        $"Shopkeeper at {shop.ShopName} reported an issue with the returned rental dress from Order #{detail.OrderId}. Issue: {notes.Trim()}",
+                    Type = "Rental Return",
+                    OrderId = detail.OrderId,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "The rental return issue has been recorded and the customer has been notified.";
+                "The rental return issue has been recorded. The customer and Admin have been notified.";
 
             return RedirectToAction("RentalOrders");
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateOrderStatus(
@@ -3539,15 +3597,13 @@ namespace WeddingClosetHubs.Controllers
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
 
-            int userId =
-                GetShopkeeperId()!.Value;
+            int userId = GetShopkeeperId()!.Value;
 
             var user = await _context.Users
                 .Include(u => u.Role)
                 .Include(u => u.Shop)
                 .Include(u => u.DeliveryBoy)
-                .FirstOrDefaultAsync(
-                    u => u.UserId == userId);
+                .FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
             {
@@ -3557,12 +3613,6 @@ namespace WeddingClosetHubs.Controllers
                     "Login",
                     "Account");
             }
-
-            ViewBag.PaymentMethod =
-                user.PaymentMethod;
-
-            ViewBag.PaymentAccount =
-                user.PaymentAccount;
 
             return View(user);
         }
@@ -3571,179 +3621,217 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(
-            User model,
+            int UserId,
+            string? Name,
+            string? Email,
+            string? Phone,
+            string? Address,
+            string? PaymentMethod,
+            string? PaymentAccount,
             IFormFile? profileImage)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
 
-            int sessionUserId =
-                GetShopkeeperId()!.Value;
+            int sessionUserId = GetShopkeeperId()!.Value;
 
-            if (model.UserId != sessionUserId)
+            if (UserId != sessionUserId)
             {
-                TempData["Error"] =
-                    "Invalid user profile.";
-
+                TempData["Error"] = "Invalid user profile.";
                 return RedirectToAction("Profile");
             }
 
             var user = await _context.Users
-                .Include(u => u.Role)
-                .Include(u => u.Shop)
-                .Include(u => u.DeliveryBoy)
-                .FirstOrDefaultAsync(
-                    u => u.UserId == sessionUserId);
+                .FirstOrDefaultAsync(u => u.UserId == sessionUserId);
 
             if (user == null)
             {
                 HttpContext.Session.Clear();
-
-                return RedirectToAction(
-                    "Login",
-                    "Account");
+                return RedirectToAction("Login", "Account");
             }
 
+            Name = Name?.Trim();
+            Email = Email?.Trim().ToLowerInvariant();
+            Phone = Phone?.Trim();
+            Address = Address?.Trim();
+            PaymentMethod = PaymentMethod?.Trim();
+            PaymentAccount = PaymentAccount?
+                .Trim()
+                .Replace(" ", "")
+                .Replace("-", "");
 
-            if (string.IsNullOrWhiteSpace(model.Name))
+            if (string.IsNullOrWhiteSpace(Name))
             {
-                ModelState.AddModelError(
-                    "Name",
-                    "Name is required.");
+                TempData["Error"] = "Name is required.";
+                return RedirectToAction("Profile");
             }
 
-            if (string.IsNullOrWhiteSpace(model.Email))
+            if (string.IsNullOrWhiteSpace(Email))
             {
-                ModelState.AddModelError(
-                    "Email",
-                    "Email is required.");
+                TempData["Error"] = "Email is required.";
+                return RedirectToAction("Profile");
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Email))
+            if (!new EmailAddressAttribute().IsValid(Email))
             {
-                string email =
-                    model.Email.Trim().ToLower();
-
-                bool emailExists =
-                    await _context.Users.AnyAsync(
-                        u =>
-                            u.UserId != sessionUserId &&
-                            u.Email != null &&
-                            u.Email.ToLower() == email);
-
-                if (emailExists)
-                {
-                    ModelState.AddModelError(
-                        "Email",
-                        "This email is already registered.");
-                }
+                TempData["Error"] = "Please enter a valid email address.";
+                return RedirectToAction("Profile");
             }
 
-            string? paymentMethod =
-                model.PaymentMethod?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(paymentMethod))
+            string[] allowedEmailDomains =
             {
-                bool validPaymentMethod =
-                    paymentMethod.Equals(
+        "gmail.com",
+        "yahoo.com",
+        "hotmail.com",
+        "outlook.com"
+    };
+
+            string emailDomain = Email.Split('@').Last();
+
+            if (!allowedEmailDomains.Contains(
+                emailDomain,
+                StringComparer.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Please use gmail.com, yahoo.com, hotmail.com or outlook.com.";
+
+                return RedirectToAction("Profile");
+            }
+
+            bool emailExists = await _context.Users.AnyAsync(
+                u => u.UserId != sessionUserId &&
+                     u.Email == Email);
+
+            if (emailExists)
+            {
+                TempData["Error"] =
+                    "This email is already registered.";
+
+                return RedirectToAction("Profile");
+            }
+
+            if (!string.IsNullOrWhiteSpace(PaymentMethod))
+            {
+                if (!PaymentMethod.Equals(
                         "Easypaisa",
-                        StringComparison.OrdinalIgnoreCase)
-                    ||
-                    paymentMethod.Equals(
+                        StringComparison.OrdinalIgnoreCase) &&
+                    !PaymentMethod.Equals(
                         "JazzCash",
-                        StringComparison.OrdinalIgnoreCase);
-
-                if (!validPaymentMethod)
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    ModelState.AddModelError(
-                        "PaymentMethod",
-                        "Only Easypaisa or JazzCash is allowed.");
+                    TempData["Error"] =
+                        "Only Easypaisa or JazzCash is allowed.";
+
+                    return RedirectToAction("Profile");
                 }
 
-                if (string.IsNullOrWhiteSpace(
-                        model.PaymentAccount))
+                if (string.IsNullOrWhiteSpace(PaymentAccount))
                 {
-                    ModelState.AddModelError(
-                        "PaymentAccount",
-                        "Payment account is required.");
+                    TempData["Error"] =
+                        "Payment account is required.";
+
+                    return RedirectToAction("Profile");
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(PaymentAccount) &&
+                string.IsNullOrWhiteSpace(PaymentMethod))
+            {
+                TempData["Error"] =
+                    "Please select a payment method.";
 
-            if (profileImage != null &&
-                profileImage.Length > 0)
+                return RedirectToAction("Profile");
+            }
+
+            if (!string.IsNullOrWhiteSpace(PaymentAccount))
+            {
+                if (!Regex.IsMatch(
+                    PaymentAccount,
+                    @"^(03\d{9}|(\+92|0092)3\d{9})$"))
+                {
+                    TempData["Error"] =
+                        "Please enter a valid Pakistani mobile number.";
+
+                    return RedirectToAction("Profile");
+                }
+            }
+
+            string? newProfileImage = null;
+
+            if (profileImage != null && profileImage.Length > 0)
             {
                 string extension =
-                    Path.GetExtension(
-                        profileImage.FileName)
-                    .ToLowerInvariant();
+                    Path.GetExtension(profileImage.FileName)
+                        .ToLowerInvariant();
 
                 string[] allowedExtensions =
                 {
-                    ".jpg",
-                    ".jpeg",
-                    ".png"
-                };
+            ".jpg",
+            ".jpeg",
+            ".png"
+        };
 
-                if (!allowedExtensions.Contains(
-                        extension))
+                if (!allowedExtensions.Contains(extension))
                 {
-                    ModelState.AddModelError(
-                        "profileImage",
-                        "Only JPG, JPEG and PNG images are allowed.");
+                    TempData["Error"] =
+                        "Only JPG, JPEG and PNG images are allowed.";
+
+                    return RedirectToAction("Profile");
                 }
 
-                if (profileImage.Length >
-                    2 * 1024 * 1024)
+                if (profileImage.Length > 2 * 1024 * 1024)
                 {
-                    ModelState.AddModelError(
-                        "profileImage",
-                        "Profile image must be 2 MB or smaller.");
+                    TempData["Error"] =
+                        "Profile image must be 2 MB or smaller.";
+
+                    return RedirectToAction("Profile");
+                }
+
+                string contentType =
+                    profileImage.ContentType?.ToLowerInvariant() ?? "";
+
+                if (contentType != "image/jpeg" &&
+                    contentType != "image/png")
+                {
+                    TempData["Error"] =
+                        "Only JPG, JPEG and PNG images are allowed.";
+
+                    return RedirectToAction("Profile");
+                }
+
+                try
+                {
+                    newProfileImage =
+                        await SaveFile(profileImage, "profiles");
+                }
+                catch
+                {
+                    TempData["Error"] =
+                        "Unable to save the profile image.";
+
+                    return RedirectToAction("Profile");
                 }
             }
 
-            if (!ModelState.IsValid)
-            {
-                ViewBag.PaymentMethod =
-                    user.PaymentMethod;
+            string oldProfileImage =
+                user.ProfileImage ?? "";
 
-                ViewBag.PaymentAccount =
-                    user.PaymentAccount;
-
-                return View(model);
-            }
-
-            user.Name =
-                model.Name.Trim();
-
-            user.Email =
-                model.Email.Trim();
-
-            user.Phone =
-                model.Phone?.Trim();
-
-            user.Address =
-                model.Address?.Trim();
-
+            user.Name = Name;
+            user.Email = Email;
+            user.Phone = Phone;
+            user.Address = Address;
             user.PaymentMethod =
-                string.IsNullOrWhiteSpace(
-                    model.PaymentMethod)
+                string.IsNullOrWhiteSpace(PaymentMethod)
                     ? null
-                    : model.PaymentMethod.Trim();
-
+                    : PaymentMethod;
             user.PaymentAccount =
-                string.IsNullOrWhiteSpace(
-                    model.PaymentAccount)
+                string.IsNullOrWhiteSpace(PaymentAccount)
                     ? null
-                    : model.PaymentAccount.Trim();
+                    : PaymentAccount;
 
-            if (profileImage != null &&
-                profileImage.Length > 0)
+            if (!string.IsNullOrWhiteSpace(newProfileImage))
             {
-                user.ProfileImage =
-                    await SaveFile(
-                        profileImage,
-                        "profiles");
+                user.ProfileImage = newProfileImage;
             }
 
             try
@@ -3758,6 +3846,18 @@ namespace WeddingClosetHubs.Controllers
                     "Email",
                     user.Email);
 
+                if (!string.IsNullOrWhiteSpace(newProfileImage) &&
+                    !string.IsNullOrWhiteSpace(oldProfileImage))
+                {
+                    try
+                    {
+                        DeleteOldProfileImage(oldProfileImage);
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 TempData["Success"] =
                     "Profile updated successfully.";
 
@@ -3765,73 +3865,55 @@ namespace WeddingClosetHubs.Controllers
             }
             catch
             {
+                if (!string.IsNullOrWhiteSpace(newProfileImage))
+                {
+                    try
+                    {
+                        DeleteOldProfileImage(newProfileImage);
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 TempData["Error"] =
                     "Unable to update profile.";
 
-                ViewBag.PaymentMethod =
-                    user.PaymentMethod;
-
-                ViewBag.PaymentAccount =
-                    user.PaymentAccount;
-
-                return View(model);
+                return RedirectToAction("Profile");
             }
         }
 
-        public IActionResult Logout()
-        {
-            HttpContext.Session.Clear();
-
-            return RedirectToAction(
-                "Login",
-                "Account");
-        }
-
-
-        private async Task CreateNotification(
-            int userId,
-            string title,
-            string message,
-            string type = "General",
-            int? orderId = null)
-        {
-            var notification = new Notification
-            {
-                UserId = userId,
-                Title = title,
-                Message = message,
-                Type = type,
-                OrderId = orderId,
-                IsRead = false,
-                CreatedDate = DateTime.Now
-            };
-
-            _context.Notifications.Add(
-                notification);
-
-            await _context.SaveChangesAsync();
-        }
 
         private async Task<string> SaveFile(
             IFormFile file,
             string folderName)
         {
-            string extension =
-                Path.GetExtension(
-                    file.FileName)
-                .ToLowerInvariant();
+            string webRootPath =
+                _environment.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRootPath))
+            {
+                webRootPath =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot");
+            }
 
             string uploadsRoot =
                 Path.Combine(
-                    _environment.WebRootPath,
+                    webRootPath,
                     "uploads",
                     folderName);
 
             if (!Directory.Exists(uploadsRoot))
             {
-                Directory.CreateDirectory(
-                    uploadsRoot);
+                Directory.CreateDirectory(uploadsRoot);
             }
+
+            string extension =
+                Path.GetExtension(
+                    file.FileName)
+                .ToLowerInvariant();
 
             string fileName =
                 $"{Guid.NewGuid():N}{extension}";
@@ -3851,6 +3933,73 @@ namespace WeddingClosetHubs.Controllers
 
             return
                 $"/uploads/{folderName}/{fileName}";
+        }
+
+        private void DeleteOldProfileImage(
+            string imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath))
+                return;
+
+
+            if (!imagePath.StartsWith(
+                "/uploads/profiles/",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            string relativePath =
+                imagePath.TrimStart('/')
+                    .Replace(
+                        '/',
+                        Path.DirectorySeparatorChar);
+
+            string webRootPath =
+                _environment.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRootPath))
+            {
+                webRootPath =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot");
+            }
+
+            string fullPath =
+                Path.Combine(
+                    webRootPath,
+                    relativePath
+                        .Substring(
+                            "wwwroot".Length)
+                        .TrimStart(
+                            Path.DirectorySeparatorChar));
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+        private async Task CreateNotification(
+            int userId,
+            string title,
+            string message,
+            string type = "General",
+            int? orderId = null)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Type = type,
+                OrderId = orderId,
+                IsRead = false,
+                CreatedDate = DateTime.Now
+            };
+            _context.Notifications.Add(
+                notification);
+            await _context.SaveChangesAsync();
         }
     }
 }

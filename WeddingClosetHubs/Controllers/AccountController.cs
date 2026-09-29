@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -38,6 +37,15 @@ namespace WeddingClosetHubs.Controllers
             "Saddar",
             "6th Road",
             "Liaqat Bagh"
+        };
+
+        // Allowed email domains
+        private static readonly string[] AllowedEmailDomains =
+        {
+            "gmail.com",
+            "yahoo.com",
+            "hotmail.com",
+            "outlook.com"
         };
 
         [HttpGet]
@@ -105,14 +113,22 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
+            // ============================================================
+            // EMAIL VALIDATION
+            // ============================================================
+
             if (string.IsNullOrWhiteSpace(user.Email))
             {
-                ModelState.AddModelError("Email", "Email is required.");
+                ModelState.AddModelError(
+                    "Email",
+                    "Email is required."
+                );
             }
             else
             {
                 user.Email = user.Email.Trim().ToLowerInvariant();
 
+                // Basic email format validation
                 if (!new EmailAddressAttribute().IsValid(user.Email))
                 {
                     ModelState.AddModelError(
@@ -120,9 +136,64 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter a valid email address."
                     );
                 }
+                else
+                {
+                    // Split email into local part and domain
+                    string[] emailParts =
+                        user.Email.Split('@');
+
+                    if (emailParts.Length != 2)
+                    {
+                        ModelState.AddModelError(
+                            "Email",
+                            "Please enter a valid email address."
+                        );
+                    }
+                    else
+                    {
+                        string emailName = emailParts[0];
+                        string emailDomain = emailParts[1];
+
+                        // Email name before @ must not be empty
+                        if (string.IsNullOrWhiteSpace(emailName))
+                        {
+                            ModelState.AddModelError(
+                                "Email",
+                                "Please enter a valid email address."
+                            );
+                        }
+
+                        // Domain must be one of the allowed domains
+                        if (!AllowedEmailDomains.Contains(
+                            emailDomain,
+                            StringComparer.OrdinalIgnoreCase))
+                        {
+                            ModelState.AddModelError(
+                                "Email",
+                                "Please use a valid email domain such as gmail.com, yahoo.com, hotmail.com or outlook.com."
+                            );
+                        }
+
+                        // Extra validation for the part before @
+                        if (!Regex.IsMatch(
+                            emailName,
+                            @"^[a-zA-Z0-9._%+-]+$"))
+                        {
+                            ModelState.AddModelError(
+                                "Email",
+                                "Email address contains invalid characters."
+                            );
+                        }
+                    }
+                }
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Email))
+            // ============================================================
+            // EMAIL DUPLICATE CHECK
+            // ============================================================
+
+            if (!string.IsNullOrWhiteSpace(user.Email) &&
+                !ModelState.ContainsKey("Email"))
             {
                 string normalizedEmail =
                     user.Email.Trim().ToLowerInvariant();

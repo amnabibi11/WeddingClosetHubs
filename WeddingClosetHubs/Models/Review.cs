@@ -8,8 +8,8 @@ public class Review
 public int ReviewId { get; set; }
 
 
-    [Required]
-    public int ProductId { get; set; }
+   
+    public int? ProductId { get; set; }
 
     [ForeignKey("ProductId")]
     public virtual Product? Product { get; set; }

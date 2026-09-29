@@ -651,12 +651,141 @@ namespace WeddingClosetHubs.Controllers
             _context.Negotiations.Add(negotiation);
 
             await _context.SaveChangesAsync();
+            await CreateNotification(
+                product.Shop.ShopkeeperId,
+                 "New Negotiation Offer",
+                  $"Customer has submitted an offer of Rs. {requestedPrice:N0} for {product.ProductName}.",
+                 "Negotiation"
+            );
 
             TempData["Success"] =
                 $"Your offer of Rs. {requestedPrice:N0} has been sent to the shopkeeper.";
 
             return RedirectToAction("MyNegotiations");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptCounterOffer(int negotiationId)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId = GetCustomerId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Shopkeeper)
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == negotiationId &&
+                    n.CustomerId == customerId);
+
+            if (negotiation == null)
+            {
+                TempData["Error"] =
+                    "Negotiation not found.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            if (!string.Equals(
+                negotiation.Status,
+                "CounterOffer",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "This negotiation does not have an active counter offer.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            if (!negotiation.CounterPrice.HasValue ||
+                negotiation.CounterPrice.Value <= 0)
+            {
+                TempData["Error"] =
+                    "No valid counter offer was found.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            negotiation.AgreedPrice =
+                negotiation.CounterPrice.Value;
+
+            negotiation.Status =
+                "Accepted";
+
+            negotiation.RespondedDate =
+                DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            await CreateNotification(
+                negotiation.ShopkeeperId,
+                "Negotiation Accepted",
+                $"Customer accepted your counter offer of Rs. {negotiation.AgreedPrice:N0} for {negotiation.Product?.ProductName}.",
+                "Negotiation"
+            );
+
+            TempData["Success"] =
+                $"Counter offer accepted at Rs. {negotiation.AgreedPrice:N0}.";
+
+            return RedirectToAction("MyNegotiations");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectNegotiation(int negotiationId)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId = GetCustomerId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Shopkeeper)
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == negotiationId &&
+                    n.CustomerId == customerId);
+
+            if (negotiation == null)
+            {
+                TempData["Error"] =
+                    "Negotiation not found.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            if (!string.Equals(
+                negotiation.Status,
+                "CounterOffer",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Only a counter offer can be rejected.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            negotiation.Status =
+                "Rejected";
+
+            negotiation.RespondedDate =
+                DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            await CreateNotification(
+                negotiation.ShopkeeperId,
+                "Negotiation Rejected",
+                $"Customer rejected your counter offer for {negotiation.Product?.ProductName}.",
+                "Negotiation"
+            );
+
+            TempData["Success"] =
+                "The counter offer has been rejected.";
+
+            return RedirectToAction("MyNegotiations");
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> MyNegotiations()
@@ -995,10 +1124,14 @@ namespace WeddingClosetHubs.Controllers
 
 
                 string purchaseType =
-                    string.IsNullOrWhiteSpace(
-                        item.PurchaseType)
-                            ? "Buy"
-                            : item.PurchaseType.Trim();
+                string.IsNullOrWhiteSpace(item.PurchaseType)
+                   ? "Buy"
+                : item.PurchaseType.Trim();
+
+                bool isCustomized =
+                    !string.IsNullOrWhiteSpace(item.CustomMeasurements);
+
+                decimal finalUnitPrice;
 
                 if (purchaseType.Equals(
                         "Rent",
@@ -1587,6 +1720,7 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Cart");
         }
+
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
@@ -1857,6 +1991,7 @@ namespace WeddingClosetHubs.Controllers
 
                 return RedirectToAction("Cart");
             }
+
             decimal refundableSecurity = 0m;
 
             foreach (var item in cartItems)
@@ -1894,11 +2029,10 @@ namespace WeddingClosetHubs.Controllers
                 );
 
             decimal totalAmount =
-     productTotal +
-     deliveryCharges +
-     serviceFee +
-     refundableSecurity;
-
+                productTotal +
+                deliveryCharges +
+                serviceFee +
+                refundableSecurity;
 
             decimal shopkeeperAmount =
                 productTotal;
@@ -1923,6 +2057,7 @@ namespace WeddingClosetHubs.Controllers
 
             ViewBag.RefundableSecurity =
                 refundableSecurity;
+
             ViewBag.TotalAmount =
                 totalAmount;
 
@@ -1945,52 +2080,50 @@ namespace WeddingClosetHubs.Controllers
                 checkoutPurchaseTypes;
 
             ViewBag.CheckoutQuantities =
-                cartItems.ToDictionary(x => x.ProductId, x => x.Quantity);
-
+                cartItems.ToDictionary(
+                    x => x.ProductId,
+                    x => x.Quantity
+                );
+            ViewBag.CheckoutMeasurements =
+                cartItems.ToDictionary(
+                    x => x.ProductId,
+                    x => x.CustomMeasurements ?? ""
+                );
             ViewBag.CheckoutNegotiationIds =
                 checkoutNegotiationIds;
 
             return View(products);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(
-      string? cartData,
-      string? deliveryCity,
-      string deliveryAddress,
-      string? notes,
-      string paymentMethod,
-      string? transactionId,
-      IFormFile? transactionImage,
-      string? refundPreferenceMethod,
-      string? refundPreferenceAccount)
+        string? cartData,
+        string? deliveryCity,
+        string deliveryAddress,
+        string? notes,
+        string paymentMethod,
+        string? transactionId,
+        IFormFile? transactionImage,
+        string? refundPreferenceMethod,
+        string? refundPreferenceAccount)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            int customerId =
-                GetCustomerId()!.Value;
+            int customerId = GetCustomerId()!.Value;
 
-            var customer =
-                await _context.Users
-                    .FirstOrDefaultAsync(
-                        u =>
-                            u.UserId ==
-                            customerId
-                    );
+            var customer = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == customerId);
 
             if (customer == null)
             {
                 HttpContext.Session.Clear();
 
-                TempData["Error"] =
-                    "Customer account could not be found.";
+                TempData["Error"] = "Customer account could not be found.";
 
-                return RedirectToAction(
-                    "Login",
-                    "Account"
-                );
+                return RedirectToAction("Login", "Account");
             }
 
             if (!customer.Status)
@@ -1998,9 +2131,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Your customer account has been disabled.";
 
-                return RedirectToAction(
-                    "Dashboard"
-                );
+                return RedirectToAction("Dashboard");
             }
 
             if (string.IsNullOrWhiteSpace(customer.Name))
@@ -2008,10 +2139,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Your account name is missing. Please update your profile before placing an order.";
 
-                return RedirectToAction(
-                    "Profile",
-                    "Account"
-                );
+                return RedirectToAction("Profile", "Account");
             }
 
             if (string.IsNullOrWhiteSpace(customer.Phone))
@@ -2019,10 +2147,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Your phone number is required before placing an order. Please update your profile.";
 
-                return RedirectToAction(
-                    "Profile",
-                    "Account"
-                );
+                return RedirectToAction("Profile", "Account");
             }
 
             if (string.IsNullOrWhiteSpace(customer.Address))
@@ -2030,23 +2155,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Your account address is required before placing an order. Please update your profile.";
 
-                return RedirectToAction(
-                    "Profile",
-                    "Account"
-                );
-            }
-
-            string customerAddress =
-                customer.Address.Trim();
-
-            if (!customerAddress.Contains(
-                    "Rawalpindi",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["Error"] =
-                    "Orders can currently be placed only by customers based in Rawalpindi.";
-
-                return RedirectToAction("Checkout");
+                return RedirectToAction("Profile", "Account");
             }
 
             if (string.IsNullOrWhiteSpace(deliveryCity))
@@ -2057,8 +2166,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            deliveryCity =
-                deliveryCity.Trim();
+            deliveryCity = deliveryCity.Trim();
 
             if (!deliveryCity.Equals(
                     "Rawalpindi",
@@ -2070,8 +2178,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            deliveryCity =
-                "Rawalpindi";
+            deliveryCity = "Rawalpindi";
 
             if (string.IsNullOrWhiteSpace(deliveryAddress))
             {
@@ -2081,8 +2188,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            deliveryAddress =
-                deliveryAddress.Trim();
+            deliveryAddress = deliveryAddress.Trim();
 
             if (deliveryAddress.Length < 10)
             {
@@ -2118,18 +2224,16 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            paymentMethod =
-                paymentMethod.Trim();
+            paymentMethod = paymentMethod.Trim();
 
-            bool validPaymentMethod =
-                AllowedPaymentMethods.Any(
-                    x =>
+            string? normalizedPaymentMethod =
+                AllowedPaymentMethods
+                    .FirstOrDefault(x =>
                         x.Equals(
                             paymentMethod,
-                            StringComparison.OrdinalIgnoreCase)
-                );
+                            StringComparison.OrdinalIgnoreCase));
 
-            if (!validPaymentMethod)
+            if (normalizedPaymentMethod == null)
             {
                 TempData["Error"] =
                     "Invalid payment method.";
@@ -2137,8 +2241,9 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            var cartItems =
-                GetCartItems();
+            paymentMethod = normalizedPaymentMethod;
+
+            var cartItems = GetCartItems();
 
             if (!cartItems.Any())
             {
@@ -2148,23 +2253,17 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Cart");
             }
 
-            var productIds =
-                cartItems
-                    .Select(x => x.ProductId)
-                    .Distinct()
-                    .ToList();
+            var productIds = cartItems
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToList();
 
-            var products =
-                await _context.Products
-                    .Include(p => p.Shop)
-                    .Where(
-                        p =>
-                            productIds.Contains(
-                                p.ProductId
-                            ) &&
-                            p.Status
-                    )
-                    .ToListAsync();
+            var products = await _context.Products
+                .Include(p => p.Shop)
+                .Where(p =>
+                    productIds.Contains(p.ProductId) &&
+                    p.Status)
+                .ToListAsync();
 
             if (products.Count != productIds.Count)
             {
@@ -2174,13 +2273,9 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Cart");
             }
 
-            int shopId =
-                products.First().ShopId;
+            int shopId = products.First().ShopId;
 
-            if (!products.All(
-                p =>
-                    p.ShopId ==
-                    shopId))
+            if (!products.All(p => p.ShopId == shopId))
             {
                 TempData["Error"] =
                     "You can only place an order from one shop at a time.";
@@ -2188,8 +2283,7 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Cart");
             }
 
-            var shop =
-                products.First().Shop;
+            var shop = products.First().Shop;
 
             if (shop == null ||
                 !shop.Status ||
@@ -2205,17 +2299,13 @@ namespace WeddingClosetHubs.Controllers
 
             decimal refundableSecurity = 0m;
 
-            bool containsRental =
-                false;
+            bool containsRental = false;
 
             var finalPrices =
                 new Dictionary<int, decimal>();
 
             var finalPurchaseTypes =
                 new Dictionary<int, string>();
-
-            var finalNegotiationIds =
-                new Dictionary<int, int?>();
 
             foreach (var item in cartItems)
             {
@@ -2227,15 +2317,18 @@ namespace WeddingClosetHubs.Controllers
                     return RedirectToAction("Cart");
                 }
 
-                var product =
-                    products.First(
-                        p =>
-                            p.ProductId ==
-                            item.ProductId
-                    );
+                var product = products.FirstOrDefault(
+                    p => p.ProductId == item.ProductId);
 
-                if (item.Quantity >
-                    product.StockQuantity)
+                if (product == null)
+                {
+                    TempData["Error"] =
+                        "A product in your cart could not be found.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                if (item.Quantity > product.StockQuantity)
                 {
                     TempData["Error"] =
                         $"Only {product.StockQuantity} unit(s) of {product.ProductName} are available.";
@@ -2244,13 +2337,14 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 string purchaseType =
-                    item.PurchaseType ??
-                    "Buy";
+     string.IsNullOrWhiteSpace(item.PurchaseType)
+         ? "Buy"
+         : item.PurchaseType.Trim();
+
+                bool isCustomized =
+                    !string.IsNullOrWhiteSpace(item.CustomMeasurements);
 
                 decimal finalUnitPrice;
-
-                int? negotiationId =
-                    null;
 
                 if (purchaseType.Equals(
                         "Rent",
@@ -2269,18 +2363,15 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         product.RentPrice.Value;
 
-                    purchaseType =
-                        "Rent";
+                    purchaseType = "Rent";
 
-                    containsRental =
-                        true;
+                    containsRental = true;
 
                     decimal securityPerItem =
                         product.RentalSecurity ?? 0m;
 
                     refundableSecurity +=
-                        securityPerItem *
-                        item.Quantity;
+                        securityPerItem * item.Quantity;
                 }
                 else if (purchaseType.Equals(
                     "Negotiated",
@@ -2289,17 +2380,13 @@ namespace WeddingClosetHubs.Controllers
                     var negotiation =
                         await _context.Negotiations
                             .Where(n =>
-                                n.ProductId ==
-                                    product.ProductId &&
-                                n.CustomerId ==
-                                    customerId &&
-                                n.Status ==
-                                    "Accepted" &&
+                                n.ProductId == product.ProductId &&
+                                n.CustomerId == customerId &&
+                                n.Status == "Accepted" &&
                                 n.AgreedPrice.HasValue)
-                            .OrderByDescending(
-                                n =>
-                                    n.RespondedDate ??
-                                    n.CreatedDate)
+                            .OrderByDescending(n =>
+                                n.RespondedDate ??
+                                n.CreatedDate)
                             .FirstOrDefaultAsync();
 
                     if (negotiation == null ||
@@ -2315,16 +2402,11 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         negotiation.AgreedPrice.Value;
 
-                    negotiationId =
-                        negotiation.NegotiationId;
-
-                    purchaseType =
-                        "Negotiated";
+                    purchaseType = "Negotiated";
                 }
-                else if (
-                    purchaseType.Equals(
-                        "Sale",
-                        StringComparison.OrdinalIgnoreCase))
+                else if (purchaseType.Equals(
+                    "Sale",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     if (!product.IsOnSale ||
                         !product.SalePrice.HasValue ||
@@ -2340,33 +2422,43 @@ namespace WeddingClosetHubs.Controllers
                     finalUnitPrice =
                         product.SalePrice.Value;
 
-                    purchaseType =
-                        "Sale";
+                    purchaseType = "Sale";
                 }
                 else
                 {
-                    finalUnitPrice =
-                        product.Price;
+                    if (product.IsOnSale &&
+                        product.SalePrice.HasValue &&
+                        product.SalePrice.Value > 0 &&
+                        product.SalePrice.Value < product.Price)
+                    {
+                        finalUnitPrice =
+                            product.SalePrice.Value;
 
-                    purchaseType =
-                        "Buy";
+                        purchaseType = "Sale";
+                    }
+                    else
+                    {
+                        finalUnitPrice =
+                            product.Price;
+
+                        purchaseType = "Buy";
+                    }
                 }
 
-                finalPrices[
-                    product.ProductId] =
+                if (isCustomized)
+                {
+                    purchaseType =
+                        "Customize/" + purchaseType;
+                }
+
+                finalPrices[product.ProductId] =
                     finalUnitPrice;
 
-                finalPurchaseTypes[
-                    product.ProductId] =
+                finalPurchaseTypes[product.ProductId] =
                     purchaseType;
 
-                finalNegotiationIds[
-                    product.ProductId] =
-                    negotiationId;
-
                 productTotal +=
-                    finalUnitPrice *
-                    item.Quantity;
+                    finalUnitPrice * item.Quantity;
             }
 
             if (productTotal <= 0)
@@ -2379,7 +2471,8 @@ namespace WeddingClosetHubs.Controllers
 
             if (containsRental)
             {
-                if (string.IsNullOrWhiteSpace(refundPreferenceMethod))
+                if (string.IsNullOrWhiteSpace(
+                    refundPreferenceMethod))
                 {
                     TempData["Error"] =
                         "Please select Easypaisa or JazzCash for your rental security refund.";
@@ -2403,7 +2496,15 @@ namespace WeddingClosetHubs.Controllers
                     return RedirectToAction("Checkout");
                 }
 
-                if (string.IsNullOrWhiteSpace(refundPreferenceAccount))
+                refundPreferenceMethod =
+                    refundPreferenceMethod.Equals(
+                        "Easypaisa",
+                        StringComparison.OrdinalIgnoreCase)
+                            ? "Easypaisa"
+                            : "JazzCash";
+
+                if (string.IsNullOrWhiteSpace(
+                    refundPreferenceAccount))
                 {
                     TempData["Error"] =
                         "Please enter your Easypaisa or JazzCash account number for the rental security refund.";
@@ -2425,14 +2526,9 @@ namespace WeddingClosetHubs.Controllers
             }
             else
             {
-                refundPreferenceMethod =
-                    null;
-
-                refundPreferenceAccount =
-                    null;
-
-                refundableSecurity =
-                    0m;
+                refundPreferenceMethod = null;
+                refundPreferenceAccount = null;
+                refundableSecurity = 0m;
             }
 
             decimal deliveryCharges =
@@ -2440,10 +2536,8 @@ namespace WeddingClosetHubs.Controllers
 
             decimal serviceFee =
                 Math.Round(
-                    productTotal *
-                    ServiceFeeRate,
-                    2
-                );
+                    productTotal * ServiceFeeRate,
+                    2);
 
             decimal totalAmount =
                 productTotal +
@@ -2454,27 +2548,19 @@ namespace WeddingClosetHubs.Controllers
             decimal shopkeeperAmount =
                 productTotal;
 
-            bool paymentReceived =
-                false;
+            bool paymentReceived = false;
 
-            string paymentStatus =
-                "Pending";
+            string paymentStatus = "Pending";
 
-            string? savedTransactionImage =
-                null;
+            string? savedTransactionImage = null;
 
             if (paymentMethod.Equals(
                 "Cash on Delivery",
                 StringComparison.OrdinalIgnoreCase))
             {
-                paymentReceived =
-                    false;
-
-                paymentStatus =
-                    "Pending";
-
-                transactionId =
-                    null;
+                paymentReceived = false;
+                paymentStatus = "Pending";
+                transactionId = null;
             }
             else
             {
@@ -2489,6 +2575,15 @@ namespace WeddingClosetHubs.Controllers
 
                 transactionId =
                     transactionId.Trim();
+
+                if (transactionId.Length < 3 ||
+                    transactionId.Length > 100)
+                {
+                    TempData["Error"] =
+                        "Please enter a valid transaction ID.";
+
+                    return RedirectToAction("Checkout");
+                }
 
                 if (transactionImage == null ||
                     transactionImage.Length == 0)
@@ -2525,15 +2620,13 @@ namespace WeddingClosetHubs.Controllers
                 string uploadsFolder =
                     Path.Combine(
                         _environment.WebRootPath,
-                        "uploads"
-                    );
+                        "uploads");
 
                 if (!Directory.Exists(
                     uploadsFolder))
                 {
                     Directory.CreateDirectory(
-                        uploadsFolder
-                    );
+                        uploadsFolder);
                 }
 
                 string fileName =
@@ -2544,33 +2637,30 @@ namespace WeddingClosetHubs.Controllers
                 string filePath =
                     Path.Combine(
                         uploadsFolder,
-                        fileName
-                    );
+                        fileName);
 
-                using (
-                    var stream =
-                        new FileStream(
-                            filePath,
-                            FileMode.Create
-                        ))
+                using (var stream =
+                    new FileStream(
+                        filePath,
+                        FileMode.CreateNew))
                 {
-                    await transactionImage
-                        .CopyToAsync(stream);
+                    await transactionImage.CopyToAsync(
+                        stream);
                 }
 
                 savedTransactionImage =
-                    "/uploads/" +
-                    fileName;
+                    "/uploads/" + fileName;
 
-                paymentReceived =
-                    false;
-
-                paymentStatus =
-                    "Pending";
+                paymentReceived = false;
+                paymentStatus = "Pending";
             }
 
-            var order =
-                new Order
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var order = new Order
                 {
                     CustomerId =
                         customerId,
@@ -2591,8 +2681,7 @@ namespace WeddingClosetHubs.Controllers
                         deliveryAddress,
 
                     Notes =
-                        string.IsNullOrWhiteSpace(
-                            notes)
+                        string.IsNullOrWhiteSpace(notes)
                             ? null
                             : notes.Trim(),
 
@@ -2672,172 +2761,229 @@ namespace WeddingClosetHubs.Controllers
                         DateTime.Now
                 };
 
-            _context.Orders.Add(order);
+                _context.Orders.Add(order);
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            foreach (var cartItem in cartItems)
-            {
-                var product =
-                    products.First(
-                        p =>
-                            p.ProductId ==
-                            cartItem.ProductId
-                    );
-
-                decimal unitPrice =
-                    finalPrices[
-                        product.ProductId];
-
-                decimal subtotal =
-                    unitPrice *
-                    cartItem.Quantity;
-
-                string purchaseType =
-                    finalPurchaseTypes[
-                        product.ProductId];
-
-                bool isRental =
-                    purchaseType.Equals(
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase);
-
-                var orderDetail =
-                    new OrderDetail
-                    {
-                        OrderId =
-                            order.OrderId,
-
-                        ProductId =
-                            product.ProductId,
-
-                        Quantity =
-                            cartItem.Quantity,
-
-                        UnitPrice =
-                            unitPrice,
-
-                        SubTotal =
-                            subtotal,
-
-                        CustomMeasurements =
-                            cartItem.CustomMeasurements,
-
-                        PurchaseType =
-                            purchaseType,
-
-                        RentalSecurity =
-                            isRental
-                                ? product.RentalSecurity ?? 0m
-                                : 0m,
-
-                        RentalDuration =
-                            isRental
-                                ? product.RentalDuration
-                                : null,
-
-                        RentalConditions =
-                            isRental
-                                ? product.RentalConditions
-                                : null,
-
-                        RentalReturnStatus =
-                            isRental
-                                ? "Awaiting Return"
-                                : "Not Required",
-
-                        RefundPreferenceMethod =
-                            isRental
-                                ? refundPreferenceMethod
-                                : null,
-
-                        RefundPreferenceAccount =
-                            isRental
-                                ? refundPreferenceAccount
-                                : null,
-
-                        SecurityRefunded =
-                            false,
-
-                        SecurityRefundDate =
-                            null,
-
-                        SecurityRefundMethod =
-                            null,
-
-                        SecurityRefundAccount =
-                            null,
-
-                        SecurityRefundTransactionId =
-                            null,
-
-                        SecurityRefundNotes =
-                            null
-                    };
-
-                _context.OrderDetails.Add(
-                    orderDetail
-                );
-
-                product.StockQuantity -=
-                    cartItem.Quantity;
-            }
-
-            await _context.SaveChangesAsync();
-
-            await CreateNotification(
-                customerId,
-                "Order Placed",
-                $"Your order #{order.OrderId} has been placed successfully. Total amount is Rs. {totalAmount:N2}.",
-                "Order",
-                order.OrderId
-            );
-
-            if (shop.ShopkeeperId > 0)
-            {
-                await CreateNotification(
-                    shop.ShopkeeperId,
-                    "New Order Received",
-                    $"A new order #{order.OrderId} has been placed for your shop.",
-                    "Order",
-                    order.OrderId
-                );
-            }
-
-            var admin =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .FirstOrDefaultAsync(
-                        u =>
-                            u.Role != null &&
-                            u.Role.RoleName ==
-                                "Admin");
-
-            if (admin != null)
-            {
-                await CreateNotification(
-                    admin.UserId,
-                    "New Customer Order",
-                    $"Customer {customer.Name} placed order #{order.OrderId}. Payment method: {paymentMethod}.",
-                    "Order",
-                    order.OrderId
-                );
-            }
-
-            await _context.SaveChangesAsync();
-
-            ClearCart();
-
-            TempData["Success"] =
-                $"Order #{order.OrderId} placed successfully.";
-
-            return RedirectToAction(
-                "OrderDetails",
-                new
+                foreach (var cartItem in cartItems)
                 {
-                    id = order.OrderId
+                    var product =
+                        products.FirstOrDefault(
+                            p => p.ProductId ==
+                                 cartItem.ProductId);
+
+                    if (product == null)
+                    {
+                        throw new InvalidOperationException(
+                            "A product could not be found while creating the order.");
+                    }
+
+                    if (cartItem.Quantity >
+                        product.StockQuantity)
+                    {
+                        throw new InvalidOperationException(
+                            $"The available stock for {product.ProductName} changed while placing the order.");
+                    }
+
+                    decimal unitPrice =
+                        finalPrices[
+                            product.ProductId];
+
+                    decimal subtotal =
+                        unitPrice *
+                        cartItem.Quantity;
+
+                    string purchaseType =
+                        finalPurchaseTypes[
+                            product.ProductId];
+
+                    bool isRental =
+                        purchaseType.Contains(
+                            "Rent",
+                            StringComparison.OrdinalIgnoreCase);
+
+                    var orderDetail =
+                        new OrderDetail
+                        {
+                            OrderId =
+                                order.OrderId,
+
+                            ProductId =
+                                product.ProductId,
+
+                            Quantity =
+                                cartItem.Quantity,
+
+                            UnitPrice =
+                                unitPrice,
+
+                            SubTotal =
+                                subtotal,
+
+                            CustomMeasurements =
+                                cartItem.CustomMeasurements,
+
+                            PurchaseType =
+                                purchaseType,
+
+                            RentalSecurity =
+                                isRental
+                                    ? product.RentalSecurity ?? 0m
+                                    : 0m,
+
+                            RentalDuration =
+                                isRental
+                                    ? product.RentalDuration
+                                    : null,
+
+                            RentalConditions =
+                                isRental
+                                    ? product.RentalConditions
+                                    : null,
+
+                            RentalReturnStatus =
+                                isRental
+                                    ? "Awaiting Return"
+                                    : "Not Required",
+
+                            RefundPreferenceMethod =
+                                isRental
+                                    ? refundPreferenceMethod
+                                    : null,
+
+                            RefundPreferenceAccount =
+                                isRental
+                                    ? refundPreferenceAccount
+                                    : null,
+
+                            SecurityRefunded =
+                                false,
+
+                            SecurityRefundDate =
+                                null,
+
+                            SecurityRefundMethod =
+                                null,
+
+                            SecurityRefundAccount =
+                                null,
+
+                            SecurityRefundTransactionId =
+                                null,
+
+                            SecurityRefundNotes =
+                                null
+                        };
+
+                    _context.OrderDetails.Add(
+                        orderDetail);
+
+                    product.StockQuantity -=
+                        cartItem.Quantity;
                 }
-            );
+
+                await _context.SaveChangesAsync();
+
+                await CreateNotification(
+                    customerId,
+                    "Order Placed",
+                    $"Your order #{order.OrderId} has been placed successfully. Total amount is Rs. {totalAmount:N2}.",
+                    "Order",
+                    order.OrderId);
+
+                if (shop.ShopkeeperId > 0)
+                {
+                    await CreateNotification(
+                        shop.ShopkeeperId,
+                        "New Order Received",
+                        $"A new order #{order.OrderId} has been placed for your shop.",
+                        "Order",
+                        order.OrderId);
+                }
+
+                var admin =
+                    await _context.Users
+                        .Include(u => u.Role)
+                        .FirstOrDefaultAsync(
+                            u =>
+                                u.Role != null &&
+                                u.Role.RoleName == "Admin");
+
+                if (admin != null)
+                {
+                    await CreateNotification(
+                        admin.UserId,
+                        "New Customer Order",
+                        $"Customer {customer.Name} placed order #{order.OrderId}. Payment method: {paymentMethod}.",
+                        "Order",
+                        order.OrderId);
+                }
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                ClearCart();
+
+                TempData["Success"] =
+                    $"Order #{order.OrderId} placed successfully.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new
+                    {
+                        id = order.OrderId
+                    });
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    await transaction.RollbackAsync();
+                }
+                catch
+                {
+                }
+
+                if (!string.IsNullOrWhiteSpace(
+                    savedTransactionImage))
+                {
+                    string relativePath =
+                        savedTransactionImage
+                            .TrimStart('/')
+                            .Replace(
+                                '/',
+                                Path.DirectorySeparatorChar);
+
+                    string uploadedFilePath =
+                        Path.Combine(
+                            _environment.WebRootPath,
+                            relativePath);
+
+                    if (System.IO.File.Exists(
+                        uploadedFilePath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(
+                                uploadedFilePath);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+
+                string errorMessage =
+                    ex.InnerException?.Message ??
+                    ex.Message;
+
+                TempData["Error"] =
+                    "Order could not be placed: " +
+                    errorMessage;
+
+                return RedirectToAction("Checkout");
+            }
         }
 
         [HttpGet]
@@ -2906,6 +3052,178 @@ namespace WeddingClosetHubs.Controllers
 
             return View(order);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestRentalReturn(
+            int orderDetailId,
+            string refundPreferenceMethod,
+            string refundPreferenceAccount)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId = GetCustomerId()!.Value;
+
+            var orderDetail = await _context.OrderDetails
+                .Include(od => od.Order)
+                .Include(od => od.Product)
+                .FirstOrDefaultAsync(od =>
+                    od.OrderDetailId == orderDetailId &&
+                    od.Order.CustomerId == customerId);
+
+            if (orderDetail == null)
+            {
+                TempData["Error"] = "Rental product not found.";
+
+                return RedirectToAction("MyOrders");
+            }
+
+            if (!string.Equals(
+                orderDetail.PurchaseType,
+                "Rent",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Only rental products can be returned.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            string orderStatus =
+                orderDetail.Order.OrderStatus?.Trim() ?? "";
+
+            if (!orderStatus.Equals(
+                    "Delivered",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !orderStatus.Equals(
+                    "Completed",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "The rental product can only be returned after the order has been delivered.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            string returnStatus =
+                orderDetail.RentalReturnStatus?.Trim() ?? "";
+
+            if (returnStatus.Equals(
+                    "Return Requested",
+                    StringComparison.OrdinalIgnoreCase) ||
+                returnStatus.Equals(
+                    "Return Picked Up",
+                    StringComparison.OrdinalIgnoreCase) ||
+                returnStatus.Equals(
+                    "Returned",
+                    StringComparison.OrdinalIgnoreCase) ||
+                returnStatus.Equals(
+                    "Inspected",
+                    StringComparison.OrdinalIgnoreCase) ||
+                returnStatus.Equals(
+                    "Refunded",
+                    StringComparison.OrdinalIgnoreCase) ||
+                returnStatus.Equals(
+                    "Security Forfeited",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "A return request has already been submitted for this rental product.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            if (string.IsNullOrWhiteSpace(refundPreferenceMethod))
+            {
+                TempData["Error"] =
+                    "Please select a security refund method.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            refundPreferenceMethod =
+                refundPreferenceMethod.Trim();
+
+            if (!refundPreferenceMethod.Equals(
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !refundPreferenceMethod.Equals(
+                    "JazzCash",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Please select either Easypaisa or JazzCash.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            if (string.IsNullOrWhiteSpace(refundPreferenceAccount))
+            {
+                TempData["Error"] =
+                    "Please enter your Easypaisa or JazzCash account/mobile number.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            refundPreferenceAccount =
+                refundPreferenceAccount.Trim();
+
+            string accountNumber =
+                new string(
+                    refundPreferenceAccount
+                        .Where(char.IsDigit)
+                        .ToArray());
+
+            if (accountNumber.Length != 11 ||
+                !accountNumber.StartsWith("03"))
+            {
+                TempData["Error"] =
+                    "Please enter a valid 11-digit mobile number starting with 03.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            orderDetail.RefundPreferenceMethod =
+                refundPreferenceMethod.Equals(
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "Easypaisa"
+                    : "JazzCash";
+
+            orderDetail.RefundPreferenceAccount =
+                accountNumber;
+
+            orderDetail.RentalReturnStatus =
+                "Return Requested";
+            orderDetail.ReturnMethod = "Delivery Boy Pickup";
+
+            orderDetail.ReturnRequestedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"Return request for {orderDetail.Product?.ProductName ?? "rental product"} has been submitted successfully. Your security refund will be processed through {orderDetail.RefundPreferenceMethod} account {orderDetail.RefundPreferenceAccount} after the returned product is inspected.";
+
+            return RedirectToAction(
+                "OrderDetails",
+                new { id = orderDetail.OrderId });
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> Notifications()
@@ -3207,6 +3525,8 @@ namespace WeddingClosetHubs.Controllers
 
                         ShopId =
                             shopId.Value,
+                        ProductId =
+                            null,
 
                         Rating =
                             rating,

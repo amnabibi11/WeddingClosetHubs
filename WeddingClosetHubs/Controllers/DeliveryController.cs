@@ -254,40 +254,38 @@ namespace WeddingClosetHubs.Controllers
             string assignedZone =
                 deliveryBoy.AssignedZone?.Trim() ?? "";
 
-            var orders =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Shop)
-                    .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Product)
-                    .Where(o =>
-                        o.OrderStatus != "Cancelled" &&
-                        (
-                            o.DeliveryId == deliveryUserId
-                            ||
-                            (
-                                o.DeliveryId == null &&
-                                (
-                                    o.OrderStatus == "Ready" ||
-                                    o.OrderStatus == "Confirmed"
-                                ) &&
-                                !string.IsNullOrWhiteSpace(assignedZone) &&
-                                !string.IsNullOrWhiteSpace(o.DeliveryAddress) &&
-                                o.DeliveryAddress.Contains(assignedZone)
-                            )
-                            ||
-                            (
-                                o.DeliveryId == null &&
-                                o.OrderDetails.Any(od =>
-                                    od.PurchaseType == "Rent" &&
-                                    od.RentalReturnStatus == "Return Requested") &&
-                                !string.IsNullOrWhiteSpace(assignedZone) &&
-                                !string.IsNullOrWhiteSpace(o.DeliveryAddress) &&
-                                o.DeliveryAddress.Contains(assignedZone)
-                            )
-                        ))
-                    .OrderByDescending(o => o.CreatedDate)
-                    .ToListAsync();
+            var orders = await _context.Orders
+         .Include(o => o.Customer)
+         .Include(o => o.Shop)
+         .Include(o => o.Delivery)
+         .Include(o => o.OrderDetails)
+             .ThenInclude(od => od.Product)
+         .Where(o =>
+             o.OrderStatus != "Cancelled" &&
+             (
+                 o.DeliveryId == deliveryUserId ||
+
+                 (
+                     o.DeliveryId == null &&
+                     !string.IsNullOrWhiteSpace(assignedZone) &&
+                     !string.IsNullOrWhiteSpace(o.DeliveryAddress) &&
+                     o.DeliveryAddress.Contains(assignedZone) &&
+                     (
+                         o.OrderStatus == "Ready" ||
+                         o.OrderStatus == "Confirmed" ||
+                         o.OrderDetails.Any(od =>
+                             od.PurchaseType == "Rent" &&
+                             (
+                                 od.RentalReturnStatus == "Return Requested" ||
+                                 od.RentalReturnStatus == "Return Picked Up"
+                             )
+                         )
+                     )
+                 )
+             )
+         )
+         .OrderByDescending(o => o.CreatedDate)
+         .ToListAsync();
 
             ViewBag.DeliveryName =
                 deliveryBoy.User?.Name ?? "Delivery Boy";
@@ -334,6 +332,7 @@ namespace WeddingClosetHubs.Controllers
                 deliveryBoy.AssignedZone?.Trim() ?? "";
 
             var order = await _context.Orders
+                .AsNoTracking()
                 .Include(o => o.Customer)
                 .Include(o => o.Shop)
                 .Include(o => o.Delivery)
@@ -348,13 +347,11 @@ namespace WeddingClosetHubs.Controllers
             }
 
             if (string.Equals(
-                order.OrderStatus,
+                order.OrderStatus?.Trim(),
                 "Cancelled",
                 StringComparison.OrdinalIgnoreCase))
             {
-                TempData["Error"] =
-                    "Cancelled orders are not available.";
-
+                TempData["Error"] = "Cancelled orders are not available.";
                 return RedirectToAction("Orders");
             }
 
@@ -368,14 +365,10 @@ namespace WeddingClosetHubs.Controllers
                 order.DeliveryId.Value == deliveryUserId;
 
             bool isReady =
-                orderStatus.Equals(
-                    "Ready",
-                    StringComparison.OrdinalIgnoreCase);
+                orderStatus.Equals("Ready", StringComparison.OrdinalIgnoreCase);
 
             bool isConfirmed =
-                orderStatus.Equals(
-                    "Confirmed",
-                    StringComparison.OrdinalIgnoreCase);
+                orderStatus.Equals("Confirmed", StringComparison.OrdinalIgnoreCase);
 
             bool availableInZone =
                 !order.DeliveryId.HasValue &&
@@ -386,41 +379,43 @@ namespace WeddingClosetHubs.Controllers
                     assignedZone,
                     StringComparison.OrdinalIgnoreCase);
 
+            bool hasRentalReturnRequest =
+                order.OrderDetails.Any(d =>
+                    string.Equals(
+                        d.PurchaseType?.Trim(),
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(
+                        d.RentalReturnStatus?.Trim(),
+                        "Return Requested",
+                        StringComparison.OrdinalIgnoreCase));
+
+            bool hasRentalReturnPickedUp =
+                order.OrderDetails.Any(d =>
+                    string.Equals(
+                        d.PurchaseType?.Trim(),
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(
+                        d.RentalReturnStatus?.Trim(),
+                        "Return Picked Up",
+                        StringComparison.OrdinalIgnoreCase));
+
             bool rentalReturnAvailable =
                 !order.DeliveryId.HasValue &&
                 !string.IsNullOrWhiteSpace(assignedZone) &&
+                !assignedZone.Equals(
+                    "Not Assigned",
+                    StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(order.DeliveryAddress) &&
                 order.DeliveryAddress.Contains(
                     assignedZone,
                     StringComparison.OrdinalIgnoreCase) &&
-                order.OrderDetails.Any(d =>
-                    string.Equals(
-                        d.PurchaseType,
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(
-                        d.RentalReturnStatus,
-                        "Return Requested",
-                        StringComparison.OrdinalIgnoreCase));
+                hasRentalReturnRequest;
 
             bool assignedRentalReturn =
                 belongsToDeliveryBoy &&
-                order.OrderDetails.Any(d =>
-                    string.Equals(
-                        d.PurchaseType,
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase) &&
-                    (
-                        string.Equals(
-                            d.RentalReturnStatus,
-                            "Return Requested",
-                            StringComparison.OrdinalIgnoreCase)
-                        ||
-                        string.Equals(
-                            d.RentalReturnStatus,
-                            "Return Picked Up",
-                            StringComparison.OrdinalIgnoreCase)
-                    ));
+                (hasRentalReturnRequest || hasRentalReturnPickedUp);
 
             if (!belongsToDeliveryBoy &&
                 !availableInZone &&
@@ -446,22 +441,8 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.OrderStatus = orderStatus;
 
             ViewBag.IsRentalReturn =
-                order.OrderDetails.Any(d =>
-                    string.Equals(
-                        d.PurchaseType,
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase) &&
-                    (
-                        string.Equals(
-                            d.RentalReturnStatus,
-                            "Return Requested",
-                            StringComparison.OrdinalIgnoreCase)
-                        ||
-                        string.Equals(
-                            d.RentalReturnStatus,
-                            "Return Picked Up",
-                            StringComparison.OrdinalIgnoreCase)
-                    ));
+                hasRentalReturnRequest ||
+                hasRentalReturnPickedUp;
 
             return View(order);
         }
@@ -502,7 +483,9 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Cancelled orders cannot be accepted.";
 
-                return RedirectToAction("Orders");
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id });
             }
 
             string currentStatus =
@@ -510,17 +493,9 @@ namespace WeddingClosetHubs.Controllers
                     ? "Pending"
                     : order.OrderStatus.Trim();
 
-            bool isReady =
-                currentStatus.Equals(
-                    "Ready",
-                    StringComparison.OrdinalIgnoreCase);
-
-            bool isConfirmed =
-                currentStatus.Equals(
-                    "Confirmed",
-                    StringComparison.OrdinalIgnoreCase);
-
-            if (!isReady && !isConfirmed)
+            if (!currentStatus.Equals(
+                "Ready",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     $"This order cannot be accepted in its current status: {currentStatus}.";
@@ -530,97 +505,51 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            if (order.DeliveryId.HasValue &&
-                order.DeliveryId.Value != deliveryUserId)
+            if (!order.DeliveryId.HasValue)
             {
                 TempData["Error"] =
-                    "This order has already been assigned to another delivery boy.";
+                    "This order has not been assigned to a delivery boy by Admin yet.";
 
                 return RedirectToAction(
                     "OrderDetails",
                     new { id });
             }
 
-            if (!order.DeliveryId.HasValue)
+            if (order.DeliveryId.Value != deliveryUserId)
             {
-                string assignedZone =
-                    deliveryBoy.AssignedZone?.Trim() ?? "";
+                TempData["Error"] =
+                    "This order has been assigned to another delivery boy.";
 
-                if (string.IsNullOrWhiteSpace(assignedZone))
-                {
-                    TempData["Error"] =
-                        "Admin has not assigned a delivery zone to you.";
-
-                    return RedirectToAction("Orders");
-                }
-
-                if (string.IsNullOrWhiteSpace(order.DeliveryAddress))
-                {
-                    TempData["Error"] =
-                        "This order does not have a delivery address.";
-
-                    return RedirectToAction("Orders");
-                }
-
-                if (!order.DeliveryAddress.Contains(
-                    assignedZone,
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    TempData["Error"] =
-                        "This order is outside your assigned delivery zone.";
-
-                    return RedirectToAction("Orders");
-                }
-
-                order.DeliveryId = deliveryUserId;
-
-                await CreateNotification(
-                    order.CustomerId,
-                    "Delivery Boy Assigned",
-                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has been assigned to your Order #{order.OrderId}.",
-                    "Order",
-                    order.OrderId);
-
-                var assignedAdmin = await GetAdmin();
-
-                if (assignedAdmin != null)
-                {
-                    await CreateNotification(
-                        assignedAdmin.UserId,
-                        "Order Accepted by Delivery Boy",
-                        $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has accepted Order #{order.OrderId}.",
-                        "Order",
-                        order.OrderId);
-                }
-            }
-            else
-            {
-                await CreateNotification(
-                    order.CustomerId,
-                    "Delivery Assignment Confirmed",
-                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has confirmed delivery of Order #{order.OrderId}.",
-                    "Order",
-                    order.OrderId);
-
-                var admin = await GetAdmin();
-
-                if (admin != null)
-                {
-                    await CreateNotification(
-                        admin.UserId,
-                        "Delivery Assignment Confirmed",
-                        $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} confirmed Order #{order.OrderId}.",
-                        "Order",
-                        order.OrderId);
-                }
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id });
             }
 
             order.OrderStatus = "Assigned";
 
+            await CreateNotification(
+                order.CustomerId,
+                "Delivery Boy Accepted Order",
+                $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has accepted Order #{order.OrderId}.",
+                "Order",
+                order.OrderId);
+
+            var admin = await GetAdmin();
+
+            if (admin != null)
+            {
+                await CreateNotification(
+                    admin.UserId,
+                    "Order Accepted",
+                    $"Delivery boy {deliveryBoy.User?.Name ?? "Delivery Boy"} has accepted Order #{order.OrderId}.",
+                    "Order",
+                    order.OrderId);
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                $"Order #{order.OrderId} is now assigned to you.";
+                $"Order #{order.OrderId} has been accepted successfully.";
 
             return RedirectToAction(
                 "OrderDetails",
@@ -1082,6 +1011,219 @@ namespace WeddingClosetHubs.Controllers
             return View(orders);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PickUpRentalReturn(int orderId)
+        {
+            if (!IsDeliveryLoggedIn())
+                return DeliveryLogin();
+
+            if (!await IsApprovedDeliveryBoy())
+                return DeliveryLogin();
+
+            var deliveryBoy = await GetDeliveryBoy();
+
+            if (deliveryBoy == null)
+                return DeliveryLogin();
+
+            int deliveryUserId = deliveryBoy.UserId;
+
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                .Include(o => o.Delivery)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                TempData["Error"] =
+                    "Order not found.";
+
+                return RedirectToAction("Orders");
+            }
+
+            if (string.Equals(
+                order.OrderStatus,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] =
+                    "Cancelled orders cannot have rental returns picked up.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = order.OrderId });
+            }
+
+            var rentalItem = order.OrderDetails
+                .FirstOrDefault(od =>
+                    string.Equals(
+                        od.PurchaseType?.Trim(),
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(
+                        od.RentalReturnStatus?.Trim(),
+                        "Return Requested",
+                        StringComparison.OrdinalIgnoreCase));
+
+            if (rentalItem == null)
+            {
+                TempData["Error"] =
+                    "No rental return request was found for this order.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = order.OrderId });
+            }
+
+            if (order.DeliveryId.HasValue &&
+                order.DeliveryId.Value != deliveryUserId)
+            {
+                TempData["Error"] =
+                    "This rental return is assigned to another delivery boy.";
+
+                return RedirectToAction("Orders");
+            }
+
+            if (!order.DeliveryId.HasValue)
+            {
+                string assignedZone =
+                    deliveryBoy.AssignedZone?.Trim() ?? "";
+
+                if (string.IsNullOrWhiteSpace(assignedZone) ||
+                    assignedZone.Equals(
+                        "Not Assigned",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "You do not have an assigned delivery zone.";
+
+                    return RedirectToAction("Orders");
+                }
+
+                string deliveryAddress =
+                    order.DeliveryAddress?.Trim() ?? "";
+
+                if (string.IsNullOrWhiteSpace(deliveryAddress))
+                {
+                    TempData["Error"] =
+                        "The order does not have a delivery address.";
+
+                    return RedirectToAction(
+                        "OrderDetails",
+                        new { id = order.OrderId });
+                }
+
+                if (!deliveryAddress.Contains(
+                        assignedZone,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] =
+                        "This rental return is not available in your assigned delivery zone.";
+
+                    return RedirectToAction("Orders");
+                }
+
+                order.DeliveryId = deliveryUserId;
+            }
+
+            rentalItem.RentalReturnStatus = "Return Picked Up";
+            rentalItem.ReturnPickedUpDate = DateTime.Now;
+
+            string productName =
+                rentalItem.Product?.ProductName ?? "rental product";
+
+            await CreateNotification(
+                order.CustomerId,
+                "Rental Return Picked Up",
+                $"The rental return for {productName} from Order #{order.OrderId} has been picked up by the delivery boy.",
+                "Order",
+                order.OrderId);
+
+            var admin = await GetAdmin();
+
+            if (admin != null)
+            {
+                await CreateNotification(
+                    admin.UserId,
+                    "Rental Return Picked Up",
+                    $"Rental return for {productName} from Order #{order.OrderId} has been picked up by the delivery boy.",
+                    "Order",
+                    order.OrderId);
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"Rental return for {productName} has been picked up successfully.";
+
+            return RedirectToAction(
+                "OrderDetails",
+                new { id = order.OrderId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeliverRentalReturn(int id)
+        {
+            if (!IsDeliveryLoggedIn())
+                return DeliveryLogin();
+
+            if (!await IsApprovedDeliveryBoy())
+                return DeliveryLogin();
+
+            var deliveryBoy = await GetDeliveryBoy();
+
+            if (deliveryBoy == null)
+                return DeliveryLogin();
+
+            int deliveryUserId = deliveryBoy.UserId;
+
+            if (id <= 0)
+            {
+                TempData["Error"] = "Invalid order ID.";
+                return RedirectToAction("Orders");
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.DeliveryId == deliveryUserId);
+
+            if (order == null)
+            {
+                TempData["Error"] =
+                    "Order not found or not assigned to you.";
+
+                return RedirectToAction("Orders");
+            }
+
+            var rentalDetail = order.OrderDetails
+                .FirstOrDefault(od =>
+                    od.PurchaseType == "Rent" &&
+                    od.RentalReturnStatus == "Return Picked Up");
+
+            if (rentalDetail == null)
+            {
+                TempData["Error"] =
+                    "No rental return is waiting for delivery to the shop.";
+
+                return RedirectToAction("Orders");
+            }
+
+            rentalDetail.RentalReturnStatus = "Returned to Shop";
+            rentalDetail.DressReturnedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Rental dress delivered to the shop successfully. It is now awaiting inspection.";
+
+            return RedirectToAction("Orders");
+        }
         [HttpGet]
         public async Task<IActionResult> Payments()
         {
