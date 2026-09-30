@@ -553,7 +553,6 @@ namespace WeddingClosetHubs.Controllers
 
             int shopkeeperId = GetShopkeeperId()!.Value;
 
-
             var shop = await _context.Shops
                 .Include(s => s.Shopkeeper)
                 .FirstOrDefaultAsync(s =>
@@ -567,7 +566,6 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Profile");
             }
 
-
             var shopkeeper = shop.Shopkeeper;
 
             if (shopkeeper == null)
@@ -578,17 +576,14 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Profile");
             }
 
-
             var shopProducts = _context.Products
                 .Where(p => p.ShopId == shop.ShopId);
 
             var shopOrders = _context.Orders
                 .Where(o => o.ShopId == shop.ShopId);
 
-
             var activeOrders = shopOrders
                 .Where(o => o.OrderStatus != "Cancelled");
-
 
             int totalProducts =
                 await shopProducts.CountAsync();
@@ -598,7 +593,6 @@ namespace WeddingClosetHubs.Controllers
 
             int disabledProducts =
                 await shopProducts.CountAsync(p => !p.Status);
-
 
             int totalOrders =
                 await activeOrders.CountAsync();
@@ -625,7 +619,6 @@ namespace WeddingClosetHubs.Controllers
                         o.OrderStatus == "Delivered" ||
                         o.OrderStatus == "Completed");
 
-
             int cancelledOrders =
                 await shopOrders.CountAsync(
                     o => o.OrderStatus == "Cancelled");
@@ -636,7 +629,6 @@ namespace WeddingClosetHubs.Controllers
                         o.OrderStatus == "Delivered" ||
                         o.OrderStatus == "Completed")
                     .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
-
 
             decimal paidPayments =
                 await activeOrders
@@ -650,17 +642,12 @@ namespace WeddingClosetHubs.Controllers
                         o.ShopkeeperPaymentStatus != "Paid")
                     .SumAsync(o => (decimal?)o.ProductTotal) ?? 0m;
 
-
             var reviews = await _context.Reviews
                 .Where(r => r.ShopId == shop.ShopId)
                 .ToListAsync();
 
-
-
             int reviewCount =
                 reviews.Count;
-
-
 
             double averageRating =
                 reviews.Any()
@@ -672,7 +659,6 @@ namespace WeddingClosetHubs.Controllers
                     .CountAsync(r =>
                         r.ShopId == shop.ShopId &&
                         !r.IsRead);
-
 
             int unreadNotifications =
                 await _context.Notifications
@@ -701,22 +687,38 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.ShopkeeperProfileImage =
                 shopkeeper.ProfileImage;
 
-
             ViewBag.ShopName =
                 shop.ShopName ?? "My Shop";
 
             ViewBag.ShopCategory =
                 shop.ShopCategory ?? "Not Selected";
 
-
             ViewBag.ShopApproved =
                 shop.IsApproved;
-
-
 
             ViewBag.ShopStatus =
                 shop.Status;
 
+            ViewBag.ShopPhone =
+                shop.ShopPhone;
+
+            ViewBag.ShopEmail =
+                shop.Email;
+
+            ViewBag.ShopWhatsApp =
+                shop.WhatsAppNumber;
+
+            ViewBag.ShopFacebook =
+                shop.FacebookUrl;
+
+            ViewBag.ShopInstagram =
+                shop.InstagramUrl;
+
+            ViewBag.ShopTikTok =
+                shop.TikTokUrl;
+
+            ViewBag.ShopWebsite =
+                shop.WebsiteUrl;
 
             ViewBag.TotalProducts =
                 totalProducts;
@@ -760,18 +762,14 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.PendingPayments =
                 pendingPayments;
 
-
             ViewBag.ReviewCount =
                 reviewCount;
 
             ViewBag.TotalReviews =
                 reviewCount;
 
-
             ViewBag.UnreadFeedback =
                 unreadFeedback;
-
-
 
             ViewBag.AverageRating =
                 averageRating;
@@ -819,11 +817,11 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditShop(
-            Shop model,
-            IFormFile? logoFile,
-            IFormFile? shopFrontPhoto,
-            IFormFile? shopInsidePhoto,
-            IFormFile? shopSignboardPhoto)
+     Shop model,
+     IFormFile? logoFile,
+     IFormFile? shopFrontPhoto,
+     IFormFile? shopInsidePhoto,
+     IFormFile? shopSignboardPhoto)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -848,16 +846,47 @@ namespace WeddingClosetHubs.Controllers
                 model.ShopAddress?.Trim();
 
             shop.ShopPhone =
-                model.ShopPhone?.Trim();
+                string.IsNullOrWhiteSpace(model.ShopPhone)
+                    ? null
+                    : model.ShopPhone.Trim();
 
             shop.Email =
-                model.Email?.Trim();
+                string.IsNullOrWhiteSpace(model.Email)
+                    ? null
+                    : model.Email.Trim();
+
+            shop.WhatsAppNumber =
+                string.IsNullOrWhiteSpace(model.WhatsAppNumber)
+                    ? null
+                    : model.WhatsAppNumber.Trim();
+
+            shop.FacebookUrl =
+                string.IsNullOrWhiteSpace(model.FacebookUrl)
+                    ? null
+                    : model.FacebookUrl.Trim();
+
+            shop.InstagramUrl =
+                string.IsNullOrWhiteSpace(model.InstagramUrl)
+                    ? null
+                    : model.InstagramUrl.Trim();
+
+            shop.TikTokUrl =
+                string.IsNullOrWhiteSpace(model.TikTokUrl)
+                    ? null
+                    : model.TikTokUrl.Trim();
+
+            shop.WebsiteUrl =
+                string.IsNullOrWhiteSpace(model.WebsiteUrl)
+                    ? null
+                    : model.WebsiteUrl.Trim();
 
             if (logoFile != null &&
                 logoFile.Length > 0)
             {
                 shop.Logo =
-                    await SaveFile(logoFile, "shops");
+                    await SaveFile(
+                        logoFile,
+                        "shops");
             }
 
             if (shopFrontPhoto != null &&
@@ -2112,6 +2141,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
+
         public async Task<IActionResult> Orders()
         {
             if (!IsShopkeeper())
@@ -2123,6 +2153,7 @@ namespace WeddingClosetHubs.Controllers
                 return NotFound();
 
             var orders = await _context.Orders
+                .AsNoTracking()
                 .Include(o => o.Customer)
                 .Include(o => o.Delivery)
                 .Include(o => o.OrderDetails)
@@ -2145,6 +2176,8 @@ namespace WeddingClosetHubs.Controllers
 
             return View(orders);
         }
+
+
 
         public async Task<IActionResult> OrderDetails(int id)
         {

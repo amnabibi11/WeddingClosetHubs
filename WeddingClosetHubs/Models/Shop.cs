@@ -7,10 +7,8 @@ namespace WeddingClosetHubs.Models
     {
         public int ShopId { get; set; }
 
-
         [Required]
         public int ShopkeeperId { get; set; }
-
 
         [Required(ErrorMessage = "Shop name is required")]
         [StringLength(100)]
@@ -20,23 +18,18 @@ namespace WeddingClosetHubs.Models
         [StringLength(100)]
         public string ShopCategory { get; set; } = string.Empty;
 
-
         [StringLength(500)]
         public string? ShopDescription { get; set; }
-
 
         [Required(ErrorMessage = "Shop address is required")]
         public string ShopAddress { get; set; } = string.Empty;
 
-
         public string? ShopPhone { get; set; }
-
 
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string? Email { get; set; }
 
         public string? Logo { get; set; }
-
 
         public string? ShopFrontPhoto { get; set; }
 
@@ -44,6 +37,15 @@ namespace WeddingClosetHubs.Models
 
         public string? ShopSignboardPhoto { get; set; }
 
+        public string? WhatsAppNumber { get; set; }
+
+        public string? FacebookUrl { get; set; }
+
+        public string? InstagramUrl { get; set; }
+
+        public string? TikTokUrl { get; set; }
+
+        public string? WebsiteUrl { get; set; }
 
         public bool Status { get; set; } = false;
 
@@ -51,12 +53,9 @@ namespace WeddingClosetHubs.Models
 
         public DateTime? ApprovedDate { get; set; }
 
-
-        public DateTime CreatedDate { get; set; }
-            = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         [ForeignKey("ShopkeeperId")]
         public virtual User? Shopkeeper { get; set; }
     }
 }
-

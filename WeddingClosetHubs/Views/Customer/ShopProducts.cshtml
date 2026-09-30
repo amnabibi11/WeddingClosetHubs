@@ -4,17 +4,43 @@
     ViewData["Title"] = "Shop Products";
     Layout = null;
 
+
     var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
     var products = Model?.ToList()
         ?? new List<WeddingClosetHubs.Models.Product>();
+
+    string? whatsappNumber = shop?.WhatsAppNumber;
+
+    if (!string.IsNullOrWhiteSpace(whatsappNumber))
+    {
+        whatsappNumber = whatsappNumber
+            .Replace("+", "")
+            .Replace(" ", "")
+            .Replace("-", "")
+            .Replace("(", "")
+            .Replace(")", "")
+            .Replace(".", "");
+
+        if (whatsappNumber.StartsWith("0"))
+        {
+            whatsappNumber = "92" + whatsappNumber.Substring(1);
+        }
+    }
+
+
 }
 
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
+
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>
         @(shop?.ShopName ?? "Shop Products") - Wedding Closet Hubs
@@ -27,6 +53,7 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -147,6 +174,58 @@
                 color: #800020;
             }
 
+        .shop-contact-section {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #eee;
+        }
+
+        .shop-contact-title {
+            color: #800020;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+            .shop-contact-title i {
+                color: #d4af37;
+            }
+
+        .shop-contact-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .shop-contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border: 1px solid #800020;
+            border-radius: 7px;
+            color: #800020;
+            background: white;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+            .shop-contact-btn i {
+                color: #d4af37;
+                font-size: 15px;
+            }
+
+            .shop-contact-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
+                .shop-contact-btn:hover i {
+                    color: #d4af37;
+                }
+
         .product-card {
             background: white;
             border: none;
@@ -169,6 +248,14 @@
             overflow: hidden;
         }
 
+        .clickable-product-image {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+        }
+
         .product-image {
             width: 100%;
             height: 100%;
@@ -176,8 +263,38 @@
             transition: 0.3s ease;
         }
 
-        .product-card:hover .product-image {
-            transform: scale(1.04);
+        .clickable-product-image:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .image-view-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(128, 0, 32, 0.45);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: 0.3s ease;
+        }
+
+        .clickable-product-image:hover .image-view-overlay {
+            opacity: 1;
+        }
+
+        .image-view-overlay span {
+            background: white;
+            color: #800020;
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .image-view-overlay i {
+            color: #d4af37;
+            margin-right: 5px;
         }
 
         .no-image {
@@ -433,7 +550,36 @@
                 color: #777;
             }
 
+        .image-modal .modal-content {
+            background: #212529;
+            border: 2px solid #d4af37;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .image-modal .modal-header {
+            background: #800020;
+            color: white;
+            border-bottom: 1px solid #d4af37;
+        }
+
+        .image-modal .modal-title {
+            font-weight: 700;
+        }
+
+        .image-modal .btn-close {
+            filter: invert(1);
+        }
+
+        .full-product-image {
+            width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            background: #212529;
+        }
+
         @@media (max-width: 768px) {
+
             .navbar-custom {
                 padding: 15px;
             }
@@ -457,19 +603,39 @@
             .product-image-wrapper {
                 height: 250px;
             }
+
+            .shop-contact-buttons {
+                gap: 6px;
+            }
+
+            .shop-contact-btn {
+                font-size: 12px;
+                padding: 6px 9px;
+            }
+
+            .full-product-image {
+                max-height: 70vh;
+            }
         }
+
     </style>
+
+
 </head>
 
 <body>
 
+
     <nav class="navbar-custom">
+
         <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap gap-3">
 
             <a asp-controller="Customer"
                asp-action="Dashboard"
                class="brand">
+
                 Wedding Closet <span>Hubs</span>
+
             </a>
 
             <div class="d-flex align-items-center flex-wrap">
@@ -477,34 +643,45 @@
                 <a asp-controller="Customer"
                    asp-action="Dashboard"
                    class="nav-link-custom">
+
                     <i class="bi bi-house"></i>
                     Dashboard
+
                 </a>
 
                 <a asp-controller="Customer"
                    asp-action="Shops"
                    class="nav-link-custom">
+
                     <i class="bi bi-shop"></i>
                     Shops
+
                 </a>
 
                 <a asp-controller="Customer"
                    asp-action="Cart"
                    class="nav-link-custom">
+
                     <i class="bi bi-cart3"></i>
                     Cart
+
                 </a>
 
                 <a asp-controller="Account"
                    asp-action="Logout"
                    class="logout-btn">
+
                     <i class="bi bi-box-arrow-right"></i>
                     Logout
+
                 </a>
 
             </div>
+
         </div>
+
     </nav>
+
 
     <div class="page-wrapper">
 
@@ -542,8 +719,10 @@
                         @if (!string.IsNullOrEmpty(shop.ShopCategory))
                         {
                             <span class="shop-category">
+
                                 <i class="bi bi-tags"></i>
                                 @shop.ShopCategory
+
                             </span>
                         }
 
@@ -557,8 +736,10 @@
                         @if (!string.IsNullOrEmpty(shop.ShopAddress))
                         {
                             <div class="shop-address">
+
                                 <i class="bi bi-geo-alt-fill"></i>
                                 @shop.ShopAddress
+
                             </div>
                         }
 
@@ -567,25 +748,147 @@
                     <div class="col-md-3 text-md-end mt-3 mt-md-0">
 
                         <div class="mb-2">
+
                             <strong>@products.Count</strong>
                             Products Available
+
                         </div>
 
                         <a asp-controller="Customer"
                            asp-action="Shops"
                            class="btn btn-outline-secondary">
+
                             <i class="bi bi-arrow-left"></i>
                             Back to Shops
+
                         </a>
 
                     </div>
 
                 </div>
 
+
+                @if (!string.IsNullOrWhiteSpace(shop.ShopPhone) ||
+                            !string.IsNullOrWhiteSpace(shop.Email) ||
+                            !string.IsNullOrWhiteSpace(shop.WhatsAppNumber) ||
+                            !string.IsNullOrWhiteSpace(shop.FacebookUrl) ||
+                            !string.IsNullOrWhiteSpace(shop.InstagramUrl) ||
+                            !string.IsNullOrWhiteSpace(shop.TikTokUrl) ||
+                            !string.IsNullOrWhiteSpace(shop.WebsiteUrl))
+                {
+                    <div class="shop-contact-section">
+
+                        <div class="shop-contact-title">
+
+                            <i class="bi bi-person-lines-fill"></i>
+                            Contact & Social Media
+
+                        </div>
+
+                        <div class="shop-contact-buttons">
+
+                            @if (!string.IsNullOrWhiteSpace(shop.ShopPhone))
+                            {
+                                <a href="tel:@shop.ShopPhone"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-telephone-fill"></i>
+                                    @shop.ShopPhone
+
+                                </a>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(shop.Email))
+                            {
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=@Uri.EscapeDataString(shop.Email.Trim())"
+                                     target="_blank"
+                                     rel="noopener noreferrer"
+                                     class="shop-contact-btn">
+
+
+                                    <i class="bi bi-envelope-fill"></i>
+                                    Email
+
+                                </a>
+
+
+                            }
+
+
+
+                            @if (!string.IsNullOrWhiteSpace(shop.WhatsAppNumber))
+                            {
+                                <a href="https://wa.me/@whatsappNumber"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-whatsapp"></i>
+                                    WhatsApp
+
+                                </a>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(shop.FacebookUrl))
+                            {
+                                <a href="@shop.FacebookUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-facebook"></i>
+                                    Facebook
+
+                                </a>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(shop.InstagramUrl))
+                            {
+                                <a href="@shop.InstagramUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-instagram"></i>
+                                    Instagram
+
+                                </a>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(shop.TikTokUrl))
+                            {
+                                <a href="@shop.TikTokUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-tiktok"></i>
+                                    TikTok
+
+                                </a>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(shop.WebsiteUrl))
+                            {
+                                <a href="@shop.WebsiteUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="shop-contact-btn">
+
+                                    <i class="bi bi-globe2"></i>
+                                    Website
+
+                                </a>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
             </div>
         }
 
-       
 
         @if (products.Any())
         {
@@ -619,15 +922,36 @@
 
                                 @if (!string.IsNullOrEmpty(product.Image))
                                 {
-                                    <img src="@product.Image"
-                                         alt="@product.ProductName"
-                                         class="product-image" />
+                                    <a href="#"
+                                       class="clickable-product-image"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#productImageModal"
+                                       data-image="@product.Image"
+                                       data-product-name="@product.ProductName">
+
+                                        <img src="@product.Image"
+                                             alt="@product.ProductName"
+                                             class="product-image" />
+
+                                        <div class="image-view-overlay">
+
+                                            <span>
+                                                <i class="bi bi-zoom-in"></i>
+                                                View Full Image
+                                            </span>
+
+                                        </div>
+
+                                    </a>
                                 }
                                 else
                                 {
                                     <div class="no-image">
+
                                         <i class="bi bi-image"></i>
+
                                         <span>No Image Available</span>
+
                                     </div>
                                 }
 
@@ -641,32 +965,40 @@
                                 @if (isOnSale)
                                 {
                                     <span class="sale-badge">
+
                                         <i class="bi bi-tag-fill"></i>
                                         SALE
+
                                     </span>
                                 }
 
                                 @if (isAvailableForRent)
                                 {
                                     <span class="rent-badge">
+
                                         <i class="bi bi-arrow-repeat"></i>
                                         RENT
+
                                     </span>
                                 }
 
                                 @if (canNegotiate)
                                 {
                                     <span class="negotiation-badge">
+
                                         <i class="bi bi-handshake"></i>
                                         Negotiable
+
                                     </span>
                                 }
 
                                 @if (product.HasCustomMeasurement)
                                 {
                                     <span class="custom-badge">
+
                                         <i class="bi bi-rulers"></i>
                                         Custom Measurement
+
                                     </span>
                                 }
 
@@ -692,6 +1024,7 @@
                                         if (product.Description.Length > 100)
                                         {
                                             @product.Description.Substring(0, 100)
+
                                             <text>...</text>
                                         }
                                         else
@@ -711,32 +1044,40 @@
                                     @if (!string.IsNullOrEmpty(product.Subcategory))
                                     {
                                         <span class="info-badge">
+
                                             <i class="bi bi-diagram-3"></i>
                                             @product.Subcategory
+
                                         </span>
                                     }
 
                                     @if (!string.IsNullOrEmpty(product.Occasion))
                                     {
                                         <span class="info-badge">
+
                                             <i class="bi bi-calendar-event"></i>
                                             @product.Occasion
+
                                         </span>
                                     }
 
                                     @if (!string.IsNullOrEmpty(product.Color))
                                     {
                                         <span class="info-badge">
+
                                             <i class="bi bi-palette"></i>
                                             @product.Color
+
                                         </span>
                                     }
 
                                     @if (!string.IsNullOrEmpty(product.Size))
                                     {
                                         <span class="info-badge">
+
                                             <i class="bi bi-rulers"></i>
                                             Size: @product.Size
+
                                         </span>
                                     }
 
@@ -747,32 +1088,43 @@
                                     @if (isOnSale)
                                     {
                                         <div class="original-price">
-                                            Original: Rs. @product.Price.ToString("N2")
+
+                                            Original:
+                                            Rs. @product.Price.ToString("N2")
+
                                         </div>
 
                                         <div class="sale-price">
+
                                             Rs. @displayBuyPrice.ToString("N2")
+
                                         </div>
 
                                         @if (!string.IsNullOrWhiteSpace(product.SaleDetails))
                                         {
                                             <div class="sale-details">
+
                                                 <i class="bi bi-tag-fill"></i>
                                                 @product.SaleDetails
+
                                             </div>
                                         }
                                         else
                                         {
                                             <div class="sale-details">
+
                                                 <i class="bi bi-tag-fill"></i>
                                                 Sale Price
+
                                             </div>
                                         }
                                     }
                                     else
                                     {
                                         <div class="price">
+
                                             Rs. @displayBuyPrice.ToString("N2")
+
                                         </div>
                                     }
 
@@ -783,30 +1135,38 @@
                                     <div class="rent-box">
 
                                         <div class="rent-title">
+
                                             <i class="bi bi-arrow-repeat"></i>
                                             Rental Available
+
                                         </div>
 
                                         <div class="rent-price">
+
                                             Rs. @product.RentPrice!.Value.ToString("N2")
+
                                         </div>
 
                                         @if (product.RentalSecurity.HasValue &&
                                                                     product.RentalSecurity.Value > 0)
                                         {
                                             <div class="rent-security">
+
                                                 <i class="bi bi-shield-check"></i>
                                                 Refundable Security:
                                                 Rs. @product.RentalSecurity.Value.ToString("N2")
+
                                             </div>
                                         }
 
                                         @if (!string.IsNullOrWhiteSpace(product.RentalDuration))
                                         {
                                             <div class="rent-duration">
+
                                                 <i class="bi bi-clock"></i>
                                                 Duration:
                                                 @product.RentalDuration
+
                                             </div>
                                         }
 
@@ -818,23 +1178,29 @@
                                     if (product.StockQuantity <= 5)
                                     {
                                         <div class="stock stock-low">
+
                                             <i class="bi bi-exclamation-circle"></i>
                                             Only @product.StockQuantity left
+
                                         </div>
                                     }
                                     else
                                     {
                                         <div class="stock">
+
                                             <i class="bi bi-check-circle"></i>
                                             @product.StockQuantity available
+
                                         </div>
                                     }
                                 }
                                 else
                                 {
                                     <div class="stock stock-low">
+
                                         <i class="bi bi-x-circle"></i>
                                         Currently unavailable
+
                                     </div>
                                 }
 
@@ -898,7 +1264,94 @@
 
     </div>
 
+
+    <div class="modal fade image-modal"
+         id="productImageModal"
+         tabindex="-1"
+         aria-labelledby="productImageModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title"
+                        id="productImageModalLabel">
+
+                        Product Image
+
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-0 text-center">
+
+                    <img id="fullProductImage"
+                         src=""
+                         alt="Product Image"
+                         class="full-product-image" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const imageLinks =
+                document.querySelectorAll(".clickable-product-image");
+
+            const fullImage =
+                document.getElementById("fullProductImage");
+
+            const modalTitle =
+                document.getElementById("productImageModalLabel");
+
+            imageLinks.forEach(function (link) {
+
+                link.addEventListener("click", function (event) {
+
+                    event.preventDefault();
+
+                    const image =
+                        this.getAttribute("data-image");
+
+                    const productName =
+                        this.getAttribute("data-product-name");
+
+                    if (image) {
+                        fullImage.src = image;
+                    }
+
+                    if (productName) {
+                        modalTitle.textContent =
+                            productName + " - Full Image";
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
 
 </body>
 </html>

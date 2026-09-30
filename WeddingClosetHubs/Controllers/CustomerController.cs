@@ -11,6 +11,7 @@ namespace WeddingClosetHubs.Controllers
     {
         private readonly WeddingClosetHubsContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfiguration _configuration;
 
         private const string CartSessionKey = "CustomerCart";
 
@@ -33,12 +34,15 @@ namespace WeddingClosetHubs.Controllers
         };
 
         public CustomerController(
-            WeddingClosetHubsContext context,
-            IWebHostEnvironment environment)
+         WeddingClosetHubsContext context,
+         IWebHostEnvironment environment,
+         IConfiguration configuration)
         {
             _context = context;
             _environment = environment;
+            _configuration = configuration;
         }
+
 
         private int? GetCustomerId()
         {
@@ -2045,6 +2049,13 @@ namespace WeddingClosetHubs.Controllers
 
             ViewBag.CustomerAddress =
                 customer.Address;
+            ViewBag.EasypaisaAccount =
+               _configuration["PaymentSettings:EasypaisaAccount"];
+
+
+            ViewBag.JazzCashAccount =
+                _configuration["PaymentSettings:JazzCashAccount"];
+
 
             ViewBag.DeliveryCharges =
                 deliveryCharges;

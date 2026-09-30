@@ -29,6 +29,12 @@
             ? (decimal)ViewBag.TotalAmount
             : 0m;
 
+    string easypaisaAccount =
+        ViewBag.EasypaisaAccount as string ?? "";
+
+    string jazzCashAccount =
+        ViewBag.JazzCashAccount as string ?? "";
+
     var checkoutPrices =
         ViewBag.CheckoutPrices as Dictionary<int, decimal>
         ?? new Dictionary<int, decimal>();
@@ -318,6 +324,57 @@
             color: #856404;
         }
 
+        .payment-account-box {
+            background: white;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-account-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .payment-account-number {
+            color: #800020;
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .payment-account-help {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .payment-send-amount {
+            background: #f7f1df;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .payment-warning {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #6b5200;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
         .summary-card {
             background: white;
             border-radius: 12px;
@@ -483,6 +540,10 @@
             .grand-total {
                 font-size: 19px;
             }
+
+            .payment-account-number {
+                font-size: 18px;
+            }
         }
 
     </style>
@@ -558,8 +619,6 @@
             Confirm your delivery information, saved measurements and payment method.
 
         </p>
-
-        
 
         @if (Model == null || !Model.Any())
         {
@@ -1163,8 +1222,8 @@
 
                                     <div class="small text-muted ms-4 mt-1">
 
-                                        Pay through Easypaisa and upload your
-                                        transaction proof.
+                                        Send the payment to the Admin Easypaisa
+                                        account and upload your transaction proof.
 
                                     </div>
 
@@ -1187,8 +1246,8 @@
 
                                     <div class="small text-muted ms-4 mt-1">
 
-                                        Pay through JazzCash and upload your
-                                        transaction proof.
+                                        Send the payment to the Admin JazzCash
+                                        account and upload your transaction proof.
 
                                     </div>
 
@@ -1261,7 +1320,8 @@
                                                 Rs. @grandTotal.ToString("N2")
                                             </strong>
 
-                                            using the selected payment method.
+                                            to the Admin account using the
+                                            selected payment method.
 
                                         </p>
 
@@ -1287,6 +1347,126 @@
                                             screenshot of the payment.
 
                                         </p>
+
+                                    </div>
+
+                                    <div id="easypaisaAccountBox"
+                                         class="payment-account-box"
+                                         style="display:none;">
+
+                                        <div class="payment-account-title">
+
+                                            <i class="bi bi-phone-fill"></i>
+
+                                            Admin Easypaisa Account
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(easypaisaAccount))
+                                        {
+                                            <div class="payment-account-number">
+
+                                                @easypaisaAccount
+
+                                            </div>
+
+                                            <div class="payment-send-amount">
+
+                                                <i class="bi bi-cash-stack"></i>
+
+                                                Send Amount:
+                                                Rs. @grandTotal.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payment-account-help">
+
+                                                Please send the complete payment
+                                                amount to this Admin Easypaisa
+                                                account before entering your
+                                                transaction details.
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-warning mb-0">
+
+                                                <i class="bi bi-exclamation-triangle"></i>
+
+                                                Admin Easypaisa payment account
+                                                is currently not configured.
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                    <div id="jazzcashAccountBox"
+                                         class="payment-account-box"
+                                         style="display:none;">
+
+                                        <div class="payment-account-title">
+
+                                            <i class="bi bi-phone-fill"></i>
+
+                                            Admin JazzCash Account
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(jazzCashAccount))
+                                        {
+                                            <div class="payment-account-number">
+
+                                                @jazzCashAccount
+
+                                            </div>
+
+                                            <div class="payment-send-amount">
+
+                                                <i class="bi bi-cash-stack"></i>
+
+                                                Send Amount:
+                                                Rs. @grandTotal.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payment-account-help">
+
+                                                Please send the complete payment
+                                                amount to this Admin JazzCash
+                                                account before entering your
+                                                transaction details.
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-warning mb-0">
+
+                                                <i class="bi bi-exclamation-triangle"></i>
+
+                                                Admin JazzCash payment account
+                                                is currently not configured.
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                    <div class="payment-warning">
+
+                                        <i class="bi bi-shield-exclamation"></i>
+
+                                        <strong>Important:</strong>
+
+                                        Your order will remain
+                                        <strong>Pending</strong>
+                                        until the Admin verifies your payment
+                                        transaction.
+
+                                        Uploading a screenshot does not
+                                        automatically confirm the payment.
 
                                     </div>
 
@@ -1651,11 +1831,21 @@
             var selectedMethod =
                 document.getElementById("selectedPaymentMethod");
 
+            var easypaisaAccountBox =
+                document.getElementById("easypaisaAccountBox");
+
+            var jazzcashAccountBox =
+                document.getElementById("jazzcashAccountBox");
+
             if (method === "cod") {
 
                 codBox.style.display = "block";
 
                 onlineBox.style.display = "none";
+
+                easypaisaAccountBox.style.display = "none";
+
+                jazzcashAccountBox.style.display = "none";
 
                 transactionId.required = false;
 
@@ -1673,6 +1863,10 @@
 
                 onlineBox.style.display = "block";
 
+                easypaisaAccountBox.style.display = "block";
+
+                jazzcashAccountBox.style.display = "none";
+
                 transactionId.required = true;
 
                 transactionImage.required = true;
@@ -1688,6 +1882,10 @@
                 codBox.style.display = "none";
 
                 onlineBox.style.display = "block";
+
+                easypaisaAccountBox.style.display = "none";
+
+                jazzcashAccountBox.style.display = "block";
 
                 transactionId.required = true;
 
@@ -1933,3 +2131,5 @@
 </body>
 
 </html>
+
+

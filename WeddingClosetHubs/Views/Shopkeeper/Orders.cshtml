@@ -14,15 +14,6 @@
             : value.Trim();
     }
 
-    bool ContainsText(string? value, string text)
-    {
-        string current = Normalize(value);
-
-        return current.Contains(
-            text,
-            StringComparison.OrdinalIgnoreCase);
-    }
-
     bool IsStatus(string? value, params string[] statuses)
     {
         string current = Normalize(value);
@@ -35,8 +26,7 @@
 
     bool IsPendingStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Pending",
             "Awaiting Confirmation",
             "Waiting for Confirmation");
@@ -44,8 +34,7 @@
 
     bool IsConfirmedStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Confirmed",
             "Accepted",
             "Order Confirmed",
@@ -56,8 +45,7 @@
 
     bool IsProcessingStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Processing",
             "In Processing",
             "Order Processing");
@@ -65,8 +53,7 @@
 
     bool IsReadyStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Ready",
             "Ready for Delivery",
             "Ready For Delivery");
@@ -74,8 +61,7 @@
 
     bool IsAssignedStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Assigned",
             "Delivery Assigned",
             "Assigned to Delivery");
@@ -83,8 +69,7 @@
 
     bool IsPickedUpStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Picked Up",
             "PickedUp",
             "Order Picked Up");
@@ -92,8 +77,7 @@
 
     bool IsOutForDeliveryStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Out for Delivery",
             "Out For Delivery",
             "Shipped");
@@ -101,24 +85,21 @@
 
     bool IsDeliveredStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Delivered",
             "Order Delivered");
     }
 
     bool IsCompletedStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Completed",
             "Order Completed");
     }
 
     bool IsCancelledStatus(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Cancelled",
             "Canceled",
             "Order Cancelled",
@@ -129,24 +110,17 @@
     {
         string current = Normalize(value);
 
-        if (string.IsNullOrWhiteSpace(current))
-            return false;
-
-        return current.Contains(
-            "custom",
-            StringComparison.OrdinalIgnoreCase)
-            ||
-            current.Contains(
-                "customize",
-                StringComparison.OrdinalIgnoreCase)
-            ||
-            current.Contains(
-                "customized",
-                StringComparison.OrdinalIgnoreCase)
-            ||
-            current.Contains(
-                "customization",
-                StringComparison.OrdinalIgnoreCase);
+        return !string.IsNullOrWhiteSpace(current)
+            &&
+            (
+                current.Contains("custom", StringComparison.OrdinalIgnoreCase)
+                ||
+                current.Contains("customize", StringComparison.OrdinalIgnoreCase)
+                ||
+                current.Contains("customized", StringComparison.OrdinalIgnoreCase)
+                ||
+                current.Contains("customization", StringComparison.OrdinalIgnoreCase)
+            );
     }
 
     bool IsBuyType(string? value)
@@ -159,60 +133,49 @@
         if (IsCustomizeType(current))
         {
             return current.Contains(
-                "buy",
-                StringComparison.OrdinalIgnoreCase)
-                ||
-                current.Contains(
-                    "purchase",
-                    StringComparison.OrdinalIgnoreCase);
+                       "buy",
+                       StringComparison.OrdinalIgnoreCase)
+                   ||
+                   current.Contains(
+                       "purchase",
+                       StringComparison.OrdinalIgnoreCase);
         }
 
-        return current.Equals(
-                   "Buy",
-                   StringComparison.OrdinalIgnoreCase)
+        return current.Equals("Buy", StringComparison.OrdinalIgnoreCase)
                ||
-               current.Equals(
-                   "Purchase",
-                   StringComparison.OrdinalIgnoreCase)
+               current.Equals("Purchase", StringComparison.OrdinalIgnoreCase)
                ||
-               current.Equals(
-                   "Purchase Order",
-                   StringComparison.OrdinalIgnoreCase);
+               current.Equals("Purchase Order", StringComparison.OrdinalIgnoreCase);
     }
 
     bool IsSaleType(string? value)
     {
         string current = Normalize(value);
 
-        if (string.IsNullOrWhiteSpace(current))
-            return false;
-
-        return current.Equals(
-                   "Sale",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               current.Equals(
-                   "Sell",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               current.Equals(
-                   "Sale Order",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
+        return !string.IsNullOrWhiteSpace(current)
+               &&
                (
-                   IsCustomizeType(current)
-                   &&
-                   current.Contains(
-                       "sale",
-                       StringComparison.OrdinalIgnoreCase)
-               )
-               ||
-               (
-                   IsCustomizeType(current)
-                   &&
-                   current.Contains(
-                       "sell",
-                       StringComparison.OrdinalIgnoreCase)
+                   current.Equals("Sale", StringComparison.OrdinalIgnoreCase)
+                   ||
+                   current.Equals("Sell", StringComparison.OrdinalIgnoreCase)
+                   ||
+                   current.Equals("Sale Order", StringComparison.OrdinalIgnoreCase)
+                   ||
+                   (
+                       IsCustomizeType(current)
+                       &&
+                       current.Contains(
+                           "sale",
+                           StringComparison.OrdinalIgnoreCase)
+                   )
+                   ||
+                   (
+                       IsCustomizeType(current)
+                       &&
+                       current.Contains(
+                           "sell",
+                           StringComparison.OrdinalIgnoreCase)
+                   )
                );
     }
 
@@ -220,87 +183,34 @@
     {
         string current = Normalize(value);
 
-        if (string.IsNullOrWhiteSpace(current))
-            return false;
-
-        return current.Equals(
-                   "Rent",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               current.Equals(
-                   "Rental",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
-               current.Equals(
-                   "Rental Order",
-                   StringComparison.OrdinalIgnoreCase)
-               ||
+        return !string.IsNullOrWhiteSpace(current)
+               &&
                (
-                   IsCustomizeType(current)
-                   &&
+                   current.Equals("Rent", StringComparison.OrdinalIgnoreCase)
+                   ||
+                   current.Equals("Rental", StringComparison.OrdinalIgnoreCase)
+                   ||
+                   current.Equals("Rental Order", StringComparison.OrdinalIgnoreCase)
+                   ||
                    (
-                       current.Contains(
-                           "rent",
-                           StringComparison.OrdinalIgnoreCase)
-                       ||
-                       current.Contains(
-                           "rental",
-                           StringComparison.OrdinalIgnoreCase)
+                       IsCustomizeType(current)
+                       &&
+                       (
+                           current.Contains(
+                               "rent",
+                               StringComparison.OrdinalIgnoreCase)
+                           ||
+                           current.Contains(
+                               "rental",
+                               StringComparison.OrdinalIgnoreCase)
+                       )
                    )
                );
     }
 
-    string GetTypeLabel(string? value)
-    {
-        string current = Normalize(value);
-
-        if (string.IsNullOrWhiteSpace(current))
-            return "Buy";
-
-        bool customize = IsCustomizeType(current);
-        bool rent = IsRentType(current);
-        bool sale = IsSaleType(current);
-        bool buy = IsBuyType(current);
-
-        if (customize)
-        {
-            if (rent && buy)
-                return "Customize / Buy / Rent";
-
-            if (rent && sale)
-                return "Customize / Sale / Rent";
-
-            if (rent)
-                return "Customize / Rent";
-
-            if (sale && buy)
-                return "Customize / Buy / Sale";
-
-            if (sale)
-                return "Customize / Sale";
-
-            if (buy)
-                return "Customize / Buy";
-
-            return "Customize";
-        }
-
-        if (rent)
-            return "Rent";
-
-        if (sale)
-            return "Sale";
-
-        if (buy)
-            return "Buy";
-
-        return current;
-    }
-
     bool IsPaid(string? value)
     {
-        return IsStatus(
-            value,
+        return IsStatus(value,
             "Paid",
             "Received",
             "Payment Received",
@@ -367,9 +277,10 @@
     int unpaidOrders = Math.Max(
         0,
         totalOrders - paidOrders);
-    int assignedDeliveryOrders = orders.Count(o =>
-        o.DeliveryId.HasValue && o.DeliveryId.Value > 0);
 
+    int assignedDeliveryOrders = orders.Count(o =>
+        o.DeliveryId.HasValue &&
+        o.DeliveryId.Value > 0);
 
     int unassignedDeliveryOrders = Math.Max(
         0,
@@ -404,7 +315,6 @@
 }
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -459,9 +369,9 @@
             text-decoration: none;
         }
 
-            .brand:hover {
-                color: var(--gold);
-            }
+        .brand:hover {
+            color: var(--gold);
+        }
 
         .dashboard-btn {
             border-radius: 8px;
@@ -501,12 +411,20 @@
             height: 100%;
             border: 1px solid var(--border);
             transition: .2s ease;
+            cursor: pointer;
         }
 
-            .summary-box:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 7px 20px rgba(0,0,0,.09);
-            }
+        .summary-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(128,0,32,.14);
+            border-color: var(--gold);
+        }
+
+        .summary-box.active {
+            border: 2px solid var(--maroon);
+            box-shadow: 0 8px 25px rgba(128,0,32,.18);
+            transform: translateY(-2px);
+        }
 
         .summary-icon {
             width: 50px;
@@ -644,11 +562,11 @@
             border-bottom: 1px solid var(--border);
         }
 
-            .orders-header h5 {
-                color: var(--maroon);
-                font-weight: 700;
-                margin: 0;
-            }
+        .orders-header h5 {
+            color: var(--maroon);
+            font-weight: 700;
+            margin: 0;
+        }
 
         .orders-count {
             background: var(--light-maroon);
@@ -659,34 +577,78 @@
             font-weight: 700;
         }
 
+        .filter-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .search-input {
+            border-radius: 9px;
+            border: 1px solid #ddd;
+            padding: 10px 13px;
+        }
+
+        .search-input:focus {
+            border-color: var(--maroon);
+            box-shadow: 0 0 0 .15rem rgba(128,0,32,.1);
+        }
+
+        .clear-filter {
+            background: var(--maroon);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+        }
+
+        .clear-filter:hover {
+            background: var(--dark-maroon);
+            color: white;
+        }
+
+        .active-filter {
+            color: var(--maroon);
+            font-weight: 700;
+        }
+
         .table {
             margin-bottom: 0;
         }
 
-            .table thead th {
-                background: var(--maroon);
-                color: white;
-                font-size: 12px;
-                font-weight: 700;
-                padding: 14px 12px;
-                white-space: nowrap;
-                border: none;
-            }
+        .table thead th {
+            background: var(--maroon);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 14px 12px;
+            white-space: nowrap;
+            border: none;
+        }
 
-            .table tbody td {
-                padding: 15px 12px;
-                vertical-align: middle;
-                font-size: 13px;
-                border-bottom: 1px solid #f0edef;
-            }
+        .table tbody td {
+            padding: 15px 12px;
+            vertical-align: middle;
+            font-size: 13px;
+            border-bottom: 1px solid #f0edef;
+        }
 
-            .table tbody tr:last-child td {
-                border-bottom: none;
-            }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
-            .table tbody tr:hover {
-                background: #fff9fb;
-            }
+        .table tbody tr:hover {
+            background: #fff9fb;
+        }
 
         .order-id {
             color: var(--maroon);
@@ -832,9 +794,9 @@
             min-width: 180px;
         }
 
-            .order-products strong {
-                color: #333;
-            }
+        .order-products strong {
+            color: #333;
+        }
 
         .product-line {
             padding-bottom: 7px;
@@ -842,11 +804,11 @@
             border-bottom: 1px dashed #e5e1e3;
         }
 
-            .product-line:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
+        .product-line:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
 
         .rental-return {
             display: inline-block;
@@ -889,40 +851,15 @@
             white-space: nowrap;
         }
 
-            .view-btn:hover {
-                background: var(--dark-maroon);
-                color: white;
-            }
+        .view-btn:hover {
+            background: var(--dark-maroon);
+            color: white;
+        }
 
         .date-text {
             white-space: nowrap;
             font-size: 12px;
         }
-
-            .date-text strong {
-                color: #444;
-            }
-
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-
-        .empty-box {
-            padding: 80px 20px;
-            text-align: center;
-        }
-
-            .empty-box i {
-                font-size: 58px;
-                color: var(--gold);
-            }
-
-            .empty-box h4 {
-                margin-top: 15px;
-                color: var(--maroon);
-                font-weight: 700;
-            }
 
         .amount-summary {
             background: linear-gradient(135deg, var(--maroon), #690019);
@@ -980,6 +917,23 @@
             font-size: 11px;
         }
 
+        .no-results {
+            display: none;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .no-results i {
+            font-size: 50px;
+            color: var(--gold);
+        }
+
+        .no-results h5 {
+            color: var(--maroon);
+            margin-top: 15px;
+            font-weight: 700;
+        }
+
         @@media(max-width: 992px) {
 
             .page-container {
@@ -990,9 +944,9 @@
                 overflow-x: auto;
             }
 
-                .orders-box table {
-                    min-width: 1750px;
-                }
+            .orders-box table {
+                min-width: 1750px;
+            }
 
             .navbar-custom {
                 padding: 14px 18px;
@@ -1056,9 +1010,8 @@
 
     </nav>
 
+
     <div class="page-container">
-
-
 
         <div class="mb-4">
 
@@ -1078,6 +1031,58 @@
 
         </div>
 
+
+        <div class="filter-bar">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-7">
+
+                    <label class="filter-label mb-1">
+                        Search Orders
+                    </label>
+
+                    <input type="text"
+                           id="orderSearch"
+                           class="form-control search-input"
+                           placeholder="Search by order ID, customer, email, product, payment or status..." />
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="filter-label mb-1">
+                        Current Filter
+                    </label>
+
+                    <div class="form-control bg-light"
+                         id="currentFilter">
+
+                        All Orders
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-2">
+
+                    <button type="button"
+                            id="clearFilter"
+                            class="clear-filter w-100">
+
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                        Clear Filter
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
         <div class="summary-section-title">
 
             <i class="bi bi-bar-chart-fill me-1"></i>
@@ -1086,16 +1091,21 @@
 
         </div>
 
+
         <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box filter-card active"
+                     data-filter="all"
+                     data-label="All Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
+
                             <i class="bi bi-bag"></i>
+
                         </div>
 
                         <div>
@@ -1120,9 +1130,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-pending">
+                <div class="summary-box status-card-pending filter-card"
+                     data-filter="pending"
+                     data-label="Pending Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1152,9 +1165,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-confirmed">
+                <div class="summary-box status-card-confirmed filter-card"
+                     data-filter="confirmed"
+                     data-label="Confirmed / Accepted">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1184,9 +1200,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-processing">
+                <div class="summary-box status-card-processing filter-card"
+                     data-filter="processing"
+                     data-label="Processing">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1218,6 +1237,7 @@
 
         </div>
 
+
         <div class="summary-section-title">
 
             <i class="bi bi-truck me-1"></i>
@@ -1226,11 +1246,14 @@
 
         </div>
 
+
         <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-ready">
+                <div class="summary-box status-card-ready filter-card"
+                     data-filter="ready"
+                     data-label="Ready for Delivery">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1260,9 +1283,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-assigned">
+                <div class="summary-box status-card-assigned filter-card"
+                     data-filter="assigned"
+                     data-label="Delivery Assigned">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1292,9 +1318,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-picked">
+                <div class="summary-box status-card-picked filter-card"
+                     data-filter="picked"
+                     data-label="Picked Up">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1324,9 +1353,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-out">
+                <div class="summary-box status-card-out filter-card"
+                     data-filter="out"
+                     data-label="Out for Delivery">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1358,11 +1390,14 @@
 
         </div>
 
+
         <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-delivered">
+                <div class="summary-box status-card-delivered filter-card"
+                     data-filter="delivered"
+                     data-label="Delivered">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1392,9 +1427,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-completed">
+                <div class="summary-box status-card-completed filter-card"
+                     data-filter="completed"
+                     data-label="Completed">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1424,9 +1462,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box status-card-cancelled">
+                <div class="summary-box status-card-cancelled filter-card"
+                     data-filter="cancelled"
+                     data-label="Cancelled">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1456,9 +1497,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box">
+                <div class="summary-box filter-card"
+                     data-filter="all"
+                     data-label="All Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1469,18 +1513,7 @@
                         <div>
 
                             <div class="summary-number">
-
-                                @(pendingOrders +
-                                                                confirmedOrders +
-                                                                processingOrders +
-                                                                readyOrders +
-                                                                assignedOrders +
-                                                                pickedUpOrders +
-                                                                outForDeliveryOrders +
-                                                                deliveredOrders +
-                                                                completedOrders +
-                                                                cancelledOrders)
-
+                                @totalOrders
                             </div>
 
                             <div class="summary-label">
@@ -1501,6 +1534,7 @@
 
         </div>
 
+
         <div class="summary-section-title">
 
             <i class="bi bi-tags me-1"></i>
@@ -1511,15 +1545,18 @@
 
         <div class="section-note">
 
-            Customize orders are counted separately even when their purchase type also contains Buy, Rent or Sale.
+            Customize orders can also contain Buy, Rent or Sale.
 
         </div>
+
 
         <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box type-buy">
+                <div class="summary-box type-buy filter-card"
+                     data-filter="buy"
+                     data-label="Buy Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1549,9 +1586,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box type-sale">
+                <div class="summary-box type-sale filter-card"
+                     data-filter="sale"
+                     data-label="Sale Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1581,9 +1621,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box type-customize">
+                <div class="summary-box type-customize filter-card"
+                     data-filter="customize"
+                     data-label="Customize Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1613,9 +1656,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box type-rent">
+                <div class="summary-box type-rent filter-card"
+                     data-filter="rent"
+                     data-label="Rental Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1647,6 +1693,7 @@
 
         </div>
 
+
         <div class="summary-section-title">
 
             <i class="bi bi-credit-card me-1"></i>
@@ -1655,11 +1702,14 @@
 
         </div>
 
+
         <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box payment-paid-card">
+                <div class="summary-box payment-paid-card filter-card"
+                     data-filter="paid"
+                     data-label="Paid / Received Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1689,9 +1739,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box payment-unpaid-card">
+                <div class="summary-box payment-unpaid-card filter-card"
+                     data-filter="unpaid"
+                     data-label="Unpaid / Pending Orders">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1721,9 +1774,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box delivery-assigned-card">
+                <div class="summary-box delivery-assigned-card filter-card"
+                     data-filter="delivery-assigned"
+                     data-label="Delivery Assigned">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1753,9 +1809,12 @@
 
             </div>
 
+
             <div class="col-xl-3 col-md-6">
 
-                <div class="summary-box delivery-unassigned-card">
+                <div class="summary-box delivery-unassigned-card filter-card"
+                     data-filter="delivery-unassigned"
+                     data-label="Delivery Not Assigned">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -1787,6 +1846,7 @@
 
         </div>
 
+
         <div class="summary-section-title">
 
             <i class="bi bi-wallet2 me-1"></i>
@@ -1794,6 +1854,7 @@
             Amount Summary
 
         </div>
+
 
         <div class="row g-3 mb-4">
 
@@ -1817,6 +1878,7 @@
 
             </div>
 
+
             <div class="col-xl-4 col-md-6">
 
                 <div class="amount-summary">
@@ -1836,6 +1898,7 @@
                 </div>
 
             </div>
+
 
             <div class="col-xl-4 col-md-12">
 
@@ -1859,6 +1922,7 @@
 
         </div>
 
+
         <div class="orders-box">
 
             <div class="orders-header">
@@ -1876,18 +1940,32 @@
                         </h5>
 
                         <small class="text-muted">
-                            Orders received by your shop
+
+                            Showing
+                            <span id="visibleOrderCount">
+                                @totalOrders
+                            </span>
+                            of
+                            @totalOrders
+                            orders
+
                         </small>
 
                     </div>
 
                     <div class="orders-count">
-                        @totalOrders Orders
+
+                        <span id="filterCount">
+                            @totalOrders
+                        </span>
+                        Orders
+
                     </div>
 
                 </div>
 
             </div>
+
 
             @if (orders.Any())
             {
@@ -1901,81 +1979,162 @@
                             <tr>
 
                                 <th>Order</th>
+
                                 <th>Customer</th>
+
                                 <th>Order Type</th>
+
                                 <th>Products</th>
+
                                 <th>Date</th>
+
                                 <th>Product Amount</th>
+
                                 <th>Total</th>
+
                                 <th>Payment</th>
+
                                 <th>Order Status</th>
+
                                 <th>Delivery</th>
+
                                 <th>Shopkeeper Amount</th>
+
                                 <th>Payment Status</th>
+
                                 <th>Action</th>
 
                             </tr>
 
                         </thead>
 
-                        <tbody>
+
+                        <tbody id="ordersTableBody">
 
                             @foreach (var order in orders)
                             {
 
                                 string currentStatus =
-                                string.IsNullOrWhiteSpace(order.OrderStatus)
-                                ? "Unknown"
-                                : order.OrderStatus.Trim();
+                                    string.IsNullOrWhiteSpace(order.OrderStatus)
+                                        ? "Unknown"
+                                        : order.OrderStatus.Trim();
 
                                 string statusClass = "status-other";
+
+                                string statusFilter = "other";
 
                                 if (IsPendingStatus(currentStatus))
                                 {
                                     statusClass = "status-pending";
+                                    statusFilter = "pending";
                                 }
                                 else if (IsCancelledStatus(currentStatus))
                                 {
                                     statusClass = "status-cancelled";
+                                    statusFilter = "cancelled";
                                 }
                                 else if (IsCompletedStatus(currentStatus))
                                 {
                                     statusClass = "status-completed";
+                                    statusFilter = "completed";
                                 }
                                 else if (IsDeliveredStatus(currentStatus))
                                 {
                                     statusClass = "status-delivered";
+                                    statusFilter = "delivered";
                                 }
                                 else if (IsOutForDeliveryStatus(currentStatus))
                                 {
                                     statusClass = "status-out";
+                                    statusFilter = "out";
                                 }
                                 else if (IsPickedUpStatus(currentStatus))
                                 {
                                     statusClass = "status-picked";
+                                    statusFilter = "picked";
                                 }
                                 else if (IsAssignedStatus(currentStatus))
                                 {
                                     statusClass = "status-assigned";
+                                    statusFilter = "assigned";
                                 }
                                 else if (IsReadyStatus(currentStatus))
                                 {
                                     statusClass = "status-ready";
+                                    statusFilter = "ready";
                                 }
                                 else if (IsProcessingStatus(currentStatus))
                                 {
                                     statusClass = "status-processing";
+                                    statusFilter = "processing";
                                 }
                                 else if (IsConfirmedStatus(currentStatus))
                                 {
                                     statusClass = "status-confirmed";
+                                    statusFilter = "confirmed";
                                 }
 
-                                bool paymentReceived =
-                                order.PaymentReceived ||
-                                IsPaid(order.PaymentStatus);
 
-                                <tr>
+                                bool paymentReceived =
+                                    order.PaymentReceived ||
+                                    IsPaid(order.PaymentStatus);
+
+
+                                bool hasBuy = order.OrderDetails != null &&
+                                              order.OrderDetails.Any(d =>
+                                                  IsBuyType(d.PurchaseType));
+
+                                bool hasSale = order.OrderDetails != null &&
+                                               order.OrderDetails.Any(d =>
+                                                   IsSaleType(d.PurchaseType));
+
+                                bool hasRent = order.OrderDetails != null &&
+                                               order.OrderDetails.Any(d =>
+                                                   IsRentType(d.PurchaseType));
+
+                                bool hasCustomize = order.OrderDetails != null &&
+                                                    order.OrderDetails.Any(d =>
+                                                        IsCustomizeType(d.PurchaseType));
+
+                                string typeFilters =
+                                    (hasBuy ? "buy " : "") +
+                                    (hasSale ? "sale " : "") +
+                                    (hasRent ? "rent " : "") +
+                                    (hasCustomize ? "customize " : "");
+
+                                string deliveryFilter =
+                                    order.DeliveryId.HasValue &&
+                                    order.DeliveryId.Value > 0
+                                        ? "delivery-assigned"
+                                        : "delivery-unassigned";
+
+                                string paymentFilter =
+                                    paymentReceived
+                                        ? "paid"
+                                        : "unpaid";
+
+                                <tr class="order-row"
+                                    data-status="@statusFilter"
+                                    data-types="@typeFilters.Trim()"
+                                    data-payment="@paymentFilter"
+                                    data-delivery="@deliveryFilter"
+                                    data-search="@(
+                                        "#"
+                                        + order.OrderId
+                                        + " "
+                                        + (order.Customer?.Name ?? "")
+                                        + " "
+                                        + (order.Customer?.Email ?? "")
+                                        + " "
+                                        + (order.PaymentMethod ?? "")
+                                        + " "
+                                        + currentStatus
+                                        + " "
+                                        + string.Join(" ",
+                                            order.OrderDetails?
+                                                .Select(d => d.Product?.ProductName ?? "")
+                                                ?? Enumerable.Empty<string>())
+                                    )">
 
                                     <td>
 
@@ -1985,129 +2144,180 @@
 
                                     </td>
 
+
                                     <td>
 
                                         @if (order.Customer != null)
                                         {
+
                                             <div class="customer-name">
                                                 @order.Customer.Name
                                             </div>
 
-                                            @if (!string.IsNullOrWhiteSpace(order.Customer.Email))
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                order.Customer.Email))
                                             {
+
                                                 <div class="customer-email">
                                                     @order.Customer.Email
                                                 </div>
+
                                             }
+
                                         }
                                         else
                                         {
+
                                             <span class="text-muted">
                                                 Customer unavailable
                                             </span>
+
                                         }
 
                                     </td>
+
 
                                     <td>
 
                                         <div class="type-container">
 
                                             @if (order.OrderDetails != null &&
-                                                                                order.OrderDetails.Any())
+                                                 order.OrderDetails.Any())
                                             {
+
                                                 var purchaseTypes =
-                                                order.OrderDetails
-                                                .Select(d =>
-                                                string.IsNullOrWhiteSpace(d.PurchaseType)
-                                                ? "Buy"
-                                                : d.PurchaseType.Trim())
-                                                .Distinct(
-                                                StringComparer.OrdinalIgnoreCase)
-                                                .ToList();
+                                                    order.OrderDetails
+                                                        .Select(d =>
+                                                            string.IsNullOrWhiteSpace(
+                                                                d.PurchaseType)
+                                                                ? "Buy"
+                                                                : d.PurchaseType.Trim())
+                                                        .Distinct(
+                                                            StringComparer.OrdinalIgnoreCase)
+                                                        .ToList();
 
                                                 foreach (var type in purchaseTypes)
                                                 {
+
                                                     bool customize =
-                                                    IsCustomizeType(type);
+                                                        IsCustomizeType(type);
 
                                                     bool buy =
-                                                    IsBuyType(type);
+                                                        IsBuyType(type);
 
                                                     bool rent =
-                                                    IsRentType(type);
+                                                        IsRentType(type);
 
                                                     bool sale =
-                                                    IsSaleType(type);
+                                                        IsSaleType(type);
+
 
                                                     if (customize)
                                                     {
+
                                                         <span class="type-badge type-customize-badge">
+
                                                             <i class="bi bi-pencil-square me-1"></i>
+
                                                             Customize
+
                                                         </span>
+
                                                     }
+
 
                                                     if (buy)
                                                     {
+
                                                         <span class="type-badge type-buy-badge">
+
                                                             <i class="bi bi-bag me-1"></i>
+
                                                             Buy
+
                                                         </span>
+
                                                     }
+
 
                                                     if (sale)
                                                     {
+
                                                         <span class="type-badge type-sale-badge">
+
                                                             <i class="bi bi-tag me-1"></i>
+
                                                             Sale
+
                                                         </span>
+
                                                     }
+
 
                                                     if (rent)
                                                     {
+
                                                         <span class="type-badge type-rent-badge">
+
                                                             <i class="bi bi-calendar-heart me-1"></i>
+
                                                             Rent
+
                                                         </span>
+
                                                     }
 
+
                                                     if (!customize &&
-                                                    !buy &&
-                                                    !sale &&
-                                                    !rent)
+                                                        !buy &&
+                                                        !sale &&
+                                                        !rent)
                                                     {
+
                                                         <span class="type-badge type-buy-badge">
                                                             @type
                                                         </span>
+
                                                     }
+
                                                 }
+
                                             }
                                             else
                                             {
+
                                                 <span class="type-badge type-buy-badge">
+
                                                     <i class="bi bi-bag me-1"></i>
+
                                                     Buy
+
                                                 </span>
+
                                             }
 
                                         </div>
 
                                     </td>
 
+
                                     <td>
 
                                         <div class="order-products">
 
                                             @if (order.OrderDetails != null &&
-                                                                                order.OrderDetails.Any())
+                                                 order.OrderDetails.Any())
                                             {
+
                                                 foreach (var detail in order.OrderDetails)
                                                 {
+
                                                     string productType =
-                                                    string.IsNullOrWhiteSpace(detail.PurchaseType)
-                                                    ? "Buy"
-                                                    : detail.PurchaseType.Trim();
+                                                        string.IsNullOrWhiteSpace(
+                                                            detail.PurchaseType)
+                                                            ? "Buy"
+                                                            : detail.PurchaseType.Trim();
+
 
                                                     <div class="product-line">
 
@@ -2121,76 +2331,117 @@
 
                                                         <br />
 
+
                                                         @if (IsCustomizeType(productType))
                                                         {
+
                                                             <span class="text-primary">
+
                                                                 <i class="bi bi-pencil-square me-1"></i>
+
                                                                 Customize
+
                                                             </span>
+
 
                                                             @if (IsBuyType(productType))
                                                             {
+
                                                                 <span class="text-muted ms-1">
                                                                     / Buy
                                                                 </span>
+
                                                             }
+
 
                                                             @if (IsSaleType(productType))
                                                             {
+
                                                                 <span class="text-warning ms-1">
                                                                     / Sale
                                                                 </span>
+
                                                             }
+
 
                                                             @if (IsRentType(productType))
                                                             {
+
                                                                 <span class="text-success ms-1">
                                                                     / Rent
                                                                 </span>
+
                                                             }
+
                                                         }
                                                         else if (IsRentType(productType))
                                                         {
+
                                                             <span class="text-success">
+
                                                                 <i class="bi bi-calendar-heart me-1"></i>
+
                                                                 Rent
+
                                                             </span>
 
-                                                            @if (!string.IsNullOrWhiteSpace(detail.RentalReturnStatus))
+
+                                                            @if (!string.IsNullOrWhiteSpace(
+                                                                detail.RentalReturnStatus))
                                                             {
+
                                                                 <span class="rental-return">
+
                                                                     @detail.RentalReturnStatus
+
                                                                 </span>
+
                                                             }
+
                                                         }
                                                         else if (IsSaleType(productType))
                                                         {
+
                                                             <span class="text-warning">
+
                                                                 <i class="bi bi-tag me-1"></i>
+
                                                                 Sale
+
                                                             </span>
+
                                                         }
                                                         else
                                                         {
+
                                                             <span class="text-muted">
+
                                                                 <i class="bi bi-bag me-1"></i>
+
                                                                 Buy
+
                                                             </span>
+
                                                         }
 
                                                     </div>
+
                                                 }
+
                                             }
                                             else
                                             {
+
                                                 <span class="text-muted">
                                                     No products
                                                 </span>
+
                                             }
 
                                         </div>
 
                                     </td>
+
 
                                     <td>
 
@@ -2210,6 +2461,7 @@
 
                                     </td>
 
+
                                     <td>
 
                                         <span class="amount">
@@ -2217,6 +2469,7 @@
                                         </span>
 
                                     </td>
+
 
                                     <td>
 
@@ -2226,50 +2479,66 @@
 
                                     </td>
 
+
                                     <td>
 
                                         <div class="payment-method">
 
                                             @if (string.Equals(
-                                                                                order.PaymentMethod,
-                                                                                "Cash on Delivery",
-                                                                                StringComparison.OrdinalIgnoreCase))
+                                                order.PaymentMethod,
+                                                "Cash on Delivery",
+                                                StringComparison.OrdinalIgnoreCase))
                                             {
+
                                                 <i class="bi bi-cash me-1"></i>
+
                                                 <span>COD</span>
+
                                             }
                                             else if (string.Equals(
-                                            order.PaymentMethod,
-                                            "Easypaisa",
-                                            StringComparison.OrdinalIgnoreCase))
+                                                order.PaymentMethod,
+                                                "Easypaisa",
+                                                StringComparison.OrdinalIgnoreCase))
                                             {
+
                                                 <i class="bi bi-phone me-1"></i>
+
                                                 <span>Easypaisa</span>
+
                                             }
                                             else if (string.Equals(
-                                            order.PaymentMethod,
-                                            "JazzCash",
-                                            StringComparison.OrdinalIgnoreCase))
+                                                order.PaymentMethod,
+                                                "JazzCash",
+                                                StringComparison.OrdinalIgnoreCase))
                                             {
+
                                                 <i class="bi bi-phone me-1"></i>
+
                                                 <span>JazzCash</span>
+
                                             }
                                             else if (!string.IsNullOrWhiteSpace(
-                                            order.PaymentMethod))
+                                                order.PaymentMethod))
                                             {
+
                                                 @order.PaymentMethod
+
                                             }
                                             else
                                             {
+
                                                 <span class="text-muted">
                                                     Not Selected
                                                 </span>
+
                                             }
 
                                         </div>
 
+
                                         @if (paymentReceived)
                                         {
+
                                             <small class="payment-paid">
 
                                                 <i class="bi bi-check-circle-fill me-1"></i>
@@ -2277,9 +2546,11 @@
                                                 Received
 
                                             </small>
+
                                         }
                                         else
                                         {
+
                                             <small class="payment-pending">
 
                                                 <i class="bi bi-clock me-1"></i>
@@ -2287,22 +2558,28 @@
                                                 Pending
 
                                             </small>
+
                                         }
 
                                     </td>
 
+
                                     <td>
 
                                         <span class="status-badge @statusClass">
+
                                             @currentStatus
+
                                         </span>
 
                                     </td>
+
 
                                     <td>
 
                                         @if (order.Delivery != null)
                                         {
+
                                             <span class="delivery-assigned">
 
                                                 <i class="bi bi-person-check-fill me-1"></i>
@@ -2310,9 +2587,11 @@
                                                 @order.Delivery.Name
 
                                             </span>
+
                                         }
                                         else
                                         {
+
                                             <span class="delivery-none">
 
                                                 <i class="bi bi-person-dash me-1"></i>
@@ -2320,17 +2599,22 @@
                                                 Not Assigned
 
                                             </span>
+
                                         }
 
                                     </td>
 
+
                                     <td>
 
                                         <span class="amount">
+
                                             Rs. @order.ShopkeeperAmount.ToString("N2")
+
                                         </span>
 
                                     </td>
+
 
                                     <td>
 
@@ -2338,6 +2622,7 @@
 
                                             @if (IsPaid(order.ShopkeeperPaymentStatus))
                                             {
+
                                                 <span class="payment-paid">
 
                                                     <i class="bi bi-check-circle-fill me-1"></i>
@@ -2345,24 +2630,28 @@
                                                     Paid
 
                                                 </span>
+
                                             }
                                             else
                                             {
+
                                                 <span class="payment-pending">
 
                                                     <i class="bi bi-clock me-1"></i>
 
                                                     @(string.IsNullOrWhiteSpace(
-                                                                                            order.ShopkeeperPaymentStatus)
-                                                                                            ? "Pending"
-                                                                                            : order.ShopkeeperPaymentStatus)
+                                                        order.ShopkeeperPaymentStatus)
+                                                        ? "Pending"
+                                                        : order.ShopkeeperPaymentStatus)
 
-                                    </span>
-                                                                        }
+                                                </span>
+
+                                            }
 
                                         </div>
 
                                     </td>
+
 
                                     <td>
 
@@ -2380,6 +2669,7 @@
                                     </td>
 
                                 </tr>
+
                             }
 
                         </tbody>
@@ -2388,19 +2678,38 @@
 
                 </div>
 
+
+                <div class="no-results"
+                     id="noResults">
+
+                    <i class="bi bi-search"></i>
+
+                    <h5>
+                        No Matching Orders
+                    </h5>
+
+                    <p class="text-muted mb-0">
+
+                        No orders match the selected filter or search.
+
+                    </p>
+
+                </div>
+
             }
             else
             {
 
-                <div class="empty-box">
+                <div class="no-results"
+                     style="display:block;">
 
                     <i class="bi bi-bag-x"></i>
 
-                    <h4>
+                    <h5>
                         No Orders Found
-                    </h4>
+                    </h5>
 
-                    <p class="mb-0">
+                    <p class="text-muted mb-0">
                         There are currently no orders for your shop.
                     </p>
 
@@ -2410,26 +2719,30 @@
 
         </div>
 
+
         @if (actualPurchaseTypes.Any())
         {
+
             <div class="orders-box">
 
                 <div class="orders-header">
 
-                    <div>
+                    <h5>
 
-                        <h5>
-                            <i class="bi bi-database-check me-1"></i>
-                            Purchase Type Check
-                        </h5>
+                        <i class="bi bi-database-check me-1"></i>
 
-                        <small class="text-muted">
-                            These are the actual PurchaseType values stored in OrderDetails.
-                        </small>
+                        Purchase Type Check
 
-                    </div>
+                    </h5>
+
+                    <small class="text-muted">
+
+                        These are the actual PurchaseType values stored in OrderDetails.
+
+                    </small>
 
                 </div>
+
 
                 <div class="p-4">
 
@@ -2441,6 +2754,7 @@
 
                         @foreach (var type in actualPurchaseTypes)
                         {
+
                             <span class="raw-type">
 
                                 @type.Name
@@ -2451,12 +2765,15 @@
 
                                 @if (IsCustomizeType(type.Name))
                                 {
+
                                     <span class="text-primary ms-1">
                                         → Customize
                                     </span>
+
                                 }
 
                             </span>
+
                         }
 
                     </div>
@@ -2464,9 +2781,252 @@
                 </div>
 
             </div>
+
         }
 
     </div>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const filterCards =
+                document.querySelectorAll(".filter-card");
+
+            const orderRows =
+                document.querySelectorAll(".order-row");
+
+            const searchInput =
+                document.getElementById("orderSearch");
+
+            const clearFilter =
+                document.getElementById("clearFilter");
+
+            const currentFilter =
+                document.getElementById("currentFilter");
+
+            const visibleOrderCount =
+                document.getElementById("visibleOrderCount");
+
+            const filterCount =
+                document.getElementById("filterCount");
+
+            const noResults =
+                document.getElementById("noResults");
+
+
+            let selectedFilter = "all";
+
+
+            function applyFilter() {
+
+                const searchText =
+                    searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                let visibleCount = 0;
+
+
+                orderRows.forEach(function (row) {
+
+                    const status =
+                        row.dataset.status || "";
+
+                    const types =
+                        row.dataset.types || "";
+
+                    const payment =
+                        row.dataset.payment || "";
+
+                    const delivery =
+                        row.dataset.delivery || "";
+
+                    const searchData =
+                        row.dataset.search
+                            ? row.dataset.search.toLowerCase()
+                            : "";
+
+
+                    let filterMatches = false;
+
+
+                    if (selectedFilter === "all") {
+
+                        filterMatches = true;
+
+                    }
+                    else if (
+                        selectedFilter === "pending" ||
+                        selectedFilter === "confirmed" ||
+                        selectedFilter === "processing" ||
+                        selectedFilter === "ready" ||
+                        selectedFilter === "assigned" ||
+                        selectedFilter === "picked" ||
+                        selectedFilter === "out" ||
+                        selectedFilter === "delivered" ||
+                        selectedFilter === "completed" ||
+                        selectedFilter === "cancelled"
+                    ) {
+
+                        filterMatches =
+                            status === selectedFilter;
+
+                    }
+                    else if (
+                        selectedFilter === "buy" ||
+                        selectedFilter === "sale" ||
+                        selectedFilter === "rent" ||
+                        selectedFilter === "customize"
+                    ) {
+
+                        filterMatches =
+                            types.split(" ")
+                                .includes(selectedFilter);
+
+                    }
+                    else if (
+                        selectedFilter === "paid" ||
+                        selectedFilter === "unpaid"
+                    ) {
+
+                        filterMatches =
+                            payment === selectedFilter;
+
+                    }
+                    else if (
+                        selectedFilter === "delivery-assigned" ||
+                        selectedFilter === "delivery-unassigned"
+                    ) {
+
+                        filterMatches =
+                            delivery === selectedFilter;
+
+                    }
+
+
+                    const searchMatches =
+                        searchText === "" ||
+                        searchData.includes(searchText);
+
+
+                    if (filterMatches && searchMatches) {
+
+                        row.style.display = "";
+
+                        visibleCount++;
+
+                    }
+                    else {
+
+                        row.style.display = "none";
+
+                    }
+
+                });
+
+
+                visibleOrderCount.textContent =
+                    visibleCount;
+
+                filterCount.textContent =
+                    visibleCount;
+
+
+                noResults.style.display =
+                    visibleCount === 0
+                        ? "block"
+                        : "none";
+
+            }
+
+
+            filterCards.forEach(function (card) {
+
+                card.addEventListener("click", function () {
+
+                    filterCards.forEach(function (item) {
+
+                        item.classList.remove("active");
+
+                    });
+
+
+                    this.classList.add("active");
+
+
+                    selectedFilter =
+                        this.dataset.filter || "all";
+
+
+                    currentFilter.textContent =
+                        this.dataset.label || "All Orders";
+
+
+                    applyFilter();
+
+                    document.querySelector(".orders-box")
+                        .scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                });
+
+            });
+
+
+            searchInput.addEventListener(
+                "input",
+                function () {
+
+                    applyFilter();
+
+                });
+
+
+            clearFilter.addEventListener(
+                "click",
+                function () {
+
+                    selectedFilter = "all";
+
+                    searchInput.value = "";
+
+                    currentFilter.textContent =
+                        "All Orders";
+
+
+                    filterCards.forEach(function (item) {
+
+                        item.classList.remove("active");
+
+                    });
+
+
+                    const firstCard =
+                        document.querySelector(
+                            '.filter-card[data-filter="all"]');
+
+                    if (firstCard) {
+
+                        firstCard.classList.add("active");
+
+                    }
+
+
+                    applyFilter();
+
+                });
+
+
+            applyFilter();
+
+        });
+
+    </script>
 
 </body>
 
