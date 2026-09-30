@@ -74,11 +74,7 @@ namespace WeddingClosetHubs.Controllers
             string? MotorbikeNumber,
             string? PreferredZone)
         {
-            if (!ModelState.IsValid)
-            {
-                await LoadRoles();
-                return View(user);
-            }
+
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
@@ -188,12 +184,10 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-            // ============================================================
-            // EMAIL DUPLICATE CHECK
-            // ============================================================
 
             if (!string.IsNullOrWhiteSpace(user.Email) &&
-                !ModelState.ContainsKey("Email"))
+               ModelState["Email"]?.Errors.Count == 0)
+
             {
                 string normalizedEmail =
                     user.Email.Trim().ToLowerInvariant();
@@ -430,9 +424,24 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(ShopDescription))
+                if (string.IsNullOrWhiteSpace(ShopDescription))
+                {
+                    ModelState.AddModelError(
+                        "ShopDescription",
+                        "Shop description is required."
+                    );
+                }
+                else
                 {
                     ShopDescription = ShopDescription.Trim();
+
+                    if (ShopDescription.Length < 10)
+                    {
+                        ModelState.AddModelError(
+                            "ShopDescription",
+                            "Shop description must contain at least 10 characters."
+                        );
+                    }
 
                     if (ShopDescription.Length > 1000)
                     {
@@ -442,6 +451,7 @@ namespace WeddingClosetHubs.Controllers
                         );
                     }
                 }
+
 
                 if (!IsAllowedImage(ShopFrontPhoto))
                 {
