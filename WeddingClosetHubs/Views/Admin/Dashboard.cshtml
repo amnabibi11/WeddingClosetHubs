@@ -787,15 +787,16 @@
 
                             <h2 class="fw-bold text-success">
 
-                                @(ViewBag.TotalReviews ?? 0)
+                                @(ViewBag.UnreadFeedback ?? 0)
 
                             </h2>
 
                             <p class="text-muted mb-3">
 
-                                Customer reviews
+                                Unread customer feedback
 
                             </p>
+
 
                             <a asp-controller="Admin"
                                asp-action="Feedback"

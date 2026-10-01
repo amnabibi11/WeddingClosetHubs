@@ -16,13 +16,6 @@ namespace WeddingClosetHubs.Controllers
             _context = context;
         }
 
-        private string NormalizeCNIC(string cnic)
-        {
-            return cnic
-                .Trim()
-                .Replace(" ", "");
-        }
-
         private const long MaxImageSize = 5 * 1024 * 1024;
 
         private static readonly string[] AllowedImageExtensions =
@@ -39,7 +32,6 @@ namespace WeddingClosetHubs.Controllers
             "Liaqat Bagh"
         };
 
-        // Allowed email domains
         private static readonly string[] AllowedEmailDomains =
         {
             "gmail.com",
@@ -47,6 +39,14 @@ namespace WeddingClosetHubs.Controllers
             "hotmail.com",
             "outlook.com"
         };
+
+        private string NormalizeCNIC(string cnic)
+        {
+            return cnic
+                .Trim()
+                .Replace(" ", "")
+                .Replace("-", "");
+        }
 
         [HttpGet]
         public async Task<IActionResult> Register()
@@ -74,11 +74,16 @@ namespace WeddingClosetHubs.Controllers
             string? MotorbikeNumber,
             string? PreferredZone)
         {
+          
+            ModelState.Clear();
 
+          
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
-                ModelState.AddModelError("Name", "Name is required.");
+                ModelState.AddModelError(
+                    "Name",
+                    "Name is required.");
             }
             else
             {
@@ -88,53 +93,43 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "Name",
-                        "Name must contain at least 3 characters."
-                    );
+                        "Name must contain at least 3 characters.");
                 }
 
                 if (user.Name.Length > 100)
                 {
                     ModelState.AddModelError(
                         "Name",
-                        "Name cannot exceed 100 characters."
-                    );
+                        "Name cannot exceed 100 characters.");
                 }
 
                 if (!Regex.IsMatch(user.Name, @"^[A-Za-z ]+$"))
                 {
                     ModelState.AddModelError(
                         "Name",
-                        "Name can contain letters and spaces only."
-                    );
+                        "Name can contain letters and spaces only.");
                 }
             }
 
-            // ============================================================
-            // EMAIL VALIDATION
-            // ============================================================
 
             if (string.IsNullOrWhiteSpace(user.Email))
             {
                 ModelState.AddModelError(
                     "Email",
-                    "Email is required."
-                );
+                    "Email is required.");
             }
             else
             {
                 user.Email = user.Email.Trim().ToLowerInvariant();
 
-                // Basic email format validation
                 if (!new EmailAddressAttribute().IsValid(user.Email))
                 {
                     ModelState.AddModelError(
                         "Email",
-                        "Please enter a valid email address."
-                    );
+                        "Please enter a valid email address.");
                 }
                 else
                 {
-                    // Split email into local part and domain
                     string[] emailParts =
                         user.Email.Split('@');
 
@@ -142,52 +137,43 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "Email",
-                            "Please enter a valid email address."
-                        );
+                            "Please enter a valid email address.");
                     }
                     else
                     {
                         string emailName = emailParts[0];
                         string emailDomain = emailParts[1];
 
-                        // Email name before @ must not be empty
                         if (string.IsNullOrWhiteSpace(emailName))
                         {
                             ModelState.AddModelError(
                                 "Email",
-                                "Please enter a valid email address."
-                            );
+                                "Please enter a valid email address.");
                         }
 
-                        // Domain must be one of the allowed domains
                         if (!AllowedEmailDomains.Contains(
                             emailDomain,
                             StringComparer.OrdinalIgnoreCase))
                         {
                             ModelState.AddModelError(
                                 "Email",
-                                "Please use a valid email domain such as gmail.com, yahoo.com, hotmail.com or outlook.com."
-                            );
+                                "Please use a valid email domain such as gmail.com, yahoo.com, hotmail.com or outlook.com.");
                         }
 
-                        // Extra validation for the part before @
                         if (!Regex.IsMatch(
                             emailName,
                             @"^[a-zA-Z0-9._%+-]+$"))
                         {
                             ModelState.AddModelError(
                                 "Email",
-                                "Email address contains invalid characters."
-                            );
+                                "Email address contains invalid characters.");
                         }
                     }
                 }
             }
 
-
             if (!string.IsNullOrWhiteSpace(user.Email) &&
-               ModelState["Email"]?.Errors.Count == 0)
-
+                ModelState["Email"]?.Errors.Count == 0)
             {
                 string normalizedEmail =
                     user.Email.Trim().ToLowerInvariant();
@@ -195,24 +181,22 @@ namespace WeddingClosetHubs.Controllers
                 bool emailExists =
                     await _context.Users.AnyAsync(u =>
                         u.Email != null &&
-                        u.Email.ToLower() == normalizedEmail
-                    );
+                        u.Email.ToLower() == normalizedEmail);
 
                 if (emailExists)
                 {
                     ModelState.AddModelError(
                         "Email",
-                        "This email is already registered."
-                    );
+                        "This email is already registered.");
                 }
             }
+
 
             if (string.IsNullOrWhiteSpace(user.Phone))
             {
                 ModelState.AddModelError(
                     "Phone",
-                    "Phone number is required."
-                );
+                    "Phone number is required.");
             }
             else
             {
@@ -222,12 +206,12 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "Phone",
-                        "Please enter a valid Pakistani mobile number."
-                    );
+                        "Please enter a valid Pakistani mobile number.");
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Phone))
+            if (!string.IsNullOrWhiteSpace(user.Phone) &&
+                IsPakistaniPhone(user.Phone))
             {
                 string normalizedPhone =
                     NormalizePhone(user.Phone);
@@ -235,24 +219,22 @@ namespace WeddingClosetHubs.Controllers
                 bool phoneExists =
                     await _context.Users.AnyAsync(u =>
                         u.Phone != null &&
-                        u.Phone == normalizedPhone
-                    );
+                        u.Phone == normalizedPhone);
 
                 if (phoneExists)
                 {
                     ModelState.AddModelError(
                         "Phone",
-                        "This phone number is already registered."
-                    );
+                        "This phone number is already registered.");
                 }
             }
 
+          
             if (string.IsNullOrWhiteSpace(user.Address))
             {
                 ModelState.AddModelError(
                     "Address",
-                    "Address is required."
-                );
+                    "Address is required.");
             }
             else
             {
@@ -262,20 +244,32 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "Address",
-                        "Please enter an address in Rawalpindi."
-                    );
+                        "Please enter an address in Rawalpindi.");
                 }
             }
 
+          
+      
+
+            if (!user.RoleId.HasValue)
+            {
+                ModelState.AddModelError(
+                    "RoleId",
+                    "Please select an account type.");
+
+                await LoadRoles();
+                return View(user);
+            }
+
             var role = await _context.Roles
-                .FirstOrDefaultAsync(r => r.RoleId == user.RoleId);
+                .FirstOrDefaultAsync(r =>
+                    r.RoleId == user.RoleId.Value);
 
             if (role == null)
             {
                 ModelState.AddModelError(
                     "RoleId",
-                    "Please select a valid account type."
-                );
+                    "Please select a valid account type.");
 
                 await LoadRoles();
                 return View(user);
@@ -285,19 +279,19 @@ namespace WeddingClosetHubs.Controllers
             {
                 ModelState.AddModelError(
                     "RoleId",
-                    "Admin account cannot be created through public registration."
-                );
+                    "Admin account cannot be created through public registration.");
 
                 await LoadRoles();
                 return View(user);
             }
 
+           
+
             if (string.IsNullOrWhiteSpace(user.Password))
             {
                 ModelState.AddModelError(
                     "Password",
-                    "Password is required."
-                );
+                    "Password is required.");
             }
             else
             {
@@ -305,34 +299,33 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "Password",
-                        "Password must contain at least 8 characters."
-                    );
+                        "Password must contain at least 8 characters.");
                 }
 
                 if (!Regex.IsMatch(user.Password, @"[A-Z]"))
                 {
                     ModelState.AddModelError(
                         "Password",
-                        "Password must contain at least one uppercase letter."
-                    );
+                        "Password must contain at least one uppercase letter.");
                 }
 
                 if (!Regex.IsMatch(user.Password, @"[a-z]"))
                 {
                     ModelState.AddModelError(
                         "Password",
-                        "Password must contain at least one lowercase letter."
-                    );
+                        "Password must contain at least one lowercase letter.");
                 }
 
                 if (!Regex.IsMatch(user.Password, @"\d"))
                 {
                     ModelState.AddModelError(
                         "Password",
-                        "Password must contain at least one number."
-                    );
+                        "Password must contain at least one number.");
                 }
             }
+
+         
+           
 
             if (role.RoleName == "Shopkeeper")
             {
@@ -340,8 +333,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "ShopName",
-                        "Shop name is required."
-                    );
+                        "Shop name is required.");
                 }
                 else
                 {
@@ -351,16 +343,14 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopName",
-                            "Shop name must contain at least 3 characters."
-                        );
+                            "Shop name must contain at least 3 characters.");
                     }
 
                     if (ShopName.Length > 100)
                     {
                         ModelState.AddModelError(
                             "ShopName",
-                            "Shop name cannot exceed 100 characters."
-                        );
+                            "Shop name cannot exceed 100 characters.");
                     }
                 }
 
@@ -368,8 +358,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "ShopCategory",
-                        "Shop category is required."
-                    );
+                        "Shop category is required.");
                 }
                 else
                 {
@@ -379,8 +368,7 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopCategory",
-                            "Shop category cannot exceed 100 characters."
-                        );
+                            "Shop category cannot exceed 100 characters.");
                     }
                 }
 
@@ -388,8 +376,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "ShopPhone",
-                        "Shop phone is required."
-                    );
+                        "Shop phone is required.");
                 }
                 else
                 {
@@ -399,8 +386,7 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopPhone",
-                            "Please enter a valid Pakistani mobile number."
-                        );
+                            "Please enter a valid Pakistani mobile number.");
                     }
                 }
 
@@ -408,8 +394,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "ShopAddress",
-                        "Shop address is required."
-                    );
+                        "Shop address is required.");
                 }
                 else
                 {
@@ -419,8 +404,7 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopAddress",
-                            "Please enter a shop address in Rawalpindi."
-                        );
+                            "Please enter a shop address in Rawalpindi.");
                     }
                 }
 
@@ -428,8 +412,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "ShopDescription",
-                        "Shop description is required."
-                    );
+                        "Shop description is required.");
                 }
                 else
                 {
@@ -439,44 +422,40 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "ShopDescription",
-                            "Shop description must contain at least 10 characters."
-                        );
+                            "Shop description must contain at least 10 characters.");
                     }
 
                     if (ShopDescription.Length > 1000)
                     {
                         ModelState.AddModelError(
                             "ShopDescription",
-                            "Shop description cannot exceed 1000 characters."
-                        );
+                            "Shop description cannot exceed 1000 characters.");
                     }
                 }
-
 
                 if (!IsAllowedImage(ShopFrontPhoto))
                 {
                     ModelState.AddModelError(
                         "ShopFrontPhoto",
-                        "Shop front photo must be JPG, JPEG or PNG and maximum 5 MB."
-                    );
+                        "Shop front photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
                 if (!IsAllowedImage(ShopInsidePhoto))
                 {
                     ModelState.AddModelError(
                         "ShopInsidePhoto",
-                        "Shop inside photo must be JPG, JPEG or PNG and maximum 5 MB."
-                    );
+                        "Shop inside photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
                 if (!IsAllowedImage(ShopSignboardPhoto))
                 {
                     ModelState.AddModelError(
                         "ShopSignboardPhoto",
-                        "Shop signboard photo must be JPG, JPEG or PNG and maximum 5 MB."
-                    );
+                        "Shop signboard photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
             }
+
+      
 
             if (role.RoleName == "Delivery")
             {
@@ -484,8 +463,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "CNIC",
-                        "CNIC is required."
-                    );
+                        "CNIC is required.");
                 }
                 else
                 {
@@ -495,26 +473,29 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "CNIC",
-                            "CNIC must be in the format 35202-1234567-1."
-                        );
+                            "CNIC must be in the format 35202-1234567-1.");
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(CNIC) && IsValidCNIC(CNIC))
+                if (!string.IsNullOrWhiteSpace(CNIC) &&
+                    IsValidCNIC(CNIC))
                 {
-                    string normalizedCNIC = NormalizeCNIC(CNIC);
+                    string normalizedCNIC =
+                        NormalizeCNIC(CNIC);
 
                     bool cnicExists =
                         await _context.DeliveryBoys.AnyAsync(d =>
-                            d.CNIC == normalizedCNIC
-                        );
+                            d.CNIC != null &&
+                            d.CNIC
+                                .Replace("-", "")
+                                .Replace(" ", "") ==
+                            normalizedCNIC);
 
                     if (cnicExists)
                     {
                         ModelState.AddModelError(
                             "CNIC",
-                            "This CNIC is already registered."
-                        );
+                            "This CNIC is already registered.");
                     }
                 }
 
@@ -522,24 +503,21 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "CNICFrontImage",
-                        "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB."
-                    );
+                        "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
                 if (!IsAllowedImage(CNICBackImage))
                 {
                     ModelState.AddModelError(
                         "CNICBackImage",
-                        "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB."
-                    );
+                        "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
                 if (string.IsNullOrWhiteSpace(VehicleType))
                 {
                     ModelState.AddModelError(
                         "VehicleType",
-                        "Vehicle type is required."
-                    );
+                        "Vehicle type is required.");
                 }
                 else if (!string.Equals(
                     VehicleType.Trim(),
@@ -548,16 +526,14 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "VehicleType",
-                        "Only Motorbike is allowed for delivery."
-                    );
+                        "Only Motorbike is allowed for delivery.");
                 }
 
                 if (string.IsNullOrWhiteSpace(MotorbikeNumber))
                 {
                     ModelState.AddModelError(
                         "MotorbikeNumber",
-                        "Motorbike registration number is required."
-                    );
+                        "Motorbike registration number is required.");
                 }
                 else
                 {
@@ -568,16 +544,14 @@ namespace WeddingClosetHubs.Controllers
                     {
                         ModelState.AddModelError(
                             "MotorbikeNumber",
-                            "Please enter a valid motorbike registration number."
-                        );
+                            "Please enter a valid motorbike registration number.");
                     }
 
                     if (MotorbikeNumber.Length > 30)
                     {
                         ModelState.AddModelError(
                             "MotorbikeNumber",
-                            "Motorbike registration number is too long."
-                        );
+                            "Motorbike registration number is too long.");
                     }
                 }
 
@@ -589,15 +563,14 @@ namespace WeddingClosetHubs.Controllers
                     bool motorbikeExists =
                         await _context.DeliveryBoys.AnyAsync(d =>
                             d.MotorbikeNumber != null &&
-                            d.MotorbikeNumber.ToUpper() == normalizedMotorbike
-                        );
+                            d.MotorbikeNumber.ToUpper() ==
+                            normalizedMotorbike);
 
                     if (motorbikeExists)
                     {
                         ModelState.AddModelError(
                             "MotorbikeNumber",
-                            "This motorbike registration number is already registered."
-                        );
+                            "This motorbike registration number is already registered.");
                     }
                 }
 
@@ -605,8 +578,7 @@ namespace WeddingClosetHubs.Controllers
                 {
                     ModelState.AddModelError(
                         "PreferredZone",
-                        "Preferred delivery zone is required."
-                    );
+                        "Preferred delivery zone is required.");
                 }
                 else
                 {
@@ -617,42 +589,43 @@ namespace WeddingClosetHubs.Controllers
                             string.Equals(
                                 z,
                                 PreferredZone,
-                                StringComparison.OrdinalIgnoreCase
-                            )
-                        );
+                                StringComparison.OrdinalIgnoreCase));
 
                     if (!validZone)
                     {
                         ModelState.AddModelError(
                             "PreferredZone",
-                            "Please select a valid Rawalpindi delivery zone."
-                        );
+                            "Please select a valid Rawalpindi delivery zone.");
                     }
                 }
             }
 
+         
+
             if (!ModelState.IsValid)
             {
-                foreach (var item in ModelState)
-                {
-                    foreach (var error in item.Value.Errors)
-                    {
-                        Console.WriteLine(
-                            $"FIELD: {item.Key} | ERROR: {error.ErrorMessage}"
-                        );
-                    }
-                }
-
                 await LoadRoles();
                 return View(user);
             }
 
-            user.Email = user.Email!.Trim().ToLowerInvariant();
-            user.Name = user.Name!.Trim();
-            user.Phone = NormalizePhone(user.Phone!);
-            user.Address = user.Address!.Trim();
+          
+
+            user.Email =
+                user.Email!.Trim().ToLowerInvariant();
+
+            user.Name =
+                user.Name!.Trim();
+
+            user.Phone =
+                NormalizePhone(user.Phone!);
+
+            user.Address =
+                user.Address!.Trim();
+
             user.Status = true;
             user.CreatedDate = DateTime.Now;
+
+          
 
             if (role.RoleName == "Customer")
             {
@@ -665,69 +638,97 @@ namespace WeddingClosetHubs.Controllers
                 user.ApprovedDate = null;
             }
 
+   
+
             using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
+          
+
                 _context.Users.Add(user);
+
                 await _context.SaveChangesAsync();
+
+               
 
                 if (role.RoleName == "Shopkeeper")
                 {
-                    string shopFolder = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        "uploads",
-                        "shops"
-                    );
+                    string shopFolder =
+                        Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            "uploads",
+                            "shops");
 
                     if (!Directory.Exists(shopFolder))
                     {
                         Directory.CreateDirectory(shopFolder);
                     }
 
-                    string frontFileName =
-                        Guid.NewGuid().ToString() +
-                        Path.GetExtension(ShopFrontPhoto!.FileName)
+                    string frontExtension =
+                        Path.GetExtension(
+                            ShopFrontPhoto!.FileName)
                             .ToLowerInvariant();
 
-                    string frontFilePath =
-                        Path.Combine(shopFolder, frontFileName);
+                    string frontFileName =
+                        Guid.NewGuid().ToString() +
+                        frontExtension;
 
-                    using (var stream = new FileStream(
-                        frontFilePath,
-                        FileMode.Create))
+                    string frontFilePath =
+                        Path.Combine(
+                            shopFolder,
+                            frontFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            frontFilePath,
+                            FileMode.Create))
                     {
                         await ShopFrontPhoto.CopyToAsync(stream);
                     }
 
-                    string insideFileName =
-                        Guid.NewGuid().ToString() +
-                        Path.GetExtension(ShopInsidePhoto!.FileName)
+                    string insideExtension =
+                        Path.GetExtension(
+                            ShopInsidePhoto!.FileName)
                             .ToLowerInvariant();
 
-                    string insideFilePath =
-                        Path.Combine(shopFolder, insideFileName);
+                    string insideFileName =
+                        Guid.NewGuid().ToString() +
+                        insideExtension;
 
-                    using (var stream = new FileStream(
-                        insideFilePath,
-                        FileMode.Create))
+                    string insideFilePath =
+                        Path.Combine(
+                            shopFolder,
+                            insideFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            insideFilePath,
+                            FileMode.Create))
                     {
                         await ShopInsidePhoto.CopyToAsync(stream);
                     }
 
-                    string signboardFileName =
-                        Guid.NewGuid().ToString() +
-                        Path.GetExtension(ShopSignboardPhoto!.FileName)
+                    string signboardExtension =
+                        Path.GetExtension(
+                            ShopSignboardPhoto!.FileName)
                             .ToLowerInvariant();
 
-                    string signboardFilePath =
-                        Path.Combine(shopFolder, signboardFileName);
+                    string signboardFileName =
+                        Guid.NewGuid().ToString() +
+                        signboardExtension;
 
-                    using (var stream = new FileStream(
-                        signboardFilePath,
-                        FileMode.Create))
+                    string signboardFilePath =
+                        Path.Combine(
+                            shopFolder,
+                            signboardFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            signboardFilePath,
+                            FileMode.Create))
                     {
                         await ShopSignboardPhoto.CopyToAsync(stream);
                     }
@@ -735,66 +736,105 @@ namespace WeddingClosetHubs.Controllers
                     var shop = new Shop
                     {
                         ShopkeeperId = user.UserId,
-                        ShopName = ShopName!.Trim(),
-                        ShopCategory = ShopCategory!.Trim(),
-                        ShopPhone = NormalizePhone(ShopPhone!),
-                        ShopAddress = ShopAddress!.Trim(),
+
+                        ShopName =
+                            ShopName!.Trim(),
+
+                        ShopCategory =
+                            ShopCategory!.Trim(),
+
+                        ShopPhone =
+                            NormalizePhone(ShopPhone!),
+
+                        ShopAddress =
+                            ShopAddress!.Trim(),
+
                         ShopDescription =
-                            string.IsNullOrWhiteSpace(ShopDescription)
+                            string.IsNullOrWhiteSpace(
+                                ShopDescription)
                                 ? null
                                 : ShopDescription.Trim(),
-                        ShopFrontPhoto = "/uploads/shops/" + frontFileName,
-                        ShopInsidePhoto = "/uploads/shops/" + insideFileName,
-                        ShopSignboardPhoto = "/uploads/shops/" + signboardFileName,
+
+                        ShopFrontPhoto =
+                            "/uploads/shops/" +
+                            frontFileName,
+
+                        ShopInsidePhoto =
+                            "/uploads/shops/" +
+                            insideFileName,
+
+                        ShopSignboardPhoto =
+                            "/uploads/shops/" +
+                            signboardFileName,
+
                         IsApproved = false,
+
                         Status = false,
+
                         ApprovedDate = null
                     };
 
                     _context.Shops.Add(shop);
+
                     await _context.SaveChangesAsync();
                 }
 
+               
+
                 if (role.RoleName == "Delivery")
                 {
-                    string uploadFolder = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        "uploads",
-                        "cnic"
-                    );
+                    string uploadFolder =
+                        Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            "uploads",
+                            "cnic");
 
                     if (!Directory.Exists(uploadFolder))
                     {
                         Directory.CreateDirectory(uploadFolder);
                     }
 
-                    string frontFileName =
-                        Guid.NewGuid().ToString() +
-                        Path.GetExtension(CNICFrontImage!.FileName)
+                    string frontExtension =
+                        Path.GetExtension(
+                            CNICFrontImage!.FileName)
                             .ToLowerInvariant();
 
-                    string frontFilePath =
-                        Path.Combine(uploadFolder, frontFileName);
+                    string frontFileName =
+                        Guid.NewGuid().ToString() +
+                        frontExtension;
 
-                    using (var stream = new FileStream(
-                        frontFilePath,
-                        FileMode.Create))
+                    string frontFilePath =
+                        Path.Combine(
+                            uploadFolder,
+                            frontFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            frontFilePath,
+                            FileMode.Create))
                     {
                         await CNICFrontImage.CopyToAsync(stream);
                     }
 
-                    string backFileName =
-                        Guid.NewGuid().ToString() +
-                        Path.GetExtension(CNICBackImage!.FileName)
+                    string backExtension =
+                        Path.GetExtension(
+                            CNICBackImage!.FileName)
                             .ToLowerInvariant();
 
-                    string backFilePath =
-                        Path.Combine(uploadFolder, backFileName);
+                    string backFileName =
+                        Guid.NewGuid().ToString() +
+                        backExtension;
 
-                    using (var stream = new FileStream(
-                        backFilePath,
-                        FileMode.Create))
+                    string backFilePath =
+                        Path.Combine(
+                            uploadFolder,
+                            backFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            backFilePath,
+                            FileMode.Create))
                     {
                         await CNICBackImage.CopyToAsync(stream);
                     }
@@ -802,21 +842,43 @@ namespace WeddingClosetHubs.Controllers
                     var deliveryBoy = new DeliveryBoy
                     {
                         UserId = user.UserId,
-                        CNIC = CNIC!.Trim(),
+
+                        CNIC =
+                            CNIC!.Trim(),
+
                         MotorbikeNumber =
-                            MotorbikeNumber!.Trim().ToUpperInvariant(),
-                        PreferredZone = PreferredZone!.Trim(),
-                        CNICFrontImage = "/uploads/cnic/" + frontFileName,
-                        CNICBackImage = "/uploads/cnic/" + backFileName,
+                            MotorbikeNumber!
+                                .Trim()
+                                .ToUpperInvariant(),
+
+                        PreferredZone =
+                            PreferredZone!.Trim(),
+
+                        CNICFrontImage =
+                            "/uploads/cnic/" +
+                            frontFileName,
+
+                        CNICBackImage =
+                            "/uploads/cnic/" +
+                            backFileName,
+
                         AssignedZone = null,
-                        VerificationStatus = "Pending",
+
+                        VerificationStatus =
+                            "Pending",
+
                         AdminNotes = null,
+
                         RejectionReason = null,
+
                         ApprovedDate = null,
+
                         CreatedDate = DateTime.Now
                     };
 
-                    _context.DeliveryBoys.Add(deliveryBoy);
+                    _context.DeliveryBoys.Add(
+                        deliveryBoy);
+
                     await _context.SaveChangesAsync();
                 }
 
@@ -829,12 +891,15 @@ namespace WeddingClosetHubs.Controllers
                 ModelState.AddModelError(
                     "",
                     "Registration failed: " +
-                    (ex.InnerException?.Message ?? ex.Message)
-                );
+                    (ex.InnerException?.Message ??
+                     ex.Message));
 
                 await LoadRoles();
+
                 return View(user);
             }
+
+          
 
             if (role.RoleName == "Customer")
             {
@@ -855,6 +920,8 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Login");
         }
 
+       
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -870,23 +937,30 @@ namespace WeddingClosetHubs.Controllers
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error = "Please enter your email.";
+                ViewBag.Error =
+                    "Please enter your email.";
+
                 return View();
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error = "Please enter your password.";
+                ViewBag.Error =
+                    "Please enter your password.";
+
                 return View();
             }
 
             if (string.IsNullOrWhiteSpace(roleName))
             {
-                ViewBag.Error = "Please select an account type.";
+                ViewBag.Error =
+                    "Please select an account type.";
+
                 return View();
             }
 
-            email = email.Trim().ToLowerInvariant();
+            email =
+                email.Trim().ToLowerInvariant();
 
             var user = await _context.Users
                 .Include(u => u.Role)
@@ -896,8 +970,7 @@ namespace WeddingClosetHubs.Controllers
                     u.Password == password &&
                     u.Status == true &&
                     u.Role != null &&
-                    u.Role.RoleName == roleName
-                );
+                    u.Role.RoleName == roleName);
 
             if (user == null)
             {
@@ -931,47 +1004,65 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("UserName", user.Name ?? "");
+            HttpContext.Session.SetInt32(
+                "UserId",
+                user.UserId);
+
+            HttpContext.Session.SetString(
+                "UserName",
+                user.Name ?? "");
 
             if (user.Role!.RoleName == "Customer")
             {
-                HttpContext.Session.SetInt32("CustomerId", user.UserId);
+                HttpContext.Session.SetInt32(
+                    "CustomerId",
+                    user.UserId);
             }
 
             if (user.RoleId.HasValue)
             {
                 HttpContext.Session.SetInt32(
                     "RoleId",
-                    user.RoleId.Value
-                );
+                    user.RoleId.Value);
             }
 
             HttpContext.Session.SetString(
                 "RoleName",
-                user.Role!.RoleName
-            );
+                user.Role!.RoleName);
 
             switch (user.Role.RoleName)
             {
                 case "Admin":
-                    return RedirectToAction("Dashboard", "Admin");
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Admin");
 
                 case "Shopkeeper":
-                    return RedirectToAction("Dashboard", "Shopkeeper");
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Shopkeeper");
 
                 case "Customer":
-                    return RedirectToAction("Dashboard", "Customer");
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Customer");
 
                 case "Delivery":
-                    return RedirectToAction("Dashboard", "Delivery");
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Delivery");
 
                 default:
                     HttpContext.Session.Clear();
-                    ViewBag.Error = "Invalid account type.";
+
+                    ViewBag.Error =
+                        "Invalid account type.";
+
                     return View();
             }
         }
+
+       
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -981,21 +1072,24 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword(
+            string email)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error = "Please enter your email address.";
+                ViewBag.Error =
+                    "Please enter your email address.";
+
                 return View();
             }
 
-            email = email.Trim().ToLowerInvariant();
+            email =
+                email.Trim().ToLowerInvariant();
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(u =>
                     u.Email != null &&
-                    u.Email.ToLower() == email
-                );
+                    u.Email.ToLower() == email);
 
             if (user == null)
             {
@@ -1007,24 +1101,32 @@ namespace WeddingClosetHubs.Controllers
 
             if (!user.Status)
             {
-                ViewBag.Error = "This account is currently disabled.";
+                ViewBag.Error =
+                    "This account is currently disabled.";
+
                 return View();
             }
 
-            TempData["ResetUserId"] = user.UserId;
+            TempData["ResetUserId"] =
+                user.UserId;
 
-            return RedirectToAction("ResetPassword");
+            return RedirectToAction(
+                "ResetPassword");
         }
+
+     
 
         [HttpGet]
         public IActionResult ResetPassword()
         {
             if (TempData["ResetUserId"] == null)
             {
-                return RedirectToAction("ForgotPassword");
+                return RedirectToAction(
+                    "ForgotPassword");
             }
 
             TempData.Keep("ResetUserId");
+
             return View();
         }
 
@@ -1036,15 +1138,21 @@ namespace WeddingClosetHubs.Controllers
         {
             if (TempData["ResetUserId"] == null)
             {
-                return RedirectToAction("ForgotPassword");
+                return RedirectToAction(
+                    "ForgotPassword");
             }
 
-            int userId = Convert.ToInt32(TempData["ResetUserId"]);
+            int userId =
+                Convert.ToInt32(
+                    TempData["ResetUserId"]);
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error = "Please enter a new password.";
+                ViewBag.Error =
+                    "Please enter a new password.";
+
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
@@ -1054,33 +1162,43 @@ namespace WeddingClosetHubs.Controllers
                     "Password must contain at least 8 characters.";
 
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
-            if (!Regex.IsMatch(password, @"[A-Z]"))
+            if (!Regex.IsMatch(
+                password,
+                @"[A-Z]"))
             {
                 ViewBag.Error =
                     "Password must contain at least one uppercase letter.";
 
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
-            if (!Regex.IsMatch(password, @"[a-z]"))
+            if (!Regex.IsMatch(
+                password,
+                @"[a-z]"))
             {
                 ViewBag.Error =
                     "Password must contain at least one lowercase letter.";
 
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
-            if (!Regex.IsMatch(password, @"\d"))
+            if (!Regex.IsMatch(
+                password,
+                @"\d"))
             {
                 ViewBag.Error =
                     "Password must contain at least one number.";
 
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
@@ -1090,96 +1208,121 @@ namespace WeddingClosetHubs.Controllers
                     "Password and confirm password do not match.";
 
                 TempData.Keep("ResetUserId");
+
                 return View();
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+                .FirstOrDefaultAsync(
+                    u => u.UserId == userId);
 
             if (user == null)
             {
-                ViewBag.Error = "User account could not be found.";
+                ViewBag.Error =
+                    "User account could not be found.";
+
                 return View();
             }
 
-            user.Password = password;
+            user.Password =
+                password;
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
                 "Your password has been reset successfully. You can now login.";
 
-            return RedirectToAction("Login");
+            return RedirectToAction(
+                "Login");
         }
+
+       
 
         [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Login");
+
+            return RedirectToAction(
+                "Login");
         }
 
-        private bool IsPakistaniPhone(string? phone)
+        
+
+        private bool IsPakistaniPhone(
+            string? phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
                 return false;
 
-            phone = phone.Trim();
+            phone =
+                phone.Trim();
 
             return Regex.IsMatch(
                 phone,
-                @"^(03\d{2}-?\d{7}|(\+92|0092)-?3\d{2}-?\d{7})$"
-            );
+                @"^(03\d{2}-?\d{7}|(\+92|0092)-?3\d{2}-?\d{7})$");
         }
 
-        private string NormalizePhone(string phone)
+        private string NormalizePhone(
+            string phone)
         {
-            phone = phone.Trim();
-
-            phone = phone
-                .Replace(" ", "")
-                .Replace("-", "");
+            phone =
+                phone.Trim()
+                    .Replace(" ", "")
+                    .Replace("-", "");
 
             if (phone.StartsWith("+92"))
             {
-                phone = "0" + phone.Substring(3);
+                phone =
+                    "0" +
+                    phone.Substring(3);
             }
 
             if (phone.StartsWith("0092"))
             {
-                phone = "0" + phone.Substring(4);
+                phone =
+                    "0" +
+                    phone.Substring(4);
             }
 
             return phone;
         }
 
-        private bool IsValidCNIC(string? cnic)
+
+        private bool IsValidCNIC(
+            string? cnic)
         {
             if (string.IsNullOrWhiteSpace(cnic))
                 return false;
 
-            cnic = cnic.Trim();
+            cnic =
+                cnic.Trim();
 
             return Regex.IsMatch(
                 cnic,
-                @"^\d{5}-\d{7}-\d$"
-            );
+                @"^\d{5}-\d{7}-\d$");
         }
 
-        private bool IsRawalpindiAddress(string? address)
+        
+
+        private bool IsRawalpindiAddress(
+            string? address)
         {
             if (string.IsNullOrWhiteSpace(address))
                 return false;
 
             return address.Contains(
                 "Rawalpindi",
-                StringComparison.OrdinalIgnoreCase
-            );
+                StringComparison.OrdinalIgnoreCase);
         }
 
-        private bool IsAllowedImage(IFormFile? file)
+     
+
+        private bool IsAllowedImage(
+            IFormFile? file)
         {
-            if (file == null || file.Length == 0)
+            if (file == null ||
+                file.Length == 0)
             {
                 return false;
             }
@@ -1190,15 +1333,19 @@ namespace WeddingClosetHubs.Controllers
             }
 
             string extension =
-                Path.GetExtension(file.FileName).ToLowerInvariant();
+                Path.GetExtension(
+                    file.FileName)
+                    .ToLowerInvariant();
 
-            if (!AllowedImageExtensions.Contains(extension))
+            if (!AllowedImageExtensions.Contains(
+                extension))
             {
                 return false;
             }
 
             string contentType =
-                file.ContentType?.ToLowerInvariant() ?? "";
+                file.ContentType?
+                    .ToLowerInvariant() ?? "";
 
             if (contentType != "image/jpeg" &&
                 contentType != "image/png")
@@ -1209,12 +1356,17 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
+       
         private async Task LoadRoles()
         {
-            ViewBag.Roles = await _context.Roles
-                .Where(r => r.RoleName != "Admin")
-                .OrderBy(r => r.RoleId)
-                .ToListAsync();
+            ViewBag.Roles =
+                await _context.Roles
+                    .Where(r =>
+                        r.RoleName != "Admin")
+                    .OrderBy(r =>
+                        r.RoleId)
+                    .ToListAsync();
         }
     }
 }
+
