@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using WeddingClosetHubs.Models;
 
 namespace WeddingClosetHubs.Controllers
@@ -25,6 +26,14 @@ namespace WeddingClosetHubs.Controllers
             ".png"
         };
 
+        private static readonly string[] AllowedProofExtensions =
+        {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".pdf"
+        };
+
         private static readonly string[] AllowedDeliveryZones =
         {
             "Saddar",
@@ -38,6 +47,13 @@ namespace WeddingClosetHubs.Controllers
             "yahoo.com",
             "hotmail.com",
             "outlook.com"
+        };
+
+        private static readonly string[] AllowedShopProofTypes =
+        {
+            "Utility Bill",
+            "Rental Agreement",
+            "Business Registration"
         };
 
         private string NormalizeCNIC(string cnic)
@@ -61,12 +77,15 @@ namespace WeddingClosetHubs.Controllers
             User user,
             string? ShopName,
             string? ShopCategory,
+            string[]? ShopCollections,
             string? ShopPhone,
             string? ShopAddress,
             string? ShopDescription,
             IFormFile? ShopFrontPhoto,
             IFormFile? ShopInsidePhoto,
             IFormFile? ShopSignboardPhoto,
+            string? ShopProofType,
+            IFormFile? ShopProofDocument,
             string? CNIC,
             IFormFile? CNICFrontImage,
             IFormFile? CNICBackImage,
@@ -74,10 +93,7 @@ namespace WeddingClosetHubs.Controllers
             string? MotorbikeNumber,
             string? PreferredZone)
         {
-          
             ModelState.Clear();
-
-          
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
@@ -110,7 +126,6 @@ namespace WeddingClosetHubs.Controllers
                         "Name can contain letters and spaces only.");
                 }
             }
-
 
             if (string.IsNullOrWhiteSpace(user.Email))
             {
@@ -191,7 +206,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Phone))
             {
                 ModelState.AddModelError(
@@ -229,7 +243,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-          
             if (string.IsNullOrWhiteSpace(user.Address))
             {
                 ModelState.AddModelError(
@@ -247,9 +260,6 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter an address in Rawalpindi.");
                 }
             }
-
-          
-      
 
             if (!user.RoleId.HasValue)
             {
@@ -284,8 +294,6 @@ namespace WeddingClosetHubs.Controllers
                 await LoadRoles();
                 return View(user);
             }
-
-           
 
             if (string.IsNullOrWhiteSpace(user.Password))
             {
@@ -324,11 +332,62 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-         
-           
-
             if (role.RoleName == "Shopkeeper")
             {
+                if (string.IsNullOrWhiteSpace(CNIC))
+                {
+                    ModelState.AddModelError(
+                        "CNIC",
+                        "CNIC is required.");
+                }
+                else
+                {
+                    CNIC = CNIC.Trim();
+
+                    if (!IsValidCNIC(CNIC))
+                    {
+                        ModelState.AddModelError(
+                            "CNIC",
+                            "CNIC must be in the format 35202-1234567-1.");
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(CNIC) &&
+                    IsValidCNIC(CNIC))
+                {
+                    string normalizedCNIC =
+                        NormalizeCNIC(CNIC);
+
+                    bool cnicExists =
+                        await _context.Users.AnyAsync(u =>
+                            u.CNIC != null &&
+                            u.CNIC
+                                .Replace("-", "")
+                                .Replace(" ", "") ==
+                            normalizedCNIC);
+
+                    if (cnicExists)
+                    {
+                        ModelState.AddModelError(
+                            "CNIC",
+                            "This CNIC is already registered.");
+                    }
+                }
+
+                if (!IsAllowedImage(CNICFrontImage))
+                {
+                    ModelState.AddModelError(
+                        "CNICFrontImage",
+                        "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
+                }
+
+                if (!IsAllowedImage(CNICBackImage))
+                {
+                    ModelState.AddModelError(
+                        "CNICBackImage",
+                        "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
+                }
+
                 if (string.IsNullOrWhiteSpace(ShopName))
                 {
                     ModelState.AddModelError(
@@ -369,6 +428,49 @@ namespace WeddingClosetHubs.Controllers
                         ModelState.AddModelError(
                             "ShopCategory",
                             "Shop category cannot exceed 100 characters.");
+                    }
+                }
+                string[] allowedShopCollections =
+{
+    "Bridal Wear",
+    "Groom Wear",
+    "Formal Wear",
+    "Wedding Guest Wear",
+    "Footwear",
+    "Jewellery",
+    "Bridal Jewellery",
+    "Accessories",
+    "Bridal Accessories"
+};
+
+                ShopCollections = ShopCollections?
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                if (ShopCollections == null || ShopCollections.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "ShopCollections",
+                        "Please select at least one shop collection.");
+                }
+                else
+                {
+                    foreach (string collection in ShopCollections)
+                    {
+                        if (!allowedShopCollections.Any(
+                            x => string.Equals(
+                                x,
+                                collection,
+                                StringComparison.OrdinalIgnoreCase)))
+                        {
+                            ModelState.AddModelError(
+                                "ShopCollections",
+                                "One or more selected shop collections are invalid.");
+
+                            break;
+                        }
                     }
                 }
 
@@ -453,9 +555,39 @@ namespace WeddingClosetHubs.Controllers
                         "ShopSignboardPhoto",
                         "Shop signboard photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
-            }
 
-      
+                if (string.IsNullOrWhiteSpace(ShopProofType))
+                {
+                    ModelState.AddModelError(
+                        "ShopProofType",
+                        "Please select a shop proof type.");
+                }
+                else
+                {
+                    ShopProofType = ShopProofType.Trim();
+
+                    bool validProofType =
+                        AllowedShopProofTypes.Any(p =>
+                            string.Equals(
+                                p,
+                                ShopProofType,
+                                StringComparison.OrdinalIgnoreCase));
+
+                    if (!validProofType)
+                    {
+                        ModelState.AddModelError(
+                            "ShopProofType",
+                            "Please select a valid shop proof type.");
+                    }
+                }
+
+                if (!IsAllowedProofDocument(ShopProofDocument))
+                {
+                    ModelState.AddModelError(
+                        "ShopProofDocument",
+                        "Shop proof must be JPG, JPEG, PNG or PDF and maximum 5 MB.");
+                }
+            }
 
             if (role.RoleName == "Delivery")
             {
@@ -600,15 +732,11 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-         
-
             if (!ModelState.IsValid)
             {
                 await LoadRoles();
                 return View(user);
             }
-
-          
 
             user.Email =
                 user.Email!.Trim().ToLowerInvariant();
@@ -625,7 +753,11 @@ namespace WeddingClosetHubs.Controllers
             user.Status = true;
             user.CreatedDate = DateTime.Now;
 
-          
+            if (role.RoleName == "Shopkeeper")
+            {
+                user.CNIC =
+                    NormalizeCNIC(CNIC!);
+            }
 
             if (role.RoleName == "Customer")
             {
@@ -638,20 +770,14 @@ namespace WeddingClosetHubs.Controllers
                 user.ApprovedDate = null;
             }
 
-   
-
             using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
-          
-
                 _context.Users.Add(user);
 
                 await _context.SaveChangesAsync();
-
-               
 
                 if (role.RoleName == "Shopkeeper")
                 {
@@ -665,6 +791,30 @@ namespace WeddingClosetHubs.Controllers
                     if (!Directory.Exists(shopFolder))
                     {
                         Directory.CreateDirectory(shopFolder);
+                    }
+
+                    string cnicFolder =
+                        Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            "uploads",
+                            "cnic");
+
+                    if (!Directory.Exists(cnicFolder))
+                    {
+                        Directory.CreateDirectory(cnicFolder);
+                    }
+
+                    string shopProofFolder =
+                        Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            "uploads",
+                            "shopproof");
+
+                    if (!Directory.Exists(shopProofFolder))
+                    {
+                        Directory.CreateDirectory(shopProofFolder);
                     }
 
                     string frontExtension =
@@ -733,6 +883,72 @@ namespace WeddingClosetHubs.Controllers
                         await ShopSignboardPhoto.CopyToAsync(stream);
                     }
 
+                    string cnicFrontExtension =
+                        Path.GetExtension(
+                            CNICFrontImage!.FileName)
+                            .ToLowerInvariant();
+
+                    string cnicFrontFileName =
+                        Guid.NewGuid().ToString() +
+                        cnicFrontExtension;
+
+                    string cnicFrontFilePath =
+                        Path.Combine(
+                            cnicFolder,
+                            cnicFrontFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            cnicFrontFilePath,
+                            FileMode.Create))
+                    {
+                        await CNICFrontImage.CopyToAsync(stream);
+                    }
+
+                    string cnicBackExtension =
+                        Path.GetExtension(
+                            CNICBackImage!.FileName)
+                            .ToLowerInvariant();
+
+                    string cnicBackFileName =
+                        Guid.NewGuid().ToString() +
+                        cnicBackExtension;
+
+                    string cnicBackFilePath =
+                        Path.Combine(
+                            cnicFolder,
+                            cnicBackFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            cnicBackFilePath,
+                            FileMode.Create))
+                    {
+                        await CNICBackImage.CopyToAsync(stream);
+                    }
+
+                    string proofExtension =
+                        Path.GetExtension(
+                            ShopProofDocument!.FileName)
+                            .ToLowerInvariant();
+
+                    string proofFileName =
+                        Guid.NewGuid().ToString() +
+                        proofExtension;
+
+                    string proofFilePath =
+                        Path.Combine(
+                            shopProofFolder,
+                            proofFileName);
+
+                    using (var stream =
+                        new FileStream(
+                            proofFilePath,
+                            FileMode.Create))
+                    {
+                        await ShopProofDocument.CopyToAsync(stream);
+                    }
+
                     var shop = new Shop
                     {
                         ShopkeeperId = user.UserId,
@@ -742,6 +958,11 @@ namespace WeddingClosetHubs.Controllers
 
                         ShopCategory =
                             ShopCategory!.Trim(),
+                        ShopCollections =
+    string.Join(
+        ",",
+        ShopCollections!),
+
 
                         ShopPhone =
                             NormalizePhone(ShopPhone!),
@@ -767,19 +988,38 @@ namespace WeddingClosetHubs.Controllers
                             "/uploads/shops/" +
                             signboardFileName,
 
+                        ShopProofType =
+                            ShopProofType!.Trim(),
+
+                        ShopProofDocument =
+                            "/uploads/shopproof/" +
+                            proofFileName,
+
+                        VerificationStatus =
+                            "Pending",
+
+                        AdminNotes = null,
+
+                        RejectionReason = null,
+
+                        VerificationSubmittedDate =
+                            DateTime.Now,
+
+                        VerifiedDate = null,
+
                         IsApproved = false,
 
                         Status = false,
 
-                        ApprovedDate = null
+                        ApprovedDate = null,
+
+                        CreatedDate = DateTime.Now
                     };
 
                     _context.Shops.Add(shop);
 
                     await _context.SaveChangesAsync();
                 }
-
-               
 
                 if (role.RoleName == "Delivery")
                 {
@@ -899,8 +1139,6 @@ namespace WeddingClosetHubs.Controllers
                 return View(user);
             }
 
-          
-
             if (role.RoleName == "Customer")
             {
                 TempData["Success"] =
@@ -909,7 +1147,7 @@ namespace WeddingClosetHubs.Controllers
             else if (role.RoleName == "Shopkeeper")
             {
                 TempData["Success"] =
-                    "Shopkeeper registration submitted successfully. Please wait for Admin approval.";
+                    "Shopkeeper registration submitted successfully. Please wait for Admin verification and approval.";
             }
             else if (role.RoleName == "Delivery")
             {
@@ -920,11 +1158,10 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Login");
         }
 
-       
-
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -933,12 +1170,15 @@ namespace WeddingClosetHubs.Controllers
         public async Task<IActionResult> Login(
             string email,
             string password,
-            string roleName)
+            string roleName,
+            string? returnUrl)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
                 ViewBag.Error =
                     "Please enter your email.";
+
+                ViewBag.ReturnUrl = returnUrl;
 
                 return View();
             }
@@ -948,6 +1188,8 @@ namespace WeddingClosetHubs.Controllers
                 ViewBag.Error =
                     "Please enter your password.";
 
+                ViewBag.ReturnUrl = returnUrl;
+
                 return View();
             }
 
@@ -955,6 +1197,8 @@ namespace WeddingClosetHubs.Controllers
             {
                 ViewBag.Error =
                     "Please select an account type.";
+
+                ViewBag.ReturnUrl = returnUrl;
 
                 return View();
             }
@@ -977,6 +1221,8 @@ namespace WeddingClosetHubs.Controllers
                 ViewBag.Error =
                     "Invalid email, password, or account type.";
 
+                ViewBag.ReturnUrl = returnUrl;
+
                 return View();
             }
 
@@ -987,6 +1233,8 @@ namespace WeddingClosetHubs.Controllers
                     ViewBag.Error =
                         "Your shopkeeper account is waiting for Admin approval.";
 
+                    ViewBag.ReturnUrl = returnUrl;
+
                     return View();
                 }
 
@@ -995,11 +1243,15 @@ namespace WeddingClosetHubs.Controllers
                     ViewBag.Error =
                         "Your delivery account is waiting for Admin verification and approval.";
 
+                    ViewBag.ReturnUrl = returnUrl;
+
                     return View();
                 }
 
                 ViewBag.Error =
                     "Your account is waiting for Admin approval.";
+
+                ViewBag.ReturnUrl = returnUrl;
 
                 return View();
             }
@@ -1043,8 +1295,87 @@ namespace WeddingClosetHubs.Controllers
                         "Shopkeeper");
 
                 case "Customer":
+
+                    var pendingJson =
+                        HttpContext.Session.GetString("PendingCartItems");
+
+                    if (!string.IsNullOrWhiteSpace(pendingJson))
+                    {
+                        try
+                        {
+                            var pendingItems =
+                                JsonSerializer.Deserialize<List<CustomerCartItem>>(
+                                    pendingJson,
+                                    new JsonSerializerOptions
+                                    {
+                                        PropertyNameCaseInsensitive = true
+                                    })
+                                ?? new List<CustomerCartItem>();
+
+                            if (pendingItems.Any())
+                            {
+                                var cartJson =
+                                    HttpContext.Session.GetString("CustomerCart");
+
+                                var cartItems =
+                                    string.IsNullOrWhiteSpace(cartJson)
+                                        ? new List<CustomerCartItem>()
+                                        : JsonSerializer.Deserialize<List<CustomerCartItem>>(
+                                            cartJson,
+                                            new JsonSerializerOptions
+                                            {
+                                                PropertyNameCaseInsensitive = true
+                                            })
+                                          ?? new List<CustomerCartItem>();
+
+                                foreach (var pendingItem in pendingItems)
+                                {
+                                    var existingItem =
+                                        cartItems.FirstOrDefault(x =>
+                                            x.ProductId == pendingItem.ProductId &&
+                                            string.Equals(
+                                                x.Size ?? "",
+                                                pendingItem.Size ?? "",
+                                                StringComparison.OrdinalIgnoreCase) &&
+                                            string.Equals(
+                                                x.PurchaseType ?? "Buy",
+                                                pendingItem.PurchaseType ?? "Buy",
+                                                StringComparison.OrdinalIgnoreCase));
+
+                                    if (existingItem != null)
+                                    {
+                                        existingItem.Quantity +=
+                                            pendingItem.Quantity;
+                                    }
+                                    else
+                                    {
+                                        cartItems.Add(pendingItem);
+                                    }
+                                }
+
+                                HttpContext.Session.SetString(
+                                    "CustomerCart",
+                                    JsonSerializer.Serialize(cartItems));
+                            }
+
+                            HttpContext.Session.Remove(
+                                "PendingCartItems");
+                        }
+                        catch
+                        {
+                            HttpContext.Session.Remove(
+                                "PendingCartItems");
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(returnUrl) &&
+                        Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
                     return RedirectToAction(
-                        "Dashboard",
+                        "Cart",
                         "Customer");
 
                 case "Delivery":
@@ -1058,11 +1389,11 @@ namespace WeddingClosetHubs.Controllers
                     ViewBag.Error =
                         "Invalid account type.";
 
+                    ViewBag.ReturnUrl = returnUrl;
+
                     return View();
             }
         }
-
-       
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -1113,8 +1444,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "ResetPassword");
         }
-
-     
 
         [HttpGet]
         public IActionResult ResetPassword()
@@ -1236,8 +1565,6 @@ namespace WeddingClosetHubs.Controllers
                 "Login");
         }
 
-       
-
         [HttpGet]
         public IActionResult Logout()
         {
@@ -1246,8 +1573,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Login");
         }
-
-        
 
         private bool IsPakistaniPhone(
             string? phone)
@@ -1288,7 +1613,6 @@ namespace WeddingClosetHubs.Controllers
             return phone;
         }
 
-
         private bool IsValidCNIC(
             string? cnic)
         {
@@ -1303,8 +1627,6 @@ namespace WeddingClosetHubs.Controllers
                 @"^\d{5}-\d{7}-\d$");
         }
 
-        
-
         private bool IsRawalpindiAddress(
             string? address)
         {
@@ -1315,8 +1637,6 @@ namespace WeddingClosetHubs.Controllers
                 "Rawalpindi",
                 StringComparison.OrdinalIgnoreCase);
         }
-
-     
 
         private bool IsAllowedImage(
             IFormFile? file)
@@ -1356,7 +1676,45 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
-       
+        private bool IsAllowedProofDocument(
+            IFormFile? file)
+        {
+            if (file == null ||
+                file.Length == 0)
+            {
+                return false;
+            }
+
+            if (file.Length > MaxImageSize)
+            {
+                return false;
+            }
+
+            string extension =
+                Path.GetExtension(
+                    file.FileName)
+                    .ToLowerInvariant();
+
+            if (!AllowedProofExtensions.Contains(
+                extension))
+            {
+                return false;
+            }
+
+            string contentType =
+                file.ContentType?
+                    .ToLowerInvariant() ?? "";
+
+            if (contentType != "image/jpeg" &&
+                contentType != "image/png" &&
+                contentType != "application/pdf")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private async Task LoadRoles()
         {
             ViewBag.Roles =
@@ -1369,4 +1727,3 @@ namespace WeddingClosetHubs.Controllers
         }
     }
 }
-

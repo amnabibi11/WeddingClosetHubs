@@ -2,6 +2,25 @@
 
 @{
     ViewData["Title"] = "Manage Shops";
+
+    int pendingCount = Model?.Count(s =>
+        string.IsNullOrWhiteSpace(s.VerificationStatus) ||
+        s.VerificationStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
+        s.VerificationStatus.Equals("Under Review", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+    int moreEvidenceCount = Model?.Count(s =>
+        s.VerificationStatus != null &&
+        s.VerificationStatus.Equals("More Evidence Required", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+    int approvedCount = Model?.Count(s =>
+        s.IsApproved &&
+        s.Status &&
+        s.VerificationStatus != null &&
+        s.VerificationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+    int disabledCount = Model?.Count(s =>
+        s.IsApproved &&
+        !s.Status) ?? 0;
 }
 
 <div class="container-fluid mt-5">
@@ -14,7 +33,7 @@
             </h2>
 
             <p class="text-muted mb-0">
-                View and manage all registered shops.
+                Review shopkeeper verification and manage registered shops.
             </p>
         </div>
 
@@ -27,7 +46,6 @@
         </a>
 
     </div>
-
 
 
     @if (TempData["Success"] != null)
@@ -62,19 +80,22 @@
 
     <div class="row mb-4">
 
-
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
 
             <div class="card border-warning shadow-sm h-100">
 
                 <div class="card-body">
 
                     <h6 class="text-warning fw-bold">
-                        Pending
+                        Pending Verification
                     </h6>
 
+                    <h3 class="fw-bold mb-2">
+                        @pendingCount
+                    </h3>
+
                     <p class="mb-0 text-muted">
-                        Shops waiting for Admin approval.
+                        Shops waiting for Admin verification.
                     </p>
 
                 </div>
@@ -84,8 +105,32 @@
         </div>
 
 
+        <div class="col-md-3 mb-3">
 
-        <div class="col-md-4 mb-3">
+            <div class="card border-info shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-info fw-bold">
+                        More Evidence Required
+                    </h6>
+
+                    <h3 class="fw-bold mb-2">
+                        @moreEvidenceCount
+                    </h3>
+
+                    <p class="mb-0 text-muted">
+                        Shops requiring additional evidence.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
 
             <div class="card border-success shadow-sm h-100">
 
@@ -95,8 +140,12 @@
                         Active
                     </h6>
 
+                    <h3 class="fw-bold mb-2">
+                        @approvedCount
+                    </h3>
+
                     <p class="mb-0 text-muted">
-                        Approved and enabled shops.
+                        Verified and enabled shops.
                     </p>
 
                 </div>
@@ -106,8 +155,7 @@
         </div>
 
 
-
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
 
             <div class="card border-danger shadow-sm h-100">
 
@@ -116,6 +164,10 @@
                     <h6 class="text-danger fw-bold">
                         Disabled
                     </h6>
+
+                    <h3 class="fw-bold mb-2">
+                        @disabledCount
+                    </h3>
 
                     <p class="mb-0 text-muted">
                         Approved shops currently disabled.
@@ -183,6 +235,10 @@
                                 </th>
 
                                 <th>
+                                    Verification
+                                </th>
+
+                                <th>
                                     Approval
                                 </th>
 
@@ -202,13 +258,13 @@
 
                         </thead>
 
+
                         <tbody>
 
                             @foreach (var shop in Model)
                             {
 
                                 <tr>
-
 
                                     <td>
                                         @shop.ShopId
@@ -224,8 +280,8 @@
                                                  width="70"
                                                  height="70"
                                                  style="object-fit:cover;
-                                                                    border-radius:8px;
-                                                                    border:1px solid #ddd;" />
+                                                        border-radius:8px;
+                                                        border:1px solid #ddd;" />
                                         }
                                         else
                                         {
@@ -235,7 +291,6 @@
                                         }
 
                                     </td>
-
 
 
                                     <td>
@@ -315,6 +370,66 @@
 
                                     <td>
 
+                                        @{
+                                            string verificationStatus =
+                                                string.IsNullOrWhiteSpace(shop.VerificationStatus)
+                                                    ? "Pending"
+                                                    : shop.VerificationStatus;
+                                        }
+
+
+                                        @if (verificationStatus.Equals(
+                                            "Approved",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-success">
+                                                Approved
+                                            </span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "Rejected",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-danger">
+                                                Rejected
+                                            </span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "More Evidence Required",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-info text-dark">
+                                                More Evidence Required
+                                            </span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "Under Review",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-primary">
+                                                Under Review
+                                            </span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "Suspended",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-dark">
+                                                Suspended
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
                                         @if (shop.IsApproved)
                                         {
                                             <span class="badge bg-success">
@@ -324,7 +439,7 @@
                                         else
                                         {
                                             <span class="badge bg-warning text-dark">
-                                                Pending
+                                                Not Approved
                                             </span>
                                         }
 

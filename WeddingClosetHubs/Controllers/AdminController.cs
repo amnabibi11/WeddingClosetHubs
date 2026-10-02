@@ -476,7 +476,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shopkeepers");
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Shops()
         {
@@ -493,6 +492,7 @@ namespace WeddingClosetHubs.Controllers
 
             return View(shops);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ShopDetails(int id)
@@ -519,6 +519,7 @@ namespace WeddingClosetHubs.Controllers
             return View(shop);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveShop(int id)
@@ -542,9 +543,54 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Shops");
             }
 
+            bool hasCnic =
+                shop.Shopkeeper != null &&
+                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC);
+
+            bool hasCnicFront =
+                shop.Shopkeeper != null &&
+                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICFrontImage);
+
+            bool hasCnicBack =
+                shop.Shopkeeper != null &&
+                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICBackImage);
+
+            bool hasShopFront =
+                !string.IsNullOrWhiteSpace(shop.ShopFrontPhoto);
+
+            bool hasShopInside =
+                !string.IsNullOrWhiteSpace(shop.ShopInsidePhoto);
+
+            bool hasShopSignboard =
+                !string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto);
+
+            bool hasVerificationProof =
+                !string.IsNullOrWhiteSpace(shop.ShopProofType) &&
+                !string.IsNullOrWhiteSpace(shop.ShopProofDocument);
+
+            if (!hasCnic ||
+                !hasCnicFront ||
+                !hasCnicBack ||
+                !hasShopFront ||
+                !hasShopInside ||
+                !hasShopSignboard ||
+                !hasVerificationProof)
+            {
+                TempData["Error"] =
+                    "Shop cannot be approved because required verification evidence is missing.";
+
+                return RedirectToAction(
+                    "ShopDetails",
+                    new { id = shop.ShopId });
+            }
+
             shop.IsApproved = true;
             shop.Status = true;
             shop.ApprovedDate = DateTime.Now;
+            shop.VerificationStatus = "Approved";
+            shop.VerifiedDate = DateTime.Now;
+            shop.AdminNotes = null;
+            shop.RejectionReason = null;
 
             if (shop.Shopkeeper != null)
             {
@@ -561,16 +607,17 @@ namespace WeddingClosetHubs.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Shop approved and activated successfully.";
+                "Shop verification completed. Shop approved and activated successfully.";
 
             return RedirectToAction("Shops");
         }
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectShop(int id)
+        public async Task<IActionResult> RejectShop(
+            int id,
+            string? rejectionReason)
         {
             if (!IsAdmin())
             {
@@ -594,6 +641,13 @@ namespace WeddingClosetHubs.Controllers
             shop.IsApproved = false;
             shop.Status = false;
             shop.ApprovedDate = null;
+            shop.VerificationStatus = "Rejected";
+            shop.VerifiedDate = null;
+
+            shop.RejectionReason =
+                string.IsNullOrWhiteSpace(rejectionReason)
+                    ? "Shop application rejected by Admin."
+                    : rejectionReason.Trim();
 
             if (shop.Shopkeeper != null)
             {
@@ -610,6 +664,64 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestMoreShopEvidence(
+            int id,
+            string? adminNotes)
+        {
+            if (!IsAdmin())
+            {
+                return AdminLoginRedirect();
+            }
+
+            var shop =
+                await _context.Shops
+                    .Include(s => s.Shopkeeper)
+                    .FirstOrDefaultAsync(s =>
+                        s.ShopId == id);
+
+            if (shop == null)
+            {
+                TempData["Error"] =
+                    "Shop not found.";
+
+                return RedirectToAction("Shops");
+            }
+
+            if (string.IsNullOrWhiteSpace(adminNotes))
+            {
+                TempData["Error"] =
+                    "Please provide a reason or specify what additional evidence is required.";
+
+                return RedirectToAction(
+                    "ShopDetails",
+                    new { id = shop.ShopId });
+            }
+
+            shop.IsApproved = false;
+            shop.Status = false;
+            shop.VerificationStatus = "More Evidence Required";
+            shop.AdminNotes = adminNotes.Trim();
+            shop.RejectionReason = null;
+            shop.VerifiedDate = null;
+            shop.ApprovedDate = null;
+
+            if (shop.Shopkeeper != null)
+            {
+                shop.Shopkeeper.IsApproved = false;
+                shop.Shopkeeper.Status = false;
+                shop.Shopkeeper.ApprovedDate = null;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Additional verification evidence has been requested from the shopkeeper.";
+
+            return RedirectToAction("Shops");
+        }
 
 
         [HttpPost]
@@ -634,10 +746,14 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Shops");
             }
 
-            if (!shop.IsApproved)
+            if (!shop.IsApproved ||
+                !string.Equals(
+                    shop.VerificationStatus,
+                    "Approved",
+                    StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "Shop must be approved before it can be activated.";
+                    "Shop must be verified and approved before it can be activated.";
 
                 return RedirectToAction("Shops");
             }
@@ -2865,8 +2981,8 @@ namespace WeddingClosetHubs.Controllers
                     LastMessageDate =
                         lastMessage?.SentDate,
 
-                    UnreadCount =unreadCount
-                        
+                    UnreadCount = unreadCount
+
                 });
             }
 

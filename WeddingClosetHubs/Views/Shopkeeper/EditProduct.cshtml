@@ -7,6 +7,9 @@
     string shopCategory =
         ViewBag.ShopCategory as string ?? "";
 
+    string shopCollections =
+        ViewBag.ShopCollections as string ?? "";
+
     string currentCategory =
         Model?.Category ?? "";
 
@@ -16,15 +19,22 @@
     string categoryDataJson =
         ViewBag.CategoryDataJson as string ?? "{}";
 
-    string currentSize =
-        Model?.Size ?? "";
+    var existingVariants =
+        Model?.ProductVariants?
+            .OrderBy(v => v.ProductVariantId)
+            .ToList()
+        ?? new List<WeddingClosetHubs.Models.ProductVariant>();
 }
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>Edit Product - Wedding Closet Hub</title>
 
@@ -35,6 +45,7 @@
           rel="stylesheet" />
 
     <style>
+
         :root {
             --maroon: #800020;
             --maroon-dark: #5f0018;
@@ -56,11 +67,7 @@
         }
 
         .navbar-custom {
-            background: linear-gradient(
-                135deg,
-                var(--maroon-dark),
-                var(--maroon)
-            );
+            background: linear-gradient( 135deg, var(--maroon-dark), var(--maroon) );
             padding: 18px 5%;
             box-shadow: 0 4px 15px rgba(60, 0, 20, .15);
         }
@@ -80,11 +87,11 @@
             transition: .25s ease;
         }
 
-        .navbar-custom .btn:hover {
-            background: var(--gold);
-            color: var(--maroon);
-            transform: translateY(-2px);
-        }
+            .navbar-custom .btn:hover {
+                background: var(--gold);
+                color: var(--maroon);
+                transform: translateY(-2px);
+            }
 
         .main-container {
             width: min(1100px, 94%);
@@ -106,17 +113,8 @@
             margin-bottom: 10px;
         }
 
-        .form-card > p {
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
         .category-info {
-            background: linear-gradient(
-                110deg,
-                #fff4f6,
-                #fffaf0
-            );
+            background: linear-gradient( 110deg, #fff4f6, #fffaf0 );
             border: 1px solid #f0dce2;
             border-left: 5px solid var(--gold);
             padding: 20px 22px;
@@ -125,13 +123,15 @@
             line-height: 1.9;
         }
 
-        .category-info strong {
-            color: var(--text-dark);
-        }
-
-        .category-info .text-danger {
-            color: var(--maroon) !important;
-            margin-left: 5px;
+        .collection-badge {
+            display: inline-block;
+            background: var(--maroon);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .section-title {
@@ -147,14 +147,14 @@
             gap: 10px;
         }
 
-        .section-title::before {
-            content: "";
-            display: inline-block;
-            width: 5px;
-            height: 23px;
-            border-radius: 5px;
-            background: var(--gold);
-        }
+            .section-title::before {
+                content: "";
+                display: inline-block;
+                width: 5px;
+                height: 23px;
+                border-radius: 5px;
+                background: var(--gold);
+            }
 
         .form-label {
             font-weight: 650;
@@ -184,10 +184,6 @@
             resize: vertical;
         }
 
-        .form-control::placeholder {
-            color: #aaa0a5;
-        }
-
         .form-control:focus,
         .form-select:focus {
             border-color: var(--maroon);
@@ -213,15 +209,26 @@
             border-radius: 0 9px 9px 0;
         }
 
-        .text-danger.field-validation-error {
-            display: block;
-            font-size: 13px;
-            margin-top: 6px;
-        }
-
         .text-muted {
             color: #81767c !important;
             font-size: 13px;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .alert-danger {
+            background: #fff1f3;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert-success {
+            background: #eefaf1;
+            color: #155724;
+            border-left: 5px solid #198754;
         }
 
         .option-box,
@@ -233,11 +240,11 @@
             transition: box-shadow .2s;
         }
 
-        .option-box:hover,
-        .sale-box:hover,
-        .rental-box:hover {
-            box-shadow: 0 5px 18px rgba(70, 0, 25, .06);
-        }
+            .option-box:hover,
+            .sale-box:hover,
+            .rental-box:hover {
+                box-shadow: 0 5px 18px rgba(70, 0, 25, .06);
+            }
 
         .buy-box {
             background: #fff5f7;
@@ -274,25 +281,6 @@
             margin-bottom: 12px;
         }
 
-        .option-title i,
-        .sale-title i,
-        .rental-title i,
-        .negotiation-title i,
-        .measurement-title i {
-            margin-right: 7px;
-        }
-
-        .info-badge {
-            display: inline-block;
-            background: var(--maroon);
-            color: white;
-            padding: 5px 13px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 12px;
-        }
-
         .form-check {
             display: flex;
             align-items: flex-start;
@@ -310,14 +298,10 @@
             border: 1px solid #b9aab0;
         }
 
-        .form-check-input:checked {
-            background-color: var(--maroon);
-            border-color: var(--maroon);
-        }
-
-        .form-check-input:focus {
-            box-shadow: 0 0 0 .2rem rgba(128, 0, 32, .13);
-        }
+            .form-check-input:checked {
+                background-color: var(--maroon);
+                border-color: var(--maroon);
+            }
 
         .form-check-label {
             cursor: pointer;
@@ -334,8 +318,28 @@
             margin-top: 25px;
         }
 
-        .current-image,
-        .image-preview {
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+        }
+
+            .preview-item img {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+                border-radius: 12px;
+                border: 2px solid #eadfe3;
+                padding: 4px;
+                background: #fff;
+            }
+
+        .current-image {
             width: 190px;
             height: 190px;
             object-fit: cover;
@@ -343,16 +347,79 @@
             border: 2px solid #eadfe3;
             background: #fff;
             padding: 4px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .07);
         }
 
-        .current-image {
+        .primary-badge {
+            position: absolute;
+            left: 8px;
+            bottom: 8px;
+            background: var(--maroon);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .variant-box {
+            background: #fffafc;
+            border: 1px solid #eadfe3;
+            border-left: 5px solid var(--maroon);
+            padding: 20px;
+            border-radius: 12px;
             margin-bottom: 15px;
         }
 
-        .image-preview {
-            display: none;
-            margin-top: 15px;
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .variant-title {
+            color: var(--maroon);
+            font-weight: 750;
+            margin: 0;
+        }
+
+        .variant-summary {
+            background: #f8f3f5;
+            border: 1px solid #eadfe3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .size-info-box {
+            background: #f8f3f5;
+            border: 1px solid #eadfe3;
+            border-left: 5px solid var(--maroon);
+            padding: 15px 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .current-size-badge {
+            display: inline-block;
+            background: var(--maroon);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+
+        .price-rule,
+        .security-limit {
+            display: block;
+            margin-top: 7px;
+            color: #806b19;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         input[type="file"].form-control {
@@ -361,12 +428,14 @@
         }
 
         .btn-save,
-        .btn-cancel {
+        .btn-cancel,
+        .btn-add-variant,
+        .btn-remove-variant {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 12px 24px;
+            padding: 11px 20px;
             border-radius: 9px;
             font-weight: 700;
             text-decoration: none;
@@ -377,15 +446,13 @@
             background: var(--maroon);
             color: #fff;
             border: 1px solid var(--maroon);
-            box-shadow: 0 4px 12px rgba(128, 0, 32, .15);
         }
 
-        .btn-save:hover {
-            background: var(--maroon-dark);
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 7px 17px rgba(128, 0, 32, .2);
-        }
+            .btn-save:hover {
+                background: var(--maroon-dark);
+                color: #fff;
+                transform: translateY(-2px);
+            }
 
         .btn-cancel {
             background: #fff;
@@ -393,11 +460,32 @@
             border: 1px solid #d8cdd2;
         }
 
-        .btn-cancel:hover {
-            background: #f1edef;
-            color: var(--maroon);
-            transform: translateY(-2px);
+            .btn-cancel:hover {
+                background: #f1edef;
+                color: var(--maroon);
+            }
+
+        .btn-add-variant {
+            background: var(--maroon);
+            color: white;
+            border: 1px solid var(--maroon);
         }
+
+            .btn-add-variant:hover {
+                background: var(--maroon-dark);
+                color: white;
+            }
+
+        .btn-remove-variant {
+            background: #fff;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+            .btn-remove-variant:hover {
+                background: #dc3545;
+                color: #fff;
+            }
 
         .form-actions {
             display: flex;
@@ -409,17 +497,13 @@
         }
 
         @@media (max-width: 768px) {
+
             .navbar-custom {
                 padding: 15px 4%;
             }
 
             .brand {
                 font-size: 18px;
-            }
-
-            .navbar-custom .btn {
-                padding: 9px 11px;
-                font-size: 13px;
             }
 
             .main-container {
@@ -429,60 +513,29 @@
 
             .form-card {
                 padding: 22px 18px;
-                border-radius: 13px;
             }
 
             .page-title {
                 font-size: 25px;
             }
 
-            .section-title {
-                font-size: 17px;
-                margin-top: 28px;
-            }
-
-            .option-box,
-            .sale-box,
-            .rental-box,
-            .measurement-box {
-                padding: 19px;
-            }
-
             .form-actions {
                 flex-direction: column;
             }
 
-            .form-actions .btn {
-                width: 100%;
-            }
+                .form-actions .btn {
+                    width: 100%;
+                }
         }
 
-        @@media (max-width: 420px) {
-            .brand {
-                font-size: 15px;
-            }
-
-            .navbar-custom .btn {
-                font-size: 11px;
-                padding: 8px;
-            }
-
-            .form-card {
-                padding: 18px 13px;
-            }
-
-            .current-image,
-            .image-preview {
-                width: 150px;
-                height: 150px;
-            }
-        }
     </style>
+
 </head>
 
 <body>
 
     <nav class="navbar-custom">
+
         <div class="d-flex justify-content-between align-items-center gap-3">
 
             <span class="brand">
@@ -495,63 +548,167 @@
                class="btn btn-light">
 
                 <i class="bi bi-arrow-left"></i>
+
                 Back to Products
+
             </a>
 
         </div>
+
     </nav>
+
 
     <div class="main-container">
 
         <div class="form-card">
 
             <h2 class="page-title">
+
                 <i class="bi bi-pencil-square"></i>
+
                 Edit Product
+
             </h2>
 
             <p class="text-muted mb-4">
-                Update your product information, availability,
-                sale, rental and negotiation settings.
+
+                Update your product information, category,
+                sizes, stock, prices, availability,
+                rental settings, negotiation and images.
+
             </p>
+
+
+            @if (ViewBag.SuccessMessage != null)
+            {
+                <div class="alert alert-success mb-4">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <strong>
+                        @ViewBag.SuccessMessage
+                    </strong>
+
+                </div>
+            }
+
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mb-4">
+
+                    <h6 class="fw-bold mb-2">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        Product could not be updated
+
+                    </h6>
+
+                    <ul class="mb-0">
+
+                        @foreach (var error in ViewData.ModelState.Values
+                                            .SelectMany(v => v.Errors))
+                        {
+                            if (!string.IsNullOrWhiteSpace(error.ErrorMessage))
+                            {
+                                <li>
+                                    @error.ErrorMessage
+                                </li>
+                            }
+                        }
+
+                    </ul>
+
+                </div>
+            }
+
 
             <div class="category-info">
 
                 <strong>
+
                     <i class="bi bi-shop"></i>
-                    Shop Category:
+
+                    Main Shop Category:
+
                 </strong>
 
                 <span class="text-danger fw-bold">
-                    @shopCategory
+
+                    @(string.IsNullOrWhiteSpace(shopCategory)
+                                        ? "Not Set"
+                                        : shopCategory)
+
                 </span>
+
+
+                @if (!string.IsNullOrWhiteSpace(shopCollections))
+                {
+                    <br />
+
+                    <strong>
+
+                        <i class="bi bi-collection"></i>
+
+                        Shop Collections:
+
+                    </strong>
+
+                    <div class="mt-2">
+
+                        @foreach (var collection in shopCollections
+                                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(x => x.Trim())
+                                            .Distinct(StringComparer.OrdinalIgnoreCase))
+                        {
+                            <span class="collection-badge">
+                                @collection
+                            </span>
+                        }
+
+                    </div>
+                }
 
                 <br />
 
                 <small class="text-muted">
-                    Product categories are automatically
-                    based on your shop category.
+
+                    Product categories and subcategories shown below
+                    are based on the collections selected for your shop.
+
                 </small>
 
             </div>
 
+
             <form asp-controller="Shopkeeper"
                   asp-action="EditProduct"
                   method="post"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data"
+                  id="editProductForm">
 
                 @Html.AntiForgeryToken()
 
-                <input type="hidden" asp-for="ProductId" />
+                <input type="hidden"
+                       asp-for="ProductId" />
 
-                <div asp-validation-summary="ModelOnly"
+
+                <div asp-validation-summary="All"
                      class="text-danger mb-3">
                 </div>
 
+
+
+
                 <h5 class="section-title">
+
                     <i class="bi bi-info-circle"></i>
+
                     Product Information
+
                 </h5>
+
 
                 <div class="row">
 
@@ -559,8 +716,10 @@
 
                         <label asp-for="ProductName"
                                class="form-label">
+
                             Product Name
                             <span class="required">*</span>
+
                         </label>
 
                         <input asp-for="ProductName"
@@ -573,30 +732,70 @@
 
                     </div>
 
+
                     <div class="col-md-6 mb-3">
 
                         <label asp-for="Color"
                                class="form-label">
+
                             Color
+
                         </label>
 
-                        <input asp-for="Color"
-                               class="form-control"
-                               placeholder="e.g. Maroon, Golden, Black" />
+                        <select asp-for="Color"
+                                class="form-select">
 
-                        <span asp-validation-for="Color"
-                              class="text-danger">
-                        </span>
+                            <option value="">-- Select Color --</option>
+
+                            <option value="Black">Black</option>
+                            <option value="White">White</option>
+                            <option value="Red">Red</option>
+                            <option value="Maroon">Maroon</option>
+                            <option value="Pink">Pink</option>
+                            <option value="Baby Pink">Baby Pink</option>
+                            <option value="Hot Pink">Hot Pink</option>
+                            <option value="Peach">Peach</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Mustard">Mustard</option>
+                            <option value="Golden">Golden</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Grey">Grey</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Sky Blue">Sky Blue</option>
+                            <option value="Navy Blue">Navy Blue</option>
+                            <option value="Royal Blue">Royal Blue</option>
+                            <option value="Green">Green</option>
+                            <option value="Dark Green">Dark Green</option>
+                            <option value="Mint Green">Mint Green</option>
+                            <option value="Olive Green">Olive Green</option>
+                            <option value="Purple">Purple</option>
+                            <option value="Lavender">Lavender</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Beige">Beige</option>
+                            <option value="Cream">Cream</option>
+                            <option value="Off White">Off White</option>
+                            <option value="Wine">Wine</option>
+                            <option value="Mehndi">Mehndi</option>
+                            <option value="Turquoise">Turquoise</option>
+                            <option value="Teal">Teal</option>
+                            <option value="Multi Color">Multi Color</option>
+                            <option value="Other">Other</option>
+
+                        </select>
 
                     </div>
 
                 </div>
 
+
                 <div class="mb-3">
 
                     <label asp-for="Description"
                            class="form-label">
+
                         Description
+
                     </label>
 
                     <textarea asp-for="Description"
@@ -604,16 +803,19 @@
                               rows="4"
                               placeholder="Describe the product"></textarea>
 
-                    <span asp-validation-for="Description"
-                          class="text-danger">
-                    </span>
-
                 </div>
 
+
+
+
                 <h5 class="section-title">
+
                     <i class="bi bi-tags"></i>
-                    Category
+
+                    Product Category
+
                 </h5>
+
 
                 <div class="row">
 
@@ -621,8 +823,10 @@
 
                         <label asp-for="Category"
                                class="form-label">
+
                             Category
                             <span class="required">*</span>
+
                         </label>
 
                         <select asp-for="Category"
@@ -636,18 +840,17 @@
 
                         </select>
 
-                        <span asp-validation-for="Category"
-                              class="text-danger">
-                        </span>
-
                     </div>
+
 
                     <div class="col-md-6 mb-3">
 
                         <label asp-for="Subcategory"
                                class="form-label">
+
                             Subcategory
                             <span class="required">*</span>
+
                         </label>
 
                         <select asp-for="Subcategory"
@@ -661,19 +864,18 @@
 
                         </select>
 
-                        <span asp-validation-for="Subcategory"
-                              class="text-danger">
-                        </span>
-
                     </div>
 
                 </div>
+
 
                 <div class="mb-3">
 
                     <label asp-for="ProductType"
                            class="form-label">
+
                         Product Type
+
                     </label>
 
                     <input asp-for="ProductType"
@@ -682,25 +884,55 @@
                            readonly />
 
                     <small class="text-muted">
+
                         Product type is automatically determined
-                        from the selected category.
+                        from the selected category and subcategory.
+
                     </small>
 
                 </div>
 
+
+
+
                 <div id="normalSizeSection"
                      class="mb-3">
 
+                    <div class="size-info-box">
+
+                        <i class="bi bi-rulers"></i>
+
+                        <strong>
+                            Current Size:
+                        </strong>
+
+                        <span id="currentSizeBadge"
+                              class="current-size-badge">
+
+                            @(string.IsNullOrWhiteSpace(Model?.Size)
+                                                        ? "Not Set"
+                                                        : Model.Size)
+
+                        </span>
+
+                    </div>
+
+
                     <label asp-for="Size"
                            class="form-label">
+
                         Size
+
                     </label>
 
                     <select asp-for="Size"
                             id="size"
                             class="form-select">
 
-                        <option value="">-- Select Size --</option>
+                        <option value="">
+                            -- Select Size --
+                        </option>
+
                         <option value="XS">XS</option>
                         <option value="S">S</option>
                         <option value="M">M</option>
@@ -710,24 +942,24 @@
 
                     </select>
 
-                    <span asp-validation-for="Size"
-                          class="text-danger">
-                    </span>
-
                 </div>
+
+
 
                 <div id="shoeSizeSection"
                      class="mb-3"
                      style="display:none;">
 
                     <label class="form-label">
+
                         Shoe Size
+
+                        <span class="required">*</span>
+
                     </label>
 
-                    <select name="Size"
-                            id="shoeSize"
-                            class="form-select"
-                            disabled>
+                    <select id="shoeSize"
+                            class="form-select">
 
                         <option value="">
                             -- Select Shoe Size --
@@ -748,10 +980,214 @@
 
                 </div>
 
+
+
+
+                <div id="dressVariantSection"
+                     style="display:none;">
+
+                    <h5 class="section-title">
+
+                        <i class="bi bi-rulers"></i>
+
+                        Size & Stock Variants
+
+                    </h5>
+
+
+                    <div class="size-info-box">
+
+                        <strong>
+                            <i class="bi bi-info-circle"></i>
+                            Size & Stock Management
+                        </strong>
+
+                        <br />
+
+                        Add different sizes and stock quantities
+                        for the same product.
+
+                        <br />
+
+                        <strong>
+                            You do not need to upload a separate
+                            picture for each size.
+                        </strong>
+
+                        <br />
+
+                        All sizes use the same product images
+                        uploaded in the Product Images section below.
+
+                        <br />
+
+                        Example:
+                        <strong>S = 2</strong>,
+                        <strong>M = 5</strong>,
+                        <strong>L = 3</strong>.
+
+                    </div>
+
+
+                    <div id="variantRows">
+
+                        @if (existingVariants.Any())
+                        {
+                            @foreach (var variant in existingVariants)
+                            {
+                                <div class="variant-box variant-row">
+
+                                    <input type="hidden"
+                                           name="VariantIds"
+                                           value="@variant.ProductVariantId" />
+
+                                    <div class="variant-header">
+
+                                        <h6 class="variant-title">
+
+                                            <i class="bi bi-box-seam"></i>
+
+                                            Size Variant
+
+                                        </h6>
+
+                                        <button type="button"
+                                                class="btn btn-remove-variant remove-variant">
+
+                                            <i class="bi bi-trash"></i>
+
+                                            Remove
+
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="row g-3">
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+
+                                                Size
+                                                <span class="required">*</span>
+
+                                            </label>
+
+                                            <select name="VariantSizes"
+                                                    class="form-select variant-size"
+                                                    required>
+
+                                                <option value="">
+                                                    -- Select Size --
+                                                </option>
+
+                                                <option value="XS"
+                                                        selected="@(variant.Size == "XS")">
+                                                    XS
+                                                </option>
+
+                                                <option value="S"
+                                                        selected="@(variant.Size == "S")">
+                                                    S
+                                                </option>
+
+                                                <option value="M"
+                                                        selected="@(variant.Size == "M")">
+                                                    M
+                                                </option>
+
+                                                <option value="L"
+                                                        selected="@(variant.Size == "L")">
+                                                    L
+                                                </option>
+
+                                                <option value="XL"
+                                                        selected="@(variant.Size == "XL")">
+                                                    XL
+                                                </option>
+
+                                                <option value="XXL"
+                                                        selected="@(variant.Size == "XXL")">
+                                                    XXL
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+
+                                                Stock Quantity
+                                                <span class="required">*</span>
+
+                                            </label>
+
+                                            <input type="number"
+                                                   name="VariantQuantities"
+                                                   class="form-control variant-quantity"
+                                                   min="0"
+                                                   value="@variant.StockQuantity"
+                                                   required />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+                        }
+
+                    </div>
+
+
+                    <button type="button"
+                            id="addVariant"
+                            class="btn btn-add-variant">
+
+                        <i class="bi bi-plus-circle"></i>
+
+                        Add Size Variant
+
+                    </button>
+
+
+                    <div id="variantError"
+                         class="text-danger mt-3">
+                    </div>
+
+
+                    <div class="variant-summary mt-3">
+
+                        <strong>
+                            Total Stock:
+                        </strong>
+
+                        <span id="variantTotalStock">
+                            0
+                        </span>
+
+                        <span class="text-muted ms-2">
+                            pieces across all sizes
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
                 <h5 class="section-title">
+
                     <i class="bi bi-currency-rupee"></i>
+
                     Price & Stock
+
                 </h5>
+
 
                 <div class="row">
 
@@ -759,8 +1195,10 @@
 
                         <label asp-for="Price"
                                class="form-label">
+
                             Original Price
                             <span class="required">*</span>
+
                         </label>
 
                         <div class="input-group">
@@ -770,100 +1208,108 @@
                             </span>
 
                             <input asp-for="Price"
+                                   id="price"
                                    type="number"
                                    step="0.01"
                                    min="0"
-                                   class="form-control"
-                                   placeholder="0.00" />
+                                   class="form-control" />
 
                         </div>
 
-                        <span asp-validation-for="Price"
-                              class="text-danger">
-                        </span>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3"
+                         id="normalStockSection">
+
+                        <label asp-for="StockQuantity"
+                               class="form-label">
+
+                            Stock Quantity
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <input asp-for="StockQuantity"
+                               id="stockQuantity"
+                               type="number"
+                               min="0"
+                               class="form-control" />
 
                         <small class="text-muted">
-                            This remains the original product price.
+
+                            For dress products this value is
+                            calculated automatically from size variants.
+
                         </small>
 
                     </div>
 
-                    <div class="col-md-6 mb-3">
-
-                        <label asp-for="StockQuantity"
-                               class="form-label">
-                            Stock Quantity
-                            <span class="required">*</span>
-                        </label>
-
-                        <input asp-for="StockQuantity"
-                               type="number"
-                               min="0"
-                               class="form-control"
-                               placeholder="Enter stock quantity" />
-
-                        <span asp-validation-for="StockQuantity"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
                 </div>
 
+
+
                 <h5 class="section-title">
+
                     <i class="bi bi-check2-circle"></i>
+
                     Product Availability
+
                 </h5>
+
 
                 <div class="option-box buy-box">
 
-                    <div class="d-flex align-items-start gap-3">
+                    <div class="form-check">
 
-                        <div class="form-check pt-1">
+                        <input asp-for="IsAvailableForBuy"
+                               class="form-check-input"
+                               type="checkbox"
+                               id="isAvailableForBuy" />
 
-                            <input asp-for="IsAvailableForBuy"
-                                   class="form-check-input"
-                                   type="checkbox"
-                                   id="isAvailableForBuy" />
+                        <label class="form-check-label"
+                               for="isAvailableForBuy">
 
-                        </div>
-
-                        <div>
-
-                            <label class="option-title"
-                                   for="isAvailableForBuy">
+                            <span class="option-title">
 
                                 <i class="bi bi-cart-check"></i>
+
                                 Available for Buy
 
-                            </label>
-
-                            <div class="text-muted">
-                                Allow customers to purchase this product.
-                            </div>
-
-                            <span class="info-badge">
-                                Buy
                             </span>
 
-                        </div>
+                            <br />
+
+                            Allow customers to purchase
+                            this product.
+
+                        </label>
 
                     </div>
 
                 </div>
+
+
+
 
                 <div class="sale-box"
                      id="saleBox">
 
                     <h5 class="sale-title">
+
                         <i class="bi bi-tag-fill"></i>
+
                         Sale / Discount
+
                     </h5>
 
                     <p class="text-muted">
-                        Offer this product at a special sale price.
-                        The original price will remain unchanged.
+
+                        Sale price must always be lower
+                        than the original price.
+
                     </p>
+
 
                     <div class="form-check mb-3">
 
@@ -873,10 +1319,13 @@
 
                         <label class="form-check-label"
                                for="isOnSale">
+
                             Enable Sale / Discount
+
                         </label>
 
                     </div>
+
 
                     <div id="saleFields">
 
@@ -886,8 +1335,9 @@
 
                                 <label asp-for="SalePrice"
                                        class="form-label">
+
                                     Sale Price
-                                    <span class="required">*</span>
+
                                 </label>
 
                                 <div class="input-group">
@@ -897,34 +1347,29 @@
                                     </span>
 
                                     <input asp-for="SalePrice"
+                                           id="salePrice"
                                            type="number"
                                            step="0.01"
                                            min="0"
-                                           class="form-control"
-                                           placeholder="Enter sale price" />
+                                           class="form-control" />
 
                                 </div>
 
-                                <span asp-validation-for="SalePrice"
-                                      class="text-danger">
-                                </span>
-
                             </div>
+
 
                             <div class="col-md-6 mb-3">
 
                                 <label asp-for="SaleDetails"
                                        class="form-label">
+
                                     Sale Details
+
                                 </label>
 
                                 <input asp-for="SaleDetails"
                                        class="form-control"
                                        placeholder="e.g. Eid Sale, 20% Off" />
-
-                                <span asp-validation-for="SaleDetails"
-                                      class="text-danger">
-                                </span>
 
                             </div>
 
@@ -934,17 +1379,29 @@
 
                 </div>
 
+
+
+
                 <div class="rental-box">
 
                     <h5 class="rental-title">
+
                         <i class="bi bi-calendar2-check"></i>
+
                         Rental Settings
+
                     </h5>
 
                     <p class="text-muted">
-                        Set your own rental price, refundable security,
-                        rental duration and conditions.
+
+                        Rental price can be up to
+                        <strong>2/3 of the original price</strong>.
+
+                        Refundable security can be up to
+                        <strong>1/3 of the original price</strong>.
+
                     </p>
+
 
                     <div class="form-check mb-3">
 
@@ -954,10 +1411,13 @@
 
                         <label class="form-check-label"
                                for="isAvailableForRent">
+
                             Make this product available for rent
+
                         </label>
 
                     </div>
+
 
                     <div id="rentalFields">
 
@@ -967,8 +1427,9 @@
 
                                 <label asp-for="RentPrice"
                                        class="form-label">
+
                                     Rental Price
-                                    <span class="required">*</span>
+
                                 </label>
 
                                 <div class="input-group">
@@ -978,26 +1439,28 @@
                                     </span>
 
                                     <input asp-for="RentPrice"
+                                           id="rentPrice"
                                            type="number"
                                            step="0.01"
-                                           min="0"
-                                           class="form-control"
-                                           placeholder="Enter rental price" />
+                                           min="0.01"
+                                           class="form-control" />
 
                                 </div>
 
-                                <span asp-validation-for="RentPrice"
-                                      class="text-danger">
+                                <span id="rentalPriceLimit"
+                                      class="price-rule">
                                 </span>
 
                             </div>
+
 
                             <div class="col-md-6 mb-3">
 
                                 <label asp-for="RentalSecurity"
                                        class="form-label">
+
                                     Refundable Security
-                                    <span class="required">*</span>
+
                                 </label>
 
                                 <div class="input-group">
@@ -1007,56 +1470,52 @@
                                     </span>
 
                                     <input asp-for="RentalSecurity"
+                                           id="rentalSecurity"
                                            type="number"
                                            step="0.01"
                                            min="0"
-                                           class="form-control"
-                                           placeholder="Enter security amount" />
+                                           class="form-control" />
 
                                 </div>
 
-                                <span asp-validation-for="RentalSecurity"
-                                      class="text-danger">
+                                <span id="securityLimit"
+                                      class="security-limit">
                                 </span>
 
                             </div>
 
                         </div>
 
+
                         <div class="mb-3">
 
                             <label asp-for="RentalDuration"
                                    class="form-label">
+
                                 Rental Duration
-                                <span class="required">*</span>
+
                             </label>
 
                             <input asp-for="RentalDuration"
                                    class="form-control"
-                                   placeholder="e.g. 3 Days, 1 Week, 10 Days" />
-
-                            <span asp-validation-for="RentalDuration"
-                                  class="text-danger">
-                            </span>
+                                   placeholder="e.g. 3 Days, 1 Week" />
 
                         </div>
+
 
                         <div class="mb-3">
 
                             <label asp-for="RentalConditions"
                                    class="form-label">
+
                                 Rental Conditions
-                                <span class="required">*</span>
+
                             </label>
 
                             <textarea asp-for="RentalConditions"
                                       class="form-control"
                                       rows="4"
-                                      placeholder="Enter rental conditions, return rules, damage policy etc."></textarea>
-
-                            <span asp-validation-for="RentalConditions"
-                                  class="text-danger">
-                            </span>
+                                      placeholder="Enter rental conditions"></textarea>
 
                         </div>
 
@@ -1064,19 +1523,25 @@
 
                 </div>
 
+
+
                 <div class="negotiation-box option-box"
                      id="negotiationBox">
 
                     <h5 class="negotiation-title">
+
                         <i class="bi bi-chat-square-text"></i>
+
                         Price Negotiation
+
                     </h5>
 
                     <p class="text-muted">
+
                         Allow customers to request a lower price.
-                        Negotiation applies only to products
-                        available for buying.
+
                     </p>
+
 
                     <div class="form-check">
 
@@ -1086,71 +1551,183 @@
 
                         <label class="form-check-label"
                                for="allowNegotiation">
-                            Allow customers to negotiate the price
+
+                            Allow customers to negotiate
+                            the price
+
                         </label>
 
                     </div>
 
                 </div>
 
+
+
+
                 <h5 class="section-title">
-                    <i class="bi bi-image"></i>
-                    Product Image
+
+                    <i class="bi bi-images"></i>
+
+                    Product Images
+
                 </h5>
+
+
+                <div class="size-info-box">
+
+                    <strong>
+                        <i class="bi bi-images"></i>
+                        Shared Product Images
+                    </strong>
+
+                    <br />
+
+                    These images belong to the whole product,
+                    not to individual sizes.
+
+                    <br />
+
+                    You can upload multiple pictures such as:
+
+                    <strong>Front, Back, Side, Close-up</strong>.
+
+                    <br />
+
+                    The same pictures are used for every available size.
+
+                </div>
+
 
                 @if (!string.IsNullOrWhiteSpace(Model?.Image))
                 {
-                    <div class="mb-3">
+                    <div class="mb-4">
 
                         <p class="text-muted mb-2">
-                            Current Image:
+
+                            Current Primary Image:
+
                         </p>
 
-                        <img src="@Model.Image"
-                             class="current-image"
-                             alt="@Model.ProductName" />
+                        <div class="preview-item d-inline-block">
+
+                            <img src="@Model.Image"
+                                 class="current-image"
+                                 alt="@Model.ProductName" />
+
+                            <span class="primary-badge">
+                                Primary
+                            </span>
+
+                        </div>
 
                     </div>
                 }
 
+
+                @if (Model?.ProductImages != null &&
+                                Model.ProductImages.Any())
+                {
+                    <div class="mb-4">
+
+                        <p class="text-muted mb-2">
+
+                            Existing Product Images:
+
+                        </p>
+
+                        <div class="image-gallery">
+
+                            @foreach (var image in Model.ProductImages)
+                            {
+                                <div class="preview-item">
+
+                                    <img src="@image.ImagePath"
+                                         alt="@Model.ProductName" />
+
+                                    @if (image.IsPrimary)
+                                    {
+                                        <span class="primary-badge">
+                                            Primary
+                                        </span>
+                                    }
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+
                 <div class="mb-3">
 
                     <label class="form-label">
-                        Change Product Image
+
+                        Add More Product Images
+
                     </label>
 
                     <input type="file"
-                           name="productImage"
-                           id="productImage"
+                           name="productImages"
+                           id="productImages"
                            class="form-control"
-                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                           multiple />
 
                     <small class="text-muted">
-                        Allowed formats: JPG, JPEG, PNG, WEBP.
-                        Maximum size: 5 MB.
+
+                        Existing images will remain.
+
+                        <br />
+
+                        Allowed:
+                        JPG, JPEG, PNG, WEBP.
+
+                        Maximum:
+                        <strong>5 MB per image</strong>.
+
                     </small>
 
-                    <div>
-                        <img id="imagePreview"
-                             class="image-preview"
-                             alt="New image preview" />
+
+                    <div id="imageError"
+                         class="text-danger mt-2">
+                    </div>
+
+
+                    <div id="imagePreviewGallery"
+                         class="image-gallery">
+                    </div>
+
+
+                    <div id="imageCount"
+                         class="mt-2 text-muted">
                     </div>
 
                 </div>
+
+
+
 
                 <div id="customMeasurementBox"
                      class="measurement-box"
                      style="display:none;">
 
                     <h5 class="measurement-title">
+
                         <i class="bi bi-rulers"></i>
+
                         Custom Measurement
+
                     </h5>
 
                     <p class="text-muted">
-                        Customers can provide their own measurements
-                        when ordering this product.
+
+                        Customers can provide their own
+                        measurements when ordering this product.
+
                     </p>
+
 
                     <div class="form-check">
 
@@ -1160,12 +1737,18 @@
 
                         <label class="form-check-label"
                                for="hasCustomMeasurement">
-                            Allow customer to provide custom measurements
+
+                            Allow customer to provide
+                            custom measurements
+
                         </label>
 
                     </div>
 
                 </div>
+
+
+
 
                 <div class="form-actions">
 
@@ -1173,15 +1756,18 @@
                             class="btn btn-save">
 
                         <i class="bi bi-check-circle-fill"></i>
+
                         Save Changes
 
                     </button>
+
 
                     <a asp-controller="Shopkeeper"
                        asp-action="Products"
                        class="btn btn-cancel">
 
                         <i class="bi bi-x-circle"></i>
+
                         Cancel
 
                     </a>
@@ -1194,32 +1780,31 @@
 
     </div>
 
+
     <script>
+
         "use strict";
+
 
         const categoryData =
             @Html.Raw(categoryDataJson);
 
+
         const databaseCategory =
             @Html.Raw(
                 System.Text.Json.JsonSerializer.Serialize(
-                    currentCategory
+                        currentCategory
                 )
-            );
+                        );
+
 
         const databaseSubCategory =
             @Html.Raw(
-                System.Text.Json.JsonSerializer.Serialize(
-                    currentSubCategory
-                )
-            );
+                                System.Text.Json.JsonSerializer.Serialize(
+                                        currentSubCategory
+                                )
+                        );
 
-        const databaseSize =
-            @Html.Raw(
-                System.Text.Json.JsonSerializer.Serialize(
-                    currentSize
-                )
-            );
 
         const categorySelect =
             document.getElementById("category");
@@ -1230,23 +1815,44 @@
         const productTypeInput =
             document.getElementById("productType");
 
+        const normalSizeSection =
+            document.getElementById("normalSizeSection");
+
+        const normalStockSection =
+            document.getElementById("normalStockSection");
+
+        const shoeSizeSection =
+            document.getElementById("shoeSizeSection");
+
+        const shoeSize =
+            document.getElementById("shoeSize");
+
+        const sizeSelect =
+            document.getElementById("size");
+
+        const dressVariantSection =
+            document.getElementById("dressVariantSection");
+
+        const variantRows =
+            document.getElementById("variantRows");
+
+        const addVariantButton =
+            document.getElementById("addVariant");
+
+        const variantTotalStock =
+            document.getElementById("variantTotalStock");
+
+        const variantError =
+            document.getElementById("variantError");
+
+        const stockQuantity =
+            document.getElementById("stockQuantity");
+
         const customMeasurementBox =
             document.getElementById("customMeasurementBox");
 
         const hasCustomMeasurement =
             document.getElementById("hasCustomMeasurement");
-
-        const normalSizeSection =
-            document.getElementById("normalSizeSection");
-
-        const shoeSizeSection =
-            document.getElementById("shoeSizeSection");
-
-        const sizeSelect =
-            document.getElementById("size");
-
-        const shoeSize =
-            document.getElementById("shoeSize");
 
         const isAvailableForBuy =
             document.getElementById("isAvailableForBuy");
@@ -1260,6 +1866,9 @@
         const saleFields =
             document.getElementById("saleFields");
 
+        const salePriceInput =
+            document.getElementById("salePrice");
+
         const allowNegotiation =
             document.getElementById("allowNegotiation");
 
@@ -1272,13 +1881,36 @@
         const rentalFields =
             document.getElementById("rentalFields");
 
-        const imageInput =
-            document.getElementById("productImage");
+        const priceInput =
+            document.getElementById("price");
 
-        const imagePreview =
-            document.getElementById("imagePreview");
+        const rentPriceInput =
+            document.getElementById("rentPrice");
+
+        const rentalSecurityInput =
+            document.getElementById("rentalSecurity");
+
+        const rentalPriceLimit =
+            document.getElementById("rentalPriceLimit");
+
+        const securityLimit =
+            document.getElementById("securityLimit");
+
+        const productImages =
+            document.getElementById("productImages");
+
+        const imagePreviewGallery =
+            document.getElementById("imagePreviewGallery");
+
+        const imageError =
+            document.getElementById("imageError");
+
+        const imageCount =
+            document.getElementById("imageCount");
+
 
         function normalize(value) {
+
             if (!value) {
                 return "";
             }
@@ -1290,17 +1922,23 @@
                 .replace(/\s+/g, " ");
         }
 
+
         function findCategory(value) {
+
             const normalized =
                 normalize(value);
 
             return Object.keys(categoryData)
-                .find(function (category) {
+                .find(function(category) {
+
                     return normalize(category) === normalized;
+
                 }) || "";
         }
 
+
         function findSubCategory(category, value) {
+
             if (!category) {
                 return "";
             }
@@ -1315,100 +1953,24 @@
             const normalized =
                 normalize(value);
 
-            return list.find(function (item) {
+            return list.find(function(item) {
+
                 return normalize(item) === normalized;
+
             }) || "";
         }
 
-        function updateBuyDependentOptions() {
-            const buyEnabled =
-                isAvailableForBuy.checked;
 
-            saleBox.style.display =
-                buyEnabled
-                    ? "block"
-                    : "none";
 
-            negotiationBox.style.display =
-                buyEnabled
-                    ? "block"
-                    : "none";
-
-            if (!buyEnabled) {
-                isOnSale.checked = false;
-                allowNegotiation.checked = false;
-            }
-
-            updateSaleFields();
-        }
-
-        function updateSaleFields() {
-            const saleEnabled =
-                isAvailableForBuy.checked &&
-                isOnSale.checked;
-
-            saleFields.style.display =
-                saleEnabled
-                    ? "block"
-                    : "none";
-        }
-
-        function updateRentalFields() {
-            const rentalEnabled =
-                isAvailableForRent.checked;
-
-            rentalFields.style.display =
-                rentalEnabled
-                    ? "block"
-                    : "none";
-        }
-
-        function setExistingNormalSize() {
-            const existingSize =
-                databaseSize.toString().trim();
-
-            if (!existingSize) {
-                return;
-            }
-
-            const matchingOption =
-                Array.from(sizeSelect.options)
-                    .find(function (option) {
-                        return option.value === existingSize;
-                    });
-
-            if (matchingOption) {
-                sizeSelect.value =
-                    existingSize;
-            }
-        }
-
-        function setExistingShoeSize() {
-            const existingSize =
-                databaseSize.toString().trim();
-
-            if (!existingSize) {
-                return;
-            }
-
-            const matchingOption =
-                Array.from(shoeSize.options)
-                    .find(function (option) {
-                        return option.value === existingSize;
-                    });
-
-            if (matchingOption) {
-                shoeSize.value =
-                    existingSize;
-            }
-        }
 
         function loadCategories() {
+
             categorySelect.innerHTML =
                 '<option value="">-- Select Category --</option>';
 
-            Object.keys(categoryData).forEach(
-                function (categoryName) {
+
+            Object.keys(categoryData)
+                .forEach(function(categoryName) {
 
                     const option =
                         document.createElement("option");
@@ -1419,19 +1981,22 @@
                     option.textContent =
                         categoryName;
 
-                    categorySelect.appendChild(
-                        option
-                    );
-                }
-            );
+                    categorySelect.appendChild(option);
+
+                });
+
 
             const matchingCategory =
                 findCategory(databaseCategory);
 
+
             if (matchingCategory) {
+
                 categorySelect.value =
                     matchingCategory;
+
             }
+
 
             loadSubCategories(
                 matchingCategory,
@@ -1439,47 +2004,58 @@
             );
         }
 
+
         function loadSubCategories(
             categoryName = null,
             selectedSubCategory = null
         ) {
+
             subCategorySelect.innerHTML =
                 '<option value="">-- Select Subcategory --</option>';
+
 
             const selectedCategory =
                 categoryName ||
                 categorySelect.value;
 
+
             if (!selectedCategory) {
+
                 updateProductOptions();
+
                 return;
+
             }
+
 
             const subCategories =
                 categoryData[selectedCategory];
 
+
             if (!Array.isArray(subCategories)) {
+
                 updateProductOptions();
+
                 return;
+
             }
 
-            subCategories.forEach(
-                function (subCategoryName) {
 
-                    const option =
-                        document.createElement("option");
+            subCategories.forEach(function(subCategoryName) {
 
-                    option.value =
-                        subCategoryName;
+                const option =
+                    document.createElement("option");
 
-                    option.textContent =
-                        subCategoryName;
+                option.value =
+                    subCategoryName;
 
-                    subCategorySelect.appendChild(
-                        option
-                    );
-                }
-            );
+                option.textContent =
+                    subCategoryName;
+
+                subCategorySelect.appendChild(option);
+
+            });
+
 
             const matchingSubCategory =
                 findSubCategory(
@@ -1487,33 +2063,45 @@
                     selectedSubCategory
                 );
 
+
             if (matchingSubCategory) {
+
                 subCategorySelect.value =
                     matchingSubCategory;
+
             }
+
 
             updateProductOptions();
         }
 
+
+
+
         function updateProductOptions() {
-            const selectedCategory =
-                normalize(
-                    categorySelect.value
-                );
 
-            const selectedSubCategory =
-                normalize(
-                    subCategorySelect.value
-                );
+            const category =
+                normalize(categorySelect.value);
 
-            customMeasurementBox.style.display =
-                "none";
+            const subCategory =
+                normalize(subCategorySelect.value);
+
+
+            normalSizeSection.style.display =
+                "block";
+
+            normalStockSection.style.display =
+                "block";
 
             shoeSizeSection.style.display =
                 "none";
 
-            normalSizeSection.style.display =
-                "block";
+            dressVariantSection.style.display =
+                "none";
+
+            customMeasurementBox.style.display =
+                "none";
+
 
             sizeSelect.disabled =
                 false;
@@ -1521,10 +2109,13 @@
             shoeSize.disabled =
                 true;
 
+
+
             if (
-                selectedCategory === "footwear" ||
-                selectedCategory === "shoes"
+                category === "footwear" ||
+                category === "shoes"
             ) {
+
                 normalSizeSection.style.display =
                     "none";
 
@@ -1540,15 +2131,21 @@
                 shoeSize.disabled =
                     false;
 
-                setExistingShoeSize();
+                hasCustomMeasurement.checked =
+                    false;
 
                 return;
             }
 
+
+
+
             if (
-                selectedCategory === "jewellery" ||
-                selectedCategory === "jewelry"
+                category === "jewellery" ||
+                category === "jewelry" ||
+                category === "bridal jewellery"
             ) {
+
                 normalSizeSection.style.display =
                     "none";
 
@@ -1567,10 +2164,15 @@
                 return;
             }
 
+
+
+
             if (
-                selectedCategory === "accessories" ||
-                selectedCategory === "wedding accessories"
+                category === "accessories" ||
+                category === "bridal accessories" ||
+                category === "wedding accessories"
             ) {
+
                 normalSizeSection.style.display =
                     "none";
 
@@ -1589,21 +2191,16 @@
                 return;
             }
 
+
+
+
             if (
-                selectedCategory === "wedding guest wear" ||
-                selectedCategory === "guest wear"
+                category === "wedding guest wear" ||
+                category === "guest wear"
             ) {
-                normalSizeSection.style.display =
-                    "block";
 
                 productTypeInput.value =
                     "Wedding Guest Wear";
-
-                customMeasurementBox.style.display =
-                    "none";
-
-                hasCustomMeasurement.checked =
-                    false;
 
                 sizeSelect.disabled =
                     false;
@@ -1611,12 +2208,26 @@
                 shoeSize.disabled =
                     true;
 
-                setExistingNormalSize();
+                hasCustomMeasurement.checked =
+                    false;
 
                 return;
             }
 
+
+
+            const dressCategories = [
+
+                "bridal wear",
+                "groom wear",
+                "formal wear",
+                "dress"
+
+            ];
+
+
             const dressKeywords = [
+
                 "dress",
                 "lehenga",
                 "gown",
@@ -1628,30 +2239,49 @@
                 "frock",
                 "anarkali",
                 "palazzo",
-                "shalwar kameez",
-                "kurta pajama",
-                "suit",
-                "tuxedo",
+
                 "sherwani",
                 "prince coat",
+                "groom suit",
+                "tuxedo",
                 "waistcoat",
+                "kurta pajama",
+                "shalwar kameez",
                 "blazer",
-                "shirt & trouser"
+                "shirt & trouser",
+                "groom shirt & trouser",
+                "groom waistcoat suit",
+                "turban",
+
+                "nikkah",
+                "mehndi",
+                "barat",
+                "walima",
+                "reception",
+
+                "formal"
+
             ];
 
-            const isDress =
-                dressKeywords.some(
-                    function (keyword) {
-                        return selectedSubCategory
-                            .includes(keyword);
-                    }
-                );
 
-            if (
-                selectedCategory === "dress" ||
-                isDress
-            ) {
+            const isDress =
+                dressCategories.includes(category) ||
+                dressKeywords.some(function(keyword) {
+
+                    return subCategory.includes(keyword);
+
+                });
+
+
+            if (isDress) {
+
                 normalSizeSection.style.display =
+                    "none";
+
+                normalStockSection.style.display =
+                    "block";
+
+                dressVariantSection.style.display =
                     "block";
 
                 customMeasurementBox.style.display =
@@ -1661,15 +2291,20 @@
                     "Dress / Custom Size";
 
                 sizeSelect.disabled =
-                    false;
+                    true;
 
                 shoeSize.disabled =
                     true;
 
-                setExistingNormalSize();
+                ensureDressVariant();
+
+                updateVariantTotal();
 
                 return;
             }
+
+
+
 
             productTypeInput.value =
                 "Standard Product";
@@ -1679,169 +2314,1054 @@
 
             shoeSize.disabled =
                 true;
-
-            hasCustomMeasurement.checked =
-                false;
-
-            setExistingNormalSize();
         }
 
-        categorySelect.addEventListener(
-            "change",
-            function () {
-                loadSubCategories();
-            }
-        );
 
-        subCategorySelect.addEventListener(
-            "change",
-            function () {
-                updateProductOptions();
-            }
-        );
 
-        isAvailableForBuy.addEventListener(
-            "change",
-            function () {
-                updateBuyDependentOptions();
-            }
-        );
 
-        isOnSale.addEventListener(
-            "change",
-            function () {
-                updateSaleFields();
-            }
-        );
+        function getUsedSizes() {
 
-        isAvailableForRent.addEventListener(
-            "change",
-            function () {
-                updateRentalFields();
-            }
-        );
+            return Array.from(
+                document.querySelectorAll(".variant-size")
+            )
+            .map(function(select) {
 
-        shoeSize.addEventListener(
-            "change",
-            function () {
-                if (!shoeSize.disabled) {
-                    sizeSelect.value = "";
+                return normalize(select.value);
+
+            })
+            .filter(function(value) {
+
+                return value !== "";
+
+            });
+        }
+
+
+        function updateVariantTotal() {
+
+            let total = 0;
+
+            document.querySelectorAll(
+                ".variant-quantity"
+            ).forEach(function(input) {
+
+                const quantity =
+                    parseInt(input.value);
+
+                if (!isNaN(quantity) && quantity >= 0) {
+
+                    total += quantity;
+
                 }
+
+            });
+
+
+            variantTotalStock.textContent =
+                total.toString();
+
+
+            stockQuantity.value =
+                total;
+        }
+
+
+        function attachVariantEvents(row) {
+
+            const quantityInput =
+                row.querySelector(".variant-quantity");
+
+            const removeButton =
+                row.querySelector(".remove-variant");
+
+            const sizeInput =
+                row.querySelector(".variant-size");
+
+
+            quantityInput.addEventListener(
+                "input",
+                updateVariantTotal
+            );
+
+
+            removeButton.addEventListener(
+                "click",
+                function() {
+
+                    const rows =
+                        document.querySelectorAll(
+                            ".variant-row"
+                        );
+
+
+                    if (rows.length <= 1) {
+
+                        row.querySelector(
+                            ".variant-size"
+                        ).value = "";
+
+                        row.querySelector(
+                            ".variant-quantity"
+                        ).value = "0";
+
+                        updateVariantTotal();
+
+                        return;
+
+                    }
+
+
+                    row.remove();
+
+                    updateVariantTotal();
+
+                    validateDuplicateSizes();
+
+                }
+            );
+
+
+            sizeInput.addEventListener(
+                "change",
+                function() {
+
+                    validateDuplicateSizes();
+
+                }
+            );
+        }
+
+
+        function validateDuplicateSizes() {
+
+            const sizes =
+                getUsedSizes();
+
+            const duplicate =
+                sizes.some(function(size, index) {
+
+                    return sizes.indexOf(size) !== index;
+
+                });
+
+
+            if (duplicate) {
+
+                variantError.textContent =
+                    "Each size can only be added once.";
+
+                return false;
+
+            }
+
+
+            variantError.textContent = "";
+
+            return true;
+        }
+
+
+        function createVariantRow() {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "variant-box variant-row";
+
+
+            row.innerHTML = `
+
+                <input type="hidden"
+                       name="VariantIds"
+                       value="0" />
+
+                <div class="variant-header">
+
+                    <h6 class="variant-title">
+
+                        <i class="bi bi-box-seam"></i>
+
+                        Size Variant
+
+                    </h6>
+
+                    <button type="button"
+                            class="btn btn-remove-variant remove-variant">
+
+                        <i class="bi bi-trash"></i>
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Size
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <select name="VariantSizes"
+                                class="form-select variant-size"
+                                required>
+
+                            <option value="">
+                                -- Select Size --
+                            </option>
+
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Stock Quantity
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <input type="number"
+                               name="VariantQuantities"
+                               class="form-control variant-quantity"
+                               min="0"
+                               value="0"
+                               required />
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            variantRows.appendChild(row);
+
+            attachVariantEvents(row);
+
+            updateVariantTotal();
+        }
+
+
+        addVariantButton.addEventListener(
+            "click",
+            function() {
+
+                createVariantRow();
+
             }
         );
 
-        sizeSelect.addEventListener(
-            "change",
-            function () {
-                if (!sizeSelect.disabled) {
-                    shoeSize.value = "";
-                }
+
+        document.querySelectorAll(
+            ".variant-row"
+        ).forEach(function(row) {
+
+            attachVariantEvents(row);
+
+        });
+
+
+        function ensureDressVariant() {
+
+            if (
+                document.querySelectorAll(
+                    ".variant-row"
+                ).length === 0
+            ) {
+
+                createVariantRow();
+
             }
-        );
 
-        imageInput.addEventListener(
+            updateVariantTotal();
+        }
+
+
+
+        function updateBuyDependentOptions() {
+
+            const buyEnabled =
+                isAvailableForBuy.checked;
+
+
+            saleBox.style.display =
+                buyEnabled
+                    ? "block"
+                    : "none";
+
+
+            negotiationBox.style.display =
+                buyEnabled
+                    ? "block"
+                    : "none";
+
+
+            if (!buyEnabled) {
+
+                isOnSale.checked =
+                    false;
+
+                allowNegotiation.checked =
+                    false;
+
+            }
+
+
+            updateSaleFields();
+        }
+
+
+        function updateSaleFields() {
+
+            const enabled =
+                isAvailableForBuy.checked &&
+                isOnSale.checked;
+
+
+            saleFields.style.display =
+                enabled
+                    ? "block"
+                    : "none";
+
+
+            validateSalePrice();
+        }
+
+
+        function validateSalePrice() {
+
+            if (
+                !isAvailableForBuy.checked ||
+                !isOnSale.checked
+            ) {
+
+                salePriceInput.setCustomValidity("");
+
+                return true;
+            }
+
+
+            const price =
+                parseFloat(priceInput.value);
+
+            const salePrice =
+                parseFloat(salePriceInput.value);
+
+
+            if (
+                isNaN(price) ||
+                price <= 0
+            ) {
+
+                salePriceInput.setCustomValidity(
+                    "Please enter a valid original price."
+                );
+
+                return false;
+            }
+
+
+            if (
+                isNaN(salePrice) ||
+                salePrice <= 0
+            ) {
+
+                salePriceInput.setCustomValidity(
+                    "Please enter a valid sale price."
+                );
+
+                return false;
+            }
+
+
+            if (salePrice >= price) {
+
+                salePriceInput.setCustomValidity(
+                    "Sale price must be lower than original price."
+                );
+
+                return false;
+            }
+
+
+            salePriceInput.setCustomValidity("");
+
+            return true;
+        }
+
+
+
+        function updateRentalFields() {
+
+            const enabled =
+                isAvailableForRent.checked;
+
+
+            rentalFields.style.display =
+                enabled
+                    ? "block"
+                    : "none";
+
+
+            updateRentalPriceLimit();
+
+            updateSecurityLimit();
+        }
+
+
+        function updateRentalPriceLimit() {
+
+            const price =
+                parseFloat(priceInput.value);
+
+
+            if (
+                !isNaN(price) &&
+                price > 0
+            ) {
+
+                const maximum =
+                    price * (2 / 3);
+
+
+                rentalPriceLimit.textContent =
+                    "Maximum rental price: Rs. " +
+                    maximum.toFixed(2) +
+                    " (2/3 of original price).";
+
+
+                rentPriceInput.max =
+                    maximum.toFixed(2);
+
+            }
+            else {
+
+                rentalPriceLimit.textContent =
+                    "Maximum rental price is two-thirds of the original product price.";
+
+                rentPriceInput.removeAttribute("max");
+
+            }
+
+
+            validateRentalPrice();
+        }
+
+
+        function validateRentalPrice() {
+
+            if (!isAvailableForRent.checked) {
+
+                rentPriceInput.setCustomValidity("");
+
+                return true;
+            }
+
+
+            const price =
+                parseFloat(priceInput.value);
+
+            const rentalPrice =
+                parseFloat(rentPriceInput.value);
+
+
+            if (
+                isNaN(price) ||
+                price <= 0
+            ) {
+
+                rentPriceInput.setCustomValidity(
+                    "Please enter a valid original price."
+                );
+
+                return false;
+            }
+
+
+            if (
+                isNaN(rentalPrice) ||
+                rentalPrice <= 0
+            ) {
+
+                rentPriceInput.setCustomValidity(
+                    "Please enter a valid rental price."
+                );
+
+                return false;
+            }
+
+
+            const maximum =
+                price * (2 / 3);
+
+
+            if (rentalPrice > maximum) {
+
+                rentPriceInput.setCustomValidity(
+                    "Rental price cannot be more than Rs. " +
+                    maximum.toFixed(2) +
+                    " (2/3 of original price)."
+                );
+
+                return false;
+            }
+
+
+            rentPriceInput.setCustomValidity("");
+
+            return true;
+        }
+
+
+        function updateSecurityLimit() {
+
+            const price =
+                parseFloat(priceInput.value);
+
+
+            if (
+                !isNaN(price) &&
+                price > 0
+            ) {
+
+                const maximum =
+                    price * (1 / 3);
+
+
+                securityLimit.textContent =
+                    "Maximum refundable security: Rs. " +
+                    maximum.toFixed(2) +
+                    " (1/3 of original price).";
+
+
+                rentalSecurityInput.max =
+                    maximum.toFixed(2);
+
+            }
+            else {
+
+                securityLimit.textContent =
+                    "Maximum refundable security is one-third of the original product price.";
+
+                rentalSecurityInput.removeAttribute("max");
+
+            }
+
+
+            validateRentalSecurity();
+        }
+
+
+        function validateRentalSecurity() {
+
+            if (!isAvailableForRent.checked) {
+
+                rentalSecurityInput.setCustomValidity("");
+
+                return true;
+            }
+
+
+            const price =
+                parseFloat(priceInput.value);
+
+            const security =
+                parseFloat(rentalSecurityInput.value);
+
+
+            if (
+                isNaN(price) ||
+                price <= 0
+            ) {
+
+                rentalSecurityInput.setCustomValidity(
+                    "Please enter a valid original price."
+                );
+
+                return false;
+            }
+
+
+            if (
+                isNaN(security) ||
+                security < 0
+            ) {
+
+                rentalSecurityInput.setCustomValidity(
+                    "Please enter a valid refundable security amount."
+                );
+
+                return false;
+            }
+
+
+            const maximum =
+                price * (1 / 3);
+
+
+            if (security > maximum) {
+
+                rentalSecurityInput.setCustomValidity(
+                    "Refundable security cannot be more than Rs. " +
+                    maximum.toFixed(2) +
+                    " (1/3 of original price)."
+                );
+
+                return false;
+            }
+
+
+            rentalSecurityInput.setCustomValidity("");
+
+            return true;
+        }
+
+
+
+
+        productImages.addEventListener(
             "change",
-            function () {
-                const file =
-                    this.files[0];
+            function() {
 
-                if (!file) {
-                    imagePreview.src = "";
-                    imagePreview.style.display =
-                        "none";
+                imagePreviewGallery.innerHTML =
+                    "";
 
-                    return;
-                }
+                imageError.textContent =
+                    "";
+
+                imageCount.textContent =
+                    "";
+
+
+                const files =
+                    Array.from(this.files);
+
 
                 const allowedTypes = [
+
                     "image/jpeg",
                     "image/png",
                     "image/webp"
+
                 ];
 
-                if (!allowedTypes.includes(file.type)) {
-                    alert(
-                        "Please select a JPG, JPEG, PNG, or WEBP image."
+
+                if (files.length === 0) {
+
+                    return;
+
+                }
+
+
+                let valid = true;
+
+
+                files.forEach(function(file) {
+
+                    if (
+                        !allowedTypes.includes(
+                            file.type
+                        )
+                    ) {
+
+                        valid = false;
+
+                        imageError.textContent =
+                            "Only JPG, JPEG, PNG and WEBP images are allowed.";
+
+                        return;
+                    }
+
+
+                    if (
+                        file.size >
+                        5 * 1024 * 1024
+                    ) {
+
+                        valid = false;
+
+                        imageError.textContent =
+                            file.name +
+                            " is larger than 5 MB.";
+
+                        return;
+                    }
+
+
+                    const wrapper =
+                        document.createElement("div");
+
+                    wrapper.className =
+                        "preview-item";
+
+
+                    const image =
+                        document.createElement("img");
+
+                    image.src =
+                        URL.createObjectURL(file);
+
+                    image.alt =
+                        "New product image";
+
+
+                    wrapper.appendChild(image);
+
+                    imagePreviewGallery.appendChild(
+                        wrapper
                     );
 
+                });
+
+
+                if (!valid) {
+
                     this.value = "";
-                    imagePreview.src = "";
-                    imagePreview.style.display =
-                        "none";
+
+                    imagePreviewGallery.innerHTML =
+                        "";
+
+                    imageCount.textContent =
+                        "";
 
                     return;
                 }
 
-                if (
-                    file.size >
-                    5 * 1024 * 1024
-                ) {
-                    alert(
-                        "Product image must be 5 MB or smaller."
-                    );
 
-                    this.value = "";
-                    imagePreview.src = "";
-                    imagePreview.style.display =
-                        "none";
+                imageCount.textContent =
+                    files.length +
+                    " shared product image" +
+                    (
+                        files.length === 1
+                            ? ""
+                            : "s"
+                    ) +
+                    " selected.";
 
-                    return;
-                }
-
-                imagePreview.src =
-                    URL.createObjectURL(file);
-
-                imagePreview.style.display =
-                    "block";
             }
         );
 
-        document.querySelector("form")
-            .addEventListener(
-                "submit",
-                function (event) {
 
-                    if (
-                        !isAvailableForBuy.checked &&
-                        !isAvailableForRent.checked
-                    ) {
+
+        categorySelect.addEventListener(
+            "change",
+            function() {
+
+                loadSubCategories();
+
+            }
+        );
+
+
+        subCategorySelect.addEventListener(
+            "change",
+            function() {
+
+                updateProductOptions();
+
+            }
+        );
+
+
+        isAvailableForBuy.addEventListener(
+            "change",
+            updateBuyDependentOptions
+        );
+
+
+        isOnSale.addEventListener(
+            "change",
+            updateSaleFields
+        );
+
+
+        salePriceInput.addEventListener(
+            "input",
+            validateSalePrice
+        );
+
+
+        isAvailableForRent.addEventListener(
+            "change",
+            updateRentalFields
+        );
+
+
+        priceInput.addEventListener(
+            "input",
+            function() {
+
+                updateRentalPriceLimit();
+
+                updateSecurityLimit();
+
+                validateSalePrice();
+
+            }
+        );
+
+
+        rentPriceInput.addEventListener(
+            "input",
+            validateRentalPrice
+        );
+
+
+        rentalSecurityInput.addEventListener(
+            "input",
+            validateRentalSecurity
+        );
+
+
+        document.getElementById(
+            "editProductForm"
+        ).addEventListener(
+            "submit",
+            function(event) {
+
+
+
+                if (
+                    !isAvailableForBuy.checked &&
+                    !isAvailableForRent.checked
+                ) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please select at least one option: Buy or Rent."
+                    );
+
+                    return;
+                }
+
+
+
+                if (
+                    dressVariantSection.style.display !==
+                    "none"
+                ) {
+
+                    const rows =
+                        document.querySelectorAll(
+                            ".variant-row"
+                        );
+
+
+                    if (rows.length === 0) {
+
                         event.preventDefault();
 
                         alert(
-                            "Please select at least one option: Buy or Rent."
+                            "Please add at least one size variant."
                         );
 
                         return;
                     }
 
-                    if (!isAvailableForBuy.checked) {
-                        isOnSale.checked =
-                            false;
 
-                        allowNegotiation.checked =
-                            false;
+                    if (!validateDuplicateSizes()) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Each size can only be added once."
+                        );
+
+                        return;
                     }
 
-                    if (
-                        !shoeSize.disabled
-                    ) {
-                        sizeSelect.disabled =
-                            true;
+
+                    let validVariants = true;
+
+
+                    rows.forEach(function(row) {
+
+                        const size =
+                            row.querySelector(
+                                ".variant-size"
+                            ).value;
+
+                        const quantity =
+                            parseInt(
+                                row.querySelector(
+                                    ".variant-quantity"
+                                ).value
+                            );
+
+
+                        if (!size) {
+
+                            validVariants = false;
+
+                        }
+
+
+                        if (
+                            isNaN(quantity) ||
+                            quantity < 0
+                        ) {
+
+                            validVariants = false;
+
+                        }
+
+                    });
+
+
+                    if (!validVariants) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select a size and enter a valid quantity for every variant."
+                        );
+
+                        return;
                     }
-                    else if (
-                        !sizeSelect.disabled
-                    ) {
-                        shoeSize.disabled =
-                            true;
-                    }
+
+
+                    updateVariantTotal();
+
                 }
-            );
+
+
+
+
+                if (
+                    isAvailableForBuy.checked &&
+                    isOnSale.checked
+                ) {
+
+                    if (!validateSalePrice()) {
+
+                        event.preventDefault();
+
+                        alert(
+                            salePriceInput.validationMessage
+                        );
+
+                        salePriceInput.focus();
+
+                        return;
+                    }
+
+                }
+
+
+
+
+                if (isAvailableForRent.checked) {
+
+                    if (!validateRentalPrice()) {
+
+                        event.preventDefault();
+
+                        alert(
+                            rentPriceInput.validationMessage
+                        );
+
+                        rentPriceInput.focus();
+
+                        return;
+                    }
+
+
+                    if (!validateRentalSecurity()) {
+
+                        event.preventDefault();
+
+                        alert(
+                            rentalSecurityInput.validationMessage
+                        );
+
+                        rentalSecurityInput.focus();
+
+                        return;
+                    }
+
+                }
+
+
+
+                if (!shoeSize.disabled) {
+
+                    if (!shoeSize.value) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select a shoe size."
+                        );
+
+                        shoeSize.focus();
+
+                        return;
+                    }
+
+
+                    shoeSize.name =
+                        "Size";
+
+                    shoeSize.disabled =
+                        false;
+
+                    sizeSelect.disabled =
+                        true;
+
+                }
+
+            }
+        );
+
+
+
 
         loadCategories();
 
         updateBuyDependentOptions();
 
         updateRentalFields();
+
+        updateRentalPriceLimit();
+
+        updateSecurityLimit();
+
+        validateSalePrice();
+
+        validateRentalPrice();
+
+        validateRentalSecurity();
+
+
+        if (
+            document.querySelectorAll(
+                ".variant-row"
+            ).length > 0
+        ) {
+
+            updateVariantTotal();
+
+        }
+
     </script>
 
 </body>

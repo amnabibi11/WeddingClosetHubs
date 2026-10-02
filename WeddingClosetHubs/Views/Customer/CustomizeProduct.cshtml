@@ -13,6 +13,17 @@
         string.IsNullOrWhiteSpace(Model.Subcategory)
             ? "Dress"
             : Model.Subcategory;
+
+    string selectedSize =
+        ViewBag.SelectedSize as string ?? "";
+
+    string existingMeasurements =
+        ViewBag.CustomMeasurements as string ?? "";
+
+    var measurements =
+        ViewBag.Measurements as
+        List<(string Name, bool Required, decimal Min, decimal Max)>
+        ?? new List<(string Name, bool Required, decimal Min, decimal Max)>();
 }
 
 <!DOCTYPE html>
@@ -116,10 +127,58 @@
 
         .form-label {
             font-weight: 600;
+            color: #333;
         }
 
-        .required {
-            color: red;
+        .required-badge {
+            background: #800020;
+            color: white;
+            font-size: 10px;
+            padding: 3px 7px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .optional-badge {
+            background: #6c757d;
+            color: white;
+            font-size: 10px;
+            padding: 3px 7px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .measurement-input {
+            height: 45px;
+            border: 1px solid #ced4da;
+        }
+
+        .measurement-input:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, .12);
+        }
+
+        .measurement-input.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .measurement-item {
+            background: white;
+            padding: 15px;
+            border-radius: 9px;
+            border: 1px solid #e1d8db;
+            height: 100%;
+        }
+
+        .measurement-item:hover {
+            border-color: #d4af37;
+        }
+
+        .range-note {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
         .btn-customize {
@@ -161,6 +220,29 @@
             margin-top: 8px;
         }
 
+        .selected-size-box {
+            background: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-size-label {
+            color: #800020;
+            font-weight: 600;
+        }
+
+        .no-measurements {
+            background: #f8e9ed;
+            border-radius: 10px;
+            padding: 20px;
+            color: #800020;
+            text-align: center;
+        }
+
         @@media(max-width:768px) {
 
             .main-container {
@@ -174,6 +256,15 @@
             .navbar-custom {
                 padding: 15px;
             }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .product-image {
+                height: 300px;
+            }
+
         }
 
     </style>
@@ -204,6 +295,7 @@
 
     </nav>
 
+
     <div class="main-container">
 
         <div class="card-custom">
@@ -218,10 +310,28 @@
 
             <p class="text-muted">
 
-                Enter your measurements carefully so the shopkeeper
-                can prepare your dress according to your size.
+                Enter the measurements normally taken by a tailor.
+                All measurements are in inches.
 
             </p>
+
+
+            @if (!string.IsNullOrWhiteSpace(selectedSize))
+            {
+                <div class="selected-size-box mt-3">
+
+                    <span class="selected-size-label">
+                        <i class="bi bi-tag"></i>
+                        Selected Size:
+                    </span>
+
+                    <span class="badge bg-secondary">
+                        @selectedSize
+                    </span>
+
+                </div>
+            }
+
 
             <div class="row mt-4">
 
@@ -243,6 +353,7 @@
                     }
 
                 </div>
+
 
                 <div class="col-md-7">
 
@@ -282,6 +393,7 @@
 
             </div>
 
+
             <form asp-controller="Customer"
                   asp-action="SaveCustomMeasurements"
                   method="post"
@@ -294,8 +406,14 @@
                        value="@Model.ProductId" />
 
                 <input type="hidden"
+                       name="size"
+                       value="@selectedSize" />
+
+                <input type="hidden"
                        name="customMeasurements"
-                       id="customMeasurements" />
+                       id="customMeasurements"
+                       value="@existingMeasurements" />
+
 
                 <div class="measurement-box mt-4">
 
@@ -303,1969 +421,188 @@
 
                         <i class="bi bi-rulers"></i>
 
-                        @displaySubcategory Measurements
+                        @displaySubcategory Measurement Chart
 
                     </h4>
+
 
                     <div class="measurement-note">
 
                         <strong>
+
                             <i class="bi bi-info-circle"></i>
-                            Important:
+
+                            Measurement Instructions
+
                         </strong>
 
-                        Enter measurements in
-                        <strong>inches</strong>.
+                        <div class="mt-2">
 
-                        Measure your body naturally without
-                        pulling the measuring tape too tightly.
+                            Use a soft measuring tape.
+                            Keep the tape comfortable and do not pull it
+                            too tightly or leave it too loose.
+
+                            <br />
+
+                            <strong>
+                                Enter only values within the displayed range.
+                            </strong>
+
+                        </div>
 
                     </div>
 
-                    @if (measurementType == "general")
+
+                    @if (measurements.Any())
                     {
                         <div class="row">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
+                            @foreach (var measurement in measurements)
+                            {
+                                <div class="col-md-6 mb-3">
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust"
-                                       required />
-                            </div>
+                                    <div class="measurement-item">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
+                                        <label class="form-label">
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
+                                            @measurement.Name
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
+                                            @if (measurement.Required)
+                                            {
+                                                <span class="required-badge">
+                                                    Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="optional-badge">
+                                                    Optional
+                                                </span>
+                                            }
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips"
-                                       required />
-                            </div>
+                                        </label>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
+                                        <div class="input-group">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
+                                            <input type="number"
+                                                   step="0.1"
+                                                   min="@measurement.Min"
+                                                   max="@measurement.Max"
+                                                   inputmode="decimal"
+                                                   class="form-control measurement-input"
+                                                   data-name="@measurement.Name"
+                                                   data-required="@measurement.Required.ToString().ToLowerInvariant()"
+                                                   data-min="@measurement.Min"
+                                                   data-max="@measurement.Max" />
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
+                                            <span class="input-group-text">
+                                                inches
+                                            </span>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
+                                        </div>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
+                                        <small class="range-note">
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
+                                            Allowed range:
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
+                                            @measurement.Min.ToString("0.#")
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
+                                            -
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck
-                                </label>
+                                            @measurement.Max.ToString("0.#")
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck" />
-                            </div>
+                                            inches
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Dress Length <span class="required">*</span>
-                                </label>
+                                        </small>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Dress Length"
-                                       required />
+
+                                        <div class="text-danger small measurement-error">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-measurements">
+
+                            <i class="bi bi-info-circle fs-4"></i>
+
+                            <div class="mt-2">
+                                No customization measurements are available
+                                for this product.
                             </div>
 
                         </div>
                     }
 
-                    @if (measurementType == "lehenga")
+
+                    @if (measurements.Any())
                     {
-                        <div class="row">
+                        <div class="measurement-count">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Bust <span class="required">*</span>
-                                </label>
+                            <i class="bi bi-info-circle"></i>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Bust"
-                                       required />
-                            </div>
+                            Only the measurements required for
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Waist <span class="required">*</span>
-                                </label>
+                            <strong>
+                                @displaySubcategory
+                            </strong>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Waist"
-                                       required />
-                            </div>
+                            are available.
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
+                            Values outside the displayed ranges
+                            cannot be saved.
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
+                        </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Length <span class="required">*</span>
-                                </label>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Length"
-                                       required />
-                            </div>
+                        <div class="mt-4 d-flex gap-2 flex-wrap">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
+                            <button type="submit"
+                                    class="btn btn-customize">
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
+                                <i class="bi bi-check-circle"></i>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
+                                Save Measurements
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
+                            </button>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
+                            <a asp-controller="Customer"
+                               asp-action="Cart"
+                               class="btn btn-back">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Lehenga Waist <span class="required">*</span>
-                                </label>
+                                <i class="bi bi-cart"></i>
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Lehenga Waist"
-                                       required />
-                            </div>
+                                Back to Cart
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Lehenga Hips
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Lehenga Hips" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Lehenga Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Lehenga Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Flare
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Flare" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Dupatta Length
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Dupatta Length" />
-                            </div>
+                            </a>
 
                         </div>
                     }
-
-                    @if (measurementType == "gown")
+                    else
                     {
-                        <div class="row">
+                        <div class="mt-4">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
+                            <a asp-controller="Customer"
+                               asp-action="Cart"
+                               class="btn btn-back">
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust"
-                                       required />
-                            </div>
+                                <i class="bi bi-cart"></i>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
+                                Back to Cart
 
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck Depth
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck Depth" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Gown Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Gown Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Train Length
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Train Length" />
-                            </div>
+                            </a>
 
                         </div>
                     }
-
-                    @if (measurementType == "maxi")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck Depth
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck Depth" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Maxi Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Maxi Length"
-                                       required />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "sharara")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Kameez Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Kameez Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sharara Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sharara Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Thigh
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Thigh" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sharara Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sharara Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Leg Opening
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Leg Opening" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Dupatta Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Dupatta Length" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "pishwas")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck Depth
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck Depth" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Pishwas Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Pishwas Length"
-                                       required />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "saree")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Bust"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Blouse Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Blouse Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Front Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Front Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Back Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Back Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Saree Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Saree Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Petticoat Waist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Petticoat Waist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Petticoat Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Petticoat Length" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "frock")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Front Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Front Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Back Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Back Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Frock Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Frock Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Flare
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Flare" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "anarkali")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck Depth
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck Depth" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Anarkali Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Anarkali Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Flare
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Flare" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "palazzo")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shirt Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shirt Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Palazzo Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Palazzo Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Thigh
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Thigh" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Palazzo Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Palazzo Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Leg Opening
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Leg Opening" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "sherwani")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Chest <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Chest" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sherwani Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sherwani Length"
-                                       required />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "princecoat")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Chest <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Chest" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Coat Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Coat Length"
-                                       required />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "kurtashalwar")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Chest <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Chest"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Kameez Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Kameez Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shalwar Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shalwar Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shalwar Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shalwar Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Leg Opening
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Leg Opening" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType == "suit")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Chest <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Chest"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Neck
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Neck" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bicep
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bicep" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Wrist
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Wrist" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Coat Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Coat Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Trouser Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Trouser Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Thigh
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Thigh" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Trouser Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Trouser Length"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Leg Opening
-                                </label>
-
-                                <input type="number" step="0.1" min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Leg Opening" />
-                            </div>
-
-                        </div>
-                    }
-
-                    @if (measurementType != "general" &&
-                         measurementType != "lehenga" &&
-                         measurementType != "gown" &&
-                         measurementType != "maxi" &&
-                         measurementType != "sharara" &&
-                         measurementType != "pishwas" &&
-                         measurementType != "saree" &&
-                         measurementType != "frock" &&
-                         measurementType != "anarkali" &&
-                         measurementType != "palazzo" &&
-                         measurementType != "sherwani" &&
-                         measurementType != "princecoat" &&
-                         measurementType != "kurtashalwar" &&
-                         measurementType != "suit")
-                    {
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Bust / Chest <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Bust / Chest"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Waist <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Waist"
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Hips
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Hips" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Shoulder
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Shoulder" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Armhole
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Armhole" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Sleeve Length
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Sleeve Length" />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    Length <span class="required">*</span>
-                                </label>
-
-                                <input type="number"
-                                       step="0.1"
-                                       min="0"
-                                       class="form-control measurement-input"
-                                       data-name="Length"
-                                       required />
-                            </div>
-
-                        </div>
-                    }
-
-                    <div class="measurement-count">
-
-                        <i class="bi bi-info-circle"></i>
-
-                        All measurements are saved with your cart item
-                        and will be sent to the shopkeeper with your order.
-
-                    </div>
-
-                    <div class="mt-4 d-flex gap-2 flex-wrap">
-
-                        <button type="submit"
-                                class="btn btn-customize">
-
-                            <i class="bi bi-check-circle"></i>
-
-                            Save Measurements
-
-                        </button>
-
-                        <a asp-controller="Customer"
-                           asp-action="Cart"
-                           class="btn btn-back">
-
-                            <i class="bi bi-cart"></i>
-
-                            Back to Cart
-
-                        </a>
-
-                    </div>
 
                 </div>
 
@@ -2274,6 +611,7 @@
         </div>
 
     </div>
+
 
     <script>
 
@@ -2286,6 +624,11 @@
 
                 const measurements = [];
 
+                const missingRequired = [];
+
+                const invalidMeasurements = [];
+
+
                 inputs.forEach(function (input) {
 
                     const name =
@@ -2294,29 +637,170 @@
                     const value =
                         input.value.trim();
 
-                    if (value !== "") {
+                    const isRequired =
+                        input.getAttribute("data-required") === "true";
 
-                        measurements.push(
-                            name + ": " + value + " inches"
+                    const min =
+                        parseFloat(
+                            input.getAttribute("data-min")
                         );
 
+                    const max =
+                        parseFloat(
+                            input.getAttribute("data-max")
+                        );
+
+
+                    input.classList.remove("is-invalid");
+
+
+                    if (isRequired && value === "") {
+
+                        missingRequired.push(name);
+
+                        input.classList.add("is-invalid");
+
+                        return;
                     }
 
+
+                    if (value === "") {
+                        return;
+                    }
+
+
+                    const numericValue =
+                        parseFloat(value);
+
+
+                    if (isNaN(numericValue)) {
+
+                        invalidMeasurements.push(
+                            name + " must contain a valid number."
+                        );
+
+                        input.classList.add("is-invalid");
+
+                        return;
+                    }
+
+
+                    if (numericValue < min ||
+                        numericValue > max) {
+
+                        invalidMeasurements.push(
+                            name +
+                            " must be between " +
+                            min +
+                            " and " +
+                            max +
+                            " inches."
+                        );
+
+                        input.classList.add("is-invalid");
+
+                        return;
+                    }
+
+
+                    measurements.push(
+                        name +
+                        ": " +
+                        numericValue.toFixed(1) +
+                        " inches"
+                    );
+
                 });
+
+
+                if (missingRequired.length > 0) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please enter the required measurements:\n\n" +
+                        missingRequired.join("\n")
+                    );
+
+                    return;
+                }
+
+
+                if (invalidMeasurements.length > 0) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please correct the following measurements:\n\n" +
+                        invalidMeasurements.join("\n")
+                    );
+
+                    return;
+                }
+
 
                 if (measurements.length === 0) {
 
                     event.preventDefault();
 
-                    alert("Please enter your measurements.");
+                    alert(
+                        "Please enter your measurements."
+                    );
 
                     return;
                 }
+
 
                 document.getElementById(
                     "customMeasurements"
                 ).value =
                     measurements.join(" | ");
+
+            });
+
+
+        document
+            .querySelectorAll(".measurement-input")
+            .forEach(function (input) {
+
+                input.addEventListener("input", function () {
+
+                    const value =
+                        parseFloat(this.value);
+
+                    const min =
+                        parseFloat(
+                            this.getAttribute("data-min")
+                        );
+
+                    const max =
+                        parseFloat(
+                            this.getAttribute("data-max")
+                        );
+
+
+                    if (this.value === "") {
+
+                        this.classList.remove("is-invalid");
+
+                        return;
+                    }
+
+
+                    if (isNaN(value) ||
+                        value < min ||
+                        value > max) {
+
+                        this.classList.add("is-invalid");
+
+                    }
+                    else {
+
+                        this.classList.remove("is-invalid");
+
+                    }
+
+                });
 
             });
 

@@ -221,8 +221,6 @@
 
                     <div class="card-body">
 
-                        
-
                         <div class="mb-4">
 
                             <h6 class="fw-bold">
@@ -250,8 +248,6 @@
 
                         </div>
 
-
-                        
 
                         <div class="mb-4">
 
@@ -283,7 +279,6 @@
                             }
 
                         </div>
-
 
 
                         <div class="mb-4">
@@ -427,7 +422,6 @@
             </div>
 
 
-           
             <div class="col-12">
 
                 <div class="card shadow-sm border-0">
@@ -461,7 +455,6 @@
                         {
                             <div class="row g-4">
 
-                                
 
                                 <div class="col-md-6">
 
@@ -478,8 +471,6 @@
                                 </div>
 
 
-                               
-
                                 <div class="col-md-6">
 
                                     <label class="fw-bold">
@@ -494,8 +485,6 @@
 
                                 </div>
 
-
-                                
 
                                 <div class="col-md-6">
 
@@ -512,8 +501,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-md-6">
 
                                     <label class="fw-bold">
@@ -529,8 +516,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-12">
 
                                     <label class="fw-bold">
@@ -545,8 +530,6 @@
 
                                 </div>
 
-
-                                
 
                                 <div class="col-md-4">
 
@@ -574,8 +557,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-md-4">
 
                                     <label class="fw-bold">
@@ -601,8 +582,6 @@
 
                                 </div>
 
-
-                 
 
                                 <div class="col-md-4">
 
@@ -634,8 +613,6 @@
                                 </div>
 
 
-                           
-
                                 <div class="col-12">
 
                                     <hr />
@@ -651,8 +628,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
@@ -661,10 +636,16 @@
 
                                     @if (!string.IsNullOrWhiteSpace(Model.Shop.Logo))
                                     {
-                                        <img src="@Model.Shop.Logo"
-                                             class="img-fluid rounded border"
-                                             alt="Shop Logo"
-                                             style="max-height:200px;" />
+                                        <a href="@Model.Shop.Logo"
+                                           target="_blank"
+                                           title="Click to view Shop Logo">
+
+                                            <img src="@Model.Shop.Logo"
+                                                 class="img-fluid rounded border"
+                                                 alt="Shop Logo"
+                                                 style="max-height:200px; cursor:pointer;" />
+
+                                        </a>
                                     }
                                     else
                                     {
@@ -676,8 +657,6 @@
                                 </div>
 
 
-                               
-
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
@@ -686,10 +665,16 @@
 
                                     @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopFrontPhoto))
                                     {
-                                        <img src="@Model.Shop.ShopFrontPhoto"
-                                             class="img-fluid rounded border"
-                                             alt="Shop Front"
-                                             style="max-height:200px;" />
+                                        <a href="@Model.Shop.ShopFrontPhoto"
+                                           target="_blank"
+                                           title="Click to view Shop Front">
+
+                                            <img src="@Model.Shop.ShopFrontPhoto"
+                                                 class="img-fluid rounded border"
+                                                 alt="Shop Front"
+                                                 style="max-height:200px; cursor:pointer;" />
+
+                                        </a>
                                     }
                                     else
                                     {
@@ -701,8 +686,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
@@ -711,10 +694,16 @@
 
                                     @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopInsidePhoto))
                                     {
-                                        <img src="@Model.Shop.ShopInsidePhoto"
-                                             class="img-fluid rounded border"
-                                             alt="Shop Inside"
-                                             style="max-height:200px;" />
+                                        <a href="@Model.Shop.ShopInsidePhoto"
+                                           target="_blank"
+                                           title="Click to view Shop Inside">
+
+                                            <img src="@Model.Shop.ShopInsidePhoto"
+                                                 class="img-fluid rounded border"
+                                                 alt="Shop Inside"
+                                                 style="max-height:200px; cursor:pointer;" />
+
+                                        </a>
                                     }
                                     else
                                     {
@@ -726,8 +715,6 @@
                                 </div>
 
 
-                                
-
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
@@ -736,10 +723,16 @@
 
                                     @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopSignboardPhoto))
                                     {
-                                        <img src="@Model.Shop.ShopSignboardPhoto"
-                                             class="img-fluid rounded border"
-                                             alt="Shop Signboard"
-                                             style="max-height:200px;" />
+                                        <a href="@Model.Shop.ShopSignboardPhoto"
+                                           target="_blank"
+                                           title="Click to view Shop Signboard">
+
+                                            <img src="@Model.Shop.ShopSignboardPhoto"
+                                                 class="img-fluid rounded border"
+                                                 alt="Shop Signboard"
+                                                 style="max-height:200px; cursor:pointer;" />
+
+                                        </a>
                                     }
                                     else
                                     {

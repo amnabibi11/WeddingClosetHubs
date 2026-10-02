@@ -32,6 +32,10 @@ namespace WeddingClosetHubs.Models
 
         public DbSet<Review> Reviews { get; set; }
         public virtual DbSet<Negotiation> Negotiations { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
+          
+
 
 
         protected override void OnModelCreating(

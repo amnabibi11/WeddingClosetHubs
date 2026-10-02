@@ -11,7 +11,6 @@
 
 <head>
 
-
     <meta charset="utf-8" />
 
     <meta name="viewport"
@@ -38,8 +37,6 @@
             color: #333;
         }
 
-
-
         .navbar-custom {
             background: #800020;
             padding: 16px 35px;
@@ -57,15 +54,11 @@
                 color: #d4af37;
             }
 
-
-
         .page-container {
             padding: 35px;
             max-width: 1500px;
             margin: auto;
         }
-
-
 
         .page-header {
             display: flex;
@@ -102,14 +95,10 @@
                 transform: translateY(-1px);
             }
 
-
-
         .alert {
             border-radius: 8px;
             border: none;
         }
-
-
 
         .product-container {
             background: white;
@@ -117,9 +106,6 @@
             box-shadow: 0 4px 18px rgba(0,0,0,.08);
             overflow: hidden;
         }
-
-
-
 
         .table-heading {
             padding: 20px 25px;
@@ -143,8 +129,6 @@
             font-size: 13px;
             font-weight: bold;
         }
-
-
 
         .product-table {
             width: 100%;
@@ -183,8 +167,6 @@
                     border-bottom: none;
                 }
 
-
-
         .product-img {
             width: 70px;
             height: 70px;
@@ -204,8 +186,6 @@
             color: #999;
         }
 
-
-
         .product-name {
             color: #800020;
             font-weight: bold;
@@ -218,7 +198,6 @@
             font-size: 12px;
         }
 
-
         .category-main {
             font-weight: 600;
             color: #444;
@@ -230,8 +209,6 @@
             margin-top: 3px;
         }
 
-
-
         .price {
             color: #800020;
             font-size: 16px;
@@ -239,7 +216,34 @@
             white-space: nowrap;
         }
 
+        .variant-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 190px;
+            max-width: 300px;
+        }
 
+        .variant-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8e9ed;
+            border: 1px solid #ead1d8;
+            border-radius: 6px;
+            padding: 6px 9px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .variant-size {
+            color: #800020;
+            font-weight: bold;
+        }
+
+        .variant-stock {
+            color: #555;
+        }
 
         .stock-number {
             font-weight: bold;
@@ -255,7 +259,11 @@
             color: #198754;
         }
 
-
+        .total-stock-label {
+            color: #777;
+            font-size: 11px;
+            margin-top: 4px;
+        }
 
         .status-badge {
             display: inline-block;
@@ -274,8 +282,6 @@
             background: #f8d7da;
             color: #b02a37;
         }
-
-
 
         .actions {
             display: flex;
@@ -333,9 +339,6 @@
                 color: white;
             }
 
-
-
-
         .empty-box {
             background: white;
             border-radius: 12px;
@@ -363,9 +366,6 @@
             font-weight: bold;
         }
 
-
-
-
         @@media (max-width: 1100px) {
 
             .product-container {
@@ -373,10 +373,9 @@
             }
 
             .product-table {
-                min-width: 1050px;
+                min-width: 1150px;
             }
         }
-
 
         @@media (max-width: 768px) {
 
@@ -406,13 +405,9 @@
 
     </style>
 
-
 </head>
 
 <body>
-
-
-
 
     <nav class="navbar-custom">
 
@@ -427,7 +422,6 @@
 
             </a>
 
-
             <a asp-controller="Shopkeeper"
                asp-action="Dashboard"
                class="btn btn-light">
@@ -441,14 +435,7 @@
 
     </nav>
 
-
-
     <div class="page-container">
-
-
-
-
-
 
         <div class="page-header">
 
@@ -469,7 +456,6 @@
 
             </div>
 
-
             <a asp-controller="Shopkeeper"
                asp-action="AddProduct"
                class="add-btn">
@@ -481,16 +467,10 @@
 
         </div>
 
-
-
-
         @if (Model != null && Model.Any())
         {
 
             <div class="product-container">
-
-
-
 
                 <div class="table-heading">
 
@@ -501,7 +481,6 @@
 
                     </h5>
 
-
                     <span class="product-count">
 
                         @Model.Count() Products
@@ -509,10 +488,6 @@
                     </span>
 
                 </div>
-
-
-
-
 
                 <div class="table-responsive">
 
@@ -535,7 +510,7 @@
                                 </th>
 
                                 <th>
-                                    Size
+                                    Sizes & Stock
                                 </th>
 
                                 <th>
@@ -543,7 +518,7 @@
                                 </th>
 
                                 <th>
-                                    Stock
+                                    Total Stock
                                 </th>
 
                                 <th>
@@ -558,15 +533,12 @@
 
                         </thead>
 
-
                         <tbody>
 
                             @foreach (var product in Model)
                             {
 
                                 <tr>
-
-
 
                                     <td>
 
@@ -591,7 +563,6 @@
 
                                             }
 
-
                                             <div>
 
                                                 <div class="product-name">
@@ -599,7 +570,6 @@
                                                     @product.ProductName
 
                                                 </div>
-
 
                                                 @if (!string.IsNullOrWhiteSpace(product.ProductType))
                                                 {
@@ -618,8 +588,6 @@
 
                                     </td>
 
-
-
                                     <td>
 
                                         <div class="category-main">
@@ -627,7 +595,6 @@
                                             @product.Category
 
                                         </div>
-
 
                                         @if (!string.IsNullOrWhiteSpace(product.Subcategory))
                                         {
@@ -641,9 +608,6 @@
                                         }
 
                                     </td>
-
-
-
 
                                     <td>
 
@@ -664,12 +628,40 @@
 
                                     </td>
 
-
-
-
                                     <td>
 
-                                        @if (!string.IsNullOrWhiteSpace(product.Size))
+                                        @if (product.ProductVariants != null &&
+                                             product.ProductVariants.Any())
+                                        {
+
+                                            <div class="variant-box">
+
+                                                @foreach (var variant in product.ProductVariants
+                                                    .OrderBy(v => v.Size))
+                                                {
+
+                                                    <span class="variant-item">
+
+                                                        <strong class="variant-size">
+
+                                                            @variant.Size
+
+                                                        </strong>
+
+                                                        <span class="variant-stock">
+
+                                                            Stock: @variant.StockQuantity
+
+                                                        </span>
+
+                                                    </span>
+
+                                                }
+
+                                            </div>
+
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(product.Size))
                                         {
 
                                             <span class="badge bg-light text-dark border">
@@ -690,8 +682,6 @@
 
                                     </td>
 
-
-
                                     <td>
 
                                         <span class="price">
@@ -702,35 +692,73 @@
 
                                     </td>
 
-
                                     <td>
 
-                                        @if (product.StockQuantity == 0)
+                                        @if (product.ProductVariants != null &&
+                                             product.ProductVariants.Any())
                                         {
 
-                                            <span class="stock-out">
+                                            int totalStock =
+                                                product.ProductVariants.Sum(
+                                                    v => v.StockQuantity);
 
-                                                <i class="bi bi-exclamation-circle"></i>
-                                                Out of Stock
+                                            @if (totalStock == 0)
+                                            {
 
-                                            </span>
+                                                <span class="stock-out">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+                                                    Out of Stock
+
+                                                </span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="stock-number stock-available">
+
+                                                    @totalStock
+
+                                                </span>
+
+                                                <div class="total-stock-label">
+
+                                                    Total pieces
+
+                                                </div>
+
+                                            }
 
                                         }
                                         else
                                         {
 
-                                            <span class="stock-number stock-available">
+                                            @if (product.StockQuantity == 0)
+                                            {
 
-                                                @product.StockQuantity
+                                                <span class="stock-out">
 
-                                            </span>
+                                                    <i class="bi bi-exclamation-circle"></i>
+                                                    Out of Stock
+
+                                                </span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span class="stock-number stock-available">
+
+                                                    @product.StockQuantity
+
+                                                </span>
+
+                                            }
 
                                         }
 
                                     </td>
-
-
-
 
                                     <td>
 
@@ -759,13 +787,9 @@
 
                                     </td>
 
-
-
                                     <td>
 
                                         <div class="actions">
-
-
 
                                             <a asp-controller="Shopkeeper"
                                                asp-action="EditProduct"
@@ -776,9 +800,6 @@
                                                 Edit
 
                                             </a>
-
-
-
 
                                             @if (product.Status)
                                             {
@@ -832,8 +853,6 @@
 
                                             }
 
-
-
                                             <form asp-controller="Shopkeeper"
                                                   asp-action="DeleteProduct"
                                                   method="post"
@@ -856,11 +875,9 @@
 
                                             </form>
 
-
                                         </div>
 
                                     </td>
-
 
                                 </tr>
 
@@ -875,10 +892,8 @@
             </div>
 
         }
-
         else
         {
-
 
             <div class="empty-box">
 
@@ -888,18 +903,15 @@
 
                 </div>
 
-
                 <h4>
                     No Products Found
                 </h4>
-
 
                 <p class="text-muted">
 
                     You have not added any products to your shop yet.
 
                 </p>
-
 
                 <a asp-controller="Shopkeeper"
                    asp-action="AddProduct"
@@ -916,7 +928,7 @@
 
     </div>
 
-
 </body>
 
 </html>
+

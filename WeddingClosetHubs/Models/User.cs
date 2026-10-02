@@ -27,12 +27,22 @@ namespace WeddingClosetHubs.Models
 
         public string? Address { get; set; }
 
+
+      
+
+        [StringLength(15)]
+        public string? CNIC { get; set; }
+
+        public string? CNICFrontImage { get; set; }
+
+        public string? CNICBackImage { get; set; }
+
+
         [Required(ErrorMessage = "Please select an account type")]
         public int? RoleId { get; set; }
 
 
         public string? ProfileImage { get; set; }
-
 
 
         [StringLength(30)]
@@ -42,6 +52,8 @@ namespace WeddingClosetHubs.Models
         [StringLength(50)]
         public string? PaymentAccount { get; set; }
 
+
+       
 
         public bool Status { get; set; } = true;
 
@@ -53,6 +65,7 @@ namespace WeddingClosetHubs.Models
 
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+
 
 
         [ForeignKey("RoleId")]

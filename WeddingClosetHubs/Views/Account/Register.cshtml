@@ -1,1405 +1,2094 @@
 ﻿@model WeddingClosetHubs.Models.User
 
 @{
-ViewData["Title"] = "Register";
+    ViewData["Title"] = "Register";
 }
 
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-9">
 
+            <div class="card shadow">
 
-        <div class="card shadow">
-
-            <div class="card-header bg-primary text-white text-center">
-                <h3 class="mb-0">Create Account</h3>
-                <small>Wedding Closet Hubs</small>
-            </div>
-
-            <div class="card-body">
-
-                <form asp-controller="Account"
-                      asp-action="Register"
-                      method="post"
-                      enctype="multipart/form-data"
-                      id="registerForm">
-
-                    @Html.AntiForgeryToken()
-
-                    <div asp-validation-summary="ModelOnly"
-                         class="alert alert-danger"
-                         role="alert">
-                    </div>
-
-                    <h5 class="border-bottom pb-2 mb-3">
-                        Personal Information
-                    </h5>
-
-                    <div class="mb-3">
-                        <label asp-for="Name" class="form-label">
-                            Full Name <span class="text-danger">*</span>
-                        </label>
-
-                        <input asp-for="Name"
-                               class="form-control"
-                               id="name"
-                               maxlength="100"
-                               minlength="3"
-                               required
-                               placeholder="Enter your full name"
-                               autocomplete="name" />
-
-                        <span asp-validation-for="Name"
-                              class="text-danger">
-                        </span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label">
-                            Email <span class="text-danger">*</span>
-                        </label>
-
-                        <input asp-for="Email"
-                               type="email"
-                               class="form-control"
-                               id="email"
-                               maxlength="150"
-                               required
-                               placeholder="Enter email address"
-                               autocomplete="email" />
-
-                        <span asp-validation-for="Email"
-                              class="text-danger">
-                        </span>
-
-                        <small class="text-muted">
-                            Use Gmail, Yahoo, Hotmail or Outlook.
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">
-                            Password <span class="text-danger">*</span>
-                        </label>
-
-                        <div class="input-group">
-                            <input asp-for="Password"
-                                   type="password"
-                                   id="registerPassword"
-                                   class="form-control"
-                                   minlength="8"
-                                   maxlength="100"
-                                   required
-                                   placeholder="Create password"
-                                   autocomplete="new-password" />
-
-                            <button type="button"
-                                    class="btn btn-outline-secondary"
-                                    id="toggleRegisterPassword">
-
-                                <i class="bi bi-eye"
-                                   id="registerEyeIcon"></i>
-                            </button>
-                        </div>
-
-                        <span asp-validation-for="Password"
-                              class="text-danger">
-                        </span>
-
-                        <small class="text-muted">
-                            Minimum 8 characters with uppercase,
-                            lowercase and a number.
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Phone" class="form-label">
-                            Phone Number <span class="text-danger">*</span>
-                        </label>
-
-                        <input asp-for="Phone"
-                               type="tel"
-                               class="form-control"
-                               id="phone"
-                               maxlength="12"
-                               required
-                               placeholder="03XX-XXXXXXX"
-                               autocomplete="tel" />
-
-                        <span asp-validation-for="Phone"
-                              class="text-danger">
-                        </span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Address" class="form-label">
-                            Address <span class="text-danger">*</span>
-                        </label>
-
-                        <textarea asp-for="Address"
-                                  class="form-control"
-                                  id="address"
-                                  rows="3"
-                                  maxlength="500"
-                                  required
-                                  placeholder="Enter your address in Rawalpindi"></textarea>
-
-                        <span asp-validation-for="Address"
-                              class="text-danger">
-                        </span>
-                    </div>
-
-                    <h5 class="border-bottom pb-2 mb-3 mt-4">
-                        Account Type
-                    </h5>
-
-                    <div class="mb-3">
-                        <label asp-for="RoleId" class="form-label">
-                            Select Account Type
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <select asp-for="RoleId"
-                                class="form-control"
-                                id="roleSelect"
-                                required>
-
-                            <option value="">
-                                -- Select Account Type --
-                            </option>
-
-                            @if (ViewBag.Roles != null)
-                            {
-                                foreach (var role in ViewBag.Roles)
-                                {
-                                    <option value="@role.RoleId"
-                                            data-role="@role.RoleName">
-                                        @role.RoleName
-                                    </option>
-                                }
-                            }
-                        </select>
-
-                        <span asp-validation-for="RoleId"
-                              class="text-danger">
-                        </span>
-                    </div>
-
-                    <div id="customerSection"
-                         style="display:none;">
-
-                        <div class="alert alert-success">
-                            <h5>Customer Registration</h5>
-                            All personal information above is required.
-                        </div>
-                    </div>
-
-                    <div id="shopkeeperSection"
-                         style="display:none;">
-
-                        <div class="card border-primary mb-4">
-
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">
-                                    Shopkeeper Registration
-                                </h5>
-                            </div>
-
-                            <div class="card-body">
-
-                                <h6 class="border-bottom pb-2 mb-3">
-                                    Shop Information
-                                </h6>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Name
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="text"
-                                           name="ShopName"
-                                           id="shopName"
-                                           class="form-control"
-                                           minlength="3"
-                                           maxlength="100"
-                                           placeholder="Enter shop name" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopNameError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Category
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <select name="ShopCategory"
-                                            id="shopCategory"
-                                            class="form-control">
-
-                                        <option value="">
-                                            -- Select Category --
-                                        </option>
-
-                                        <option value="Dress">Dress</option>
-                                        <option value="Wedding Guest Wear">
-                                            Wedding Guest Wear
-                                        </option>
-                                        <option value="Footwear">
-                                            Footwear
-                                        </option>
-                                        <option value="Jewellery">
-                                            Jewellery
-                                        </option>
-                                        <option value="Accessories">
-                                            Accessories
-                                        </option>
-                                    </select>
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopCategoryError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Phone
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="tel"
-                                           name="ShopPhone"
-                                           id="shopPhone"
-                                           class="form-control"
-                                           maxlength="12"
-                                           placeholder="03XX-XXXXXXX" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopPhoneError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Address
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <textarea name="ShopAddress"
-                                              id="shopAddress"
-                                              class="form-control"
-                                              rows="3"
-                                              maxlength="500"
-                                              placeholder="Enter shop address in Rawalpindi"></textarea>
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopAddressError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Description
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <textarea name="ShopDescription"
-                                              id="shopDescription"
-                                              class="form-control"
-                                              rows="3"
-                                              minlength="10"
-                                              maxlength="1000"
-                                              placeholder="Describe your shop (minimum 10 characters)"></textarea>
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopDescriptionError"></span>
-                                </div>
-
-                                <h6 class="border-bottom pb-2 mb-3 mt-4">
-                                    Shop Verification
-                                </h6>
-
-                                <div class="alert alert-info">
-                                    <strong>Shop Verification</strong>
-                                    <br />
-                                    Please upload clear photos of your
-                                    shop for Admin verification.
-                                    <br />
-                                    <small>
-                                        JPG, JPEG or PNG only.
-                                        Maximum 5 MB per image.
-                                    </small>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Front Photo
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="file"
-                                           name="ShopFrontPhoto"
-                                           id="shopFrontPhoto"
-                                           class="form-control"
-                                           accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopFrontPhotoError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Inside Photo
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="file"
-                                           name="ShopInsidePhoto"
-                                           id="shopInsidePhoto"
-                                           class="form-control"
-                                           accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopInsidePhotoError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Shop Signboard Photo
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="file"
-                                           name="ShopSignboardPhoto"
-                                           id="shopSignboardPhoto"
-                                           class="form-control"
-                                           accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="shopSignboardPhotoError"></span>
-                                </div>
-
-                                <div class="alert alert-warning mt-4">
-                                    <strong>Important:</strong>
-                                    <br />
-                                    Your shopkeeper account will remain
-                                    <strong>Pending</strong> until Admin
-                                    verifies your shop information and photos.
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="deliverySection"
-                         style="display:none;">
-
-                        <div class="card border-warning mb-4">
-
-                            <div class="card-header bg-warning">
-                                <h5 class="mb-0">
-                                    Delivery Boy Registration
-                                </h5>
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        CNIC Number
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="text"
-                                           name="CNIC"
-                                           id="CNIC"
-                                           class="form-control"
-                                           placeholder="XXXXX-XXXXXXX-X"
-                                           maxlength="15"
-                                           inputmode="numeric"
-                                           autocomplete="off" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="cnicError"></span>
-
-                                    <small class="text-muted">
-                                        Format: 12345-1234567-1
-                                    </small>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        CNIC Front Image
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="file"
-                                           name="CNICFrontImage"
-                                           id="cnicFrontImage"
-                                           class="form-control"
-                                           accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="cnicFrontImageError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        CNIC Back Image
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="file"
-                                           name="CNICBackImage"
-                                           id="cnicBackImage"
-                                           class="form-control"
-                                           accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="cnicBackImageError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Vehicle Type
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="text"
-                                           class="form-control"
-                                           value="Motorbike"
-                                           readonly />
-
-                                    <input type="hidden"
-                                           name="VehicleType"
-                                           id="vehicleType"
-                                           value="Motorbike" />
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Motorbike Registration Number
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <input type="text"
-                                           name="MotorbikeNumber"
-                                           id="motorbikeNumber"
-                                           class="form-control"
-                                           minlength="3"
-                                           maxlength="30"
-                                           placeholder="Enter motorbike registration number" />
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="motorbikeNumberError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Preferred Delivery Zone
-                                        <span class="text-danger">*</span>
-                                    </label>
-
-                                    <select name="PreferredZone"
-                                            id="preferredZone"
-                                            class="form-control">
-
-                                        <option value="">
-                                            -- Select Zone --
-                                        </option>
-
-                                        <option value="Saddar">
-                                            Saddar
-                                        </option>
-
-                                        <option value="6th Road">
-                                            6th Road
-                                        </option>
-
-                                        <option value="Liaqat Bagh">
-                                            Liaqat Bagh
-                                        </option>
-                                    </select>
-
-                                    <span class="text-danger custom-validation-error"
-                                          id="preferredZoneError"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Assigned Delivery Zone
-                                    </label>
-
-                                    <input type="text"
-                                           class="form-control"
-                                           value="Will be assigned by Admin"
-                                           readonly />
-                                </div>
-
-                                <div class="alert alert-warning">
-                                    <strong>Delivery Verification</strong>
-                                    <br />
-                                    Your delivery account will remain
-                                    <strong>Pending</strong> until Admin
-                                    verifies your information.
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="generalMessage"
-                         class="alert alert-info">
-
-                        <strong>Important:</strong>
-                        <br />
-                        Select an account type above to see the
-                        registration requirements.
-                    </div>
-
-                    <button type="submit"
-                            class="btn btn-primary w-100"
-                            id="registerButton">
-
-                        <i class="bi bi-person-plus"></i>
-                        Register
-                    </button>
-
-                </form>
-
-                <div class="text-center mt-3">
-                    Already have an account?
-
-                    <a asp-controller="Account"
-                       asp-action="Login">
-                        Login
-                    </a>
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Create Account</h3>
+                    <small>Wedding Closet Hubs</small>
                 </div>
 
+                <div class="card-body">
+
+                    <form asp-controller="Account"
+                          asp-action="Register"
+                          method="post"
+                          enctype="multipart/form-data"
+                          id="registerForm">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+                        <h5 class="border-bottom pb-2 mb-3">
+                            Personal Information
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">
+                                Full Name <span class="text-danger">*</span>
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="form-control"
+                                   id="name"
+                                   maxlength="100"
+                                   minlength="3"
+                                   required
+                                   placeholder="Enter your full name"
+                                   autocomplete="name" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                Email <span class="text-danger">*</span>
+                            </label>
+
+                            <input asp-for="Email"
+                                   type="email"
+                                   class="form-control"
+                                   id="email"
+                                   maxlength="150"
+                                   required
+                                   placeholder="Enter email address"
+                                   autocomplete="email" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted">
+                                Use Gmail, Yahoo, Hotmail or Outlook.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">
+                                Password <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="Password"
+                                       type="password"
+                                       id="registerPassword"
+                                       class="form-control"
+                                       minlength="8"
+                                       maxlength="100"
+                                       required
+                                       placeholder="Create password"
+                                       autocomplete="new-password" />
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="toggleRegisterPassword">
+
+                                    <i class="bi bi-eye"
+                                       id="registerEyeIcon"></i>
+                                </button>
+
+                            </div>
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted">
+                                Minimum 8 characters with uppercase,
+                                lowercase and a number.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">
+                                Phone Number <span class="text-danger">*</span>
+                            </label>
+
+                            <input asp-for="Phone"
+                                   type="tel"
+                                   class="form-control"
+                                   id="phone"
+                                   maxlength="12"
+                                   required
+                                   placeholder="03XX-XXXXXXX"
+                                   autocomplete="tel" />
+
+                            <span asp-validation-for="Phone"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">
+                                Address <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea asp-for="Address"
+                                      class="form-control"
+                                      id="address"
+                                      rows="3"
+                                      maxlength="500"
+                                      required
+                                      placeholder="Enter your address in Rawalpindi"></textarea>
+
+                            <span asp-validation-for="Address"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">
+                            Account Type
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="RoleId" class="form-label">
+                                Select Account Type
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <select asp-for="RoleId"
+                                    class="form-control"
+                                    id="roleSelect"
+                                    required>
+
+                                <option value="">
+                                    -- Select Account Type --
+                                </option>
+
+                                @if (ViewBag.Roles != null)
+                                {
+                                    foreach (var role in ViewBag.Roles)
+                                    {
+                                        <option value="@role.RoleId"
+                                                data-role="@role.RoleName">
+                                            @role.RoleName
+                                        </option>
+                                    }
+                                }
+                            </select>
+
+                            <span asp-validation-for="RoleId"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div id="customerSection"
+                             style="display:none;">
+
+                            <div class="alert alert-success">
+                                <h5>Customer Registration</h5>
+                                All personal information above is required.
+                            </div>
+
+                        </div>
+
+                        <div id="shopkeeperSection"
+                             style="display:none;">
+
+                            <div class="card border-primary mb-4">
+
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        Shopkeeper Registration
+                                    </h5>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <h6 class="border-bottom pb-2 mb-3">
+                                        Shopkeeper Identity Verification
+                                    </h6>
+
+                                    <div class="alert alert-info">
+                                        <strong>Identity Verification</strong>
+                                        <br />
+                                        Please provide your CNIC details.
+                                        Admin will verify your identity before
+                                        approving the shopkeeper account.
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Number
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               name="CNIC"
+                                               id="shopkeeperCNIC"
+                                               class="form-control"
+                                               placeholder="XXXXX-XXXXXXX-X"
+                                               maxlength="15"
+                                               inputmode="numeric"
+                                               autocomplete="off" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopkeeperCNICError"></span>
+
+                                        <small class="text-muted">
+                                            Format: 12345-1234567-1
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Front Image
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICFrontImage"
+                                               id="shopkeeperCNICFront"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopkeeperCNICFrontError"></span>
+
+                                        <small class="text-muted">
+                                            JPG, JPEG or PNG. Maximum 5 MB.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Back Image
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICBackImage"
+                                               id="shopkeeperCNICBack"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopkeeperCNICBackError"></span>
+
+                                        <small class="text-muted">
+                                            JPG, JPEG or PNG. Maximum 5 MB.
+                                        </small>
+                                    </div>
+
+                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
+                                        Shop Information
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Name
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               name="ShopName"
+                                               id="shopName"
+                                               class="form-control"
+                                               minlength="3"
+                                               maxlength="100"
+                                               placeholder="Enter shop name" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopNameError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Category
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <select name="ShopCategory"
+                                                id="shopCategory"
+                                                class="form-control">
+
+                                            <option value="">
+                                                -- Select Main Shop Category --
+                                            </option>
+
+                                            <option value="Bridal Wear">
+                                                Bridal Wear
+                                            </option>
+
+                                            <option value="Groom Wear">
+                                                Groom Wear
+                                            </option>
+
+                                            <option value="Formal Wear">
+                                                Formal Wear
+                                            </option>
+
+                                            <option value="Wedding Guest Wear">
+                                                Wedding Guest Wear
+                                            </option>
+
+                                            <option value="Footwear">
+                                                Footwear
+                                            </option>
+
+                                            <option value="Jewellery">
+                                                Jewellery
+                                            </option>
+
+                                            <option value="Accessories">
+                                                Accessories
+                                            </option>
+
+                                            <option value="Dress">
+                                                Dress
+                                            </option>
+                                        </select>
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopCategoryError"></span>
+
+                                        <small class="text-muted">
+                                            This is the main business category of your shop.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+                                            Shop Collections
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <div class="alert alert-info mb-3">
+                                            <strong>Select all collections available in your shop.</strong>
+                                            <br />
+                                            You can select more than one collection.
+                                            These selections determine which product categories
+                                            you can add later.
+                                        </div>
+
+                                        <input type="hidden"
+                                               name="ShopCollections"
+                                               id="shopCollections" />
+
+                                        <div class="row g-3">
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Bridal Wear"
+                                                           id="collectionBridalWear" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionBridalWear">
+                                                        Bridal Wear
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Bridal dresses, lehengas, gowns, shararas,
+                                                        ghararas and wedding dresses.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Groom Wear"
+                                                           id="collectionGroomWear" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionGroomWear">
+                                                        Groom Wear
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Sherwani, prince coats, groom suits,
+                                                        waistcoats and other groom clothing.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Formal Wear"
+                                                           id="collectionFormalWear" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionFormalWear">
+                                                        Formal Wear
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Formal dresses, suits, gowns, blazers,
+                                                        tuxedos and formal clothing.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Wedding Guest Wear"
+                                                           id="collectionGuestWear" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionGuestWear">
+                                                        Wedding Guest Wear
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Party dresses, maxi, frocks, anarkali,
+                                                        saree and guest outfits.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Footwear"
+                                                           id="collectionFootwear" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionFootwear">
+                                                        Footwear
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Bridal shoes, heels, khussa, sandals,
+                                                        formal shoes and wedding footwear.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Jewellery"
+                                                           id="collectionJewellery" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionJewellery">
+                                                        Jewellery
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Necklace, earrings, bangles, rings,
+                                                        jhumka and jewellery sets.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Bridal Jewellery"
+                                                           id="collectionBridalJewellery" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionBridalJewellery">
+                                                        Bridal Jewellery
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Bridal necklace sets, matha patti,
+                                                        passa, choker and bridal jewellery.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Accessories"
+                                                           id="collectionAccessories" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionAccessories">
+                                                        Accessories
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Clutches, handbags, dupattas, veils,
+                                                        cufflinks, ties, bow ties and belts.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-check border rounded p-3 h-100">
+                                                    <input class="form-check-input collection-checkbox"
+                                                           type="checkbox"
+                                                           value="Bridal Accessories"
+                                                           id="collectionBridalAccessories" />
+
+                                                    <label class="form-check-label fw-semibold"
+                                                           for="collectionBridalAccessories">
+                                                        Bridal Accessories
+                                                    </label>
+
+                                                    <div class="small text-muted mt-1">
+                                                        Bridal clutches, handbags, dupattas,
+                                                        veils, hair accessories and bridal belts.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <span class="text-danger custom-validation-error"
+                                                  id="shopCollectionsError"></span>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                Example: A shop can select Bridal Wear + Bridal Jewellery
+                                                + Accessories, or Groom Wear + Formal Wear.
+                                            </small>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Phone
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="tel"
+                                               name="ShopPhone"
+                                               id="shopPhone"
+                                               class="form-control"
+                                               maxlength="12"
+                                               placeholder="03XX-XXXXXXX" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopPhoneError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Address
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <textarea name="ShopAddress"
+                                                  id="shopAddress"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  maxlength="500"
+                                                  placeholder="Enter shop address in Rawalpindi"></textarea>
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopAddressError"></span>
+
+                                        <small class="text-muted">
+                                            This address should be located in Rawalpindi.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Description
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <textarea name="ShopDescription"
+                                                  id="shopDescription"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  minlength="10"
+                                                  maxlength="1000"
+                                                  placeholder="Describe your shop (minimum 10 characters)"></textarea>
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopDescriptionError"></span>
+                                    </div>
+
+                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
+                                        Shop Verification
+                                    </h6>
+
+                                    <div class="alert alert-info">
+                                        <strong>Shop Existence Verification</strong>
+                                        <br />
+                                        Upload clear photos showing that the shop physically exists.
+                                        <br />
+                                        <small>
+                                            Admin will compare the shop photos with the submitted
+                                            shop information.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Front Photo
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopFrontPhoto"
+                                               id="shopFrontPhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopFrontPhotoError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Inside Photo
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopInsidePhoto"
+                                               id="shopInsidePhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopInsidePhotoError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Shop Signboard Photo
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopSignboardPhoto"
+                                               id="shopSignboardPhoto"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopSignboardPhotoError"></span>
+                                    </div>
+
+                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
+                                        Shop Address / Association Proof
+                                    </h6>
+
+                                    <div class="alert alert-warning">
+                                        <strong>Shop Address Proof</strong>
+                                        <br />
+                                        Provide supporting evidence connecting you with the
+                                        submitted shop address.
+                                        <br />
+                                        <small>
+                                            Admin will review the submitted information before
+                                            approving the shop.
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Proof Type
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <select name="ShopProofType"
+                                                id="shopProofType"
+                                                class="form-control">
+
+                                            <option value="">
+                                                -- Select Proof Type --
+                                            </option>
+
+                                            <option value="Utility Bill">
+                                                Utility Bill
+                                            </option>
+
+                                            <option value="Rental Agreement">
+                                                Rental Agreement
+                                            </option>
+
+                                            <option value="Business/Shop Registration">
+                                                Business/Shop Registration
+                                            </option>
+                                        </select>
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopProofTypeError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Proof Document
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="ShopProofDocument"
+                                               id="shopProofDocument"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,application/pdf" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="shopProofDocumentError"></span>
+
+                                        <small class="text-muted">
+                                            JPG, JPEG, PNG or PDF. Maximum 5 MB.
+                                        </small>
+                                    </div>
+
+                                    <div class="alert alert-warning mt-4">
+                                        <strong>Verification Process</strong>
+                                        <br />
+                                        Your shopkeeper account will remain
+                                        <strong>Pending</strong> until Admin reviews
+                                        your submitted information.
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="deliverySection"
+                             style="display:none;">
+
+                            <div class="card border-warning mb-4">
+
+                                <div class="card-header bg-warning">
+                                    <h5 class="mb-0">
+                                        Delivery Boy Registration
+                                    </h5>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Number
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               name="CNIC"
+                                               id="CNIC"
+                                               class="form-control"
+                                               placeholder="XXXXX-XXXXXXX-X"
+                                               maxlength="15"
+                                               inputmode="numeric"
+                                               autocomplete="off" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="cnicError"></span>
+
+                                        <small class="text-muted">
+                                            Format: 12345-1234567-1
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Front Image
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICFrontImage"
+                                               id="cnicFrontImage"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="cnicFrontImageError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            CNIC Back Image
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="file"
+                                               name="CNICBackImage"
+                                               id="cnicBackImage"
+                                               class="form-control"
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="cnicBackImageError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Vehicle Type
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               value="Motorbike"
+                                               readonly />
+
+                                        <input type="hidden"
+                                               name="VehicleType"
+                                               id="vehicleType"
+                                               value="Motorbike" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Motorbike Registration Number
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               name="MotorbikeNumber"
+                                               id="motorbikeNumber"
+                                               class="form-control"
+                                               minlength="3"
+                                               maxlength="30"
+                                               placeholder="Enter motorbike registration number" />
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="motorbikeNumberError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Preferred Delivery Zone
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <select name="PreferredZone"
+                                                id="preferredZone"
+                                                class="form-control">
+
+                                            <option value="">
+                                                -- Select Zone --
+                                            </option>
+
+                                            <option value="Saddar">
+                                                Saddar
+                                            </option>
+
+                                            <option value="6th Road">
+                                                6th Road
+                                            </option>
+
+                                            <option value="Liaqat Bagh">
+                                                Liaqat Bagh
+                                            </option>
+
+                                        </select>
+
+                                        <span class="text-danger custom-validation-error"
+                                              id="preferredZoneError"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Assigned Delivery Zone
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               value="Will be assigned by Admin"
+                                               readonly />
+                                    </div>
+
+                                    <div class="alert alert-warning">
+                                        <strong>Delivery Verification</strong>
+                                        <br />
+                                        Your delivery account will remain
+                                        <strong>Pending</strong> until Admin verifies
+                                        your information.
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="generalMessage"
+                             class="alert alert-info">
+
+                            <strong>Important:</strong>
+                            <br />
+                            Select an account type above to see the
+                            registration requirements.
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100"
+                                id="registerButton">
+
+                            <i class="bi bi-person-plus"></i>
+                            Register
+                        </button>
+
+                    </form>
+
+                    <div class="text-center mt-3">
+                        Already have an account?
+
+                        <a asp-controller="Account"
+                           asp-action="Login">
+                            Login
+                        </a>
+                    </div>
+
+                </div>
             </div>
+
         </div>
     </div>
 </div>
 
-
-</div>
-
 @section Scripts {
 
+    <partial name="_ValidationScriptsPartial" />
 
-<partial name="_ValidationScriptsPartial" />
+    <script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-        const form = document.getElementById("registerForm");
-        const roleSelect = document.getElementById("roleSelect");
+            const form = document.getElementById("registerForm");
+            const roleSelect = document.getElementById("roleSelect");
 
-        const customerSection =
-            document.getElementById("customerSection");
+            const customerSection =
+                document.getElementById("customerSection");
 
-        const shopkeeperSection =
-            document.getElementById("shopkeeperSection");
+            const shopkeeperSection =
+                document.getElementById("shopkeeperSection");
 
-        const deliverySection =
-            document.getElementById("deliverySection");
+            const deliverySection =
+                document.getElementById("deliverySection");
 
-        const generalMessage =
-            document.getElementById("generalMessage");
+            const generalMessage =
+                document.getElementById("generalMessage");
 
-        const registerPassword =
-            document.getElementById("registerPassword");
+            const registerPassword =
+                document.getElementById("registerPassword");
 
-        const toggleRegisterPassword =
-            document.getElementById("toggleRegisterPassword");
+            const toggleRegisterPassword =
+                document.getElementById("toggleRegisterPassword");
 
-        const registerEyeIcon =
-            document.getElementById("registerEyeIcon");
+            const registerEyeIcon =
+                document.getElementById("registerEyeIcon");
 
-        const roleFields = {
-            Customer: [],
-            Shopkeeper: [
-                "shopName",
-                "shopCategory",
-                "shopPhone",
-                "shopAddress",
-                "shopDescription",
-                "shopFrontPhoto",
-                "shopInsidePhoto",
-                "shopSignboardPhoto"
-            ],
-            Delivery: [
-                "CNIC",
-                "cnicFrontImage",
-                "cnicBackImage",
-                "motorbikeNumber",
-                "preferredZone"
-            ]
-        };
+            const shopCollections =
+                document.getElementById("shopCollections");
 
-        function getSelectedRole() {
+            const collectionCheckboxes =
+                document.querySelectorAll(".collection-checkbox");
 
-            const selectedOption =
-                roleSelect.options[roleSelect.selectedIndex];
+            const roleFields = {
+                Customer: [],
+                Shopkeeper: [
+                    "shopkeeperCNIC",
+                    "shopkeeperCNICFront",
+                    "shopkeeperCNICBack",
+                    "shopName",
+                    "shopCategory",
+                    "shopPhone",
+                    "shopAddress",
+                    "shopDescription",
+                    "shopFrontPhoto",
+                    "shopInsidePhoto",
+                    "shopSignboardPhoto",
+                    "shopProofType",
+                    "shopProofDocument"
+                ],
+                Delivery: [
+                    "CNIC",
+                    "cnicFrontImage",
+                    "cnicBackImage",
+                    "motorbikeNumber",
+                    "preferredZone"
+                ]
+            };
 
-            return selectedOption?.dataset?.role?.trim() || "";
-        }
+            function getSelectedRole() {
 
-        function showSection() {
+                const selectedOption =
+                    roleSelect.options[roleSelect.selectedIndex];
 
-            customerSection.style.display = "none";
-            shopkeeperSection.style.display = "none";
-            deliverySection.style.display = "none";
-            generalMessage.style.display = "none";
+                return selectedOption?.dataset?.role?.trim() || "";
+            }
 
-            Object.values(roleFields)
-                .flat()
-                .forEach(function (id) {
+            function updateShopCollections() {
 
-                    const field =
-                        document.getElementById(id);
+                const selectedCollections = [];
 
-                    if (field) {
-                        field.required = false;
+                collectionCheckboxes.forEach(function (checkbox) {
+
+                    if (checkbox.checked) {
+                        selectedCollections.push(
+                            checkbox.value
+                        );
                     }
+
                 });
 
-            const role = getSelectedRole();
-
-            if (!role) {
-                generalMessage.style.display = "block";
-                return;
+                shopCollections.value =
+                    selectedCollections.join(",");
             }
 
-            if (role === "Customer") {
-                customerSection.style.display = "block";
-            }
-            else if (role === "Shopkeeper") {
-                shopkeeperSection.style.display = "block";
-            }
-            else if (role === "Delivery") {
-                deliverySection.style.display = "block";
-            }
-            else {
-                generalMessage.style.display = "block";
-                return;
-            }
+            collectionCheckboxes.forEach(function (checkbox) {
 
-            if (roleFields[role]) {
-
-                roleFields[role].forEach(function (id) {
-
-                    const field =
-                        document.getElementById(id);
-
-                    if (field) {
-                        field.required = true;
-                    }
-                });
-            }
-        }
-
-        roleSelect.addEventListener(
-            "change",
-            showSection
-        );
-
-        showSection();
-
-        toggleRegisterPassword.addEventListener(
-            "click",
-            function () {
-
-                if (registerPassword.type === "password") {
-
-                    registerPassword.type = "text";
-
-                    registerEyeIcon.classList.remove("bi-eye");
-                    registerEyeIcon.classList.add("bi-eye-slash");
-
-                }
-                else {
-
-                    registerPassword.type = "password";
-
-                    registerEyeIcon.classList.remove("bi-eye-slash");
-                    registerEyeIcon.classList.add("bi-eye");
-                }
-            }
-        );
-
-        const cnic =
-            document.getElementById("CNIC");
-
-        cnic.addEventListener(
-            "input",
-            function () {
-
-                let value =
-                    this.value.replace(/\D/g, "");
-
-                if (value.length > 13) {
-                    value = value.substring(0, 13);
-                }
-
-                if (value.length > 12) {
-
-                    value =
-                        value.substring(0, 5) +
-                        "-" +
-                        value.substring(5, 12) +
-                        "-" +
-                        value.substring(12);
-
-                }
-                else if (value.length > 5) {
-
-                    value =
-                        value.substring(0, 5) +
-                        "-" +
-                        value.substring(5);
-                }
-
-                this.value = value;
-            }
-        );
-
-        function formatPhone(input) {
-
-            if (!input) {
-                return;
-            }
-
-            input.addEventListener(
-                "input",
-                function () {
-
-                    let value =
-                        this.value.replace(/[^\d+]/g, "");
-
-                    if (value.startsWith("+92")) {
-                        value =
-                            "0" +
-                            value.substring(3);
-                    }
-
-                    value =
-                        value.replace(/\D/g, "");
-
-                    if (value.length > 11) {
-                        value =
-                            value.substring(0, 11);
-                    }
-
-                    if (value.length > 4) {
-
-                        value =
-                            value.substring(0, 4) +
-                            "-" +
-                            value.substring(4);
-                    }
-
-                    this.value = value;
-                }
-            );
-        }
-
-        formatPhone(
-            document.getElementById("phone")
-        );
-
-        formatPhone(
-            document.getElementById("shopPhone")
-        );
-
-        const maxFileSize =
-            5 * 1024 * 1024;
-
-        function validateImage(
-            input,
-            errorElementId
-        ) {
-
-            const error =
-                document.getElementById(errorElementId);
-
-            if (!input || !error) {
-                return true;
-            }
-
-            error.textContent = "";
-
-            if (!input.files ||
-                input.files.length === 0) {
-
-                return true;
-            }
-
-            const file =
-                input.files[0];
-
-            const allowedTypes = [
-                "image/jpeg",
-                "image/png"
-            ];
-
-            const allowedExtensions = [
-                ".jpg",
-                ".jpeg",
-                ".png"
-            ];
-
-            const fileName =
-                file.name.toLowerCase();
-
-            const validExtension =
-                allowedExtensions.some(
-                    function (extension) {
-                        return fileName.endsWith(extension);
-                    }
+                checkbox.addEventListener(
+                    "change",
+                    updateShopCollections
                 );
 
-            if (!validExtension ||
-                !allowedTypes.includes(file.type)) {
+            });
 
-                error.textContent =
-                    "Only JPG, JPEG or PNG images are allowed.";
+            function showSection() {
 
-                input.value = "";
+                customerSection.style.display = "none";
+                shopkeeperSection.style.display = "none";
+                deliverySection.style.display = "none";
+                generalMessage.style.display = "none";
 
-                return false;
-            }
+                Object.values(roleFields)
+                    .flat()
+                    .forEach(function (id) {
 
-            if (file.size > maxFileSize) {
+                        const field =
+                            document.getElementById(id);
 
-                error.textContent =
-                    "Image size must not exceed 5 MB.";
-
-                input.value = "";
-
-                return false;
-            }
-
-            return true;
-        }
-
-        const imageFields = [
-            ["shopFrontPhoto", "shopFrontPhotoError"],
-            ["shopInsidePhoto", "shopInsidePhotoError"],
-            ["shopSignboardPhoto", "shopSignboardPhotoError"],
-            ["cnicFrontImage", "cnicFrontImageError"],
-            ["cnicBackImage", "cnicBackImageError"]
-        ];
-
-        imageFields.forEach(
-            function (item) {
-
-                const input =
-                    document.getElementById(item[0]);
-
-                if (input) {
-
-                    input.addEventListener(
-                        "change",
-                        function () {
-
-                            validateImage(
-                                this,
-                                item[1]
-                            );
+                        if (field) {
+                            field.required = false;
                         }
-                    );
-                }
-            }
-        );
 
-        function isValidPhone(phone) {
-
-            const cleaned =
-                phone
-                    .replace(/\s/g, "")
-                    .replace(/-/g, "");
-
-            return /^03\d{9}$/.test(cleaned);
-        }
-
-        function isValidCNIC(value) {
-            return /^\d{5}-\d{7}-\d$/.test(value);
-        }
-
-        function hasRawalpindi(address) {
-
-            return address
-                .toLowerCase()
-                .includes("rawalpindi");
-        }
-
-        function clearErrors() {
-
-            document.querySelectorAll(
-                ".custom-validation-error"
-            ).forEach(
-                function (element) {
-
-                    element.textContent = "";
-                }
-            );
-        }
-
-        function setError(
-            elementId,
-            message
-        ) {
-
-            const element =
-                document.getElementById(elementId);
-
-            if (element) {
-                element.textContent = message;
-            }
-        }
-
-        form.addEventListener(
-            "submit",
-            function (event) {
-
-                clearErrors();
-
-                let valid = true;
-
-                const selectedRole =
-                    getSelectedRole();
-
-                if (!roleSelect.value ||
-                    !selectedRole) {
-
-                    valid = false;
-
-                    roleSelect.setCustomValidity(
-                        "Please select an account type."
-                    );
-
-                }
-                else {
-
-                    roleSelect.setCustomValidity("");
-                }
-
-                const name =
-                    document
-                        .getElementById("name")
-                        .value
-                        .trim();
-
-                const email =
-                    document
-                        .getElementById("email")
-                        .value
-                        .trim();
-
-                const password =
-                    registerPassword.value;
-
-                const phone =
-                    document
-                        .getElementById("phone")
-                        .value
-                        .trim();
-
-                const address =
-                    document
-                        .getElementById("address")
-                        .value
-                        .trim();
-
-                const nameInput =
-                    document.getElementById("name");
-
-                if (name.length < 3 ||
-                    !/^[A-Za-z ]+$/.test(name)) {
-
-                    valid = false;
-
-                    nameInput.setCustomValidity(
-                        "Enter a valid name with at least 3 letters."
-                    );
-
-                }
-                else {
-
-                    nameInput.setCustomValidity("");
-                }
-
-                const emailInput =
-                    document.getElementById("email");
-
-                if (!email) {
-
-                    valid = false;
-
-                    emailInput.setCustomValidity(
-                        "Email is required."
-                    );
-
-                }
-                else {
-
-                    emailInput.setCustomValidity("");
-                }
-
-                if (
-                    password.length < 8 ||
-                    !/[A-Z]/.test(password) ||
-                    !/[a-z]/.test(password) ||
-                    !/\d/.test(password)
-                ) {
-
-                    valid = false;
-
-                    registerPassword.setCustomValidity(
-                        "Password must contain at least 8 characters, uppercase, lowercase and a number."
-                    );
-
-                }
-                else {
-
-                    registerPassword.setCustomValidity("");
-                }
-
-                const phoneInput =
-                    document.getElementById("phone");
-
-                if (!isValidPhone(phone)) {
-
-                    valid = false;
-
-                    phoneInput.setCustomValidity(
-                        "Enter a valid Pakistani mobile number."
-                    );
-
-                }
-                else {
-
-                    phoneInput.setCustomValidity("");
-                }
-
-                const addressInput =
-                    document.getElementById("address");
-
-                if (!address ||
-                    !hasRawalpindi(address)) {
-
-                    valid = false;
-
-                    addressInput.setCustomValidity(
-                        "Enter an address in Rawalpindi."
-                    );
-
-                }
-                else {
-
-                    addressInput.setCustomValidity("");
-                }
-
-                if (selectedRole === "Shopkeeper") {
-
-                    const shopName =
-                        document
-                            .getElementById("shopName")
-                            .value
-                            .trim();
-
-                    const shopCategory =
-                        document
-                            .getElementById("shopCategory")
-                            .value
-                            .trim();
-
-                    const shopPhone =
-                        document
-                            .getElementById("shopPhone")
-                            .value
-                            .trim();
-
-                    const shopAddress =
-                        document
-                            .getElementById("shopAddress")
-                            .value
-                            .trim();
-
-                    const shopDescription =
-                        document
-                            .getElementById("shopDescription")
-                            .value
-                            .trim();
-
-                    if (shopName.length < 3) {
-
-                        setError(
-                            "shopNameError",
-                            "Shop name must be at least 3 characters."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!shopCategory) {
-
-                        setError(
-                            "shopCategoryError",
-                            "Please select a shop category."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!isValidPhone(shopPhone)) {
-
-                        setError(
-                            "shopPhoneError",
-                            "Enter a valid Pakistani phone number."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!shopAddress) {
-
-                        setError(
-                            "shopAddressError",
-                            "Shop address is required."
-                        );
-
-                        valid = false;
-                    }
-                    else if (!hasRawalpindi(shopAddress)) {
-
-                        setError(
-                            "shopAddressError",
-                            "Shop address must be in Rawalpindi."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (shopDescription.length < 10) {
-
-                        setError(
-                            "shopDescriptionError",
-                            "Shop description must contain at least 10 characters."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (shopDescription.length > 1000) {
-
-                        setError(
-                            "shopDescriptionError",
-                            "Shop description cannot exceed 1000 characters."
-                        );
-
-                        valid = false;
-                    }
-
-                    const shopFront =
-                        document.getElementById(
-                            "shopFrontPhoto"
-                        );
-
-                    const shopInside =
-                        document.getElementById(
-                            "shopInsidePhoto"
-                        );
-
-                    const shopSignboard =
-                        document.getElementById(
-                            "shopSignboardPhoto"
-                        );
-
-                    if (!shopFront.files.length) {
-
-                        setError(
-                            "shopFrontPhotoError",
-                            "Shop front photo is required."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!shopInside.files.length) {
-
-                        setError(
-                            "shopInsidePhotoError",
-                            "Shop inside photo is required."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!shopSignboard.files.length) {
-
-                        setError(
-                            "shopSignboardPhotoError",
-                            "Shop signboard photo is required."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!validateImage(
-                        shopFront,
-                        "shopFrontPhotoError"
-                    )) {
-                        valid = false;
-                    }
-
-                    if (!validateImage(
-                        shopInside,
-                        "shopInsidePhotoError"
-                    )) {
-                        valid = false;
-                    }
-
-                    if (!validateImage(
-                        shopSignboard,
-                        "shopSignboardPhotoError"
-                    )) {
-                        valid = false;
-                    }
-                }
-
-                if (selectedRole === "Delivery") {
-
-                    const cnicValue =
-                        document
-                            .getElementById("CNIC")
-                            .value
-                            .trim();
-
-                    const motorbikeNumber =
-                        document
-                            .getElementById("motorbikeNumber")
-                            .value
-                            .trim();
-
-                    const preferredZone =
-                        document
-                            .getElementById("preferredZone")
-                            .value
-                            .trim();
-
-                    if (!isValidCNIC(cnicValue)) {
-
-                        setError(
-                            "cnicError",
-                            "Enter CNIC in XXXXX-XXXXXXX-X format."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (
-                        !motorbikeNumber ||
-                        motorbikeNumber.length < 3 ||
-                        motorbikeNumber.length > 30
-                    ) {
-
-                        setError(
-                            "motorbikeNumberError",
-                            "Enter a motorbike registration number between 3 and 30 characters."
-                        );
-
-                        valid = false;
-                    }
-
-                    const allowedZones = [
-                        "Saddar",
-                        "6th Road",
-                        "Liaqat Bagh"
-                    ];
-
-                    if (!allowedZones.includes(
-                        preferredZone
-                    )) {
-
-                        setError(
-                            "preferredZoneError",
-                            "Please select a valid delivery zone."
-                        );
-
-                        valid = false;
-                    }
-
-                    const cnicFront =
-                        document.getElementById(
-                            "cnicFrontImage"
-                        );
-
-                    const cnicBack =
-                        document.getElementById(
-                            "cnicBackImage"
-                        );
-
-                    if (!cnicFront.files.length) {
-
-                        setError(
-                            "cnicFrontImageError",
-                            "CNIC front image is required."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!cnicBack.files.length) {
-
-                        setError(
-                            "cnicBackImageError",
-                            "CNIC back image is required."
-                        );
-
-                        valid = false;
-                    }
-
-                    if (!validateImage(
-                        cnicFront,
-                        "cnicFrontImageError"
-                    )) {
-                        valid = false;
-                    }
-
-                    if (!validateImage(
-                        cnicBack,
-                        "cnicBackImageError"
-                    )) {
-                        valid = false;
-                    }
-                }
-
-                if (!valid) {
-
-                    event.preventDefault();
-
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
                     });
 
+                const role = getSelectedRole();
+
+                if (!role) {
+
+                    generalMessage.style.display = "block";
                     return;
                 }
 
-                const registerButton =
-                    document.getElementById(
-                        "registerButton"
+                if (role === "Customer") {
+
+                    customerSection.style.display = "block";
+
+                }
+                else if (role === "Shopkeeper") {
+
+                    shopkeeperSection.style.display = "block";
+
+                }
+                else if (role === "Delivery") {
+
+                    deliverySection.style.display = "block";
+
+                }
+                else {
+
+                    generalMessage.style.display = "block";
+                    return;
+                }
+
+                if (roleFields[role]) {
+
+                    roleFields[role].forEach(function (id) {
+
+                        const field =
+                            document.getElementById(id);
+
+                        if (field) {
+                            field.required = true;
+                        }
+
+                    });
+
+                }
+            }
+
+            roleSelect.addEventListener(
+                "change",
+                showSection
+            );
+
+            showSection();
+
+            toggleRegisterPassword.addEventListener(
+                "click",
+                function () {
+
+                    if (registerPassword.type === "password") {
+
+                        registerPassword.type = "text";
+
+                        registerEyeIcon.classList.remove("bi-eye");
+                        registerEyeIcon.classList.add("bi-eye-slash");
+
+                    }
+                    else {
+
+                        registerPassword.type = "password";
+
+                        registerEyeIcon.classList.remove("bi-eye-slash");
+                        registerEyeIcon.classList.add("bi-eye");
+
+                    }
+
+                }
+            );
+
+            const shopkeeperCNIC =
+                document.getElementById("shopkeeperCNIC");
+
+            const deliveryCNIC =
+                document.getElementById("CNIC");
+
+            function formatCNIC(input) {
+
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        let value =
+                            this.value.replace(/\D/g, "");
+
+                        if (value.length > 13) {
+                            value =
+                                value.substring(0, 13);
+                        }
+
+                        if (value.length > 12) {
+
+                            value =
+                                value.substring(0, 5) +
+                                "-" +
+                                value.substring(5, 12) +
+                                "-" +
+                                value.substring(12);
+
+                        }
+                        else if (value.length > 5) {
+
+                            value =
+                                value.substring(0, 5) +
+                                "-" +
+                                value.substring(5);
+
+                        }
+
+                        this.value = value;
+
+                    }
+                );
+            }
+
+            formatCNIC(shopkeeperCNIC);
+            formatCNIC(deliveryCNIC);
+
+            function formatPhone(input) {
+
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        let value =
+                            this.value.replace(/[^\d+]/g, "");
+
+                        if (value.startsWith("+92")) {
+
+                            value =
+                                "0" +
+                                value.substring(3);
+                        }
+
+                        value =
+                            value.replace(/\D/g, "");
+
+                        if (value.length > 11) {
+
+                            value =
+                                value.substring(0, 11);
+                        }
+
+                        if (value.length > 4) {
+
+                            value =
+                                value.substring(0, 4) +
+                                "-" +
+                                value.substring(4);
+                        }
+
+                        this.value = value;
+
+                    }
+                );
+            }
+
+            formatPhone(
+                document.getElementById("phone")
+            );
+
+            formatPhone(
+                document.getElementById("shopPhone")
+            );
+
+            const maxFileSize =
+                5 * 1024 * 1024;
+
+            function validateImage(
+                input,
+                errorElementId
+            ) {
+
+                const error =
+                    document.getElementById(errorElementId);
+
+                if (!input || !error) {
+                    return true;
+                }
+
+                error.textContent = "";
+
+                if (!input.files ||
+                    input.files.length === 0) {
+
+                    return true;
+                }
+
+                const file =
+                    input.files[0];
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png"
+                ];
+
+                const allowedExtensions = [
+                    ".jpg",
+                    ".jpeg",
+                    ".png"
+                ];
+
+                const fileName =
+                    file.name.toLowerCase();
+
+                const validExtension =
+                    allowedExtensions.some(
+                        function (extension) {
+
+                            return fileName.endsWith(
+                                extension
+                            );
+
+                        }
                     );
 
-                registerButton.disabled = true;
+                if (!validExtension ||
+                    !allowedTypes.includes(file.type)) {
 
-                registerButton.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2"></span>Registering...';
+                    error.textContent =
+                        "Only JPG, JPEG or PNG images are allowed.";
+
+                    input.value = "";
+
+                    return false;
+                }
+
+                if (file.size > maxFileSize) {
+
+                    error.textContent =
+                        "Image size must not exceed 5 MB.";
+
+                    input.value = "";
+
+                    return false;
+                }
+
+                return true;
             }
-        );
-    });
-</script>
 
+            function validateProofDocument(
+                input,
+                errorElementId
+            ) {
 
+                const error =
+                    document.getElementById(errorElementId);
+
+                if (!input || !error) {
+                    return true;
+                }
+
+                error.textContent = "";
+
+                if (!input.files ||
+                    input.files.length === 0) {
+
+                    return true;
+                }
+
+                const file =
+                    input.files[0];
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png",
+                    "application/pdf"
+                ];
+
+                const allowedExtensions = [
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".pdf"
+                ];
+
+                const fileName =
+                    file.name.toLowerCase();
+
+                const validExtension =
+                    allowedExtensions.some(
+                        function (extension) {
+
+                            return fileName.endsWith(
+                                extension
+                            );
+
+                        }
+                    );
+
+                if (!validExtension ||
+                    !allowedTypes.includes(file.type)) {
+
+                    error.textContent =
+                        "Only JPG, JPEG, PNG or PDF documents are allowed.";
+
+                    input.value = "";
+
+                    return false;
+                }
+
+                if (file.size > maxFileSize) {
+
+                    error.textContent =
+                        "Document size must not exceed 5 MB.";
+
+                    input.value = "";
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            const imageFields = [
+                ["shopkeeperCNICFront", "shopkeeperCNICFrontError"],
+                ["shopkeeperCNICBack", "shopkeeperCNICBackError"],
+                ["shopFrontPhoto", "shopFrontPhotoError"],
+                ["shopInsidePhoto", "shopInsidePhotoError"],
+                ["shopSignboardPhoto", "shopSignboardPhotoError"],
+                ["cnicFrontImage", "cnicFrontImageError"],
+                ["cnicBackImage", "cnicBackImageError"]
+            ];
+
+            imageFields.forEach(
+                function (item) {
+
+                    const input =
+                        document.getElementById(item[0]);
+
+                    if (input) {
+
+                        input.addEventListener(
+                            "change",
+                            function () {
+
+                                validateImage(
+                                    this,
+                                    item[1]
+                                );
+
+                            }
+                        );
+                    }
+                }
+            );
+
+            const shopProofDocument =
+                document.getElementById("shopProofDocument");
+
+            if (shopProofDocument) {
+
+                shopProofDocument.addEventListener(
+                    "change",
+                    function () {
+
+                        validateProofDocument(
+                            this,
+                            "shopProofDocumentError"
+                        );
+
+                    }
+                );
+            }
+
+            function isValidPhone(phone) {
+
+                const cleaned =
+                    phone
+                        .replace(/\s/g, "")
+                        .replace(/-/g, "");
+
+                return /^03\d{9}$/.test(cleaned);
+            }
+
+            function isValidCNIC(value) {
+
+                return /^\d{5}-\d{7}-\d$/.test(value);
+            }
+
+            function hasRawalpindi(address) {
+
+                return address
+                    .toLowerCase()
+                    .includes("rawalpindi");
+            }
+
+            function clearErrors() {
+
+                document.querySelectorAll(
+                    ".custom-validation-error"
+                ).forEach(
+                    function (element) {
+
+                        element.textContent = "";
+
+                    }
+                );
+            }
+
+            function setError(
+                elementId,
+                message
+            ) {
+
+                const element =
+                    document.getElementById(elementId);
+
+                if (element) {
+                    element.textContent = message;
+                }
+            }
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    clearErrors();
+
+                    updateShopCollections();
+
+                    let valid = true;
+
+                    const selectedRole =
+                        getSelectedRole();
+
+                    if (!roleSelect.value ||
+                        !selectedRole) {
+
+                        valid = false;
+
+                        roleSelect.setCustomValidity(
+                            "Please select an account type."
+                        );
+
+                    }
+                    else {
+
+                        roleSelect.setCustomValidity("");
+
+                    }
+
+                    const name =
+                        document
+                            .getElementById("name")
+                            .value
+                            .trim();
+
+                    const email =
+                        document
+                            .getElementById("email")
+                            .value
+                            .trim();
+
+                    const password =
+                        registerPassword.value;
+
+                    const phone =
+                        document
+                            .getElementById("phone")
+                            .value
+                            .trim();
+
+                    const address =
+                        document
+                            .getElementById("address")
+                            .value
+                            .trim();
+
+                    const nameInput =
+                        document.getElementById("name");
+
+                    if (name.length < 3 ||
+                        !/^[A-Za-z ]+$/.test(name)) {
+
+                        valid = false;
+
+                        nameInput.setCustomValidity(
+                            "Enter a valid name with at least 3 letters."
+                        );
+
+                    }
+                    else {
+
+                        nameInput.setCustomValidity("");
+
+                    }
+
+                    const emailInput =
+                        document.getElementById("email");
+
+                    if (!email) {
+
+                        valid = false;
+
+                        emailInput.setCustomValidity(
+                            "Email is required."
+                        );
+
+                    }
+                    else {
+
+                        emailInput.setCustomValidity("");
+
+                    }
+
+                    if (
+                        password.length < 8 ||
+                        !/[A-Z]/.test(password) ||
+                        !/[a-z]/.test(password) ||
+                        !/\d/.test(password)
+                    ) {
+
+                        valid = false;
+
+                        registerPassword.setCustomValidity(
+                            "Password must contain at least 8 characters, uppercase, lowercase and a number."
+                        );
+
+                    }
+                    else {
+
+                        registerPassword.setCustomValidity("");
+
+                    }
+
+                    const phoneInput =
+                        document.getElementById("phone");
+
+                    if (!isValidPhone(phone)) {
+
+                        valid = false;
+
+                        phoneInput.setCustomValidity(
+                            "Enter a valid Pakistani mobile number."
+                        );
+
+                    }
+                    else {
+
+                        phoneInput.setCustomValidity("");
+
+                    }
+
+                    const addressInput =
+                        document.getElementById("address");
+
+                    if (!address ||
+                        !hasRawalpindi(address)) {
+
+                        valid = false;
+
+                        addressInput.setCustomValidity(
+                            "Enter an address in Rawalpindi."
+                        );
+
+                    }
+                    else {
+
+                        addressInput.setCustomValidity("");
+
+                    }
+
+                    if (selectedRole === "Shopkeeper") {
+
+                        const shopkeeperCNIC =
+                            document
+                                .getElementById("shopkeeperCNIC")
+                                .value
+                                .trim();
+
+                        const shopName =
+                            document
+                                .getElementById("shopName")
+                                .value
+                                .trim();
+
+                        const shopCategory =
+                            document
+                                .getElementById("shopCategory")
+                                .value
+                                .trim();
+
+                        const selectedCollections =
+                            Array.from(
+                                collectionCheckboxes
+                            )
+                            .filter(
+                                function (checkbox) {
+                                    return checkbox.checked;
+                                }
+                            )
+                            .map(
+                                function (checkbox) {
+                                    return checkbox.value;
+                                }
+                            );
+
+                        const shopPhone =
+                            document
+                                .getElementById("shopPhone")
+                                .value
+                                .trim();
+
+                        const shopAddress =
+                            document
+                                .getElementById("shopAddress")
+                                .value
+                                .trim();
+
+                        const shopDescription =
+                            document
+                                .getElementById("shopDescription")
+                                .value
+                                .trim();
+
+                        const shopProofType =
+                            document
+                                .getElementById("shopProofType")
+                                .value
+                                .trim();
+
+                        if (!isValidCNIC(shopkeeperCNIC)) {
+
+                            setError(
+                                "shopkeeperCNICError",
+                                "Enter CNIC in XXXXX-XXXXXXX-X format."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (shopName.length < 3) {
+
+                            setError(
+                                "shopNameError",
+                                "Shop name must be at least 3 characters."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopCategory) {
+
+                            setError(
+                                "shopCategoryError",
+                                "Please select a main shop category."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (selectedCollections.length === 0) {
+
+                            setError(
+                                "shopCollectionsError",
+                                "Please select at least one shop collection."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!isValidPhone(shopPhone)) {
+
+                            setError(
+                                "shopPhoneError",
+                                "Enter a valid Pakistani phone number."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopAddress) {
+
+                            setError(
+                                "shopAddressError",
+                                "Shop address is required."
+                            );
+
+                            valid = false;
+
+                        }
+                        else if (!hasRawalpindi(shopAddress)) {
+
+                            setError(
+                                "shopAddressError",
+                                "Shop address must be in Rawalpindi."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (shopDescription.length < 10) {
+
+                            setError(
+                                "shopDescriptionError",
+                                "Shop description must contain at least 10 characters."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (shopDescription.length > 1000) {
+
+                            setError(
+                                "shopDescriptionError",
+                                "Shop description cannot exceed 1000 characters."
+                            );
+
+                            valid = false;
+                        }
+
+                        const shopkeeperCNICFront =
+                            document.getElementById(
+                                "shopkeeperCNICFront"
+                            );
+
+                        const shopkeeperCNICBack =
+                            document.getElementById(
+                                "shopkeeperCNICBack"
+                            );
+
+                        const shopFront =
+                            document.getElementById(
+                                "shopFrontPhoto"
+                            );
+
+                        const shopInside =
+                            document.getElementById(
+                                "shopInsidePhoto"
+                            );
+
+                        const shopSignboard =
+                            document.getElementById(
+                                "shopSignboardPhoto"
+                            );
+
+                        if (!shopkeeperCNICFront.files.length) {
+
+                            setError(
+                                "shopkeeperCNICFrontError",
+                                "CNIC front image is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopkeeperCNICBack.files.length) {
+
+                            setError(
+                                "shopkeeperCNICBackError",
+                                "CNIC back image is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopFront.files.length) {
+
+                            setError(
+                                "shopFrontPhotoError",
+                                "Shop front photo is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopInside.files.length) {
+
+                            setError(
+                                "shopInsidePhotoError",
+                                "Shop inside photo is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopSignboard.files.length) {
+
+                            setError(
+                                "shopSignboardPhotoError",
+                                "Shop signboard photo is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!shopProofType) {
+
+                            setError(
+                                "shopProofTypeError",
+                                "Please select a shop proof type."
+                            );
+
+                            valid = false;
+                        }
+
+                        const shopProofDocument =
+                            document.getElementById(
+                                "shopProofDocument"
+                            );
+
+                        if (!shopProofDocument.files.length) {
+
+                            setError(
+                                "shopProofDocumentError",
+                                "Shop proof document is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            shopkeeperCNICFront,
+                            "shopkeeperCNICFrontError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            shopkeeperCNICBack,
+                            "shopkeeperCNICBackError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            shopFront,
+                            "shopFrontPhotoError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            shopInside,
+                            "shopInsidePhotoError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            shopSignboard,
+                            "shopSignboardPhotoError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateProofDocument(
+                            shopProofDocument,
+                            "shopProofDocumentError"
+                        )) {
+
+                            valid = false;
+                        }
+                    }
+
+                    if (selectedRole === "Delivery") {
+
+                        const cnicValue =
+                            document
+                                .getElementById("CNIC")
+                                .value
+                                .trim();
+
+                        const motorbikeNumber =
+                            document
+                                .getElementById("motorbikeNumber")
+                                .value
+                                .trim();
+
+                        const preferredZone =
+                            document
+                                .getElementById("preferredZone")
+                                .value
+                                .trim();
+
+                        if (!isValidCNIC(cnicValue)) {
+
+                            setError(
+                                "cnicError",
+                                "Enter CNIC in XXXXX-XXXXXXX-X format."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (
+                            !motorbikeNumber ||
+                            motorbikeNumber.length < 3 ||
+                            motorbikeNumber.length > 30
+                        ) {
+
+                            setError(
+                                "motorbikeNumberError",
+                                "Enter a motorbike registration number between 3 and 30 characters."
+                            );
+
+                            valid = false;
+                        }
+
+                        const allowedZones = [
+                            "Saddar",
+                            "6th Road",
+                            "Liaqat Bagh"
+                        ];
+
+                        if (!allowedZones.includes(
+                            preferredZone
+                        )) {
+
+                            setError(
+                                "preferredZoneError",
+                                "Please select a valid delivery zone."
+                            );
+
+                            valid = false;
+                        }
+
+                        const cnicFront =
+                            document.getElementById(
+                                "cnicFrontImage"
+                            );
+
+                        const cnicBack =
+                            document.getElementById(
+                                "cnicBackImage"
+                            );
+
+                        if (!cnicFront.files.length) {
+
+                            setError(
+                                "cnicFrontImageError",
+                                "CNIC front image is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!cnicBack.files.length) {
+
+                            setError(
+                                "cnicBackImageError",
+                                "CNIC back image is required."
+                            );
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            cnicFront,
+                            "cnicFrontImageError"
+                        )) {
+
+                            valid = false;
+                        }
+
+                        if (!validateImage(
+                            cnicBack,
+                            "cnicBackImageError"
+                        )) {
+
+                            valid = false;
+                        }
+                    }
+
+                    if (!valid) {
+
+                        event.preventDefault();
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                        return;
+                    }
+
+                    const registerButton =
+                        document.getElementById(
+                            "registerButton"
+                        );
+
+                    registerButton.disabled = true;
+
+                    registerButton.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2"></span>Registering...';
+
+                }
+            );
+
+        });
+
+    </script>
 }

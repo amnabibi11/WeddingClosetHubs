@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Shop Details";
+
+    string verificationStatus =
+        string.IsNullOrWhiteSpace(Model.VerificationStatus)
+            ? "Pending"
+            : Model.VerificationStatus;
 }
 
 <div class="container mt-5">
@@ -15,11 +20,10 @@
             </h2>
 
             <p class="text-muted mb-0">
-                View complete information about the selected shop.
+                Review shopkeeper information and verification evidence.
             </p>
 
         </div>
-
 
         <a asp-controller="Admin"
            asp-action="Shops"
@@ -45,6 +49,7 @@
 
         </div>
     }
+
 
     @if (TempData["Error"] != null)
     {
@@ -106,12 +111,12 @@
 
                 </div>
 
+
                 <div class="col-md-8">
 
                     <h5 class="fw-bold border-bottom pb-2 mb-3">
                         Shop Information
                     </h5>
-
 
 
                     <div class="row mb-3">
@@ -127,7 +132,6 @@
                     </div>
 
 
-
                     <div class="row mb-3">
 
                         <div class="col-sm-4 fw-bold">
@@ -141,7 +145,18 @@
                     </div>
 
 
-                    
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Shop Category:
+                        </div>
+
+                        <div class="col-sm-8">
+                            @Model.ShopCategory
+                        </div>
+
+                    </div>
+
 
                     <div class="row mb-3">
 
@@ -170,15 +185,49 @@
                     <div class="row mb-3">
 
                         <div class="col-sm-4 fw-bold">
-                            Approval:
+                            Verification:
                         </div>
 
                         <div class="col-sm-8">
 
-                            @if (Model.IsApproved)
+                            @if (verificationStatus.Equals(
+                                "Approved",
+                                StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-success">
                                     Approved
+                                </span>
+                            }
+                            else if (verificationStatus.Equals(
+                                "Rejected",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            }
+                            else if (verificationStatus.Equals(
+                                "More Evidence Required",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-info text-dark">
+                                    More Evidence Required
+                                </span>
+                            }
+                            else if (verificationStatus.Equals(
+                                "Under Review",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-primary">
+                                    Under Review
+                                </span>
+                            }
+                            else if (verificationStatus.Equals(
+                                "Suspended",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-dark">
+                                    Suspended
                                 </span>
                             }
                             else
@@ -192,6 +241,7 @@
 
                     </div>
 
+
                     <div class="row mb-3">
 
                         <div class="col-sm-4 fw-bold">
@@ -203,7 +253,7 @@
                             @if (!Model.IsApproved)
                             {
                                 <span class="badge bg-warning text-dark">
-                                    Pending Approval
+                                    Not Approved
                                 </span>
                             }
                             else if (Model.Status)
@@ -224,7 +274,56 @@
                     </div>
 
 
-                    
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Verification Submitted:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (Model.VerificationSubmittedDate.HasValue)
+                            {
+                                @Model.VerificationSubmittedDate.Value.ToString(
+                                    "dd-MM-yyyy hh:mm tt")
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Available
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-4 fw-bold">
+                            Verified Date:
+                        </div>
+
+                        <div class="col-sm-8">
+
+                            @if (Model.VerifiedDate.HasValue)
+                            {
+                                @Model.VerifiedDate.Value.ToString(
+                                    "dd-MM-yyyy hh:mm tt")
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not Verified
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
                     <div class="row mb-3">
 
                         <div class="col-sm-4 fw-bold">
@@ -235,7 +334,8 @@
 
                             @if (Model.ApprovedDate.HasValue)
                             {
-                                @Model.ApprovedDate.Value.ToString("dd-MM-yyyy hh:mm tt")
+                                @Model.ApprovedDate.Value.ToString(
+                                    "dd-MM-yyyy hh:mm tt")
                             }
                             else
                             {
@@ -256,7 +356,8 @@
                         </div>
 
                         <div class="col-sm-8">
-                            @Model.CreatedDate.ToString("dd-MM-yyyy hh:mm tt")
+                            @Model.CreatedDate.ToString(
+                                "dd-MM-yyyy hh:mm tt")
                         </div>
 
                     </div>
@@ -268,6 +369,7 @@
 
             <hr class="my-4" />
 
+
             <h5 class="fw-bold border-bottom pb-2 mb-3">
                 Shopkeeper Information
             </h5>
@@ -277,9 +379,6 @@
             {
 
                 <div class="row">
-
-
-                   
 
                     <div class="col-md-6 mb-3">
 
@@ -294,8 +393,6 @@
                     </div>
 
 
-                    
-
                     <div class="col-md-6 mb-3">
 
                         <label class="fw-bold">
@@ -307,7 +404,6 @@
                         </div>
 
                     </div>
-
 
 
                     <div class="col-md-6 mb-3">
@@ -323,7 +419,6 @@
                     </div>
 
 
-
                     <div class="col-md-6 mb-3">
 
                         <label class="fw-bold">
@@ -332,7 +427,8 @@
 
                         <div class="form-control bg-light">
 
-                            @if (!string.IsNullOrEmpty(Model.Shopkeeper.Phone))
+                            @if (!string.IsNullOrEmpty(
+                                Model.Shopkeeper.Phone))
                             {
                                 @Model.Shopkeeper.Phone
                             }
@@ -348,8 +444,6 @@
                     </div>
 
 
-                   
-
                     <div class="col-md-12 mb-3">
 
                         <label class="fw-bold">
@@ -358,7 +452,8 @@
 
                         <div class="form-control bg-light">
 
-                            @if (!string.IsNullOrEmpty(Model.Shopkeeper.Address))
+                            @if (!string.IsNullOrEmpty(
+                                Model.Shopkeeper.Address))
                             {
                                 @Model.Shopkeeper.Address
                             }
@@ -394,19 +489,156 @@
             }
 
 
+            @if (Model.Shopkeeper != null)
+            {
+
+                <hr class="my-4" />
+
+
+                <h5 class="fw-bold border-bottom pb-2 mb-3">
+                    Identity Verification
+                </h5>
+
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            CNIC Number
+                        </label>
+
+                        <div class="form-control bg-light">
+
+                            @if (!string.IsNullOrEmpty(
+                                Model.Shopkeeper.CNIC))
+                            {
+                                @Model.Shopkeeper.CNIC
+                            }
+                            else
+                            {
+                                <span class="text-danger">
+                                    Not Provided
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+                            Identity Status
+                        </label>
+
+                        <div class="form-control bg-light">
+
+                            @if (!string.IsNullOrEmpty(
+                                Model.Shopkeeper.CNIC) &&
+                                !string.IsNullOrEmpty(
+                                    Model.Shopkeeper.CNICFrontImage) &&
+                                !string.IsNullOrEmpty(
+                                    Model.Shopkeeper.CNICBackImage))
+                            {
+                                <span class="text-success fw-bold">
+                                    Complete
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-bold">
+                                    Incomplete
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-md-6 text-center mb-4">
+
+                        <h6 class="fw-bold">
+                            CNIC Front
+                        </h6>
+
+                        @if (!string.IsNullOrEmpty(
+                            Model.Shopkeeper.CNICFrontImage))
+                        {
+                            <a href="@Model.Shopkeeper.CNICFrontImage"
+                               target="_blank">
+
+                                <img src="@Model.Shopkeeper.CNICFrontImage"
+                                     alt="CNIC Front"
+                                     class="img-fluid rounded border"
+                                     style="height:240px;
+                                            width:100%;
+                                            object-fit:contain;
+                                            background:#f8f9fa;" />
+
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="border rounded p-5 text-danger">
+                                CNIC Front Not Provided
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <div class="col-md-6 text-center mb-4">
+
+                        <h6 class="fw-bold">
+                            CNIC Back
+                        </h6>
+
+                        @if (!string.IsNullOrEmpty(
+                            Model.Shopkeeper.CNICBackImage))
+                        {
+                            <a href="@Model.Shopkeeper.CNICBackImage"
+                               target="_blank">
+
+                                <img src="@Model.Shopkeeper.CNICBackImage"
+                                     alt="CNIC Back"
+                                     class="img-fluid rounded border"
+                                     style="height:240px;
+                                            width:100%;
+                                            object-fit:contain;
+                                            background:#f8f9fa;" />
+
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="border rounded p-5 text-danger">
+                                CNIC Back Not Provided
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            }
+
+
             <hr class="my-4" />
 
 
-           
             <h5 class="fw-bold border-bottom pb-2 mb-3">
                 Shop Contact Information
             </h5>
 
 
             <div class="row">
-
-
-               
 
                 <div class="col-md-6 mb-3">
 
@@ -432,8 +664,6 @@
                 </div>
 
 
-               
-
                 <div class="col-md-6 mb-3">
 
                     <label class="fw-bold">
@@ -457,8 +687,6 @@
 
                 </div>
 
-
-                
 
                 <div class="col-md-12 mb-3">
 
@@ -488,15 +716,13 @@
 
             <hr class="my-4" />
 
+
             <h5 class="fw-bold border-bottom pb-2 mb-3">
                 Shop Verification Photos
             </h5>
 
 
             <div class="row">
-
-
-                
 
                 <div class="col-md-4 text-center mb-4">
 
@@ -506,22 +732,26 @@
 
                     @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
                     {
-                        <img src="@Model.ShopFrontPhoto"
-                             alt="Shop Front"
-                             class="img-fluid rounded border"
-                             style="height:220px;
-                                    width:100%;
-                                    object-fit:cover;" />
+                        <a href="@Model.ShopFrontPhoto"
+                           target="_blank">
+
+                            <img src="@Model.ShopFrontPhoto"
+                                 alt="Shop Front"
+                                 class="img-fluid rounded border"
+                                 style="height:220px;
+                                        width:100%;
+                                        object-fit:cover;" />
+
+                        </a>
                     }
                     else
                     {
-                        <div class="border rounded p-5 text-muted">
+                        <div class="border rounded p-5 text-danger">
                             No Photo
                         </div>
                     }
 
                 </div>
-
 
 
                 <div class="col-md-4 text-center mb-4">
@@ -532,24 +762,27 @@
 
                     @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
                     {
-                        <img src="@Model.ShopInsidePhoto"
-                             alt="Shop Inside"
-                             class="img-fluid rounded border"
-                             style="height:220px;
-                                    width:100%;
-                                    object-fit:cover;" />
+                        <a href="@Model.ShopInsidePhoto"
+                           target="_blank">
+
+                            <img src="@Model.ShopInsidePhoto"
+                                 alt="Shop Inside"
+                                 class="img-fluid rounded border"
+                                 style="height:220px;
+                                        width:100%;
+                                        object-fit:cover;" />
+
+                        </a>
                     }
                     else
                     {
-                        <div class="border rounded p-5 text-muted">
+                        <div class="border rounded p-5 text-danger">
                             No Photo
                         </div>
                     }
 
                 </div>
 
-
-                
 
                 <div class="col-md-4 text-center mb-4">
 
@@ -559,16 +792,21 @@
 
                     @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
                     {
-                        <img src="@Model.ShopSignboardPhoto"
-                             alt="Shop Signboard"
-                             class="img-fluid rounded border"
-                             style="height:220px;
-                                    width:100%;
-                                    object-fit:cover;" />
+                        <a href="@Model.ShopSignboardPhoto"
+                           target="_blank">
+
+                            <img src="@Model.ShopSignboardPhoto"
+                                 alt="Shop Signboard"
+                                 class="img-fluid rounded border"
+                                 style="height:220px;
+                                        width:100%;
+                                        object-fit:cover;" />
+
+                        </a>
                     }
                     else
                     {
-                        <div class="border rounded p-5 text-muted">
+                        <div class="border rounded p-5 text-danger">
                             No Photo
                         </div>
                     }
@@ -580,101 +818,293 @@
 
             <hr class="my-4" />
 
-            <div class="mt-4 d-flex gap-2 flex-wrap">
+
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                Shop Association Verification
+            </h5>
 
 
-                @if (!Model.IsApproved)
-                {
+            <div class="row">
 
-                    <form asp-controller="Admin"
-                          asp-action="ApproveShop"
-                          method="post">
+                <div class="col-md-6 mb-3">
 
-                        @Html.AntiForgeryToken()
+                    <label class="fw-bold">
+                        Verification Proof Type
+                    </label>
 
-                        <input type="hidden"
-                               name="id"
-                               value="@Model.ShopId" />
+                    <div class="form-control bg-light">
 
-                        <button type="submit"
-                                class="btn btn-success">
+                        @if (!string.IsNullOrEmpty(
+                            Model.ShopProofType))
+                        {
+                            @Model.ShopProofType
+                        }
+                        else
+                        {
+                            <span class="text-danger">
+                                Not Provided
+                            </span>
+                        }
 
-                            Approve Shop
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        Verification Proof Status
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (!string.IsNullOrEmpty(
+                            Model.ShopProofDocument))
+                        {
+                            <span class="text-success fw-bold">
+                                Document Uploaded
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-danger fw-bold">
+                                Document Not Provided
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-12 mb-3">
+
+                    <label class="fw-bold">
+                        Verification Proof Document
+                    </label>
+
+                    @if (!string.IsNullOrEmpty(
+                        Model.ShopProofDocument))
+                    {
+                        <div class="border rounded p-3 bg-light">
+
+                            <a href="@Model.ShopProofDocument"
+                               target="_blank"
+                               class="btn btn-primary">
+
+                                View Verification Document
+
+                            </a>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="border rounded p-3 text-danger">
+                            No verification document uploaded.
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            @if (!string.IsNullOrWhiteSpace(Model.AdminNotes))
+            {
+
+                <div class="alert alert-info">
+
+                    <strong>
+                        Admin Notes:
+                    </strong>
+
+                    <div class="mt-2">
+                        @Model.AdminNotes
+                    </div>
+
+                </div>
+
+            }
+
+
+            @if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+            {
+
+                <div class="alert alert-danger">
+
+                    <strong>
+                        Rejection Reason:
+                    </strong>
+
+                    <div class="mt-2">
+                        @Model.RejectionReason
+                    </div>
+
+                </div>
+
+            }
+
+
+            <hr class="my-4" />
+
+
+            <h5 class="fw-bold border-bottom pb-2 mb-3">
+                Admin Verification Decision
+            </h5>
+
+
+            @if (!Model.IsApproved)
+            {
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+
+                        <form asp-controller="Admin"
+                              asp-action="ApproveShop"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.ShopId" />
+
+                            <button type="submit"
+                                    class="btn btn-success w-100">
+
+                                Approve Shop
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <button type="button"
+                                class="btn btn-info text-dark w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#moreEvidenceModal">
+
+                            Request More Evidence
 
                         </button>
 
-                    </form>
+                    </div>
 
 
-                    <form asp-controller="Admin"
-                          asp-action="RejectShop"
-                          method="post">
+                    <div class="col-md-4 mb-3">
 
-                        @Html.AntiForgeryToken()
-
-                        <input type="hidden"
-                               name="id"
-                               value="@Model.ShopId" />
-
-                        <button type="submit"
-                                class="btn btn-danger">
+                        <button type="button"
+                                class="btn btn-danger w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectShopModal">
 
                             Reject Shop
 
                         </button>
 
-                    </form>
+                    </div>
 
-                }
+                </div>
 
-                @if (Model.IsApproved && Model.Status)
-                {
-
-                    <form asp-controller="Admin"
-                          asp-action="DisableShop"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <input type="hidden"
-                               name="id"
-                               value="@Model.ShopId" />
-
-                        <button type="submit"
-                                class="btn btn-warning">
-
-                            Disable Shop
-
-                        </button>
-
-                    </form>
-
-                }
+            }
 
 
-                @if (Model.IsApproved && !Model.Status)
-                {
+            @if (Model.IsApproved && Model.Status)
+            {
 
-                    <form asp-controller="Admin"
-                          asp-action="EnableShop"
-                          method="post">
+                <div class="row">
 
-                        @Html.AntiForgeryToken()
+                    <div class="col-md-6 mb-3">
 
-                        <input type="hidden"
-                               name="id"
-                               value="@Model.ShopId" />
+                        <form asp-controller="Admin"
+                              asp-action="DisableShop"
+                              method="post">
 
-                        <button type="submit"
-                                class="btn btn-success">
+                            @Html.AntiForgeryToken()
 
-                            Enable Shop
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.ShopId" />
 
-                        </button>
+                            <button type="submit"
+                                    class="btn btn-warning w-100">
 
-                    </form>
+                                Disable Shop
 
-                }
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <div class="alert alert-success mb-0 text-center">
+                            This shop is verified, approved and active.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            }
+
+
+            @if (Model.IsApproved && !Model.Status)
+            {
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <form asp-controller="Admin"
+                              asp-action="EnableShop"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.ShopId" />
+
+                            <button type="submit"
+                                    class="btn btn-success w-100">
+
+                                Enable Shop
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+
+                        <div class="alert alert-warning mb-0 text-center">
+                            This shop is approved but currently disabled.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            }
+
+
+            <div class="mt-3">
 
                 <a asp-controller="Admin"
                    asp-action="Shops"
@@ -685,6 +1115,166 @@
                 </a>
 
             </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="modal fade"
+     id="moreEvidenceModal"
+     tabindex="-1"
+     aria-labelledby="moreEvidenceModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="moreEvidenceModalLabel">
+
+                    Request More Evidence
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="RequestMoreShopEvidence"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.ShopId" />
+
+                    <label class="form-label fw-bold">
+                        What additional evidence is required?
+                    </label>
+
+                    <textarea name="adminNotes"
+                              class="form-control"
+                              rows="5"
+                              required
+                              placeholder="Example: Please provide a clearer CNIC back image or a recent utility bill matching the shop address."></textarea>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-info text-dark">
+
+                        Request Evidence
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="modal fade"
+     id="rejectShopModal"
+     tabindex="-1"
+     aria-labelledby="rejectShopModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="rejectShopModalLabel">
+
+                    Reject Shop Application
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="RejectShop"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.ShopId" />
+
+                    <label class="form-label fw-bold">
+                        Rejection Reason
+                    </label>
+
+                    <textarea name="rejectionReason"
+                              class="form-control"
+                              rows="5"
+                              required
+                              placeholder="Enter the reason for rejecting this shop application."></textarea>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        Reject Shop
+
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 

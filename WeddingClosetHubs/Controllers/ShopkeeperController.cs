@@ -24,13 +24,19 @@ namespace WeddingClosetHubs.Controllers
             _environment = environment;
         }
 
+
+
         private const string ShopkeeperRole = "Shopkeeper";
         private const string AdminRole = "Admin";
         private const string CustomerRole = "Customer";
         private const string DeliveryRole = "Delivery";
 
+
+
         private const decimal FixedDeliveryCharges = 300m;
         private const decimal ServiceFeePercentage = 10m;
+
+
 
         private static readonly string[] AllowedProductImageExtensions =
         {
@@ -42,8 +48,11 @@ namespace WeddingClosetHubs.Controllers
 
         private bool IsShopkeeper()
         {
-            int? userId = HttpContext.Session.GetInt32("UserId");
-            string? roleName = HttpContext.Session.GetString("RoleName");
+            int? userId =
+                HttpContext.Session.GetInt32("UserId");
+
+            string? roleName =
+                HttpContext.Session.GetString("RoleName");
 
             return userId.HasValue &&
                    string.Equals(
@@ -51,6 +60,8 @@ namespace WeddingClosetHubs.Controllers
                        ShopkeeperRole,
                        StringComparison.OrdinalIgnoreCase);
         }
+
+
 
         private int? GetShopkeeperId()
         {
@@ -60,9 +71,11 @@ namespace WeddingClosetHubs.Controllers
             return HttpContext.Session.GetInt32("UserId");
         }
 
+
         private async Task<Shop?> GetMyShop()
         {
-            int? shopkeeperId = GetShopkeeperId();
+            int? shopkeeperId =
+                GetShopkeeperId();
 
             if (!shopkeeperId.HasValue)
                 return null;
@@ -70,10 +83,13 @@ namespace WeddingClosetHubs.Controllers
             return await _context.Shops
                 .Include(s => s.Shopkeeper)
                 .FirstOrDefaultAsync(
-                    s => s.ShopkeeperId == shopkeeperId.Value);
+                    s => s.ShopkeeperId ==
+                         shopkeeperId.Value);
         }
 
-        private static bool IsCancelledOrder(Order order)
+
+        private static bool IsCancelledOrder(
+            Order order)
         {
             return string.Equals(
                 order.OrderStatus,
@@ -81,7 +97,9 @@ namespace WeddingClosetHubs.Controllers
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsActiveOrderStatus(string? status)
+
+        private static bool IsActiveOrderStatus(
+            string? status)
         {
             return !string.Equals(
                 status,
@@ -89,7 +107,9 @@ namespace WeddingClosetHubs.Controllers
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsCompletedOrder(string? status)
+
+        private static bool IsCompletedOrder(
+            string? status)
         {
             return string.Equals(
                        status,
@@ -102,10 +122,15 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsCodPayment(string? paymentMethod)
+
+        private static bool IsCodPayment(
+            string? paymentMethod)
         {
-            if (string.IsNullOrWhiteSpace(paymentMethod))
+            if (string.IsNullOrWhiteSpace(
+                    paymentMethod))
+            {
                 return false;
+            }
 
             return paymentMethod.Contains(
                        "cash",
@@ -117,102 +142,258 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        private Dictionary<string, List<string>> GetCategoryData()
+
+
+        private Dictionary<string, List<string>>
+            GetCategoryData()
         {
             return new Dictionary<string, List<string>>(
                 StringComparer.OrdinalIgnoreCase)
             {
-                ["Dress"] = new List<string>
-            {
-                "Bridal Dress",
-                "Lehenga",
-                "Gown",
-                "Sharara",
-                "Gharara",
-                "Pishwas",
-                "Maxi",
-                "Anarkali",
-                "Saree",
-                "Sherwani",
-                "Prince Coat",
-                "Waistcoat",
-                "Kurta Pajama",
-                "Tuxedo",
-                "Suit",
-                "Blazer",
-                "Shirt & Trouser",
-                "Party Dress",
-                "Frock",
-                "Shalwar Kameez"
-            },
 
-                ["Wedding Guest Wear"] = new List<string>
-            {
-                "Party Dress",
-                "Maxi",
-                "Frock",
-                "Anarkali",
-                "Saree",
-                "Suit",
-                "Shalwar Kameez",
-                "Kurta Pajama"
-            },
 
-                ["Footwear"] = new List<string>
-            {
-                "Bridal Shoes",
-                "Heels",
-                "Khussa",
-                "Sandals",
-                "Pumps",
-                "Men Shoes",
-                "Formal Shoes",
-                "Peshawari Chappal",
-                "Wedding Shoes"
-            },
 
-                ["Jewellery"] = new List<string>
-            {
-                "Necklace",
-                "Earrings",
-                "Bangles",
-                "Bracelet",
-                "Maang Tikka",
-                "Jhumka",
-                "Rings",
-                "Bridal Jewellery Set"
-            },
+                ["Bridal Wear"] =
+                    new List<string>
+                    {
+                    "Bridal Lehenga",
+                    "Bridal Gown",
+                    "Bridal Maxi",
+                    "Bridal Sharara",
+                    "Bridal Gharara",
+                    "Bridal Pishwas",
+                    "Bridal Saree",
+                    "Nikkah Dress",
+                    "Mehndi Dress",
+                    "Barat Dress",
+                    "Walima Dress",
+                    "Reception Dress"
+                    },
 
-                ["Accessories"] = new List<string>
-            {
-                "Clutch",
-                "Handbag",
-                "Bridal Dupatta",
-                "Veil",
-                "Hair Accessories",
-                "Brooch",
-                "Cufflinks",
-                "Tie",
-                "Bow Tie",
-                "Belt"
-            }
+
+
+                ["Groom Wear"] =
+                    new List<string>
+                    {
+                    "Sherwani",
+                    "Prince Coat",
+                    "Groom Suit",
+                    "Tuxedo",
+                    "Waistcoat",
+                    "Kurta Pajama",
+                    "Shalwar Kameez",
+                    "Groom Blazer",
+                    "Groom Shirt & Trouser",
+                    "Groom Waistcoat Suit",
+                    "Turban"
+                    },
+
+
+                ["Formal Wear"] =
+                    new List<string>
+                    {
+                    "Formal Dress",
+                    "Formal Gown",
+                    "Formal Maxi",
+                    "Formal Suit",
+                    "Formal Saree",
+                    "Formal Shalwar Kameez",
+                    "Formal Kurta",
+                    "Formal Blazer",
+                    "Formal Shirt & Trouser",
+                    "Formal Tuxedo",
+                    "Formal Waistcoat"
+                    },
+
+
+
+                ["Wedding Guest Wear"] =
+                    new List<string>
+                    {
+                    "Party Dress",
+                    "Maxi",
+                    "Frock",
+                    "Anarkali",
+                    "Saree",
+                    "Suit",
+                    "Shalwar Kameez",
+                    "Kurta Pajama"
+                    },
+
+
+
+                ["Footwear"] =
+                    new List<string>
+                    {
+                    "Bridal Shoes",
+                    "Heels",
+                    "Khussa",
+                    "Sandals",
+                    "Pumps",
+                    "Men Shoes",
+                    "Formal Shoes",
+                    "Peshawari Chappal",
+                    "Wedding Shoes"
+                    },
+
+
+                ["Jewellery"] =
+                    new List<string>
+                    {
+                    "Necklace",
+                    "Earrings",
+                    "Bangles",
+                    "Bracelet",
+                    "Maang Tikka",
+                    "Jhumka",
+                    "Rings",
+                    "Jewellery Set"
+                    },
+
+
+
+                ["Bridal Jewellery"] =
+                    new List<string>
+                    {
+                    "Bridal Necklace Set",
+                    "Bridal Earrings",
+                    "Bridal Jhumka",
+                    "Bridal Maang Tikka",
+                    "Bridal Bangles",
+                    "Bridal Bracelet",
+                    "Bridal Rings",
+                    "Bridal Jewellery Set",
+                    "Bridal Nose Ring",
+                    "Bridal Matha Patti",
+                    "Bridal Passa",
+                    "Bridal Choker"
+                    },
+
+
+
+
+                ["Accessories"] =
+                    new List<string>
+                    {
+                    "Clutch",
+                    "Handbag",
+                    "Bridal Dupatta",
+                    "Veil",
+                    "Hair Accessories",
+                    "Hair Pins",
+                    "Brooch",
+                    "Cufflinks",
+                    "Tie",
+                    "Bow Tie",
+                    "Belt"
+                    },
+
+
+
+                ["Bridal Accessories"] =
+                    new List<string>
+                    {
+                    "Bridal Clutch",
+                    "Bridal Handbag",
+                    "Bridal Dupatta",
+                    "Bridal Veil",
+                    "Bridal Hair Accessories",
+                    "Bridal Hair Pins",
+                    "Bridal Brooch",
+                    "Bridal Belt"
+                    },
+
+
+                ["Dress"] =
+                    new List<string>
+                    {
+                    "Bridal Dress",
+                    "Lehenga",
+                    "Gown",
+                    "Sharara",
+                    "Gharara",
+                    "Pishwas",
+                    "Maxi",
+                    "Anarkali",
+                    "Saree",
+                    "Sherwani",
+                    "Prince Coat",
+                    "Waistcoat",
+                    "Kurta Pajama",
+                    "Tuxedo",
+                    "Suit",
+                    "Blazer",
+                    "Shirt & Trouser",
+                    "Party Dress",
+                    "Frock",
+                    "Shalwar Kameez"
+                    }
             };
         }
 
-        private Dictionary<string, List<string>> GetAllowedCategoryDataForShop(
-            string? shopCategory)
-        {
-            var allCategories = GetCategoryData();
 
-            string normalized =
-                (shopCategory ?? string.Empty)
-                .Trim()
-                .ToLowerInvariant()
-                .Replace("-", " ");
+
+        private Dictionary<string, List<string>>
+            GetAllowedCategoryDataForShop(
+                string? shopCategory,
+                string? shopCollections = null)
+        {
+            var allCategories =
+                GetCategoryData();
+
 
             var result =
                 new Dictionary<string, List<string>>(
                     StringComparer.OrdinalIgnoreCase);
+
+
+
+            var collections =
+                (shopCollections ?? string.Empty)
+                    .Split(
+                        ',',
+                        StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct(
+                        StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+
+
+            if (collections.Count > 0)
+            {
+                foreach (var collection in collections)
+                {
+                    var matchingCategory =
+                        allCategories.Keys.FirstOrDefault(
+                            c =>
+                                string.Equals(
+                                    c,
+                                    collection,
+                                    StringComparison.OrdinalIgnoreCase));
+
+
+                    if (matchingCategory != null)
+                    {
+                        result[matchingCategory] =
+                            allCategories[matchingCategory];
+                    }
+                }
+
+
+                return result;
+            }
+
+
+
+            string normalized =
+                (shopCategory ?? string.Empty)
+                    .Trim()
+                    .ToLowerInvariant()
+                    .Replace("-", " ");
+
+
 
             if (normalized.Contains("guest"))
             {
@@ -221,6 +402,7 @@ namespace WeddingClosetHubs.Controllers
 
                 return result;
             }
+
 
             if (normalized.Contains("footwear") ||
                 normalized.Contains("shoe"))
@@ -231,6 +413,19 @@ namespace WeddingClosetHubs.Controllers
                 return result;
             }
 
+
+
+            if (normalized.Contains("bridal jewellery") ||
+                normalized.Contains("bridal jewelry"))
+            {
+                result["Bridal Jewellery"] =
+                    allCategories["Bridal Jewellery"];
+
+                return result;
+            }
+
+
+
             if (normalized.Contains("jewellery") ||
                 normalized.Contains("jewelry"))
             {
@@ -240,6 +435,8 @@ namespace WeddingClosetHubs.Controllers
                 return result;
             }
 
+
+
             if (normalized.Contains("accessor"))
             {
                 result["Accessories"] =
@@ -248,18 +445,51 @@ namespace WeddingClosetHubs.Controllers
                 return result;
             }
 
-            if (normalized.Contains("dress") ||
-                normalized.Contains("bridal") ||
-                normalized.Contains("bride") ||
-                normalized.Contains("groom") ||
+
+
+            if (normalized.Contains("bridal") ||
+                normalized.Contains("bride"))
+            {
+                result["Bridal Wear"] =
+                    allCategories["Bridal Wear"];
+
+                return result;
+            }
+
+
+
+            if (normalized.Contains("groom") ||
                 normalized.Contains("gents") ||
                 normalized.Contains("men"))
+            {
+                result["Groom Wear"] =
+                    allCategories["Groom Wear"];
+
+                return result;
+            }
+
+
+
+            if (normalized.Contains("formal"))
+            {
+                result["Formal Wear"] =
+                    allCategories["Formal Wear"];
+
+                return result;
+            }
+
+
+
+            if (normalized.Contains("dress"))
             {
                 result["Dress"] =
                     allCategories["Dress"];
 
                 return result;
             }
+
+
+
 
             foreach (var category in allCategories)
             {
@@ -268,30 +498,54 @@ namespace WeddingClosetHubs.Controllers
                         shopCategory?.Trim(),
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    result[category.Key] = category.Value;
+                    result[category.Key] =
+                        category.Value;
+
                     break;
                 }
             }
 
+
             return result;
         }
 
-        private void PrepareProductForm(Shop shop)
+
+
+
+        private void PrepareProductForm(
+            Shop shop)
         {
             var allowedData =
-                GetAllowedCategoryDataForShop(shop.ShopCategory);
+                GetAllowedCategoryDataForShop(
+                    shop.ShopCategory,
+                    shop.ShopCollections);
+
+
 
             ViewBag.ShopCategory =
                 shop.ShopCategory;
 
+
+
+            ViewBag.ShopCollections =
+                shop.ShopCollections;
+
+
+
             ViewBag.ProductCategories =
                 allowedData.Keys.ToList();
+
+
 
             ViewBag.SubCategories =
                 allowedData.Values
                     .SelectMany(x => x)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Distinct(
+                        StringComparer.OrdinalIgnoreCase)
                     .ToList();
+
+
+
 
             ViewBag.StandardSizes =
                 new List<string>
@@ -302,6 +556,7 @@ namespace WeddingClosetHubs.Controllers
                 "L",
                 "XL",
                 "XXL",
+
                 "36",
                 "37",
                 "38",
@@ -314,79 +569,173 @@ namespace WeddingClosetHubs.Controllers
                 "45"
                 };
 
+
             ViewBag.CategoryDataJson =
-                JsonSerializer.Serialize(allowedData);
+                JsonSerializer.Serialize(
+                    allowedData);
         }
+
 
         private void SetProductType(
             Product product,
-            string? shopCategory)
-        {
-            string normalized =
-                (shopCategory ?? string.Empty)
-                .Trim()
-                .ToLowerInvariant()
-                .Replace("-", " ");
-
-            if (normalized.Contains("footwear") ||
-                normalized.Contains("shoe"))
-            {
-                product.ProductType = "Footwear";
-                return;
-            }
-
-            if (normalized.Contains("jewellery") ||
-                normalized.Contains("jewelry"))
-            {
-                product.ProductType = "Jewellery";
-                return;
-            }
-
-            if (normalized.Contains("accessor"))
-            {
-                product.ProductType = "Accessories";
-                return;
-            }
-
-            if (normalized.Contains("guest"))
-            {
-                product.ProductType = "Wedding Guest Wear";
-                return;
-            }
-
-            if (normalized.Contains("dress") ||
-                normalized.Contains("bridal") ||
-                normalized.Contains("bride") ||
-                normalized.Contains("groom") ||
-                normalized.Contains("gents") ||
-                normalized.Contains("men"))
-            {
-                product.ProductType = "Dress / Custom Size";
-                return;
-            }
-
-            product.ProductType = "Standard";
-        }
-
-        private void ValidateProductSizing(Product product)
+            string? shopCategory = null)
         {
             string category =
-                product.Category?.Trim() ?? string.Empty;
+                product.Category?
+                    .Trim()
+                    .ToLowerInvariant()
+                    ?? string.Empty;
+
 
             string subcategory =
-                product.Subcategory?.Trim() ?? string.Empty;
+                product.Subcategory?
+                    .Trim()
+                    .ToLowerInvariant()
+                    ?? string.Empty;
+
+
+            string combined =
+                category + " " + subcategory;
+
+
+
+
+            if (category.Contains("footwear") ||
+                category.Contains("shoe") ||
+                subcategory.Contains("shoe") ||
+                subcategory.Contains("khussa") ||
+                subcategory.Contains("heels") ||
+                subcategory.Contains("sandals") ||
+                subcategory.Contains("pumps") ||
+                subcategory.Contains("chappal"))
+            {
+                product.ProductType =
+                    "Footwear";
+
+                return;
+            }
+
+
+            if (category.Contains("bridal jewellery") ||
+                category.Contains("bridal jewelry"))
+            {
+                product.ProductType =
+                    "Jewellery";
+
+                return;
+            }
+
+
+
+            if (category.Contains("jewellery") ||
+                category.Contains("jewelry"))
+            {
+                product.ProductType =
+                    "Jewellery";
+
+                return;
+            }
+
+
+
+            if (category.Contains("accessor"))
+            {
+                product.ProductType =
+                    "Accessories";
+
+                return;
+            }
+
+
+
+            if (category.Contains("wedding guest") ||
+                category.Contains("guest wear"))
+            {
+                product.ProductType =
+                    "Wedding Guest Wear";
+
+                return;
+            }
+
+
+
+            if (category.Contains("bridal wear") ||
+                category.Contains("groom wear") ||
+                category.Contains("formal wear") ||
+                category.Contains("dress") ||
+                category.Contains("bridal") ||
+                category.Contains("bride") ||
+                category.Contains("groom") ||
+                category.Contains("gents") ||
+                category.Contains("men") ||
+                combined.Contains("lehenga") ||
+                combined.Contains("gown") ||
+                combined.Contains("maxi") ||
+                combined.Contains("sharara") ||
+                combined.Contains("gharara") ||
+                combined.Contains("pishwas") ||
+                combined.Contains("saree") ||
+                combined.Contains("frock") ||
+                combined.Contains("anarkali") ||
+                combined.Contains("suit") ||
+                combined.Contains("tuxedo") ||
+                combined.Contains("sherwani") ||
+                combined.Contains("prince coat") ||
+                combined.Contains("waistcoat") ||
+                combined.Contains("blazer") ||
+                combined.Contains("shirt & trouser") ||
+                combined.Contains("kurta pajama") ||
+                combined.Contains("shalwar kameez") ||
+                combined.Contains("turban"))
+            {
+                product.ProductType =
+                    "Dress / Custom Size";
+
+                return;
+            }
+
+
+            product.ProductType =
+                "Standard";
+        }
+
+
+
+
+        private void ValidateProductSizing(
+            Product product)
+        {
+            string category =
+                product.Category?.Trim()
+                ?? string.Empty;
+
+
+            string subcategory =
+                product.Subcategory?.Trim()
+                ?? string.Empty;
+
 
             string categoryLower =
                 category.ToLowerInvariant();
 
+
             string subcategoryLower =
                 subcategory.ToLowerInvariant();
+
+
 
             bool isFootwear =
                 categoryLower.Contains("footwear") ||
                 categoryLower.Contains("shoe") ||
                 subcategoryLower.Contains("footwear") ||
-                subcategoryLower.Contains("shoe");
+                subcategoryLower.Contains("shoe") ||
+                subcategoryLower.Contains("khussa") ||
+                subcategoryLower.Contains("heels") ||
+                subcategoryLower.Contains("sandals") ||
+                subcategoryLower.Contains("pumps") ||
+                subcategoryLower.Contains("chappal");
+
+
 
             bool isJewellery =
                 categoryLower.Contains("jewellery") ||
@@ -394,17 +743,53 @@ namespace WeddingClosetHubs.Controllers
                 subcategoryLower.Contains("jewellery") ||
                 subcategoryLower.Contains("jewelry");
 
+
+
             bool isAccessories =
                 categoryLower.Contains("accessories") ||
                 categoryLower.Contains("accessory") ||
                 subcategoryLower.Contains("accessories") ||
                 subcategoryLower.Contains("accessory");
 
+
+
             bool isWeddingGuestWear =
-                categoryLower.Contains("wedding guest wear") ||
-                categoryLower.Contains("guest wear") ||
-                subcategoryLower.Contains("wedding guest wear") ||
-                subcategoryLower.Contains("guest wear");
+                categoryLower.Contains(
+                    "wedding guest wear") ||
+                categoryLower.Contains(
+                    "guest wear") ||
+                subcategoryLower.Contains(
+                    "wedding guest wear") ||
+                subcategoryLower.Contains(
+                    "guest wear");
+
+
+
+            bool isBridalWear =
+                categoryLower.Equals(
+                    "bridal wear") ||
+                categoryLower.Contains(
+                    "bridal wear");
+
+
+
+
+            bool isGroomWear =
+                categoryLower.Equals(
+                    "groom wear") ||
+                categoryLower.Contains(
+                    "groom wear");
+
+
+
+
+            bool isFormalWear =
+                categoryLower.Equals(
+                    "formal wear") ||
+                categoryLower.Contains(
+                    "formal wear");
+
+
 
             string[] dressKeywords =
             {
@@ -427,13 +812,21 @@ namespace WeddingClosetHubs.Controllers
             "prince coat",
             "waistcoat",
             "blazer",
-            "shirt & trouser"
+            "shirt & trouser",
+            "turban"
         };
 
+
             bool isDress =
-                dressKeywords.Any(keyword =>
-                    categoryLower.Contains(keyword) ||
-                    subcategoryLower.Contains(keyword));
+                isBridalWear ||
+                isGroomWear ||
+                isFormalWear ||
+                dressKeywords.Any(
+                    keyword =>
+                        categoryLower.Contains(keyword) ||
+                        subcategoryLower.Contains(keyword));
+
+
 
             string[] standardSizes =
             {
@@ -444,6 +837,8 @@ namespace WeddingClosetHubs.Controllers
             "XL",
             "XXL"
         };
+
+
 
             string[] shoeSizes =
             {
@@ -459,41 +854,64 @@ namespace WeddingClosetHubs.Controllers
             "45"
         };
 
+
+
             if (isFootwear)
             {
-                if (string.IsNullOrWhiteSpace(product.Size))
+                if (string.IsNullOrWhiteSpace(
+                        product.Size))
                 {
                     ModelState.AddModelError(
                         "Size",
                         "Please select a shoe size.");
                 }
-                else if (!shoeSizes.Contains(product.Size.Trim()))
+                else if (!shoeSizes.Contains(
+                             product.Size.Trim()))
                 {
                     ModelState.AddModelError(
                         "Size",
                         "Please select a valid shoe size from 36 to 45.");
                 }
 
-                product.HasCustomMeasurement = false;
-                product.CustomMeasurements = null;
-                product.SizeType = null;
+
+                product.HasCustomMeasurement =
+                    false;
+
+                product.CustomMeasurements =
+                    null;
+
+                product.SizeType =
+                    null;
+
 
                 return;
             }
 
-            if (isJewellery || isAccessories)
+
+            if (isJewellery ||
+                isAccessories)
             {
-                product.Size = null;
-                product.SizeType = null;
-                product.HasCustomMeasurement = false;
-                product.CustomMeasurements = null;
+                product.Size =
+                    null;
+
+                product.SizeType =
+                    null;
+
+                product.HasCustomMeasurement =
+                    false;
+
+                product.CustomMeasurements =
+                    null;
+
 
                 return;
             }
+
 
             if (isWeddingGuestWear)
             {
-                if (string.IsNullOrWhiteSpace(product.Size) ||
+                if (string.IsNullOrWhiteSpace(
+                        product.Size) ||
                     !standardSizes.Contains(
                         product.Size.Trim(),
                         StringComparer.OrdinalIgnoreCase))
@@ -503,33 +921,39 @@ namespace WeddingClosetHubs.Controllers
                         "Please select a valid size from XS to XXL.");
                 }
 
-                product.HasCustomMeasurement = false;
-                product.CustomMeasurements = null;
+
+                product.HasCustomMeasurement =
+                    false;
+
+                product.CustomMeasurements =
+                    null;
+
 
                 return;
             }
+
+
 
             if (isDress)
             {
-                if (string.IsNullOrWhiteSpace(product.Size) ||
-                    !standardSizes.Contains(
-                        product.Size.Trim(),
-                        StringComparer.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(
-                        "Size",
-                        "Please select a valid size from XS to XXL.");
-                }
+                product.Size =
+                    null;
+
 
                 if (!product.HasCustomMeasurement)
                 {
-                    product.CustomMeasurements = null;
+                    product.CustomMeasurements =
+                        null;
                 }
+
 
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(product.Size) &&
+
+
+            if (!string.IsNullOrWhiteSpace(
+                    product.Size) &&
                 !standardSizes.Contains(
                     product.Size.Trim(),
                     StringComparer.OrdinalIgnoreCase))
@@ -539,11 +963,13 @@ namespace WeddingClosetHubs.Controllers
                     "Please select a valid size from XS to XXL.");
             }
 
-            product.HasCustomMeasurement = false;
-            product.CustomMeasurements = null;
+
+            product.HasCustomMeasurement =
+                false;
+
+            product.CustomMeasurements =
+                null;
         }
-
-
 
 
         public async Task<IActionResult> Dashboard()
@@ -949,6 +1375,8 @@ namespace WeddingClosetHubs.Controllers
 
             var products = await _context.Products
                 .Include(p => p.Shop)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.ProductImages)
                 .Where(p => p.ShopId == shop.ShopId)
                 .OrderByDescending(p => p.CreatedDate)
                 .ToListAsync();
@@ -1260,6 +1688,7 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Negotiations");
         }
 
+
         [HttpGet]
         public async Task<IActionResult> AddProduct()
         {
@@ -1289,7 +1718,683 @@ namespace WeddingClosetHubs.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProduct(
             Product product,
-            IFormFile? productImage)
+            IFormFile[]? productImages,
+            string[]? VariantSizes,
+            int[]? VariantQuantities)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            TempData.Remove("Success");
+            TempData.Remove("Error");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            if (!shop.IsApproved || !shop.Status)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Your shop must be approved and active before adding products.");
+
+                PrepareProductForm(shop);
+
+                return View(product);
+            }
+
+
+           
+
+            var allowedData =
+                GetAllowedCategoryDataForShop(
+                    shop.ShopCategory,
+                    shop.ShopCollections);
+
+
+            string selectedCategory =
+                product.Category?.Trim() ?? string.Empty;
+
+
+            var matchingCategory =
+                allowedData.Keys.FirstOrDefault(c =>
+                    string.Equals(
+                        c,
+                        selectedCategory,
+                        StringComparison.OrdinalIgnoreCase));
+
+
+            if (matchingCategory == null)
+            {
+                ModelState.AddModelError(
+                    "Category",
+                    "Please select a valid category for your shop.");
+            }
+            else
+            {
+                product.Category =
+                    matchingCategory;
+
+
+                if (allowedData.TryGetValue(
+                        matchingCategory,
+                        out var allowedSubcategories))
+                {
+                    string selectedSubcategory =
+                        product.Subcategory?.Trim() ?? string.Empty;
+
+
+                    var matchingSubcategory =
+                        allowedSubcategories.FirstOrDefault(s =>
+                            string.Equals(
+                                s,
+                                selectedSubcategory,
+                                StringComparison.OrdinalIgnoreCase));
+
+
+                    if (matchingSubcategory == null)
+                    {
+                        ModelState.AddModelError(
+                            "Subcategory",
+                            "Please select a valid subcategory.");
+                    }
+                    else
+                    {
+                        product.Subcategory =
+                            matchingSubcategory;
+                    }
+                }
+            }
+
+
+
+            ValidateProductSizing(product);
+
+
+
+            if (!product.IsAvailableForBuy &&
+                !product.IsAvailableForRent)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please select at least one option: Buy or Rent.");
+            }
+
+
+          
+            if (!product.IsAvailableForBuy)
+            {
+                product.IsOnSale = false;
+                product.AllowNegotiation = false;
+
+                product.SalePrice = null;
+                product.SaleDetails = null;
+            }
+
+
+           
+
+            if (product.Price <= 0)
+            {
+                ModelState.AddModelError(
+                    "Price",
+                    "Product price must be greater than zero.");
+            }
+
+
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Stock quantity cannot be negative.");
+            }
+
+
+
+            bool usesSizeVariants =
+                string.Equals(
+                    product.Category,
+                    "Bridal Wear",
+                    StringComparison.OrdinalIgnoreCase) ||
+
+                string.Equals(
+                    product.Category,
+                    "Groom Wear",
+                    StringComparison.OrdinalIgnoreCase) ||
+
+                string.Equals(
+                    product.Category,
+                    "Formal Wear",
+                    StringComparison.OrdinalIgnoreCase) ||
+
+                string.Equals(
+                    product.Category,
+                    "Dress",
+                    StringComparison.OrdinalIgnoreCase);
+
+
+
+            if (usesSizeVariants)
+            {
+                var sizes =
+                    VariantSizes ?? Array.Empty<string>();
+
+                var quantities =
+                    VariantQuantities ?? Array.Empty<int>();
+
+
+                if (sizes.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Please add at least one size and quantity.");
+                }
+                else if (sizes.Length != quantities.Length)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Size and quantity information is incomplete.");
+                }
+                else
+                {
+                    var allowedSizes =
+                        new HashSet<string>(
+                            new[]
+                            {
+                        "XS",
+                        "S",
+                        "M",
+                        "L",
+                        "XL",
+                        "XXL"
+                            },
+                            StringComparer.OrdinalIgnoreCase);
+
+
+                    var selectedSizes =
+                        new HashSet<string>(
+                            StringComparer.OrdinalIgnoreCase);
+
+
+                    int totalVariantStock = 0;
+
+
+                    for (int i = 0; i < sizes.Length; i++)
+                    {
+                        string size =
+                            sizes[i]?.Trim() ?? string.Empty;
+
+
+                        int quantity =
+                            quantities[i];
+
+
+                        if (string.IsNullOrWhiteSpace(size))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                "Size cannot be empty.");
+
+                            continue;
+                        }
+
+
+                        if (!allowedSizes.Contains(size))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Invalid size '{size}'.");
+                        }
+
+
+                        if (!selectedSizes.Add(size))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Size '{size}' has been added more than once.");
+                        }
+
+
+                        if (quantity < 0)
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Stock quantity for size '{size}' cannot be negative.");
+                        }
+
+
+                        totalVariantStock += quantity;
+                    }
+
+
+                   
+                    product.StockQuantity =
+                        totalVariantStock;
+                }
+            }
+
+
+
+            product.ProductName =
+                product.ProductName?.Trim() ?? string.Empty;
+
+            product.Category =
+                product.Category?.Trim();
+
+            product.Subcategory =
+                product.Subcategory?.Trim();
+
+            product.Size =
+                product.Size?.Trim();
+
+            product.Color =
+                product.Color?.Trim();
+
+            product.Description =
+                product.Description?.Trim();
+
+            product.Occasion =
+                product.Occasion?.Trim();
+
+            product.SizeType =
+                product.SizeType?.Trim();
+
+            product.CustomMeasurements =
+                product.CustomMeasurements?.Trim();
+
+            product.RentalDuration =
+                product.RentalDuration?.Trim();
+
+            product.RentalConditions =
+                product.RentalConditions?.Trim();
+
+            product.SaleDetails =
+                product.SaleDetails?.Trim();
+
+
+        
+
+            string normalizedName =
+                product.ProductName.ToLower();
+
+            string normalizedCategory =
+                product.Category?.ToLower() ?? "";
+
+            string normalizedSubcategory =
+                product.Subcategory?.ToLower() ?? "";
+
+            string normalizedColor =
+                product.Color?.ToLower() ?? "";
+
+
+            bool duplicateProduct =
+                await _context.Products.AnyAsync(p =>
+                    p.ShopId == shop.ShopId &&
+                    p.ProductName.ToLower() ==
+                        normalizedName &&
+                    (p.Category ?? "").ToLower() ==
+                        normalizedCategory &&
+                    (p.Subcategory ?? "").ToLower() ==
+                        normalizedSubcategory &&
+                    (p.Color ?? "").ToLower() ==
+                        normalizedColor &&
+                    p.Status);
+
+
+            if (duplicateProduct)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "This product with the same name, category, subcategory and color already exists in your shop. " +
+                    "For the same dress, add different sizes and their stock quantities in the size variants section.");
+            }
+
+
+     
+
+            if (product.IsOnSale)
+            {
+                if (!product.SalePrice.HasValue ||
+                    product.SalePrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Please enter a valid sale price.");
+                }
+                else if (product.SalePrice.Value >= product.Price)
+                {
+                    ModelState.AddModelError(
+                        "SalePrice",
+                        "Sale price must be lower than the original product price.");
+                }
+            }
+            else
+            {
+                product.SalePrice = null;
+                product.SaleDetails = null;
+            }
+
+
+
+            if (product.IsAvailableForRent)
+            {
+                if (!product.RentPrice.HasValue ||
+                    product.RentPrice.Value <= 0)
+                {
+                    ModelState.AddModelError(
+                        "RentPrice",
+                        "Please enter a valid rental price.");
+                }
+                else
+                {
+                    decimal maximumRentalPrice =
+                        product.Price * (2m / 3m);
+
+
+                    if (product.RentPrice.Value >
+                        maximumRentalPrice)
+                    {
+                        ModelState.AddModelError(
+                            "RentPrice",
+                            $"Rental price cannot be more than two-thirds of the original product price. " +
+                            $"Maximum allowed rental price is Rs. {maximumRentalPrice:N2}.");
+                    }
+                }
+
+
+                if (!product.RentalSecurity.HasValue ||
+                    product.RentalSecurity.Value < 0)
+                {
+                    ModelState.AddModelError(
+                        "RentalSecurity",
+                        "Please enter a valid refundable security amount.");
+                }
+                else
+                {
+                    decimal maximumSecurity =
+                        product.Price * (1m / 3m);
+
+
+                    if (product.RentalSecurity.Value >
+                        maximumSecurity)
+                    {
+                        ModelState.AddModelError(
+                            "RentalSecurity",
+                            $"Refundable security cannot be more than one-third of the original product price. " +
+                            $"Maximum allowed security is Rs. {maximumSecurity:N2}.");
+                    }
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                        product.RentalDuration))
+                {
+                    ModelState.AddModelError(
+                        "RentalDuration",
+                        "Rental duration is required.");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(
+                        product.RentalConditions))
+                {
+                    ModelState.AddModelError(
+                        "RentalConditions",
+                        "Rental conditions are required.");
+                }
+            }
+            else
+            {
+                product.RentPrice = null;
+                product.RentalSecurity = null;
+                product.RentalDuration = null;
+                product.RentalConditions = null;
+            }
+
+
+
+            if (productImages == null ||
+                productImages.Length == 0)
+            {
+                ModelState.AddModelError(
+                    "productImages",
+                    "Please select at least one product image.");
+            }
+            else
+            {
+                foreach (var image in productImages)
+                {
+                    if (image == null ||
+                        image.Length == 0)
+                    {
+                        continue;
+                    }
+
+
+                    string extension =
+                        Path.GetExtension(
+                            image.FileName)
+                        .ToLowerInvariant();
+
+
+                    if (!AllowedProductImageExtensions.Contains(
+                            extension))
+                    {
+                        ModelState.AddModelError(
+                            "productImages",
+                            "Only JPG, JPEG, PNG and WEBP images are allowed.");
+
+                        break;
+                    }
+
+
+                    if (image.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError(
+                            "productImages",
+                            "Each product image must be 5 MB or smaller.");
+
+                        break;
+                    }
+                }
+            }
+
+
+           
+
+            if (!ModelState.IsValid)
+            {
+                PrepareProductForm(shop);
+
+                ViewBag.AddProductError =
+                    "Product could not be added. Please correct the errors shown below.";
+
+                return View(product);
+            }
+
+
+            
+
+            SetProductType(
+                product,
+                shop.ShopCategory);
+
+
+         
+
+            product.ShopId =
+                shop.ShopId;
+
+            product.CreatedDate =
+                DateTime.Now;
+
+            product.Status =
+                true;
+
+
+
+
+            var savedImagePaths =
+                new List<string>();
+
+
+            foreach (var image in productImages!)
+            {
+                if (image == null ||
+                    image.Length == 0)
+                {
+                    continue;
+                }
+
+
+                string savedPath =
+                    await SaveFile(
+                        image,
+                        "products");
+
+
+                savedImagePaths.Add(
+                    savedPath);
+            }
+
+
+          
+
+            if (savedImagePaths.Count > 0)
+            {
+               
+                product.Image =
+                    savedImagePaths[0];
+
+
+                
+                if (savedImagePaths.Count > 1)
+                {
+                    product.AdditionalImages =
+                        string.Join(
+                            "|",
+                            savedImagePaths.Skip(1));
+                }
+            }
+
+
+         
+
+            _context.Products.Add(
+                product);
+
+
+
+            if (usesSizeVariants &&
+                VariantSizes != null &&
+                VariantQuantities != null)
+            {
+                for (int i = 0;
+                     i < VariantSizes.Length;
+                     i++)
+                {
+                    string size =
+                        VariantSizes[i]?.Trim() ?? string.Empty;
+
+
+                    if (string.IsNullOrWhiteSpace(size))
+                        continue;
+
+
+                    int quantity =
+                        VariantQuantities[i];
+
+
+                    product.ProductVariants.Add(
+                        new ProductVariant
+                        {
+                            Size = size,
+                            StockQuantity = quantity,
+                            CreatedDate = DateTime.Now
+                        });
+                }
+            }
+
+
+
+            foreach (var imagePath
+                     in savedImagePaths)
+            {
+                product.ProductImages.Add(
+                    new ProductImage
+                    {
+                        ImagePath =
+                            imagePath,
+
+                        IsPrimary =
+                            imagePath ==
+                            savedImagePaths[0],
+
+                        CreatedDate =
+                            DateTime.Now
+                    });
+            }
+
+
+          
+
+            await _context.SaveChangesAsync();
+
+
+          
+
+            ModelState.Clear();
+
+            PrepareProductForm(shop);
+
+            ViewBag.AddProductSuccess =
+                "Product added successfully.";
+
+
+            return View(
+                new Product());
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditProduct(int id)
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            var product =
+                await _context.Products
+                    .Include(p => p.ProductImages)
+                    .Include(p => p.ProductVariants)
+                    .FirstOrDefaultAsync(
+                        p =>
+                            p.ProductId == id &&
+                            p.ShopId == shop.ShopId);
+
+            if (product == null)
+                return NotFound();
+
+            PrepareProductForm(shop);
+
+            return View(product);
+
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduct(
+            Product product,
+            List<IFormFile>? productImages,
+            string[]? VariantSizes,
+          int[]? VariantQuantities)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -1302,26 +2407,32 @@ namespace WeddingClosetHubs.Controllers
             if (!shop.IsApproved || !shop.Status)
             {
                 TempData["Error"] =
-                    "Your shop must be approved and active before adding products.";
+                    "Your shop must be approved and active before editing products.";
 
                 return RedirectToAction("Products");
             }
 
+            productImages ??= new List<IFormFile>();
+            VariantSizes ??= Array.Empty<string>();
+            VariantQuantities ??= Array.Empty<int>();
+
+            var existingProduct =
+                await _context.Products
+                    .Include(p => p.ProductImages)
+                    .Include(p => p.ProductVariants)
+                    .FirstOrDefaultAsync(
+                        p => p.ProductId == product.ProductId);
+
+            if (existingProduct == null)
+                return NotFound();
+
+            if (existingProduct.ShopId != shop.ShopId)
+                return Forbid();
+
             var allowedData =
                 GetAllowedCategoryDataForShop(
-                    shop.ShopCategory);
-
-            if (string.IsNullOrWhiteSpace(product.Category) ||
-                !allowedData.Keys.Any(c =>
-                    string.Equals(
-                        c,
-                        product.Category.Trim(),
-                        StringComparison.OrdinalIgnoreCase)))
-            {
-                ModelState.AddModelError(
-                    "Category",
-                    "Please select a valid category for your shop.");
-            }
+                    shop.ShopCategory,
+                    shop.ShopCollections);
 
             string selectedCategory =
                 product.Category?.Trim() ?? string.Empty;
@@ -1333,27 +2444,256 @@ namespace WeddingClosetHubs.Controllers
                         selectedCategory,
                         StringComparison.OrdinalIgnoreCase));
 
-            if (matchingCategory != null &&
-                allowedData.TryGetValue(
-                    matchingCategory,
-                    out var allowedSubcategories))
+            if (matchingCategory == null)
             {
-                if (string.IsNullOrWhiteSpace(product.Subcategory) ||
-                    !allowedSubcategories.Any(s =>
-                        string.Equals(
-                            s,
-                            product.Subcategory?.Trim(),
-                            StringComparison.OrdinalIgnoreCase)))
+                ModelState.AddModelError(
+                    "Category",
+                    "Please select a valid category for your shop.");
+            }
+            else
+            {
+                product.Category = matchingCategory;
+
+                if (allowedData.TryGetValue(
+                        matchingCategory,
+                        out var allowedSubcategories))
                 {
-                    ModelState.AddModelError(
-                        "Subcategory",
-                        "Please select a valid subcategory.");
+                    string selectedSubcategory =
+                        product.Subcategory?.Trim() ?? string.Empty;
+
+                    var matchingSubcategory =
+                        allowedSubcategories.FirstOrDefault(s =>
+                            string.Equals(
+                                s,
+                                selectedSubcategory,
+                                StringComparison.OrdinalIgnoreCase));
+
+                    if (matchingSubcategory == null)
+                    {
+                        ModelState.AddModelError(
+                            "Subcategory",
+                            "Please select a valid subcategory.");
+                    }
+                    else
+                    {
+                        product.Subcategory =
+                            matchingSubcategory;
+                    }
                 }
             }
 
-            ValidateProductSizing(
+            SetProductType(
                 product,
                 shop.ShopCategory);
+
+            string category =
+                product.Category?.Trim().ToLowerInvariant() ?? "";
+
+            string subcategory =
+                product.Subcategory?.Trim().ToLowerInvariant() ?? "";
+
+            bool isFootwear =
+                category == "footwear" ||
+                category == "shoes";
+
+            bool isJewellery =
+                category == "jewellery" ||
+                category == "jewelry" ||
+                category == "bridal jewellery";
+
+            bool isAccessories =
+                category == "accessories" ||
+                category == "bridal accessories" ||
+                category == "wedding accessories";
+
+            bool isWeddingGuestWear =
+                category == "wedding guest wear" ||
+                category == "guest wear";
+
+            string[] dressKeywords =
+            {
+        "dress",
+        "bridal lehenga",
+        "bridal gown",
+        "bridal maxi",
+        "bridal sharara",
+        "bridal gharara",
+        "bridal pishwas",
+        "bridal saree",
+        "nikkah dress",
+        "mehndi dress",
+        "barat dress",
+        "walima dress",
+        "reception dress",
+        "sherwani",
+        "prince coat",
+        "groom suit",
+        "tuxedo",
+        "waistcoat",
+        "kurta pajama",
+        "shalwar kameez",
+        "groom blazer",
+        "groom shirt & trouser",
+        "groom waistcoat suit",
+        "turban",
+        "formal dress",
+        "formal gown",
+        "formal maxi",
+        "formal suit",
+        "formal saree",
+        "formal shalwar kameez",
+        "formal kurta",
+        "formal blazer",
+        "formal shirt & trouser",
+        "formal tuxedo",
+        "formal waistcoat",
+        "lehenga",
+        "gown",
+        "maxi",
+        "sharara",
+        "gharara",
+        "pishwas",
+        "saree",
+        "frock",
+        "anarkali",
+        "palazzo",
+        "suit",
+        "blazer",
+        "shirt & trouser"
+    };
+
+            string[] dressCategories =
+            {
+        "bridal wear",
+        "groom wear",
+        "formal wear",
+        "dress"
+    };
+
+            bool isDressProduct =
+                dressCategories.Contains(category) ||
+                dressKeywords.Any(x =>
+                    subcategory.Contains(x));
+
+            bool usesVariants =
+                isDressProduct;
+
+            ValidateProductSizing(product);
+
+            if (usesVariants)
+            {
+                product.Size = null;
+
+                if (VariantSizes.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Please add at least one size variant for this dress product.");
+                }
+                else if (VariantSizes.Length != VariantQuantities.Length)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Size and quantity information is incomplete.");
+                }
+                else
+                {
+                    var cleanedSizes =
+                        new List<string>();
+
+                    var cleanedQuantities =
+                        new List<int>();
+
+                    string[] allowedSizes =
+                    {
+                "XS",
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            };
+
+                    for (int i = 0;
+                         i < VariantSizes.Length;
+                         i++)
+                    {
+                        string size =
+                            VariantSizes[i]?.Trim() ?? "";
+
+                        int quantity =
+                            VariantQuantities[i];
+
+                        if (string.IsNullOrWhiteSpace(size))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Variant #{i + 1}: Please select a size.");
+
+                            continue;
+                        }
+
+                        if (quantity < 0)
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Variant #{i + 1}: Stock quantity cannot be negative.");
+
+                            continue;
+                        }
+
+                        if (!allowedSizes.Any(x =>
+                                string.Equals(
+                                    x,
+                                    size,
+                                    StringComparison.OrdinalIgnoreCase)))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Variant #{i + 1}: Invalid clothing size.");
+
+                            continue;
+                        }
+
+                        string formattedSize =
+                            allowedSizes.First(x =>
+                                string.Equals(
+                                    x,
+                                    size,
+                                    StringComparison.OrdinalIgnoreCase));
+
+                        if (cleanedSizes.Any(x =>
+                                string.Equals(
+                                    x,
+                                    formattedSize,
+                                    StringComparison.OrdinalIgnoreCase)))
+                        {
+                            ModelState.AddModelError(
+                                "",
+                                $"Size {formattedSize} has been added more than once. Each size can only be added once.");
+
+                            continue;
+                        }
+
+                        cleanedSizes.Add(formattedSize);
+                        cleanedQuantities.Add(quantity);
+                    }
+
+                    if (cleanedSizes.Count > 0)
+                    {
+                        product.StockQuantity =
+                            cleanedQuantities.Sum();
+                    }
+                }
+            }
+            else
+            {
+                VariantSizes =
+                    Array.Empty<string>();
+
+                VariantQuantities =
+                    Array.Empty<int>();
+            }
 
             if (!product.IsAvailableForBuy &&
                 !product.IsAvailableForRent)
@@ -1367,19 +2707,19 @@ namespace WeddingClosetHubs.Controllers
             {
                 product.IsOnSale = false;
                 product.AllowNegotiation = false;
-
                 product.SalePrice = null;
                 product.SaleDetails = null;
             }
 
-            if (product.Price < 0)
+            if (product.Price <= 0)
             {
                 ModelState.AddModelError(
                     "Price",
-                    "Price cannot be negative.");
+                    "Original product price must be greater than zero.");
             }
 
-            if (product.StockQuantity < 0)
+            if (!usesVariants &&
+                product.StockQuantity < 0)
             {
                 ModelState.AddModelError(
                     "StockQuantity",
@@ -1417,6 +2757,19 @@ namespace WeddingClosetHubs.Controllers
                         "RentPrice",
                         "Please enter a valid rental price.");
                 }
+                else
+                {
+                    decimal maximumRentalPrice =
+                        product.Price * (2m / 3m);
+
+                    if (product.RentPrice.Value >
+                        maximumRentalPrice)
+                    {
+                        ModelState.AddModelError(
+                            "RentPrice",
+                            $"Rental price cannot be more than two-thirds of the original product price. Maximum allowed rental price is Rs. {maximumRentalPrice:N2}.");
+                    }
+                }
 
                 if (!product.RentalSecurity.HasValue ||
                     product.RentalSecurity.Value < 0)
@@ -1425,9 +2778,22 @@ namespace WeddingClosetHubs.Controllers
                         "RentalSecurity",
                         "Please enter a valid refundable security amount.");
                 }
+                else
+                {
+                    decimal maximumSecurity =
+                        product.Price * (1m / 3m);
+
+                    if (product.RentalSecurity.Value >
+                        maximumSecurity)
+                    {
+                        ModelState.AddModelError(
+                            "RentalSecurity",
+                            $"Refundable security cannot be more than one-third of the original product price. Maximum allowed security is Rs. {maximumSecurity:N2}.");
+                    }
+                }
 
                 if (string.IsNullOrWhiteSpace(
-                        product.RentalDuration))
+                    product.RentalDuration))
                 {
                     ModelState.AddModelError(
                         "RentalDuration",
@@ -1435,7 +2801,7 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 if (string.IsNullOrWhiteSpace(
-                        product.RentalConditions))
+                    product.RentalConditions))
                 {
                     ModelState.AddModelError(
                         "RentalConditions",
@@ -1450,57 +2816,47 @@ namespace WeddingClosetHubs.Controllers
                 product.RentalConditions = null;
             }
 
-            if (productImage != null &&
-                productImage.Length > 0)
+            foreach (var file in productImages)
             {
+                if (file == null ||
+                    file.Length == 0)
+                    continue;
+
                 string extension =
                     Path.GetExtension(
-                        productImage.FileName)
-                    .ToLowerInvariant();
+                        file.FileName)
+                        .ToLowerInvariant();
 
                 if (!AllowedProductImageExtensions.Contains(
                     extension))
                 {
                     ModelState.AddModelError(
-                        "productImage",
-                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+                        "productImages",
+                        $"{file.FileName}: Only JPG, JPEG, PNG and WEBP images are allowed.");
                 }
 
-                if (productImage.Length > 5 * 1024 * 1024)
+                if (file.Length > 5 * 1024 * 1024)
                 {
                     ModelState.AddModelError(
-                        "productImage",
-                        "Product image must be 5 MB or smaller.");
+                        "productImages",
+                        $"{file.FileName}: Image must be 5 MB or smaller.");
                 }
-            }
-            else
-            {
-                ModelState.AddModelError(
-                    "productImage",
-                    "Please select a product image.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                PrepareProductForm(shop);
-
-                return View(product);
             }
 
             product.ShopId =
                 shop.ShopId;
-
-            product.Category =
-                product.Category?.Trim();
-
-            product.Subcategory =
-                product.Subcategory?.Trim();
 
             product.ProductName =
                 product.ProductName?.Trim();
 
             product.Description =
                 product.Description?.Trim();
+
+            product.Category =
+                product.Category?.Trim();
+
+            product.Subcategory =
+                product.Subcategory?.Trim();
 
             product.Color =
                 product.Color?.Trim();
@@ -1517,53 +2873,274 @@ namespace WeddingClosetHubs.Controllers
             product.CustomMeasurements =
                 product.CustomMeasurements?.Trim();
 
-            if (product.IsAvailableForRent)
-            {
-                product.RentalDuration =
-                    product.RentalDuration?.Trim();
+            product.RentalDuration =
+                product.RentalDuration?.Trim();
 
-                product.RentalConditions =
-                    product.RentalConditions?.Trim();
+            product.RentalConditions =
+                product.RentalConditions?.Trim();
+
+            product.SaleDetails =
+                product.SaleDetails?.Trim();
+
+            string normalizedName =
+                product.ProductName?.ToLower() ?? "";
+
+            string normalizedCategory =
+                product.Category?.ToLower() ?? "";
+
+            string normalizedSubcategory =
+                product.Subcategory?.ToLower() ?? "";
+
+            string normalizedColor =
+                product.Color?.ToLower() ?? "";
+
+            bool duplicateProduct =
+                await _context.Products.AnyAsync(p =>
+                    p.ProductId != product.ProductId &&
+                    p.ShopId == shop.ShopId &&
+                    p.ProductName.ToLower() ==
+                        normalizedName &&
+                    (p.Category ?? "").ToLower() ==
+                        normalizedCategory &&
+                    (p.Subcategory ?? "").ToLower() ==
+                        normalizedSubcategory &&
+                    (p.Color ?? "").ToLower() ==
+                        normalizedColor &&
+                    p.Status);
+
+            if (duplicateProduct)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "This product with the same name, category, subcategory and color already exists in your shop. Edit the existing product instead of creating a duplicate.");
             }
 
-            if (product.IsOnSale)
+            if (!ModelState.IsValid)
             {
-                product.SaleDetails =
-                    product.SaleDetails?.Trim();
+                PrepareProductForm(shop);
+
+                return View(product);
             }
 
-            SetProductType(
-                product,
-                shop.ShopCategory);
+            existingProduct.ProductName =
+                product.ProductName;
 
-            if (productImage != null &&
-                productImage.Length > 0)
+            existingProduct.Description =
+                product.Description;
+
+            existingProduct.Category =
+                product.Category;
+
+            existingProduct.Subcategory =
+                product.Subcategory;
+
+            existingProduct.Occasion =
+                product.Occasion;
+
+            existingProduct.Size =
+                product.Size;
+
+            existingProduct.SizeType =
+                product.SizeType;
+
+            existingProduct.CustomMeasurements =
+                product.CustomMeasurements;
+
+            existingProduct.Color =
+                product.Color;
+
+            existingProduct.Price =
+                product.Price;
+
+            existingProduct.StockQuantity =
+                product.StockQuantity;
+
+            existingProduct.Status =
+                product.Status;
+
+            existingProduct.ProductType =
+                product.ProductType;
+
+            existingProduct.HasCustomMeasurement =
+                product.HasCustomMeasurement;
+
+            existingProduct.IsAvailableForBuy =
+                product.IsAvailableForBuy;
+
+            existingProduct.IsOnSale =
+                product.IsOnSale;
+
+            existingProduct.SalePrice =
+                product.SalePrice;
+
+            existingProduct.SaleDetails =
+                product.SaleDetails;
+
+            existingProduct.IsAvailableForRent =
+                product.IsAvailableForRent;
+
+            existingProduct.RentPrice =
+                product.RentPrice;
+
+            existingProduct.RentalSecurity =
+                product.RentalSecurity;
+
+            existingProduct.RentalDuration =
+                product.RentalDuration;
+
+            existingProduct.RentalConditions =
+                product.RentalConditions;
+
+            existingProduct.AllowNegotiation =
+                product.AllowNegotiation;
+
+            if (usesVariants)
             {
-                product.Image =
-                    await SaveFile(
-                        productImage,
-                        "products");
+                var oldVariants =
+                    existingProduct.ProductVariants?
+                        .ToList()
+                    ?? new List<ProductVariant>();
+
+                if (oldVariants.Count > 0)
+                {
+                    _context.ProductVariants.RemoveRange(
+                        oldVariants);
+
+                    existingProduct.ProductVariants.Clear();
+                }
+
+                for (int i = 0;
+                     i < VariantSizes.Length;
+                     i++)
+                {
+                    string size =
+                        VariantSizes[i].Trim();
+
+                    int quantity =
+                        VariantQuantities[i];
+
+                    var variant =
+                        new ProductVariant
+                        {
+                            ProductId =
+                                existingProduct.ProductId,
+
+                            Size =
+                                size,
+
+                            StockQuantity =
+                                quantity,
+
+                            CreatedDate =
+                                DateTime.Now
+                        };
+
+                    _context.ProductVariants.Add(
+                        variant);
+                }
+
+                existingProduct.StockQuantity =
+                    VariantQuantities.Sum();
+
+                existingProduct.Size = null;
+            }
+            else
+            {
+                var oldVariants =
+                    existingProduct.ProductVariants?
+                        .ToList()
+                    ?? new List<ProductVariant>();
+
+                if (oldVariants.Count > 0)
+                {
+                    _context.ProductVariants.RemoveRange(
+                        oldVariants);
+
+                    existingProduct.ProductVariants.Clear();
+                }
             }
 
-            product.CreatedDate =
-                DateTime.Now;
+            if (productImages.Count > 0)
+            {
+                var savedImagePaths =
+                    new List<string>();
 
-            product.Status =
-                true;
+                foreach (var file in productImages)
+                {
+                    if (file == null ||
+                        file.Length == 0)
+                        continue;
 
-            _context.Products.Add(product);
+                    string imagePath =
+                        await SaveFile(
+                            file,
+                            "products");
+
+                    savedImagePaths.Add(
+                        imagePath);
+                }
+
+                if (savedImagePaths.Count > 0)
+                {
+                    foreach (var oldImage
+                             in existingProduct.ProductImages)
+                    {
+                        oldImage.IsPrimary = false;
+                    }
+
+                    existingProduct.Image =
+                        savedImagePaths[0];
+
+                    foreach (var imagePath
+                             in savedImagePaths)
+                    {
+                        existingProduct.ProductImages.Add(
+                            new ProductImage
+                            {
+                                ProductId =
+                                    existingProduct.ProductId,
+
+                                ImagePath =
+                                    imagePath,
+
+                                IsPrimary =
+                                    imagePath ==
+                                    savedImagePaths[0],
+
+                                CreatedDate =
+                                    DateTime.Now
+                            });
+                    }
+
+                    var existingAdditionalImages =
+                        existingProduct.ProductImages
+                            .Where(x => !x.IsPrimary)
+                            .Select(x => x.ImagePath)
+                            .ToList();
+
+                    existingProduct.AdditionalImages =
+                        existingAdditionalImages.Count > 0
+                            ? string.Join(
+                                "|",
+                                existingAdditionalImages)
+                            : null;
+                }
+            }
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Product added successfully.";
+                "Product updated successfully.";
 
             return RedirectToAction("Products");
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> EditProduct(int id)
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DisableProduct(int id)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -1579,19 +3156,26 @@ namespace WeddingClosetHubs.Controllers
                          p.ShopId == shop.ShopId);
 
             if (product == null)
-                return NotFound();
+            {
+                TempData["Error"] =
+                    "Product not found.";
 
-            PrepareProductForm(shop);
+                return RedirectToAction("Products");
+            }
 
-            return View(product);
+            product.Status = false;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Product disabled successfully.";
+
+            return RedirectToAction("Products");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProduct(
-            Product model,
-            IFormFile? productImage)
+        public async Task<IActionResult> EnableProduct(int id)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -1603,276 +3187,26 @@ namespace WeddingClosetHubs.Controllers
 
             var product = await _context.Products
                 .FirstOrDefaultAsync(
-                    p => p.ProductId == model.ProductId &&
+                    p => p.ProductId == id &&
                          p.ShopId == shop.ShopId);
 
             if (product == null)
-                return NotFound();
-
-            ModelState.Remove("Shop");
-
-            var allowedData =
-                GetAllowedCategoryDataForShop(
-                    shop.ShopCategory);
-
-            string selectedCategory =
-                model.Category?.Trim() ?? string.Empty;
-
-            var matchingCategory =
-                allowedData.Keys.FirstOrDefault(c =>
-                    string.Equals(
-                        c,
-                        selectedCategory,
-                        StringComparison.OrdinalIgnoreCase));
-
-            if (matchingCategory == null)
             {
-                ModelState.AddModelError(
-                    "Category",
-                    "Please select a valid category for your shop.");
+                TempData["Error"] =
+                    "Product not found.";
+
+                return RedirectToAction("Products");
             }
 
-            if (matchingCategory != null &&
-                allowedData.TryGetValue(
-                    matchingCategory,
-                    out var allowedSubcategories))
-            {
-                if (string.IsNullOrWhiteSpace(model.Subcategory) ||
-                    !allowedSubcategories.Any(s =>
-                        string.Equals(
-                            s,
-                            model.Subcategory?.Trim(),
-                            StringComparison.OrdinalIgnoreCase)))
-                {
-                    ModelState.AddModelError(
-                        "Subcategory",
-                        "Please select a valid subcategory.");
-                }
-            }
-
-            ValidateProductSizing(
-                model,
-                shop.ShopCategory);
-
-            if (!model.IsAvailableForBuy &&
-                !model.IsAvailableForRent)
-            {
-                ModelState.AddModelError(
-                    "",
-                    "Please select at least one option: Buy or Rent.");
-            }
-
-            if (!model.IsAvailableForBuy)
-            {
-                model.IsOnSale = false;
-
-                model.AllowNegotiation = false;
-
-                model.SalePrice = null;
-
-                model.SaleDetails = null;
-            }
-
-            if (model.Price < 0)
-            {
-                ModelState.AddModelError(
-                    "Price",
-                    "Price cannot be negative.");
-            }
-
-            if (model.StockQuantity < 0)
-            {
-                ModelState.AddModelError(
-                    "StockQuantity",
-                    "Stock quantity cannot be negative.");
-            }
-
-            if (model.IsOnSale)
-            {
-                if (!model.SalePrice.HasValue ||
-                    model.SalePrice.Value <= 0)
-                {
-                    ModelState.AddModelError(
-                        "SalePrice",
-                        "Please enter a valid sale price.");
-                }
-                else if (model.SalePrice.Value >= model.Price)
-                {
-                    ModelState.AddModelError(
-                        "SalePrice",
-                        "Sale price must be lower than the original price.");
-                }
-            }
-            else
-            {
-                model.SalePrice = null;
-
-                model.SaleDetails = null;
-            }
-
-            if (model.IsAvailableForRent)
-            {
-                if (!model.RentPrice.HasValue ||
-                    model.RentPrice.Value <= 0)
-                {
-                    ModelState.AddModelError(
-                        "RentPrice",
-                        "Please enter a valid rental price.");
-                }
-
-                if (!model.RentalSecurity.HasValue ||
-                    model.RentalSecurity.Value < 0)
-                {
-                    ModelState.AddModelError(
-                        "RentalSecurity",
-                        "Please enter a valid refundable security amount.");
-                }
-
-                if (string.IsNullOrWhiteSpace(
-                        model.RentalDuration))
-                {
-                    ModelState.AddModelError(
-                        "RentalDuration",
-                        "Rental duration is required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(
-                        model.RentalConditions))
-                {
-                    ModelState.AddModelError(
-                        "RentalConditions",
-                        "Rental conditions are required.");
-                }
-            }
-            else
-            {
-                model.RentPrice = null;
-
-                model.RentalSecurity = null;
-
-                model.RentalDuration = null;
-
-                model.RentalConditions = null;
-            }
-
-            if (productImage != null &&
-                productImage.Length > 0)
-            {
-                string extension =
-                    Path.GetExtension(
-                        productImage.FileName)
-                    .ToLowerInvariant();
-
-                if (!AllowedProductImageExtensions.Contains(
-                    extension))
-                {
-                    ModelState.AddModelError(
-                        "productImage",
-                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
-                }
-
-                if (productImage.Length > 5 * 1024 * 1024)
-                {
-                    ModelState.AddModelError(
-                        "productImage",
-                        "Product image must be 5 MB or smaller.");
-                }
-            }
-
-            if (!ModelState.IsValid)
-            {
-                PrepareProductForm(shop);
-
-                return View(model);
-            }
-
-            product.ProductName =
-                model.ProductName?.Trim();
-
-            product.Description =
-                model.Description?.Trim();
-
-            product.Category =
-                model.Category?.Trim();
-
-            product.Subcategory =
-                model.Subcategory?.Trim();
-
-            product.Occasion =
-                model.Occasion?.Trim();
-
-            product.Size =
-                model.Size?.Trim();
-
-            product.SizeType =
-                model.SizeType?.Trim();
-
-            product.CustomMeasurements =
-                model.CustomMeasurements?.Trim();
-
-            product.Color =
-                model.Color?.Trim();
-
-            product.Price =
-                model.Price;
-
-            product.StockQuantity =
-                model.StockQuantity;
-
-            product.HasCustomMeasurement =
-                model.HasCustomMeasurement;
-
-            product.IsAvailableForBuy =
-                model.IsAvailableForBuy;
-
-            product.IsOnSale =
-                model.IsOnSale;
-
-            product.SalePrice =
-                model.SalePrice;
-
-            product.SaleDetails =
-                model.SaleDetails?.Trim();
-
-            product.IsAvailableForRent =
-                model.IsAvailableForRent;
-
-            product.RentPrice =
-                model.RentPrice;
-
-            product.RentalSecurity =
-                model.RentalSecurity;
-
-            product.RentalDuration =
-                model.RentalDuration?.Trim();
-
-            product.RentalConditions =
-                model.RentalConditions?.Trim();
-
-            product.AllowNegotiation =
-                model.AllowNegotiation;
-
-            SetProductType(
-                product,
-                shop.ShopCategory);
-
-            if (productImage != null &&
-                productImage.Length > 0)
-            {
-                product.Image =
-                    await SaveFile(
-                        productImage,
-                        "products");
-            }
+            product.Status = true;
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Product updated successfully.";
+                "Product enabled successfully.";
 
             return RedirectToAction("Products");
         }
-
 
         private void ValidateProductSizing(
             Product product,
@@ -2142,6 +3476,7 @@ namespace WeddingClosetHubs.Controllers
 
 
 
+        [HttpGet]
         public async Task<IActionResult> Orders()
         {
             if (!IsShopkeeper())
@@ -2154,6 +3489,7 @@ namespace WeddingClosetHubs.Controllers
 
             var orders = await _context.Orders
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(o => o.Customer)
                 .Include(o => o.Delivery)
                 .Include(o => o.OrderDetails)

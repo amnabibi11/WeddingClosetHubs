@@ -411,16 +411,19 @@
             height: 100%;
             border: 1px solid var(--border);
             transition: .2s ease;
+        }
+
+        .filter-card {
             cursor: pointer;
         }
 
-        .summary-box:hover {
+        .filter-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 22px rgba(128,0,32,.14);
             border-color: var(--gold);
         }
 
-        .summary-box.active {
+        .filter-card.active {
             border: 2px solid var(--maroon);
             box-shadow: 0 8px 25px rgba(128,0,32,.18);
             transform: translateY(-2px);
@@ -548,6 +551,32 @@
             color: #856404;
         }
 
+        .amount-summary {
+            background: linear-gradient(135deg, var(--maroon), #690019);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .amount-summary-title {
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .amount-summary-value {
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .amount-summary-label {
+            color: rgba(255,255,255,.75);
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
         .orders-box {
             background: white;
             border-radius: 16px;
@@ -589,6 +618,7 @@
             font-size: 12px;
             color: var(--muted);
             font-weight: 700;
+            margin-bottom: 6px;
         }
 
         .search-input {
@@ -861,32 +891,6 @@
             font-size: 12px;
         }
 
-        .amount-summary {
-            background: linear-gradient(135deg, var(--maroon), #690019);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            height: 100%;
-        }
-
-        .amount-summary-title {
-            color: var(--gold);
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .amount-summary-value {
-            font-size: 25px;
-            font-weight: 700;
-        }
-
-        .amount-summary-label {
-            color: rgba(255,255,255,.75);
-            font-size: 12px;
-            margin-top: 3px;
-        }
-
         .section-note {
             color: #999;
             font-size: 11px;
@@ -991,7 +995,6 @@
                class="brand">
 
                 <i class="bi bi-gem me-2"></i>
-
                 Wedding Closet Hubs
 
             </a>
@@ -1001,7 +1004,6 @@
                class="btn btn-light dashboard-btn">
 
                 <i class="bi bi-speedometer2 me-1"></i>
-
                 Dashboard
 
             </a>
@@ -1018,7 +1020,6 @@
             <h2 class="page-title">
 
                 <i class="bi bi-bag-check me-2"></i>
-
                 Orders
 
             </h2>
@@ -1032,11 +1033,70 @@
         </div>
 
 
+    
+
+        <div class="filter-bar">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-7">
+
+                    <div class="filter-label">
+
+                        <i class="bi bi-search me-1"></i>
+                        Search Orders
+
+                    </div>
+
+                    <input type="text"
+                           id="orderSearch"
+                           class="form-control search-input"
+                           placeholder="Search by Order ID, customer name, email, payment method, status or product name..." />
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <div class="filter-label">
+                        Current Filter
+                    </div>
+
+                    <div class="form-control bg-light">
+
+                        <span id="currentFilter"
+                              class="active-filter">
+
+                            All Orders
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-2">
+
+                    <button type="button"
+                            id="clearFilter"
+                            class="clear-filter w-100">
+
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Clear
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+   
 
         <div class="summary-section-title">
 
             <i class="bi bi-bar-chart-fill me-1"></i>
-
             Overall Orders
 
         </div>
@@ -1053,9 +1113,7 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="summary-icon">
-
                             <i class="bi bi-bag"></i>
-
                         </div>
 
                         <div>
@@ -1188,10 +1246,11 @@
         </div>
 
 
+     
+
         <div class="summary-section-title">
 
             <i class="bi bi-truck me-1"></i>
-
             Order Progress
 
         </div>
@@ -1338,10 +1397,6 @@
 
             </div>
 
-        </div>
-
-
-        <div class="row g-3 mb-4">
 
             <div class="col-xl-3 col-md-6">
 
@@ -1485,18 +1540,17 @@
         </div>
 
 
+       
+
         <div class="summary-section-title">
 
             <i class="bi bi-tags me-1"></i>
-
             Order Types
 
         </div>
 
         <div class="section-note">
-
             Customize orders can also contain Buy, Rent or Sale.
-
         </div>
 
 
@@ -1644,10 +1698,10 @@
         </div>
 
 
+
         <div class="summary-section-title">
 
             <i class="bi bi-credit-card me-1"></i>
-
             Payment & Delivery
 
         </div>
@@ -1797,10 +1851,11 @@
         </div>
 
 
+    
+
         <div class="summary-section-title">
 
             <i class="bi bi-wallet2 me-1"></i>
-
             Amount Summary
 
         </div>
@@ -1873,6 +1928,8 @@
         </div>
 
 
+     
+
         <div class="orders-box">
 
             <div class="orders-header">
@@ -1884,7 +1941,6 @@
                         <h5>
 
                             <i class="bi bi-list-check me-1"></i>
-
                             All Orders
 
                         </h5>
@@ -1892,9 +1948,11 @@
                         <small class="text-muted">
 
                             Showing
+
                             <span id="visibleOrderCount">
                                 @totalOrders
                             </span>
+
                             of
                             @totalOrders
                             orders
@@ -1908,6 +1966,7 @@
                         <span id="filterCount">
                             @totalOrders
                         </span>
+
                         Orders
 
                     </div>
@@ -1929,29 +1988,17 @@
                             <tr>
 
                                 <th>Order</th>
-
                                 <th>Customer</th>
-
                                 <th>Order Type</th>
-
                                 <th>Products</th>
-
                                 <th>Date</th>
-
                                 <th>Product Amount</th>
-
                                 <th>Total</th>
-
                                 <th>Payment</th>
-
                                 <th>Order Status</th>
-
                                 <th>Delivery</th>
-
                                 <th>Shopkeeper Amount</th>
-
                                 <th>Payment Status</th>
-
                                 <th>Action</th>
 
                             </tr>
@@ -1970,7 +2017,6 @@
                                         : order.OrderStatus.Trim();
 
                                 string statusClass = "status-other";
-
                                 string statusFilter = "other";
 
                                 if (IsPendingStatus(currentStatus))
@@ -2030,21 +2076,26 @@
                                     IsPaid(order.PaymentStatus);
 
 
-                                bool hasBuy = order.OrderDetails != null &&
-                                              order.OrderDetails.Any(d =>
-                                                  IsBuyType(d.PurchaseType));
+                                bool hasBuy =
+                                    order.OrderDetails != null &&
+                                    order.OrderDetails.Any(d =>
+                                        IsBuyType(d.PurchaseType));
 
-                                bool hasSale = order.OrderDetails != null &&
-                                               order.OrderDetails.Any(d =>
-                                                   IsSaleType(d.PurchaseType));
+                                bool hasSale =
+                                    order.OrderDetails != null &&
+                                    order.OrderDetails.Any(d =>
+                                        IsSaleType(d.PurchaseType));
 
-                                bool hasRent = order.OrderDetails != null &&
-                                               order.OrderDetails.Any(d =>
-                                                   IsRentType(d.PurchaseType));
+                                bool hasRent =
+                                    order.OrderDetails != null &&
+                                    order.OrderDetails.Any(d =>
+                                        IsRentType(d.PurchaseType));
 
-                                bool hasCustomize = order.OrderDetails != null &&
-                                                    order.OrderDetails.Any(d =>
-                                                        IsCustomizeType(d.PurchaseType));
+                                bool hasCustomize =
+                                    order.OrderDetails != null &&
+                                    order.OrderDetails.Any(d =>
+                                        IsCustomizeType(d.PurchaseType));
+
 
                                 string typeFilters =
                                     (hasBuy ? "buy " : "") +
@@ -2052,16 +2103,19 @@
                                     (hasRent ? "rent " : "") +
                                     (hasCustomize ? "customize " : "");
 
+
                                 string deliveryFilter =
                                     order.DeliveryId.HasValue &&
                                     order.DeliveryId.Value > 0
                                         ? "delivery-assigned"
                                         : "delivery-unassigned";
 
+
                                 string paymentFilter =
                                     paymentReceived
                                         ? "paid"
                                         : "unpaid";
+
 
                                 <tr class="order-row"
                                     data-status="@statusFilter"
@@ -2069,21 +2123,23 @@
                                     data-payment="@paymentFilter"
                                     data-delivery="@deliveryFilter"
                                     data-search="@(
-                                        "#"
-                                        + order.OrderId
-                                        + " "
-                                        + (order.Customer?.Name ?? "")
-                                        + " "
-                                        + (order.Customer?.Email ?? "")
-                                        + " "
-                                        + (order.PaymentMethod ?? "")
-                                        + " "
-                                        + currentStatus
-                                        + " "
-                                        + string.Join(" ",
+                                        "#" +
+                                        order.OrderId +
+                                        " " +
+                                        (order.Customer?.Name ?? "") +
+                                        " " +
+                                        (order.Customer?.Email ?? "") +
+                                        " " +
+                                        (order.PaymentMethod ?? "") +
+                                        " " +
+                                        currentStatus +
+                                        " " +
+                                        string.Join(" ",
                                             order.OrderDetails?
-                                                .Select(d => d.Product?.ProductName ?? "")
-                                                ?? Enumerable.Empty<string>())
+                                                .Select(d =>
+                                                    d.Product?.ProductName ?? "")
+                                                ??
+                                                Enumerable.Empty<string>())
                                     )">
 
                                     <td>
@@ -2168,7 +2224,6 @@
                                                         <span class="type-badge type-customize-badge">
 
                                                             <i class="bi bi-pencil-square me-1"></i>
-
                                                             Customize
 
                                                         </span>
@@ -2182,7 +2237,6 @@
                                                         <span class="type-badge type-buy-badge">
 
                                                             <i class="bi bi-bag me-1"></i>
-
                                                             Buy
 
                                                         </span>
@@ -2196,7 +2250,6 @@
                                                         <span class="type-badge type-sale-badge">
 
                                                             <i class="bi bi-tag me-1"></i>
-
                                                             Sale
 
                                                         </span>
@@ -2210,7 +2263,6 @@
                                                         <span class="type-badge type-rent-badge">
 
                                                             <i class="bi bi-calendar-heart me-1"></i>
-
                                                             Rent
 
                                                         </span>
@@ -2239,7 +2291,6 @@
                                                 <span class="type-badge type-buy-badge">
 
                                                     <i class="bi bi-bag me-1"></i>
-
                                                     Buy
 
                                                 </span>
@@ -2288,7 +2339,6 @@
                                                             <span class="text-primary">
 
                                                                 <i class="bi bi-pencil-square me-1"></i>
-
                                                                 Customize
 
                                                             </span>
@@ -2330,7 +2380,6 @@
                                                             <span class="text-success">
 
                                                                 <i class="bi bi-calendar-heart me-1"></i>
-
                                                                 Rent
 
                                                             </span>
@@ -2341,9 +2390,7 @@
                                                             {
 
                                                                 <span class="rental-return">
-
                                                                     @detail.RentalReturnStatus
-
                                                                 </span>
 
                                                             }
@@ -2355,7 +2402,6 @@
                                                             <span class="text-warning">
 
                                                                 <i class="bi bi-tag me-1"></i>
-
                                                                 Sale
 
                                                             </span>
@@ -2367,7 +2413,6 @@
                                                             <span class="text-muted">
 
                                                                 <i class="bi bi-bag me-1"></i>
-
                                                                 Buy
 
                                                             </span>
@@ -2441,7 +2486,6 @@
                                             {
 
                                                 <i class="bi bi-cash me-1"></i>
-
                                                 <span>COD</span>
 
                                             }
@@ -2452,7 +2496,6 @@
                                             {
 
                                                 <i class="bi bi-phone me-1"></i>
-
                                                 <span>Easypaisa</span>
 
                                             }
@@ -2463,7 +2506,6 @@
                                             {
 
                                                 <i class="bi bi-phone me-1"></i>
-
                                                 <span>JazzCash</span>
 
                                             }
@@ -2492,7 +2534,6 @@
                                             <small class="payment-paid">
 
                                                 <i class="bi bi-check-circle-fill me-1"></i>
-
                                                 Received
 
                                             </small>
@@ -2504,7 +2545,6 @@
                                             <small class="payment-pending">
 
                                                 <i class="bi bi-clock me-1"></i>
-
                                                 Pending
 
                                             </small>
@@ -2517,9 +2557,7 @@
                                     <td>
 
                                         <span class="status-badge @statusClass">
-
                                             @currentStatus
-
                                         </span>
 
                                     </td>
@@ -2533,7 +2571,6 @@
                                             <span class="delivery-assigned">
 
                                                 <i class="bi bi-person-check-fill me-1"></i>
-
                                                 @order.Delivery.Name
 
                                             </span>
@@ -2545,7 +2582,6 @@
                                             <span class="delivery-none">
 
                                                 <i class="bi bi-person-dash me-1"></i>
-
                                                 Not Assigned
 
                                             </span>
@@ -2558,9 +2594,7 @@
                                     <td>
 
                                         <span class="amount">
-
                                             Rs. @order.ShopkeeperAmount.ToString("N2")
-
                                         </span>
 
                                     </td>
@@ -2576,7 +2610,6 @@
                                                 <span class="payment-paid">
 
                                                     <i class="bi bi-check-circle-fill me-1"></i>
-
                                                     Paid
 
                                                 </span>
@@ -2611,7 +2644,6 @@
                                            class="view-btn">
 
                                             <i class="bi bi-eye me-1"></i>
-
                                             View
 
                                         </a>
@@ -2639,9 +2671,7 @@
                     </h5>
 
                     <p class="text-muted mb-0">
-
                         No orders match the selected filter or search.
-
                     </p>
 
                 </div>
@@ -2670,6 +2700,8 @@
         </div>
 
 
+     
+
         @if (actualPurchaseTypes.Any())
         {
 
@@ -2680,15 +2712,12 @@
                     <h5>
 
                         <i class="bi bi-database-check me-1"></i>
-
                         Purchase Type Check
 
                     </h5>
 
                     <small class="text-muted">
-
                         These are the actual PurchaseType values stored in OrderDetails.
-
                     </small>
 
                 </div>
@@ -2702,6 +2731,7 @@
                             Database Purchase Types
                         </div>
 
+
                         @foreach (var type in actualPurchaseTypes)
                         {
 
@@ -2712,6 +2742,7 @@
                                 <strong>
                                     (@type.Count)
                                 </strong>
+
 
                                 @if (IsCustomizeType(type.Name))
                                 {
@@ -2772,9 +2803,9 @@
             function applyFilter() {
 
                 const searchText =
-                    searchInput.value
-                        .trim()
-                        .toLowerCase();
+                    searchInput
+                        ? searchInput.value.trim().toLowerCase()
+                        : "";
 
 
                 let visibleCount = 0;
@@ -2865,7 +2896,6 @@
                     if (filterMatches && searchMatches) {
 
                         row.style.display = "";
-
                         visibleCount++;
 
                     }
@@ -2878,17 +2908,30 @@
                 });
 
 
-                visibleOrderCount.textContent =
-                    visibleCount;
+                if (visibleOrderCount) {
 
-                filterCount.textContent =
-                    visibleCount;
+                    visibleOrderCount.textContent =
+                        visibleCount;
+
+                }
 
 
-                noResults.style.display =
-                    visibleCount === 0
-                        ? "block"
-                        : "none";
+                if (filterCount) {
+
+                    filterCount.textContent =
+                        visibleCount;
+
+                }
+
+
+                if (noResults) {
+
+                    noResults.style.display =
+                        visibleCount === 0
+                            ? "block"
+                            : "none";
+
+                }
 
             }
 
@@ -2911,65 +2954,97 @@
                         this.dataset.filter || "all";
 
 
-                    currentFilter.textContent =
-                        this.dataset.label || "All Orders";
+                    if (currentFilter) {
 
-
-                    applyFilter();
-
-                    document.querySelector(".orders-box")
-                        .scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-
-                });
-
-            });
-
-
-            searchInput.addEventListener(
-                "input",
-                function () {
-
-                    applyFilter();
-
-                });
-
-
-            clearFilter.addEventListener(
-                "click",
-                function () {
-
-                    selectedFilter = "all";
-
-                    searchInput.value = "";
-
-                    currentFilter.textContent =
-                        "All Orders";
-
-
-                    filterCards.forEach(function (item) {
-
-                        item.classList.remove("active");
-
-                    });
-
-
-                    const firstCard =
-                        document.querySelector(
-                            '.filter-card[data-filter="all"]');
-
-                    if (firstCard) {
-
-                        firstCard.classList.add("active");
+                        currentFilter.textContent =
+                            this.dataset.label || "All Orders";
 
                     }
 
 
                     applyFilter();
 
+
+                    const ordersBox =
+                        document.querySelector(".orders-box");
+
+                    if (ordersBox) {
+
+                        ordersBox.scrollIntoView({
+
+                            behavior: "smooth",
+                            block: "start"
+
+                        });
+
+                    }
+
                 });
+
+            });
+
+
+            if (searchInput) {
+
+                searchInput.addEventListener(
+                    "input",
+                    function () {
+
+                        applyFilter();
+
+                    });
+
+            }
+
+
+            if (clearFilter) {
+
+                clearFilter.addEventListener(
+                    "click",
+                    function () {
+
+                        selectedFilter = "all";
+
+
+                        if (searchInput) {
+
+                            searchInput.value = "";
+
+                        }
+
+
+                        if (currentFilter) {
+
+                            currentFilter.textContent =
+                                "All Orders";
+
+                        }
+
+
+                        filterCards.forEach(function (item) {
+
+                            item.classList.remove("active");
+
+                        });
+
+
+                        const firstCard =
+                            document.querySelector(
+                                '.filter-card[data-filter="all"]');
+
+
+                        if (firstCard) {
+
+                            firstCard.classList.add("active");
+
+                        }
+
+
+                        applyFilter();
+
+                    });
+
+            }
 
 
             applyFilter();
@@ -2981,4 +3056,3 @@
 </body>
 
 </html>
-
