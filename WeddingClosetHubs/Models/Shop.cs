@@ -70,6 +70,9 @@ namespace WeddingClosetHubs.Models
 
         public string VerificationStatus { get; set; } = "Pending";
 
+        public string? CNICFrontImage { get; set; }
+
+        public string? CNICBackImage { get; set; }
 
         public string? AdminNotes { get; set; }
 

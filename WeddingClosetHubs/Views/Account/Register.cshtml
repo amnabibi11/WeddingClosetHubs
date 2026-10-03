@@ -43,7 +43,6 @@
                             </div>
                         }
 
-
                         <h5 class="border-bottom pb-2 mb-3">
                             Personal Information
                         </h5>
@@ -242,7 +241,7 @@
                                         </label>
 
                                         <input type="text"
-                                               name="CNIC"
+                                               name="ShopkeeperCNIC"
                                                id="shopkeeperCNIC"
                                                class="form-control"
                                                placeholder="XXXXX-XXXXXXX-X"
@@ -265,11 +264,10 @@
                                         </label>
 
                                         <input type="file"
-                                               name="CNICFrontImage"
+                                               name="ShopkeeperCNICFrontImage"
                                                id="shopkeeperCNICFront"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                                               required />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
 
                                         <span class="text-danger custom-validation-error"
                                               id="shopkeeperCNICFrontError"></span>
@@ -286,11 +284,11 @@
                                         </label>
 
                                         <input type="file"
-                                               name="CNICBackImage"
+                                               name="ShopkeeperCNICBackImage"
                                                id="shopkeeperCNICBack"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                                               required />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
                                         <span class="text-danger custom-validation-error"
                                               id="shopkeeperCNICBackError"></span>
 
@@ -802,8 +800,8 @@
                                         </label>
 
                                         <input type="text"
-                                               name="CNIC"
-                                               id="CNIC"
+                                               name="DeliveryCNIC"
+                                               id="deliveryCNIC"
                                                class="form-control"
                                                placeholder="XXXXX-XXXXXXX-X"
                                                maxlength="15"
@@ -825,11 +823,10 @@
                                         </label>
 
                                         <input type="file"
-                                               name="CNICFrontImage"
+                                               name="DeliveryCNICFrontImage"
                                                id="cnicFrontImage"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                                               required />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
 
                                         <span class="text-danger custom-validation-error"
                                               id="cnicFrontImageError"></span>
@@ -842,11 +839,10 @@
                                         </label>
 
                                         <input type="file"
-                                               name="CNICBackImage"
+                                               name="DeliveryCNICBackImage"
                                                id="cnicBackImage"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                                               required />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
 
                                         <span class="text-danger custom-validation-error"
                                               id="cnicBackImageError"></span>
@@ -1023,6 +1019,7 @@
                     "shopkeeperCNICBack",
                     "shopName",
                     "shopCategory",
+                    "shopCollections",
                     "shopPhone",
                     "shopAddress",
                     "shopDescription",
@@ -1033,9 +1030,10 @@
                     "shopProofDocument"
                 ],
                 Delivery: [
-                    "CNIC",
+                    "deliveryCNIC",
                     "cnicFrontImage",
                     "cnicBackImage",
+                    "vehicleType",
                     "motorbikeNumber",
                     "preferredZone"
                 ]
@@ -1091,7 +1089,10 @@
                             document.getElementById(id);
 
                         if (field) {
+
                             field.required = false;
+                            field.disabled = true;
+
                         }
 
                     });
@@ -1102,6 +1103,7 @@
 
                     generalMessage.style.display = "block";
                     return;
+
                 }
 
                 if (role === "Customer") {
@@ -1123,6 +1125,7 @@
 
                     generalMessage.style.display = "block";
                     return;
+
                 }
 
                 if (roleFields[role]) {
@@ -1133,7 +1136,10 @@
                             document.getElementById(id);
 
                         if (field) {
+
+                            field.disabled = false;
                             field.required = true;
+
                         }
 
                     });
@@ -1176,7 +1182,7 @@
                 document.getElementById("shopkeeperCNIC");
 
             const deliveryCNIC =
-                document.getElementById("CNIC");
+                document.getElementById("deliveryCNIC");
 
             function formatCNIC(input) {
 
@@ -1192,8 +1198,10 @@
                             this.value.replace(/\D/g, "");
 
                         if (value.length > 13) {
+
                             value =
                                 value.substring(0, 13);
+
                         }
 
                         if (value.length > 12) {
@@ -1242,6 +1250,7 @@
                             value =
                                 "0" +
                                 value.substring(3);
+
                         }
 
                         value =
@@ -1251,6 +1260,7 @@
 
                             value =
                                 value.substring(0, 11);
+
                         }
 
                         if (value.length > 4) {
@@ -1259,6 +1269,7 @@
                                 value.substring(0, 4) +
                                 "-" +
                                 value.substring(4);
+
                         }
 
                         this.value = value;
@@ -1531,10 +1542,10 @@
 
                     updateShopCollections();
 
-                    let valid = true;
-
                     const selectedRole =
                         getSelectedRole();
+
+                    let valid = true;
 
                     if (!roleSelect.value ||
                         !selectedRole) {
@@ -1675,7 +1686,7 @@
 
                     if (selectedRole === "Shopkeeper") {
 
-                        const shopkeeperCNIC =
+                        const shopkeeperCNICValue =
                             document
                                 .getElementById("shopkeeperCNIC")
                                 .value
@@ -1732,7 +1743,7 @@
                                 .value
                                 .trim();
 
-                        if (!isValidCNIC(shopkeeperCNIC)) {
+                        if (!isValidCNIC(shopkeeperCNICValue)) {
 
                             setError(
                                 "shopkeeperCNICError",
@@ -1975,7 +1986,7 @@
 
                         const cnicValue =
                             document
-                                .getElementById("CNIC")
+                                .getElementById("deliveryCNIC")
                                 .value
                                 .trim();
 
@@ -2109,3 +2120,4 @@
 
     </script>
 }
+

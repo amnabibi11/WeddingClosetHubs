@@ -20,7 +20,6 @@
         </div>
 
         <div>
-
             <a asp-controller="Admin"
                asp-action="Shopkeepers"
                class="btn btn-secondary">
@@ -29,7 +28,6 @@
                 Back to Shopkeepers
 
             </a>
-
         </div>
 
     </div>
@@ -47,7 +45,6 @@
     }
     else
     {
-
         @if (TempData["Success"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show">
@@ -84,6 +81,7 @@
 
         <div class="row g-4">
 
+          
             <div class="col-lg-6">
 
                 <div class="card shadow-sm border-0 h-100">
@@ -190,7 +188,9 @@
 
                             <p class="form-control bg-light">
 
-                                @Model.CreatedDate.ToString("dd MMMM yyyy hh:mm tt")
+                                @Model.CreatedDate.ToString(
+                                    "dd MMMM yyyy hh:mm tt"
+                                )
 
                             </p>
 
@@ -203,6 +203,7 @@
             </div>
 
 
+          
             <div class="col-lg-6">
 
                 <div class="card shadow-sm border-0 h-100">
@@ -221,6 +222,7 @@
 
                     <div class="card-body">
 
+                   
                         <div class="mb-4">
 
                             <h6 class="fw-bold">
@@ -281,6 +283,7 @@
                         </div>
 
 
+                       
                         <div class="mb-4">
 
                             <h6 class="fw-bold">
@@ -311,6 +314,7 @@
                         </div>
 
 
+                  
                         <h6 class="fw-bold mb-3">
                             Account Actions
                         </h6>
@@ -318,8 +322,10 @@
 
                         <div class="d-flex flex-wrap gap-2">
 
+                          
                             @if (!Model.IsApproved)
                             {
+                                <!-- APPROVE -->
                                 <form asp-controller="Admin"
                                       asp-action="ApproveShopkeeper"
                                       method="post">
@@ -334,15 +340,14 @@
                                             class="btn btn-success">
 
                                         <i class="bi bi-check-circle"></i>
-
                                         Approve
 
                                     </button>
 
                                 </form>
-                            }
-                            else
-                            {
+
+
+                             
                                 <form asp-controller="Admin"
                                       asp-action="RejectShopkeeper"
                                       method="post">
@@ -357,7 +362,6 @@
                                             class="btn btn-warning">
 
                                         <i class="bi bi-x-circle"></i>
-
                                         Reject
 
                                     </button>
@@ -366,8 +370,11 @@
                             }
 
 
+                          
+
                             @if (Model.Status)
                             {
+                               
                                 <form asp-controller="Admin"
                                       asp-action="DisableShopkeeper"
                                       method="post">
@@ -382,7 +389,6 @@
                                             class="btn btn-danger">
 
                                         <i class="bi bi-person-x"></i>
-
                                         Disable Account
 
                                     </button>
@@ -391,6 +397,7 @@
                             }
                             else
                             {
+                                
                                 <form asp-controller="Admin"
                                       asp-action="EnableShopkeeper"
                                       method="post">
@@ -405,7 +412,6 @@
                                             class="btn btn-primary">
 
                                         <i class="bi bi-person-check"></i>
-
                                         Enable Account
 
                                     </button>
@@ -422,6 +428,7 @@
             </div>
 
 
+         
             <div class="col-12">
 
                 <div class="card shadow-sm border-0">
@@ -455,7 +462,7 @@
                         {
                             <div class="row g-4">
 
-
+                                
                                 <div class="col-md-6">
 
                                     <label class="fw-bold">
@@ -471,6 +478,7 @@
                                 </div>
 
 
+                          
                                 <div class="col-md-6">
 
                                     <label class="fw-bold">
@@ -501,6 +509,7 @@
                                 </div>
 
 
+                               
                                 <div class="col-md-6">
 
                                     <label class="fw-bold">
@@ -516,6 +525,7 @@
                                 </div>
 
 
+                           
                                 <div class="col-12">
 
                                     <label class="fw-bold">
@@ -524,13 +534,15 @@
 
                                     <p class="form-control bg-light">
 
-                                        @(Model.Shop.ShopDescription ?? "No description provided.")
+                                        @(Model.Shop.ShopDescription
+                                            ?? "No description provided.")
 
                                     </p>
 
                                 </div>
 
 
+                             
                                 <div class="col-md-4">
 
                                     <label class="fw-bold">
@@ -583,6 +595,7 @@
                                 </div>
 
 
+                           
                                 <div class="col-md-4">
 
                                     <label class="fw-bold">
@@ -613,6 +626,7 @@
                                 </div>
 
 
+                              
                                 <div class="col-12">
 
                                     <hr />
@@ -634,7 +648,8 @@
                                         Shop Logo
                                     </h6>
 
-                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.Logo))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Shop.Logo))
                                     {
                                         <a href="@Model.Shop.Logo"
                                            target="_blank"
@@ -657,13 +672,15 @@
                                 </div>
 
 
+                            
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
                                         Shop Front
                                     </h6>
 
-                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopFrontPhoto))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Shop.ShopFrontPhoto))
                                     {
                                         <a href="@Model.Shop.ShopFrontPhoto"
                                            target="_blank"
@@ -686,13 +703,15 @@
                                 </div>
 
 
+                             
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
                                         Shop Inside
                                     </h6>
 
-                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopInsidePhoto))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Shop.ShopInsidePhoto))
                                     {
                                         <a href="@Model.Shop.ShopInsidePhoto"
                                            target="_blank"
@@ -715,13 +734,15 @@
                                 </div>
 
 
+                              
                                 <div class="col-md-3">
 
                                     <h6 class="fw-bold">
                                         Shop Signboard
                                     </h6>
 
-                                    @if (!string.IsNullOrWhiteSpace(Model.Shop.ShopSignboardPhoto))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Shop.ShopSignboardPhoto))
                                     {
                                         <a href="@Model.Shop.ShopSignboardPhoto"
                                            target="_blank"
@@ -756,3 +777,4 @@
     }
 
 </div>
+

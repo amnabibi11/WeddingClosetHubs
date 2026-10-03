@@ -13,10 +13,9 @@
         s.VerificationStatus.Equals("More Evidence Required", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
     int approvedCount = Model?.Count(s =>
-        s.IsApproved &&
-        s.Status &&
-        s.VerificationStatus != null &&
-        s.VerificationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase)) ?? 0;
+     s.IsApproved &&
+     s.Status) ?? 0;
+
 
     int disabledCount = Model?.Count(s =>
         s.IsApproved &&
@@ -280,8 +279,8 @@
                                                  width="70"
                                                  height="70"
                                                  style="object-fit:cover;
-                                                        border-radius:8px;
-                                                        border:1px solid #ddd;" />
+                                                                    border-radius:8px;
+                                                                    border:1px solid #ddd;" />
                                         }
                                         else
                                         {
@@ -372,47 +371,47 @@
 
                                         @{
                                             string verificationStatus =
-                                                string.IsNullOrWhiteSpace(shop.VerificationStatus)
-                                                    ? "Pending"
-                                                    : shop.VerificationStatus;
+                                            string.IsNullOrWhiteSpace(shop.VerificationStatus)
+                                            ? "Pending"
+                                            : shop.VerificationStatus;
                                         }
 
 
                                         @if (verificationStatus.Equals(
-                                            "Approved",
-                                            StringComparison.OrdinalIgnoreCase))
+                                                                        "Approved",
+                                                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-success">
                                                 Approved
                                             </span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Rejected",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Rejected",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-danger">
                                                 Rejected
                                             </span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "More Evidence Required",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "More Evidence Required",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-info text-dark">
                                                 More Evidence Required
                                             </span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Under Review",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Under Review",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-primary">
                                                 Under Review
                                             </span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Suspended",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Suspended",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-dark">
                                                 Suspended

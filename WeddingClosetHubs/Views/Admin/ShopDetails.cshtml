@@ -89,10 +89,10 @@
                              alt="@Model.ShopName Logo"
                              class="img-fluid"
                              style="width:220px;
-                                    height:220px;
-                                    object-fit:cover;
-                                    border-radius:12px;
-                                    border:1px solid #ddd;" />
+                                        height:220px;
+                                        object-fit:cover;
+                                        border-radius:12px;
+                                        border:1px solid #ddd;" />
                     }
                     else
                     {
@@ -191,40 +191,40 @@
                         <div class="col-sm-8">
 
                             @if (verificationStatus.Equals(
-                                "Approved",
-                                StringComparison.OrdinalIgnoreCase))
+                                                        "Approved",
+                                                        StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-success">
                                     Approved
                                 </span>
                             }
                             else if (verificationStatus.Equals(
-                                "Rejected",
-                                StringComparison.OrdinalIgnoreCase))
+                            "Rejected",
+                            StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-danger">
                                     Rejected
                                 </span>
                             }
                             else if (verificationStatus.Equals(
-                                "More Evidence Required",
-                                StringComparison.OrdinalIgnoreCase))
+                            "More Evidence Required",
+                            StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-info text-dark">
                                     More Evidence Required
                                 </span>
                             }
                             else if (verificationStatus.Equals(
-                                "Under Review",
-                                StringComparison.OrdinalIgnoreCase))
+                            "Under Review",
+                            StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-primary">
                                     Under Review
                                 </span>
                             }
                             else if (verificationStatus.Equals(
-                                "Suspended",
-                                StringComparison.OrdinalIgnoreCase))
+                            "Suspended",
+                            StringComparison.OrdinalIgnoreCase))
                             {
                                 <span class="badge bg-dark">
                                     Suspended
@@ -285,8 +285,8 @@
                             @if (Model.VerificationSubmittedDate.HasValue)
                             {
                                 @Model.VerificationSubmittedDate.Value.ToString(
-                                    "dd-MM-yyyy hh:mm tt")
-                            }
+                                "dd-MM-yyyy hh:mm tt")
+                                                        }
                             else
                             {
                                 <span class="text-muted">
@@ -310,8 +310,8 @@
                             @if (Model.VerifiedDate.HasValue)
                             {
                                 @Model.VerifiedDate.Value.ToString(
-                                    "dd-MM-yyyy hh:mm tt")
-                            }
+                                "dd-MM-yyyy hh:mm tt")
+                                                        }
                             else
                             {
                                 <span class="text-muted">
@@ -335,8 +335,8 @@
                             @if (Model.ApprovedDate.HasValue)
                             {
                                 @Model.ApprovedDate.Value.ToString(
-                                    "dd-MM-yyyy hh:mm tt")
-                            }
+                                "dd-MM-yyyy hh:mm tt")
+                                                        }
                             else
                             {
                                 <span class="text-muted">
@@ -357,7 +357,7 @@
 
                         <div class="col-sm-8">
                             @Model.CreatedDate.ToString(
-                                "dd-MM-yyyy hh:mm tt")
+                            "dd-MM-yyyy hh:mm tt")
                         </div>
 
                     </div>
@@ -428,7 +428,7 @@
                         <div class="form-control bg-light">
 
                             @if (!string.IsNullOrEmpty(
-                                Model.Shopkeeper.Phone))
+                                                    Model.Shopkeeper.Phone))
                             {
                                 @Model.Shopkeeper.Phone
                             }
@@ -453,7 +453,7 @@
                         <div class="form-control bg-light">
 
                             @if (!string.IsNullOrEmpty(
-                                Model.Shopkeeper.Address))
+                                                    Model.Shopkeeper.Address))
                             {
                                 @Model.Shopkeeper.Address
                             }
@@ -511,7 +511,7 @@
                         <div class="form-control bg-light">
 
                             @if (!string.IsNullOrEmpty(
-                                Model.Shopkeeper.CNIC))
+                                                    Model.Shopkeeper.CNIC))
                             {
                                 @Model.Shopkeeper.CNIC
                             }
@@ -535,12 +535,10 @@
 
                         <div class="form-control bg-light">
 
-                            @if (!string.IsNullOrEmpty(
-                                Model.Shopkeeper.CNIC) &&
-                                !string.IsNullOrEmpty(
-                                    Model.Shopkeeper.CNICFrontImage) &&
-                                !string.IsNullOrEmpty(
-                                    Model.Shopkeeper.CNICBackImage))
+                            @if (!string.IsNullOrEmpty(Model.Shopkeeper.CNIC) &&
+                                                    !string.IsNullOrEmpty(Model.CNICFrontImage) &&
+                                                    !string.IsNullOrEmpty(Model.CNICBackImage))
+
                             {
                                 <span class="text-success fw-bold">
                                     Complete
@@ -569,18 +567,18 @@
                         </h6>
 
                         @if (!string.IsNullOrEmpty(
-                            Model.Shopkeeper.CNICFrontImage))
+                                            Model.CNICFrontImage))
                         {
-                            <a href="@Model.Shopkeeper.CNICFrontImage"
+                            <a href="@Model.CNICFrontImage"
                                target="_blank">
 
-                                <img src="@Model.Shopkeeper.CNICFrontImage"
+                                <img src="@Model.CNICFrontImage"
                                      alt="CNIC Front"
                                      class="img-fluid rounded border"
                                      style="height:240px;
-                                            width:100%;
-                                            object-fit:contain;
-                                            background:#f8f9fa;" />
+                                                    width:100%;
+                                                    object-fit:contain;
+                                                    background:#f8f9fa;" />
 
                             </a>
                         }
@@ -601,18 +599,18 @@
                         </h6>
 
                         @if (!string.IsNullOrEmpty(
-                            Model.Shopkeeper.CNICBackImage))
+                                            Model.CNICBackImage))
                         {
-                            <a href="@Model.Shopkeeper.CNICBackImage"
+                            <a href="@Model.CNICBackImage"
                                target="_blank">
 
-                                <img src="@Model.Shopkeeper.CNICBackImage"
+                                <img src="@Model.CNICBackImage"
                                      alt="CNIC Back"
                                      class="img-fluid rounded border"
                                      style="height:240px;
-                                            width:100%;
-                                            object-fit:contain;
-                                            background:#f8f9fa;" />
+                                                    width:100%;
+                                                    object-fit:contain;
+                                                    background:#f8f9fa;" />
 
                             </a>
                         }
@@ -739,8 +737,8 @@
                                  alt="Shop Front"
                                  class="img-fluid rounded border"
                                  style="height:220px;
-                                        width:100%;
-                                        object-fit:cover;" />
+                                            width:100%;
+                                            object-fit:cover;" />
 
                         </a>
                     }
@@ -769,8 +767,8 @@
                                  alt="Shop Inside"
                                  class="img-fluid rounded border"
                                  style="height:220px;
-                                        width:100%;
-                                        object-fit:cover;" />
+                                            width:100%;
+                                            object-fit:cover;" />
 
                         </a>
                     }
@@ -799,8 +797,8 @@
                                  alt="Shop Signboard"
                                  class="img-fluid rounded border"
                                  style="height:220px;
-                                        width:100%;
-                                        object-fit:cover;" />
+                                            width:100%;
+                                            object-fit:cover;" />
 
                         </a>
                     }
@@ -835,7 +833,7 @@
                     <div class="form-control bg-light">
 
                         @if (!string.IsNullOrEmpty(
-                            Model.ShopProofType))
+                                                Model.ShopProofType))
                         {
                             @Model.ShopProofType
                         }
@@ -860,7 +858,7 @@
                     <div class="form-control bg-light">
 
                         @if (!string.IsNullOrEmpty(
-                            Model.ShopProofDocument))
+                                                Model.ShopProofDocument))
                         {
                             <span class="text-success fw-bold">
                                 Document Uploaded
@@ -889,7 +887,7 @@
                     </label>
 
                     @if (!string.IsNullOrEmpty(
-                        Model.ShopProofDocument))
+                                        Model.ShopProofDocument))
                     {
                         <div class="border rounded p-3 bg-light">
 
