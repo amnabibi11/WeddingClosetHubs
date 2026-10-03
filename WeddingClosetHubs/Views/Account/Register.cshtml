@@ -25,10 +25,24 @@
 
                         @Html.AntiForgeryToken()
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="alert alert-danger"
-                             role="alert">
-                        </div>
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                                <strong>
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    Registration failed.
+                                </strong>
+
+                                <div asp-validation-summary="All" class="mt-2 mb-0"></div>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="alert"
+                                        aria-label="Close">
+                                </button>
+                            </div>
+                        }
+
 
                         <h5 class="border-bottom pb-2 mb-3">
                             Personal Information
@@ -254,7 +268,8 @@
                                                name="CNICFrontImage"
                                                id="shopkeeperCNICFront"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                               required />
 
                                         <span class="text-danger custom-validation-error"
                                               id="shopkeeperCNICFrontError"></span>
@@ -274,8 +289,8 @@
                                                name="CNICBackImage"
                                                id="shopkeeperCNICBack"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                               required />
                                         <span class="text-danger custom-validation-error"
                                               id="shopkeeperCNICBackError"></span>
 
@@ -813,7 +828,8 @@
                                                name="CNICFrontImage"
                                                id="cnicFrontImage"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                               required />
 
                                         <span class="text-danger custom-validation-error"
                                               id="cnicFrontImageError"></span>
@@ -829,7 +845,8 @@
                                                name="CNICBackImage"
                                                id="cnicBackImage"
                                                class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                               required />
 
                                         <span class="text-danger custom-validation-error"
                                               id="cnicBackImageError"></span>

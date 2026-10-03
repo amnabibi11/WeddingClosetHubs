@@ -374,19 +374,33 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                if (!IsAllowedImage(CNICFrontImage))
+
+                if (CNICFrontImage == null || CNICFrontImage.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "CNICFrontImage",
+                        "CNIC front image is required.");
+                }
+                else if (!IsAllowedImage(CNICFrontImage))
                 {
                     ModelState.AddModelError(
                         "CNICFrontImage",
                         "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-                if (!IsAllowedImage(CNICBackImage))
+                if (CNICBackImage == null || CNICBackImage.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "CNICBackImage",
+                        "CNIC back image is required.");
+                }
+                else if (!IsAllowedImage(CNICBackImage))
                 {
                     ModelState.AddModelError(
                         "CNICBackImage",
                         "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
+
 
                 if (string.IsNullOrWhiteSpace(ShopName))
                 {
@@ -535,26 +549,47 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                if (!IsAllowedImage(ShopFrontPhoto))
+
+                if (ShopFrontPhoto == null || ShopFrontPhoto.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "ShopFrontPhoto",
+                        "Shop front photo is required.");
+                }
+                else if (!IsAllowedImage(ShopFrontPhoto))
                 {
                     ModelState.AddModelError(
                         "ShopFrontPhoto",
                         "Shop front photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-                if (!IsAllowedImage(ShopInsidePhoto))
+                if (ShopInsidePhoto == null || ShopInsidePhoto.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "ShopInsidePhoto",
+                        "Shop inside photo is required.");
+                }
+                else if (!IsAllowedImage(ShopInsidePhoto))
                 {
                     ModelState.AddModelError(
                         "ShopInsidePhoto",
                         "Shop inside photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-                if (!IsAllowedImage(ShopSignboardPhoto))
+
+                if (ShopSignboardPhoto == null || ShopSignboardPhoto.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "ShopSignboardPhoto",
+                        "Shop signboard photo is required.");
+                }
+                else if (!IsAllowedImage(ShopSignboardPhoto))
                 {
                     ModelState.AddModelError(
                         "ShopSignboardPhoto",
                         "Shop signboard photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
+
 
                 if (string.IsNullOrWhiteSpace(ShopProofType))
                 {
@@ -631,19 +666,34 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                if (!IsAllowedImage(CNICFrontImage))
+               
+                if (CNICFrontImage == null || CNICFrontImage.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "CNICFrontImage",
+                        "CNIC front image is required.");
+                }
+                else if (!IsAllowedImage(CNICFrontImage))
                 {
                     ModelState.AddModelError(
                         "CNICFrontImage",
                         "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-                if (!IsAllowedImage(CNICBackImage))
+            
+                if (CNICBackImage == null || CNICBackImage.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "CNICBackImage",
+                        "CNIC back image is required.");
+                }
+                else if (!IsAllowedImage(CNICBackImage))
                 {
                     ModelState.AddModelError(
                         "CNICBackImage",
                         "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
+
 
                 if (string.IsNullOrWhiteSpace(VehicleType))
                 {
