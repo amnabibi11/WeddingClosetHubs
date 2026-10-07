@@ -4,18 +4,46 @@
     ViewData["Title"] = "Product Details";
     Layout = null;
 
+    bool offersBuy =
+        Model.Shop != null &&
+        Model.Shop.Status &&
+        Model.Shop.IsApproved &&
+        Model.Shop.OffersBuy;
+
+    bool offersRent =
+        Model.Shop != null &&
+        Model.Shop.Status &&
+        Model.Shop.IsApproved &&
+        Model.Shop.OffersRent;
+
+    bool offersCustomization =
+        Model.Shop != null &&
+        Model.Shop.Status &&
+        Model.Shop.IsApproved &&
+        Model.Shop.OffersCustomization;
+
     bool isOnSale =
+        offersBuy &&
+        Model.IsAvailableForBuy &&
         Model.IsOnSale &&
         Model.SalePrice.HasValue &&
         Model.SalePrice.Value > 0 &&
         Model.SalePrice.Value < Model.Price;
 
     bool isAvailableForRent =
+        offersRent &&
         Model.IsAvailableForRent &&
         Model.RentPrice.HasValue &&
         Model.RentPrice.Value > 0;
 
-    bool canNegotiate = Model.AllowNegotiation;
+    bool canNegotiate =
+        offersBuy &&
+        Model.IsAvailableForBuy &&
+        Model.AllowNegotiation;
+
+    bool canBuy =
+        offersBuy &&
+        Model.IsAvailableForBuy;
 
     decimal displayBuyPrice =
         isOnSale ? Model.SalePrice!.Value : Model.Price;
@@ -24,6 +52,7 @@
         ViewBag.NegotiatedAlreadyInCart ?? false;
 
     bool hasAcceptedNegotiation =
+        offersBuy &&
         ViewBag.HasAcceptedNegotiation ?? false;
 
     decimal? acceptedNegotiatedPrice =
@@ -467,6 +496,19 @@
             color: #084298;
         }
 
+        .customization-feature-badge {
+            background: #f8e9ed;
+            border: 1px solid #d8b7c1;
+            color: #800020;
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .size-stock-section {
             margin-top: 25px;
             background: #fcfafb;
@@ -691,6 +733,41 @@
             font-size: 14px;
         }
 
+        .customization-box {
+            margin-top: 25px;
+            background: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 13px;
+            padding: 20px;
+        }
+
+        .customization-box h5 {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .customization-box p {
+            color: #665c35;
+            margin-bottom: 14px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .customization-info {
+            background: #fff;
+            border: 1px solid #ead9a4;
+            border-radius: 9px;
+            padding: 12px 14px;
+            color: #665c35;
+            font-size: 13px;
+        }
+
+        .customization-info i {
+            color: #d4af37;
+            margin-right: 5px;
+        }
+
         .negotiation-box {
             margin-top: 25px;
             background: #fffaf0;
@@ -876,6 +953,20 @@
             color: #dc3545;
             font-size: 13px;
             font-weight: 600;
+        }
+
+        .variant-total {
+            margin-top: 12px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .standard-stock-box {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 9px;
+            color: #198754;
         }
 
         @@media (max-width: 991px) {
@@ -1157,6 +1248,18 @@
                         </div>
                     }
 
+                    @if (!offersBuy && !offersRent && !offersCustomization)
+                    {
+                        <div class="alert alert-warning">
+
+                            <i class="bi bi-exclamation-triangle"></i>
+
+                            This shop currently has no active services
+                            available for this product.
+
+                        </div>
+                    }
+
                     <div class="price-area">
 
                         @if (isOnSale)
@@ -1191,7 +1294,7 @@
                                 </div>
                             }
                         }
-                        else
+                        else if (canBuy)
                         {
                             <div class="original-price-label">
                                 Price
@@ -1199,6 +1302,16 @@
 
                             <div class="normal-price">
                                 Rs. @Model.Price.ToString("N2")
+                            </div>
+                        }
+                        else if (isAvailableForRent)
+                        {
+                            <div class="original-price-label">
+                                Rental Price
+                            </div>
+
+                            <div class="normal-price">
+                                Rs. @Model.RentPrice!.Value.ToString("N2")
                             </div>
                         }
 
@@ -1301,6 +1414,16 @@
 
                                 <i class="bi bi-handshake"></i>
                                 Price Negotiation Available
+
+                            </span>
+                        }
+
+                        @if (offersCustomization)
+                        {
+                            <span class="customization-feature-badge">
+
+                                <i class="bi bi-magic"></i>
+                                Shop Offers Customization
 
                             </span>
                         }
@@ -1411,141 +1534,150 @@
 
                             </div>
 
-                            <div class="mt-4">
+                            @if (offersBuy || offersRent)
+                            {
+                                <div class="mt-4">
 
-                                <div class="fw-bold text-dark mb-2">
+                                    <div class="fw-bold text-dark mb-2">
 
-                                    <i class="bi bi-cart-plus text-danger"></i>
+                                        <i class="bi bi-cart-plus text-danger"></i>
 
-                                    Select Sizes and Quantities
+                                        Select Sizes and Quantities
 
-                                </div>
+                                    </div>
 
-                                <div class="text-muted small mb-3">
+                                    <div class="text-muted small mb-3">
 
-                                    Enter the quantity for each size you want.
-                                    Leave unwanted sizes at 0.
+                                        Enter the quantity for each size you want.
+                                        Leave unwanted sizes at 0.
 
-                                </div>
+                                    </div>
 
-                                <table class="multi-size-table">
+                                    <table class="multi-size-table">
 
-                                    <thead>
+                                        <thead>
 
-                                        <tr>
+                                            <tr>
 
-                                            <th>
-                                                Size
-                                            </th>
+                                                <th>
+                                                    Size
+                                                </th>
 
-                                            <th>
-                                                Available
-                                            </th>
+                                                <th>
+                                                    Available
+                                                </th>
 
-                                            <th>
-                                                Quantity
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody>
-
-                                        @foreach (var variant in variants)
-                                        {
-                                            <tr class="size-selection-row">
-
-                                                <td>
-
-                                                    <span class="size-badge">
-                                                        @variant.Size
-                                                    </span>
-
-                                                </td>
-
-                                                <td>
-
-                                                    @if (variant.StockQuantity > 0)
-                                                    {
-                                                        <span class="stock-available-text">
-                                                            @variant.StockQuantity
-                                                        </span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="stock-out-text">
-                                                            Out of Stock
-                                                        </span>
-                                                    }
-
-                                                </td>
-
-                                                <td>
-
-                                                    @if (variant.StockQuantity > 0)
-                                                    {
-                                                        <input type="hidden"
-                                                               name="VariantSizes"
-                                                               form="multiSizeBuyForm"
-                                                               value="@variant.Size" />
-
-                                                        <input type="hidden"
-                                                               name="VariantSizes"
-                                                               form="multiSizeRentForm"
-                                                               value="@variant.Size" />
-
-                                                        <input type="number"
-                                                               name="VariantQuantities"
-                                                               form="multiSizeBuyForm"
-                                                               class="form-control size-quantity-input variant-quantity"
-                                                               data-size="@variant.Size"
-                                                               data-stock="@variant.StockQuantity"
-                                                               value="0"
-                                                               min="0"
-                                                               max="@variant.StockQuantity" />
-
-                                                        <input type="hidden"
-                                                               name="VariantQuantities"
-                                                               form="multiSizeRentForm"
-                                                               class="rent-hidden-quantity"
-                                                               data-size="@variant.Size"
-                                                               value="0" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <input type="number"
-                                                               class="form-control size-quantity-input"
-                                                               value="0"
-                                                               disabled />
-                                                    }
-
-                                                </td>
+                                                <th>
+                                                    Quantity
+                                                </th>
 
                                             </tr>
-                                        }
 
-                                    </tbody>
+                                        </thead>
 
-                                </table>
+                                        <tbody>
 
-                                <div id="selectedSizeSummary"
-                                     class="selected-count-box">
+                                            @foreach (var variant in variants)
+                                            {
+                                                <tr class="size-selection-row">
 
-                                    No sizes selected yet.
+                                                    <td>
+
+                                                        <span class="size-badge">
+                                                            @variant.Size
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        @if (variant.StockQuantity > 0)
+                                                        {
+                                                            <span class="stock-available-text">
+                                                                @variant.StockQuantity
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="stock-out-text">
+                                                                Out of Stock
+                                                            </span>
+                                                        }
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        @if (variant.StockQuantity > 0)
+                                                        {
+                                                            @if (offersBuy)
+                                                            {
+                                                                <input type="hidden"
+                                                                       name="VariantSizes"
+                                                                       form="multiSizeBuyForm"
+                                                                       value="@variant.Size" />
+
+                                                                <input type="number"
+                                                                       name="VariantQuantities"
+                                                                       form="multiSizeBuyForm"
+                                                                       class="form-control size-quantity-input variant-quantity"
+                                                                       data-size="@variant.Size"
+                                                                       data-stock="@variant.StockQuantity"
+                                                                       value="0"
+                                                                       min="0"
+                                                                       max="@variant.StockQuantity" />
+                                                            }
+
+                                                            @if (offersRent)
+                                                            {
+                                                                <input type="hidden"
+                                                                       name="VariantSizes"
+                                                                       form="multiSizeRentForm"
+                                                                       value="@variant.Size" />
+
+                                                                <input type="hidden"
+                                                                       name="VariantQuantities"
+                                                                       form="multiSizeRentForm"
+                                                                       class="rent-hidden-quantity"
+                                                                       data-size="@variant.Size"
+                                                                       value="0" />
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="number"
+                                                                   class="form-control size-quantity-input"
+                                                                   value="0"
+                                                                   disabled />
+                                                        }
+
+                                                    </td>
+
+                                                </tr>
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                    <div id="selectedSizeSummary"
+                                         class="selected-count-box">
+
+                                        No sizes selected yet.
+
+                                    </div>
+
+                                    <div id="multiSizeError"
+                                         class="multi-size-error">
+
+                                        <i class="bi bi-exclamation-circle"></i>
+
+                                        Please select at least one size and quantity.
+
+                                    </div>
 
                                 </div>
-
-                                <div id="multiSizeError"
-                                     class="multi-size-error">
-
-                                    <i class="bi bi-exclamation-circle"></i>
-
-                                    Please select at least one size and quantity.
-
-                                </div>
-
-                            </div>
+                            }
 
                         </div>
                     }
@@ -1715,7 +1847,7 @@
 
                         </div>
 
-                        @if (productInStock)
+                        @if (productInStock && canBuy)
                         {
                             <div class="detail-row">
 
@@ -1765,6 +1897,25 @@
 
                                     Rs.
                                     @acceptedNegotiatedPrice.Value.ToString("N2")
+
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (offersCustomization)
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Customization
+                                </span>
+
+                                <span class="detail-value"
+                                      style="color:#800020;">
+
+                                    <i class="bi bi-check-circle"></i>
+                                    Available from this shop
 
                                 </span>
 
@@ -1862,6 +2013,39 @@
                                 to the shopkeeper's rental conditions.
 
                             </p>
+
+                        </div>
+                    }
+
+                    @if (offersCustomization)
+                    {
+                        <div class="customization-box">
+
+                            <h5>
+
+                                <i class="bi bi-magic"></i>
+                                Customization Available
+
+                            </h5>
+
+                            <p>
+
+                                This shop offers customization services.
+                                You can request this product to be customized
+                                according to your requirements.
+
+                            </p>
+
+                            <div class="customization-info">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                Add this product to your cart first.
+                                You can then open the customization option
+                                from your cart and submit your customization
+                                requirements to the shopkeeper.
+
+                            </div>
 
                         </div>
                     }
@@ -2018,148 +2202,152 @@
                         </div>
                     }
 
-                    @if (productInStock)
+                    @if (productInStock &&
+                         (canBuy || isAvailableForRent))
                     {
                         <div class="action-area">
 
                             @if (hasSizeVariants)
                             {
-                                @if (isOnSale)
+                                @if (canBuy)
                                 {
-                                    <div class="purchase-option sale-option">
+                                    @if (isOnSale)
+                                    {
+                                        <div class="purchase-option sale-option">
 
-                                        <div class="purchase-option-title">
+                                            <div class="purchase-option-title">
 
-                                            <i class="bi bi-tag-fill"></i>
-                                            Buy Selected Sizes on Sale
+                                                <i class="bi bi-tag-fill"></i>
+                                                Buy Selected Sizes on Sale
 
-                                        </div>
+                                            </div>
 
-                                        <div class="purchase-option-price">
+                                            <div class="purchase-option-price">
 
-                                            Rs.
-                                            @Model.SalePrice!.Value.ToString("N2")
+                                                Rs.
+                                                @Model.SalePrice!.Value.ToString("N2")
 
-                                            <small class="fw-normal">
-                                                per piece
-                                            </small>
+                                                <small class="fw-normal">
+                                                    per piece
+                                                </small>
 
-                                        </div>
+                                            </div>
 
-                                        <p class="purchase-option-note">
+                                            <p class="purchase-option-note">
 
-                                            Select quantities for one or more
-                                            sizes above, then add them together.
+                                                Select quantities for one or more
+                                                sizes above, then add them together.
 
-                                        </p>
+                                            </p>
 
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post"
-                                              id="multiSizeSaleForm"
-                                              class="multi-size-form">
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post"
+                                                  id="multiSizeSaleForm"
+                                                  class="multi-size-form">
 
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
-
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   value="1" />
-
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Sale" />
-
-                                            @foreach (var variant in variants.Where(v => v.StockQuantity > 0))
-                                            {
-                                                <input type="hidden"
-                                                       name="VariantSizes"
-                                                       value="@variant.Size" />
+                                                @Html.AntiForgeryToken()
 
                                                 <input type="hidden"
-                                                       name="VariantQuantities"
-                                                       class="sale-hidden-quantity"
-                                                       data-size="@variant.Size"
-                                                       value="0" />
-                                            }
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
 
-                                            <button type="submit"
-                                                    class="add-cart-btn">
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       value="1" />
 
-                                                <i class="bi bi-cart-plus"></i>
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Sale" />
 
-                                                Add Selected Sizes to Cart
+                                                @foreach (var variant in variants.Where(v => v.StockQuantity > 0))
+                                                {
+                                                    <input type="hidden"
+                                                           name="VariantSizes"
+                                                           value="@variant.Size" />
 
-                                            </button>
+                                                    <input type="hidden"
+                                                           name="VariantQuantities"
+                                                           class="sale-hidden-quantity"
+                                                           data-size="@variant.Size"
+                                                           value="0" />
+                                                }
 
-                                        </form>
+                                                <button type="submit"
+                                                        class="add-cart-btn">
 
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="purchase-option">
+                                                    <i class="bi bi-cart-plus"></i>
 
-                                        <div class="purchase-option-title">
+                                                    Add Selected Sizes to Cart
 
-                                            <i class="bi bi-cart-check"></i>
-                                            Buy Selected Sizes
+                                                </button>
 
-                                        </div>
-
-                                        <div class="purchase-option-price">
-
-                                            Rs.
-                                            @Model.Price.ToString("N2")
-
-                                            <small class="fw-normal">
-                                                per piece
-                                            </small>
+                                            </form>
 
                                         </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="purchase-option">
 
-                                        <p class="purchase-option-note">
+                                            <div class="purchase-option-title">
 
-                                            Select quantities for one or more
-                                            sizes above, then add them together.
+                                                <i class="bi bi-cart-check"></i>
+                                                Buy Selected Sizes
 
-                                        </p>
+                                            </div>
 
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post"
-                                              id="multiSizeBuyForm"
-                                              class="multi-size-form">
+                                            <div class="purchase-option-price">
 
-                                            @Html.AntiForgeryToken()
+                                                Rs.
+                                                @Model.Price.ToString("N2")
 
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
+                                                <small class="fw-normal">
+                                                    per piece
+                                                </small>
 
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   value="1" />
+                                            </div>
 
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Buy" />
+                                            <p class="purchase-option-note">
 
-                                            <button type="submit"
-                                                    class="add-cart-btn">
+                                                Select quantities for one or more
+                                                sizes above, then add them together.
 
-                                                <i class="bi bi-cart-plus"></i>
+                                            </p>
 
-                                                Add Selected Sizes to Cart
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post"
+                                                  id="multiSizeBuyForm"
+                                                  class="multi-size-form">
 
-                                            </button>
+                                                @Html.AntiForgeryToken()
 
-                                        </form>
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
 
-                                    </div>
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       value="1" />
+
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Buy" />
+
+                                                <button type="submit"
+                                                        class="add-cart-btn">
+
+                                                    <i class="bi bi-cart-plus"></i>
+
+                                                    Add Selected Sizes to Cart
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
                                 }
 
                                 @if (isAvailableForRent)
@@ -2227,6 +2415,11 @@
                                                        name="VariantSizes"
                                                        value="@variant.Size" />
 
+                                                <input type="hidden"
+                                                       name="VariantQuantities"
+                                                       class="rent-hidden-quantity"
+                                                       data-size="@variant.Size"
+                                                       value="0" />
                                             }
 
                                             <button type="submit"
@@ -2260,105 +2453,108 @@
 
                                 </div>
 
-                                @if (isOnSale)
+                                @if (canBuy)
                                 {
-                                    <div class="purchase-option sale-option">
+                                    @if (isOnSale)
+                                    {
+                                        <div class="purchase-option sale-option">
 
-                                        <div class="purchase-option-title">
+                                            <div class="purchase-option-title">
 
-                                            <i class="bi bi-tag-fill"></i>
-                                            Buy on Sale
+                                                <i class="bi bi-tag-fill"></i>
+                                                Buy on Sale
 
-                                        </div>
+                                            </div>
 
-                                        <div class="purchase-option-price">
+                                            <div class="purchase-option-price">
 
-                                            Rs.
-                                            @Model.SalePrice!.Value.ToString("N2")
+                                                Rs.
+                                                @Model.SalePrice!.Value.ToString("N2")
 
-                                        </div>
+                                            </div>
 
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post">
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post">
 
-                                            @Html.AntiForgeryToken()
+                                                @Html.AntiForgeryToken()
 
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
 
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   id="normalSaleQuantity"
-                                                   value="1" />
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       id="normalSaleQuantity"
+                                                       value="1" />
 
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Sale" />
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Sale" />
 
-                                            <button type="submit"
-                                                    class="add-cart-btn">
+                                                <button type="submit"
+                                                        class="add-cart-btn">
 
-                                                <i class="bi bi-cart-plus"></i>
+                                                    <i class="bi bi-cart-plus"></i>
 
-                                                Add to Cart
+                                                    Add to Cart
 
-                                            </button>
+                                                </button>
 
-                                        </form>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="purchase-option">
-
-                                        <div class="purchase-option-title">
-
-                                            <i class="bi bi-cart-check"></i>
-                                            Buy Product
+                                            </form>
 
                                         </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="purchase-option">
 
-                                        <div class="purchase-option-price">
+                                            <div class="purchase-option-title">
 
-                                            Rs.
-                                            @Model.Price.ToString("N2")
+                                                <i class="bi bi-cart-check"></i>
+                                                Buy Product
+
+                                            </div>
+
+                                            <div class="purchase-option-price">
+
+                                                Rs.
+                                                @Model.Price.ToString("N2")
+
+                                            </div>
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
+
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       id="normalBuyQuantity"
+                                                       value="1" />
+
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Buy" />
+
+                                                <button type="submit"
+                                                        class="add-cart-btn">
+
+                                                    <i class="bi bi-cart-plus"></i>
+
+                                                    Add to Cart
+
+                                                </button>
+
+                                            </form>
 
                                         </div>
-
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
-
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   id="normalBuyQuantity"
-                                                   value="1" />
-
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Buy" />
-
-                                            <button type="submit"
-                                                    class="add-cart-btn">
-
-                                                <i class="bi bi-cart-plus"></i>
-
-                                                Add to Cart
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
+                                    }
                                 }
 
                                 @if (isAvailableForRent)
@@ -2427,7 +2623,7 @@
 
                         </div>
                     }
-                    else
+                    else if (!offersCustomization)
                     {
                         <div class="action-area">
 
@@ -2437,7 +2633,7 @@
 
                                 <i class="bi bi-x-circle"></i>
 
-                                Product Out of Stock
+                                Product Not Available for Purchase or Rent
 
                             </button>
 

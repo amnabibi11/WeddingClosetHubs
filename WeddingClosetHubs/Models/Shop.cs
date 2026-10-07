@@ -25,6 +25,8 @@ namespace WeddingClosetHubs.Models
         
         [StringLength(500)]
         public string? ShopCollections { get; set; }
+        public string? ShopPurchaseTypes { get; set; }
+
 
 
         [StringLength(500)]
@@ -85,6 +87,12 @@ namespace WeddingClosetHubs.Models
 
         public DateTime? VerifiedDate { get; set; }
 
+        public bool OffersBuy { get; set; } = true;
+
+        public bool OffersRent { get; set; } = false;
+
+
+        public bool OffersCustomization { get; set; } = false;
 
         public bool Status { get; set; } = false;
 

@@ -9,7 +9,17 @@
     var products = Model?.ToList()
         ?? new List<WeddingClosetHubs.Models.Product>();
 
-    string? whatsappNumber = shop?.WhatsAppNumber;
+    bool offersBuy =
+        shop?.OffersBuy == true;
+
+    bool offersRent =
+        shop?.OffersRent == true;
+
+    bool offersCustomization =
+        shop?.OffersCustomization == true;
+
+    string? whatsappNumber =
+        shop?.WhatsAppNumber;
 
     if (!string.IsNullOrWhiteSpace(whatsappNumber))
     {
@@ -23,13 +33,13 @@
 
         if (whatsappNumber.StartsWith("0"))
         {
-            whatsappNumber = "92" + whatsappNumber.Substring(1);
+            whatsappNumber =
+                "92" + whatsappNumber.Substring(1);
         }
     }
 }
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -61,10 +71,6 @@
             font-family: Arial, Helvetica, sans-serif;
             color: #333;
         }
-
-        /* =========================
-           NAVBAR
-           ========================= */
 
         .navbar-custom {
             background: #800020;
@@ -108,26 +114,19 @@
             color: #800020;
         }
 
-        /* =========================
-           PAGE
-           ========================= */
-
         .page-wrapper {
             max-width: 1450px;
             margin: 0 auto;
             padding: 35px;
         }
 
-        /* =========================
-           SHOP HEADER
-           ========================= */
-
         .shop-header {
             background: white;
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 25px;
             margin-bottom: 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid #eee4e7;
         }
 
         .shop-logo-wrapper {
@@ -185,6 +184,86 @@
             color: #800020;
         }
 
+        .shop-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .service-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .service-buy {
+            background: #edf8f1;
+            color: #16733b;
+            border: 1px solid #c7e7d2;
+        }
+
+        .service-rent {
+            background: #f4effb;
+            color: #5936a3;
+            border: 1px solid #ddd0f0;
+        }
+
+        .service-customize {
+            background: #fff8df;
+            color: #715800;
+            border: 1px solid #e6d18a;
+        }
+
+        .customize-shop-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #800020;
+            color: white;
+            border: 1px solid #800020;
+            border-radius: 9px;
+            padding: 11px 18px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .25s ease;
+            box-shadow: 0 4px 12px rgba(128,0,32,.18);
+        }
+
+        .customize-shop-btn:hover {
+            background: #d4af37;
+            border-color: #d4af37;
+            color: #800020;
+            transform: translateY(-2px);
+        }
+
+        .back-dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            border-radius: 9px;
+            padding: 10px 16px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .25s ease;
+        }
+
+        .back-dashboard-btn:hover {
+            background: #800020;
+            color: white;
+        }
+
         .shop-contact-section {
             margin-top: 20px;
             padding-top: 18px;
@@ -237,9 +316,22 @@
             color: #d4af37;
         }
 
-        /* =========================
-           PRODUCT CARD
-           ========================= */
+        .products-heading {
+            margin-bottom: 20px;
+        }
+
+        .products-heading h2 {
+            color: #800020;
+            font-size: 25px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .products-heading p {
+            color: #777;
+            margin: 0;
+            font-size: 14px;
+        }
 
         .product-card {
             background: white;
@@ -255,10 +347,6 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 28px rgba(0,0,0,0.12);
         }
-
-        /* =========================
-           PRODUCT IMAGE
-           ========================= */
 
         .product-image-wrapper {
             height: 290px;
@@ -346,10 +434,6 @@
             text-overflow: ellipsis;
         }
 
-        /* =========================
-           PRODUCT BODY
-           ========================= */
-
         .product-body {
             padding: 19px;
         }
@@ -369,10 +453,6 @@
             min-height: 39px;
             margin-bottom: 12px;
         }
-
-        /* =========================
-           FEATURE BADGES
-           ========================= */
 
         .feature-row {
             display: flex;
@@ -396,6 +476,12 @@
             font-size: 11px;
         }
 
+        .badge-buy {
+            background: #edf8f1;
+            color: #16733b;
+            border: 1px solid #c7e7d2;
+        }
+
         .badge-sale {
             background: #fff0f1;
             color: #b42333;
@@ -414,15 +500,11 @@
             border: 1px solid #e6d18a;
         }
 
-        .badge-custom {
-            background: #f8e9ed;
-            color: #800020;
-            border: 1px solid #e6c8d0;
+        .badge-measurement {
+            background: #f0f4ff;
+            color: #38558f;
+            border: 1px solid #ccd8f2;
         }
-
-        /* =========================
-           PRODUCT INFO
-           ========================= */
 
         .product-info {
             display: flex;
@@ -446,10 +528,6 @@
         .info-badge i {
             color: #800020;
         }
-
-        /* =========================
-           PRICE
-           ========================= */
 
         .price-section {
             padding: 12px 0;
@@ -489,10 +567,6 @@
             line-height: 1.4;
         }
 
-        /* =========================
-           RENT
-           ========================= */
-
         .rent-box {
             background: #f7f3fc;
             border: 1px solid #e2d8f0;
@@ -527,10 +601,6 @@
             margin-top: 3px;
         }
 
-        /* =========================
-           STOCK
-           ========================= */
-
         .stock-section {
             margin-top: 11px;
         }
@@ -547,10 +617,6 @@
         .stock-low {
             color: #dc3545;
         }
-
-        /* =========================
-           VIEW BUTTON
-           ========================= */
 
         .view-product-btn {
             display: block;
@@ -578,36 +644,93 @@
             cursor: not-allowed;
         }
 
-        /* =========================
-           EMPTY
-           ========================= */
-
         .empty-box {
             background: white;
-            border-radius: 15px;
-            padding: 60px 20px;
+            border-radius: 20px;
+            padding: 70px 30px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 30px rgba(128,0,32,0.08);
+            border: 1px solid #eee4e7;
+            max-width: 850px;
+            margin: 20px auto 40px;
         }
 
-        .empty-box i {
-            font-size: 65px;
+        .empty-icon-wrapper {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: #f8e9ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px;
+        }
+
+        .empty-icon-wrapper i {
+            font-size: 48px;
             color: #800020;
-            margin-bottom: 15px;
         }
 
-        .empty-box h4 {
+        .empty-box h3 {
+            color: #800020;
             font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 27px;
+            margin-bottom: 10px;
         }
 
         .empty-box p {
             color: #777;
+            max-width: 600px;
+            margin: 0 auto 25px;
+            line-height: 1.7;
         }
 
-        /* =========================
-           IMAGE MODAL
-           ========================= */
+        .empty-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .empty-dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #800020;
+            color: white;
+            border-radius: 9px;
+            padding: 11px 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: .25s ease;
+        }
+
+        .empty-dashboard-btn:hover {
+            background: #650018;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .empty-shops-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: white;
+            color: #800020;
+            border: 1px solid #800020;
+            border-radius: 9px;
+            padding: 11px 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: .25s ease;
+        }
+
+        .empty-shops-btn:hover {
+            background: #800020;
+            color: white;
+        }
 
         .image-modal .modal-content {
             background: #212529;
@@ -636,10 +759,6 @@
             object-fit: contain;
             background: #212529;
         }
-
-        /* =========================
-           MOBILE
-           ========================= */
 
         @@media (max-width: 768px) {
 
@@ -677,6 +796,19 @@
                 padding: 6px 9px;
             }
 
+            .customize-shop-btn,
+            .back-dashboard-btn {
+                width: 100%;
+            }
+
+            .empty-box {
+                padding: 50px 20px;
+            }
+
+            .empty-box h3 {
+                font-size: 23px;
+            }
+
             .full-product-image {
                 max-height: 70vh;
             }
@@ -687,10 +819,6 @@
 </head>
 
 <body>
-
-    <!-- =========================
-         NAVBAR
-         ========================= -->
 
     <nav class="navbar-custom">
 
@@ -751,10 +879,6 @@
 
     <div class="page-wrapper">
 
-        <!-- =========================
-             SHOP HEADER
-             ========================= -->
-
         @if (shop != null)
         {
             <div class="shop-header">
@@ -814,6 +938,34 @@
                             </div>
                         }
 
+                        <div class="shop-services">
+
+                            @if (offersBuy)
+                            {
+                                <span class="service-badge service-buy">
+                                    <i class="bi bi-bag-check-fill"></i>
+                                    Buy
+                                </span>
+                            }
+
+                            @if (offersRent)
+                            {
+                                <span class="service-badge service-rent">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    Rent
+                                </span>
+                            }
+
+                            @if (offersCustomization)
+                            {
+                                <span class="service-badge service-customize">
+                                    <i class="bi bi-scissors"></i>
+                                    Customize
+                                </span>
+                            }
+
+                        </div>
+
                     </div>
 
 
@@ -826,12 +978,25 @@
 
                         </div>
 
-                        <a asp-controller="Customer"
-                           asp-action="Shops"
-                           class="btn btn-outline-secondary">
+                        @if (offersCustomization)
+                        {
+                            <a asp-controller="Customer"
+                               asp-action="Customize"
+                               asp-route-shopId="@shop.ShopId"
+                               class="customize-shop-btn mb-2">
 
-                            <i class="bi bi-arrow-left"></i>
-                            Back to Shops
+                                <i class="bi bi-scissors"></i>
+                                Customize
+
+                            </a>
+                        }
+
+                        <a asp-controller="Customer"
+                           asp-action="Dashboard"
+                           class="back-dashboard-btn">
+
+                            <i class="bi bi-house"></i>
+                            Back to Dashboard
 
                         </a>
 
@@ -841,12 +1006,12 @@
 
 
                 @if (!string.IsNullOrWhiteSpace(shop.ShopPhone) ||
-                            !string.IsNullOrWhiteSpace(shop.Email) ||
-                            !string.IsNullOrWhiteSpace(shop.WhatsAppNumber) ||
-                            !string.IsNullOrWhiteSpace(shop.FacebookUrl) ||
-                            !string.IsNullOrWhiteSpace(shop.InstagramUrl) ||
-                            !string.IsNullOrWhiteSpace(shop.TikTokUrl) ||
-                            !string.IsNullOrWhiteSpace(shop.WebsiteUrl))
+                     !string.IsNullOrWhiteSpace(shop.Email) ||
+                     !string.IsNullOrWhiteSpace(shop.WhatsAppNumber) ||
+                     !string.IsNullOrWhiteSpace(shop.FacebookUrl) ||
+                     !string.IsNullOrWhiteSpace(shop.InstagramUrl) ||
+                     !string.IsNullOrWhiteSpace(shop.TikTokUrl) ||
+                     !string.IsNullOrWhiteSpace(shop.WebsiteUrl))
                 {
                     <div class="shop-contact-section">
 
@@ -957,29 +1122,47 @@
         }
 
 
-        <!-- =========================
-             PRODUCTS
-             ========================= -->
-
         @if (products.Any())
         {
+            <div class="products-heading">
+
+                <h2>
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                    Products
+                </h2>
+
+                <p>
+                    Browse the products available from this shop.
+                </p>
+
+            </div>
+
             <div class="row g-4">
 
                 @foreach (var product in products)
                 {
                     bool isOnSale =
+                        offersBuy &&
+                        product.IsAvailableForBuy &&
                         product.IsOnSale &&
                         product.SalePrice.HasValue &&
                         product.SalePrice.Value > 0 &&
                         product.SalePrice.Value < product.Price;
 
                     bool isAvailableForRent =
+                        offersRent &&
                         product.IsAvailableForRent &&
                         product.RentPrice.HasValue &&
                         product.RentPrice.Value > 0;
 
                     bool canNegotiate =
+                        offersBuy &&
+                        product.IsAvailableForBuy &&
                         product.AllowNegotiation;
+
+                    bool canBuy =
+                        offersBuy &&
+                        product.IsAvailableForBuy;
 
                     bool hasVariants =
                         product.ProductVariants != null &&
@@ -987,22 +1170,20 @@
 
                     int totalVariantStock =
                         hasVariants
-                        ? product.ProductVariants!.Sum(v => v.StockQuantity)
-                        : product.StockQuantity;
+                            ? product.ProductVariants!.Sum(v => v.StockQuantity)
+                            : product.StockQuantity;
 
                     bool productInStock =
                         totalVariantStock > 0;
 
                     decimal displayBuyPrice =
                         isOnSale
-                        ? product.SalePrice!.Value
-                        : product.Price;
+                            ? product.SalePrice!.Value
+                            : product.Price;
 
                     <div class="col-xl-3 col-lg-4 col-md-6">
 
                         <div class="product-card">
-
-                            <!-- IMAGE -->
 
                             <div class="product-image-wrapper">
 
@@ -1045,7 +1226,6 @@
                                     </div>
                                 }
 
-
                                 @if (!string.IsNullOrEmpty(product.Category))
                                 {
                                     <span class="category-badge">
@@ -1055,8 +1235,6 @@
 
                             </div>
 
-
-                            <!-- BODY -->
 
                             <div class="product-body">
 
@@ -1089,14 +1267,23 @@
                                 </p>
 
 
-                                <!-- FEATURE STATUS -->
-
-                                @if (isOnSale ||
-                                                            isAvailableForRent ||
-                                                            canNegotiate ||
-                                                            product.HasCustomMeasurement)
+                                @if (canBuy ||
+                                     isOnSale ||
+                                     isAvailableForRent ||
+                                     canNegotiate ||
+                                     product.HasCustomMeasurement)
                                 {
                                     <div class="feature-row">
+
+                                        @if (canBuy)
+                                        {
+                                            <span class="feature-badge badge-buy">
+
+                                                <i class="bi bi-bag-check-fill"></i>
+                                                Buy Available
+
+                                            </span>
+                                        }
 
                                         @if (isOnSale)
                                         {
@@ -1130,7 +1317,7 @@
 
                                         @if (product.HasCustomMeasurement)
                                         {
-                                            <span class="feature-badge badge-custom">
+                                            <span class="feature-badge badge-measurement">
 
                                                 <i class="bi bi-rulers"></i>
                                                 Custom Measurements
@@ -1141,8 +1328,6 @@
                                     </div>
                                 }
 
-
-                                <!-- PRODUCT INFORMATION -->
 
                                 <div class="product-info">
 
@@ -1189,62 +1374,61 @@
                                 </div>
 
 
-                                <!-- BUY PRICE -->
+                                @if (canBuy)
+                                {
+                                    <div class="price-section">
 
-                                <div class="price-section">
-
-                                    <div class="price-label">
-                                        Purchase Price
-                                    </div>
-
-                                    @if (isOnSale)
-                                    {
-                                        <div class="original-price">
-
-                                            Rs. @product.Price.ToString("N2")
-
+                                        <div class="price-label">
+                                            Purchase Price
                                         </div>
 
-                                        <div class="sale-price">
-
-                                            Rs. @displayBuyPrice.ToString("N2")
-
-                                        </div>
-
-                                        @if (!string.IsNullOrWhiteSpace(product.SaleDetails))
+                                        @if (isOnSale)
                                         {
-                                            <div class="sale-details">
+                                            <div class="original-price">
 
-                                                <i class="bi bi-tag-fill"></i>
-
-                                                @product.SaleDetails
+                                                Rs. @product.Price.ToString("N2")
 
                                             </div>
+
+                                            <div class="sale-price">
+
+                                                Rs. @displayBuyPrice.ToString("N2")
+
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(product.SaleDetails))
+                                            {
+                                                <div class="sale-details">
+
+                                                    <i class="bi bi-tag-fill"></i>
+
+                                                    @product.SaleDetails
+
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="sale-details">
+
+                                                    <i class="bi bi-tag-fill"></i>
+
+                                                    Special sale price
+
+                                                </div>
+                                            }
                                         }
                                         else
                                         {
-                                            <div class="sale-details">
+                                            <div class="price">
 
-                                                <i class="bi bi-tag-fill"></i>
-
-                                                Special sale price
+                                                Rs. @displayBuyPrice.ToString("N2")
 
                                             </div>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <div class="price">
 
-                                            Rs. @displayBuyPrice.ToString("N2")
+                                    </div>
+                                }
 
-                                        </div>
-                                    }
-
-                                </div>
-
-
-                                <!-- RENT INFORMATION -->
 
                                 @if (isAvailableForRent)
                                 {
@@ -1267,9 +1451,8 @@
 
                                         </div>
 
-
                                         @if (product.RentalSecurity.HasValue &&
-                                                                            product.RentalSecurity.Value > 0)
+                                             product.RentalSecurity.Value > 0)
                                         {
                                             <div class="rent-security">
 
@@ -1280,7 +1463,6 @@
 
                                             </div>
                                         }
-
 
                                         @if (!string.IsNullOrWhiteSpace(product.RentalDuration))
                                         {
@@ -1296,8 +1478,6 @@
                                     </div>
                                 }
 
-
-                                <!-- STOCK -->
 
                                 <div class="stock-section">
 
@@ -1338,8 +1518,6 @@
                                 </div>
 
 
-                                <!-- VIEW PRODUCT -->
-
                                 @if (productInStock)
                                 {
                                     <a asp-controller="Customer"
@@ -1379,36 +1557,49 @@
         {
             <div class="empty-box">
 
-                <i class="bi bi-bag-x"></i>
+                <div class="empty-icon-wrapper">
 
-                <h4>
+                    <i class="bi bi-bag-x"></i>
+
+                </div>
+
+                <h3>
                     No Products Available
-                </h4>
+                </h3>
 
                 <p>
-                    This shop currently has no active products available.
-                    Please check another shop.
+                    This shop does not currently have any active products
+                    available to browse. You can return to your dashboard
+                    or explore other shops to find your perfect wedding outfit.
                 </p>
 
-                <a asp-controller="Customer"
-                   asp-action="Shops"
-                   class="btn btn-outline-dark">
+                <div class="empty-actions">
 
-                    <i class="bi bi-arrow-left"></i>
+                    <a asp-controller="Customer"
+                       asp-action="Dashboard"
+                       class="empty-dashboard-btn">
 
-                    Browse Other Shops
+                        <i class="bi bi-house-fill"></i>
+                        Back to Dashboard
 
-                </a>
+                    </a>
+
+                    <a asp-controller="Customer"
+                       asp-action="Shops"
+                       class="empty-shops-btn">
+
+                        <i class="bi bi-shop"></i>
+                        Browse Other Shops
+
+                    </a>
+
+                </div>
 
             </div>
         }
 
     </div>
 
-
-    <!-- =========================
-         IMAGE MODAL
-         ========================= -->
 
     <div class="modal fade image-modal"
          id="productImageModal"
@@ -1468,7 +1659,6 @@
             const modalTitle =
                 document.getElementById("productImageModalLabel");
 
-
             imageLinks.forEach(function (link) {
 
                 link.addEventListener("click", function (event) {
@@ -1481,19 +1671,13 @@
                     const productName =
                         this.getAttribute("data-product-name");
 
-
                     if (image) {
-
                         fullImage.src = image;
-
                     }
 
-
                     if (productName) {
-
                         modalTitle.textContent =
                             productName + " - Full Image";
-
                     }
 
                 });

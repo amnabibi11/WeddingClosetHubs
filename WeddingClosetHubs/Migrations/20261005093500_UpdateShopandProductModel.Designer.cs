@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WeddingClosetHubs.Models;
 
@@ -11,9 +12,11 @@ using WeddingClosetHubs.Models;
 namespace WeddingClosetHubs.Migrations
 {
     [DbContext(typeof(WeddingClosetHubsContext))]
-    partial class WeddingClosetHubsContextModelSnapshot : ModelSnapshot
+    [Migration("20261005093500_UpdateShopandProductModel")]
+    partial class UpdateShopandProductModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,66 +60,6 @@ namespace WeddingClosetHubs.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("WeddingClosetHubs.Models.CustomizationRequest", b =>
-                {
-                    b.Property<int>("CustomizationRequestId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomizationRequestId"));
-
-                    b.Property<DateTime?>("AcceptedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CustomerNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Measurements")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReferenceImages")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SelectedSize")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ShopkeeperNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("ShopkeeperPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("CustomizationRequestId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("CustomizationRequests");
                 });
 
             modelBuilder.Entity("WeddingClosetHubs.Models.DeliveryBoy", b =>
@@ -1127,33 +1070,6 @@ namespace WeddingClosetHubs.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("WeddingClosetHubs.Models.CustomizationRequest", b =>
-                {
-                    b.HasOne("WeddingClosetHubs.Models.User", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("WeddingClosetHubs.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("WeddingClosetHubs.Models.Shop", "Shop")
-                        .WithMany()
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("WeddingClosetHubs.Models.DeliveryBoy", b =>

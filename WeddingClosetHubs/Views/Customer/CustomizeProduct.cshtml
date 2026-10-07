@@ -4,26 +4,16 @@
     ViewData["Title"] = "Customize Product";
     Layout = null;
 
-    string measurementType =
-        (ViewBag.MeasurementType as string ?? "general")
-        .Trim()
-        .ToLowerInvariant();
-
-    string displaySubcategory =
-        string.IsNullOrWhiteSpace(Model.Subcategory)
-            ? "Dress"
-            : Model.Subcategory;
-
     string selectedSize =
         ViewBag.SelectedSize as string ?? "";
 
     string existingMeasurements =
         ViewBag.CustomMeasurements as string ?? "";
 
-    var measurements =
-        ViewBag.Measurements as
-        List<(string Name, bool Required, decimal Min, decimal Max)>
-        ?? new List<(string Name, bool Required, decimal Min, decimal Max)>();
+    string displaySubcategory =
+        string.IsNullOrWhiteSpace(Model.Subcategory)
+            ? "Dress"
+            : Model.Subcategory;
 }
 
 <!DOCTYPE html>
@@ -49,13 +39,20 @@
     <style>
 
         body {
-            background: #f7f4f5;
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8f3f5 0%,
+                    #fffaf0 100%
+                );
             font-family: Arial, sans-serif;
+            color: #333;
         }
 
         .navbar-custom {
             background: #800020;
             padding: 15px 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.12);
         }
 
         .brand {
@@ -65,166 +62,92 @@
         }
 
         .main-container {
-            max-width: 1050px;
-            margin: 35px auto;
+            max-width: 1150px;
+            margin: 35px auto 60px;
+            padding: 0 15px;
         }
 
         .card-custom {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 8px 30px rgba(128,0,32,.08);
+            border: 1px solid #eee;
         }
 
         .page-title {
             color: #800020;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 30px;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 15px;
+            line-height: 1.7;
         }
 
         .section-title {
             color: #800020;
-            font-weight: bold;
+            font-weight: 700;
             border-bottom: 2px solid #d4af37;
-            padding-bottom: 8px;
-            margin-top: 25px;
+            padding-bottom: 10px;
+            margin-top: 30px;
             margin-bottom: 20px;
         }
 
         .product-image {
             width: 100%;
-            max-width: 330px;
-            height: 360px;
+            max-width: 350px;
+            height: 390px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 15px;
             border: 1px solid #ddd;
+            box-shadow: 0 5px 18px rgba(0,0,0,.08);
+        }
+
+        .product-placeholder {
+            width: 100%;
+            max-width: 350px;
+            height: 390px;
+            border-radius: 15px;
+            background: #f5f1f2;
+            border: 1px solid #ddd;
+            color: #aaa;
         }
 
         .product-info {
-            background: #f8e9ed;
-            border-radius: 10px;
-            padding: 20px;
+            background: #fdf6f8;
+            border-radius: 14px;
+            padding: 25px;
+            border-left: 4px solid #d4af37;
+        }
+
+        .product-name {
+            color: #800020;
+            font-weight: 700;
         }
 
         .price {
             color: #800020;
-            font-size: 24px;
+            font-size: 25px;
             font-weight: bold;
-        }
-
-        .measurement-box {
-            background: #fffaf0;
-            border: 1px solid #d4af37;
-            border-radius: 12px;
-            padding: 25px;
-        }
-
-        .measurement-note {
-            background: #f8e9ed;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .required-badge {
-            background: #800020;
-            color: white;
-            font-size: 10px;
-            padding: 3px 7px;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
-
-        .optional-badge {
-            background: #6c757d;
-            color: white;
-            font-size: 10px;
-            padding: 3px 7px;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
-
-        .measurement-input {
-            height: 45px;
-            border: 1px solid #ced4da;
-        }
-
-        .measurement-input:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, .12);
-        }
-
-        .measurement-input.is-invalid {
-            border-color: #dc3545;
-        }
-
-        .measurement-item {
-            background: white;
-            padding: 15px;
-            border-radius: 9px;
-            border: 1px solid #e1d8db;
-            height: 100%;
-        }
-
-        .measurement-item:hover {
-            border-color: #d4af37;
-        }
-
-        .range-note {
-            display: block;
-            color: #777;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .btn-customize {
-            background: #800020;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 7px;
-        }
-
-        .btn-customize:hover {
-            background: #5f0018;
-            color: white;
-        }
-
-        .btn-back {
-            background: #6c757d;
-            color: white;
-            border: none;
-        }
-
-        .btn-back:hover {
-            background: #555b60;
-            color: white;
         }
 
         .dress-badge {
             background: #800020;
             color: white;
-            padding: 7px 12px;
+            padding: 7px 14px;
             border-radius: 20px;
             display: inline-block;
             font-size: 13px;
         }
 
-        .measurement-count {
-            color: #666;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
         .selected-size-box {
             background: #fffaf0;
             border: 1px solid #d4af37;
-            border-radius: 8px;
-            padding: 10px 15px;
+            border-radius: 10px;
+            padding: 11px 16px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -235,18 +158,292 @@
             font-weight: 600;
         }
 
-        .no-measurements {
+        .info-banner {
+            background: linear-gradient(
+                135deg,
+                #fdf0f4,
+                #fffaf0
+            );
+            border: 1px solid #ead8dd;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-top: 25px;
+        }
+
+        .info-banner i {
+            color: #d4af37;
+            font-size: 21px;
+        }
+
+        .custom-section {
+            background: #fffdf9;
+            border: 1px solid #eadfc7;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+        }
+
+        .section-heading {
+            color: #800020;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .section-description {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .measurement-row {
+            background: white;
+            border: 1px solid #e1d8db;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: .2s ease;
+        }
+
+        .measurement-row:hover {
+            border-color: #d4af37;
+            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 45px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 .2rem rgba(128,0,32,.10);
+        }
+
+        .measurement-value-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .measurement-value-group .form-control {
+            flex: 1;
+        }
+
+        .unit-box {
+            min-width: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3edf0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            color: #800020;
+            font-weight: 600;
+        }
+
+        .remove-measurement {
+            height: 45px;
+            width: 45px;
+            border-radius: 8px;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            background: white;
+        }
+
+        .remove-measurement:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .add-measurement {
+            border: 1px dashed #800020;
+            color: #800020;
+            background: #fff;
+            border-radius: 9px;
+            padding: 10px 18px;
+            font-weight: 600;
+        }
+
+        .add-measurement:hover {
+            background: #800020;
+            color: white;
+        }
+
+        .measurement-help {
             background: #f8e9ed;
             border-radius: 10px;
-            padding: 20px;
-            color: #800020;
+            padding: 15px;
+            color: #6b4a53;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .upload-box {
+            border: 2px dashed #d4af37;
+            border-radius: 14px;
+            padding: 28px;
             text-align: center;
+            background: #fffaf0;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .upload-box:hover {
+            background: #fff6dc;
+            border-color: #800020;
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            color: #800020;
+        }
+
+        .upload-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .upload-text {
+            color: #777;
+            font-size: 13px;
+        }
+
+        #referenceImages {
+            display: none;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .preview-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 50%;
+            background: #800020;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-remove:hover {
+            background: #5f0018;
+        }
+
+        .note-area {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .char-count {
+            color: #777;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .submit-area {
+            background: linear-gradient(
+                135deg,
+                #800020,
+                #650018
+            );
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .submit-area h5 {
+            color: #d4af37;
+            font-weight: 700;
+        }
+
+        .btn-submit {
+            background: #d4af37;
+            color: #3f3000;
+            border: none;
+            padding: 13px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .btn-submit:hover {
+            background: #e1bd4a;
+            color: #3f3000;
+        }
+
+        .btn-back {
+            background: white;
+            color: #800020;
+            border: 1px solid #800020;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background: #800020;
+            color: white;
+        }
+
+        .empty-measurement {
+            text-align: center;
+            background: #f8f4f5;
+            border-radius: 12px;
+            padding: 25px;
+            color: #777;
+        }
+
+        .measurement-error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .invalid-row {
+            border-color: #dc3545 !important;
         }
 
         @@media(max-width:768px) {
 
             .main-container {
-                margin: 20px 10px;
+                margin: 20px 10px 40px;
+                padding: 0;
             }
 
             .card-custom {
@@ -254,15 +451,39 @@
             }
 
             .navbar-custom {
-                padding: 15px;
+                padding: 13px 15px;
             }
 
             .brand {
                 font-size: 18px;
             }
 
-            .product-image {
-                height: 300px;
+            .page-title {
+                font-size: 24px;
+            }
+
+            .product-image,
+            .product-placeholder {
+                max-width: 100%;
+                height: 320px;
+                margin-bottom: 20px;
+            }
+
+            .measurement-value-group {
+                flex-wrap: wrap;
+            }
+
+            .unit-box {
+                width: 100%;
+                height: 40px;
+            }
+
+            .remove-measurement {
+                width: 100%;
+            }
+
+            .submit-area {
+                padding: 20px;
             }
 
         }
@@ -275,9 +496,10 @@
 
     <nav class="navbar-custom">
 
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center gap-3">
 
             <span class="brand">
+                <i class="bi bi-gem"></i>
                 Wedding Closet Hubs
             </span>
 
@@ -300,42 +522,52 @@
 
         <div class="card-custom">
 
-            <h2 class="page-title mb-2">
+            <div class="text-center mb-4">
 
-                <i class="bi bi-rulers"></i>
+                <h1 class="page-title">
 
-                Customize Your @displaySubcategory
+                    <i class="bi bi-magic"></i>
 
-            </h2>
+                    Customize Your @displaySubcategory
 
-            <p class="text-muted">
+                </h1>
 
-                Enter the measurements normally taken by a tailor.
-                All measurements are in inches.
+                <p class="page-subtitle mb-0">
 
-            </p>
+                    Tell the shopkeeper exactly how you want your dress
+                    customized. Enter the measurements that are relevant
+                    to you and share reference pictures if needed.
+
+                </p>
+
+            </div>
 
 
             @if (!string.IsNullOrWhiteSpace(selectedSize))
             {
-                <div class="selected-size-box mt-3">
+                <div class="selected-size-box mb-4">
 
                     <span class="selected-size-label">
+
                         <i class="bi bi-tag"></i>
+
                         Selected Size:
+
                     </span>
 
                     <span class="badge bg-secondary">
+
                         @selectedSize
+
                     </span>
 
                 </div>
             }
 
 
-            <div class="row mt-4">
+            <div class="row g-4">
 
-                <div class="col-md-5 text-center">
+                <div class="col-lg-5 text-center">
 
                     @if (!string.IsNullOrWhiteSpace(Model.Image))
                     {
@@ -345,9 +577,9 @@
                     }
                     else
                     {
-                        <div class="product-image d-flex align-items-center justify-content-center bg-light">
+                        <div class="product-placeholder d-flex align-items-center justify-content-center">
 
-                            <i class="bi bi-image fs-1 text-muted"></i>
+                            <i class="bi bi-image fs-1"></i>
 
                         </div>
                     }
@@ -355,37 +587,81 @@
                 </div>
 
 
-                <div class="col-md-7">
+                <div class="col-lg-7">
 
                     <div class="product-info">
 
-                        <h3 class="mb-3">
-                            @Model.ProductName
-                        </h3>
+                        <span class="dress-badge mb-3">
 
-                        <span class="dress-badge">
-                            @displaySubcategory
+                            <i class="bi bi-stars"></i>
+
+                            Customization Available
+
                         </span>
+
+                        <h3 class="product-name mt-3">
+
+                            @Model.ProductName
+
+                        </h3>
 
                         @if (!string.IsNullOrWhiteSpace(Model.Description))
                         {
-                            <p class="mt-3">
+                            <p class="text-muted mt-3 mb-3">
+
                                 @Model.Description
+
                             </p>
                         }
 
-                        <div class="price mt-3">
+                        <div class="price">
+
                             Rs. @Model.Price.ToString("N2")
+
                         </div>
 
-                        <p class="text-muted mt-2">
+                        <p class="text-muted mt-3 mb-0">
 
                             <i class="bi bi-shop"></i>
 
                             Shop:
-                            @(Model.Shop?.ShopName ?? "Shop")
+
+                            <strong>
+                                @(Model.Shop?.ShopName ?? "Shop")
+                            </strong>
 
                         </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-banner">
+
+                <div class="d-flex gap-3">
+
+                    <i class="bi bi-lightbulb-fill"></i>
+
+                    <div>
+
+                        <strong>
+                            How customization works
+                        </strong>
+
+                        <div class="mt-1">
+
+                            Enter your own measurements below.
+                            You can add as many measurements as you need
+                            because different dresses may require different
+                            measurements.
+
+                            You can also upload reference pictures and
+                            explain your requirements.
+
+                        </div>
 
                     </div>
 
@@ -397,17 +673,21 @@
             <form asp-controller="Customer"
                   asp-action="SaveCustomMeasurements"
                   method="post"
+                  enctype="multipart/form-data"
                   id="customizationForm">
 
                 @Html.AntiForgeryToken()
+
 
                 <input type="hidden"
                        name="productId"
                        value="@Model.ProductId" />
 
+
                 <input type="hidden"
                        name="size"
                        value="@selectedSize" />
+
 
                 <input type="hidden"
                        name="customMeasurements"
@@ -415,194 +695,237 @@
                        value="@existingMeasurements" />
 
 
-                <div class="measurement-box mt-4">
+                <div class="custom-section">
 
-                    <h4 class="section-title">
+                    <div class="section-heading">
 
                         <i class="bi bi-rulers"></i>
 
-                        @displaySubcategory Measurement Chart
+                        Your Measurements
 
-                    </h4>
+                    </div>
 
+                    <div class="section-description">
 
-                    <div class="measurement-note">
-
-                        <strong>
-
-                            <i class="bi bi-info-circle"></i>
-
-                            Measurement Instructions
-
-                        </strong>
-
-                        <div class="mt-2">
-
-                            Use a soft measuring tape.
-                            Keep the tape comfortable and do not pull it
-                            too tightly or leave it too loose.
-
-                            <br />
-
-                            <strong>
-                                Enter only values within the displayed range.
-                            </strong>
-
-                        </div>
+                        Add only the measurements you need.
+                        There are no fixed measurement types.
 
                     </div>
 
 
-                    @if (measurements.Any())
-                    {
-                        <div class="row">
+                    <div class="measurement-help mb-4">
 
-                            @foreach (var measurement in measurements)
-                            {
-                                <div class="col-md-6 mb-3">
+                        <i class="bi bi-info-circle me-1"></i>
 
-                                    <div class="measurement-item">
+                        <strong>Example:</strong>
 
-                                        <label class="form-label">
+                        You can enter measurements such as
+                        Chest, Shoulder, Waist, Hip, Sleeve Length,
+                        Shirt Length, Trouser Length, Lehenga Length,
+                        or any other measurement required for your dress.
 
-                                            @measurement.Name
+                        Enter the value in inches.
 
-                                            @if (measurement.Required)
-                                            {
-                                                <span class="required-badge">
-                                                    Required
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="optional-badge">
-                                                    Optional
-                                                </span>
-                                            }
-
-                                        </label>
+                    </div>
 
 
-                                        <div class="input-group">
-
-                                            <input type="number"
-                                                   step="0.1"
-                                                   min="@measurement.Min"
-                                                   max="@measurement.Max"
-                                                   inputmode="decimal"
-                                                   class="form-control measurement-input"
-                                                   data-name="@measurement.Name"
-                                                   data-required="@measurement.Required.ToString().ToLowerInvariant()"
-                                                   data-min="@measurement.Min"
-                                                   data-max="@measurement.Max" />
-
-                                            <span class="input-group-text">
-                                                inches
-                                            </span>
-
-                                        </div>
+                    <div id="measurementContainer"></div>
 
 
-                                        <small class="range-note">
+                    <div id="noMeasurementMessage"
+                         class="empty-measurement mb-3">
 
-                                            Allowed range:
+                        <i class="bi bi-rulers fs-3 d-block mb-2"></i>
 
-                                            @measurement.Min.ToString("0.#")
+                        No measurements added yet.
 
-                                            -
+                        <br />
 
-                                            @measurement.Max.ToString("0.#")
+                        Click <strong>Add Measurement</strong> to enter
+                        your measurements.
 
-                                            inches
-
-                                        </small>
+                    </div>
 
 
-                                        <div class="text-danger small measurement-error">
-                                        </div>
+                    <button type="button"
+                            class="btn add-measurement"
+                            id="addMeasurementBtn">
 
-                                    </div>
+                        <i class="bi bi-plus-circle"></i>
 
-                                </div>
-                            }
+                        Add Measurement
+
+                    </button>
+
+                </div>
+
+
+                <div class="custom-section">
+
+                    <div class="section-heading">
+
+                        <i class="bi bi-images"></i>
+
+                        Reference Pictures
+
+                    </div>
+
+                    <div class="section-description">
+
+                        Upload pictures showing the design, sleeves,
+                        embroidery, neckline, color, fitting or any other
+                        detail you want the shopkeeper to understand.
+
+                    </div>
+
+
+                    <label for="referenceImages"
+                           class="upload-box d-block">
+
+                        <div class="upload-icon">
+
+                            <i class="bi bi-cloud-arrow-up"></i>
 
                         </div>
-                    }
-                    else
-                    {
-                        <div class="no-measurements">
 
-                            <i class="bi bi-info-circle fs-4"></i>
+                        <div class="upload-title mt-2">
 
-                            <div class="mt-2">
-                                No customization measurements are available
-                                for this product.
+                            Upload Reference Pictures
+
+                        </div>
+
+                        <div class="upload-text mt-1">
+
+                            JPG, JPEG, PNG or WEBP
+
+                            <br />
+
+                            You can select multiple pictures.
+
+                        </div>
+
+                        <div class="btn btn-sm btn-outline-dark mt-3">
+
+                            <i class="bi bi-image"></i>
+
+                            Choose Pictures
+
+                        </div>
+
+                    </label>
+
+
+                    <input type="file"
+                           id="referenceImages"
+                           name="referenceImages"
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                           multiple />
+
+
+                    <div id="imagePreview"
+                         class="preview-container">
+                    </div>
+
+                    <div id="imageError"
+                         class="text-danger small mt-2">
+                    </div>
+
+                </div>
+
+
+                <div class="custom-section">
+
+                    <div class="section-heading">
+
+                        <i class="bi bi-chat-left-text"></i>
+
+                        Additional Requirements
+
+                        <span class="badge bg-secondary ms-2">
+                            Optional
+                        </span>
+
+                    </div>
+
+                    <div class="section-description">
+
+                        Tell the shopkeeper anything else about your
+                        customization.
+
+                    </div>
+
+
+                    <textarea name="customerNotes"
+                              id="customerNotes"
+                              class="form-control note-area"
+                              maxlength="2000"
+                              placeholder="Example: I want the sleeves similar to the reference picture, heavy embroidery around the neckline, and a comfortable fitting."></textarea>
+
+
+                    <div class="char-count">
+
+                        <span id="characterCount">0</span>
+                        / 2000
+
+                    </div>
+
+                </div>
+
+
+                <div class="submit-area">
+
+                    <div class="row align-items-center g-3">
+
+                        <div class="col-lg-7">
+
+                            <h5>
+
+                                <i class="bi bi-send"></i>
+
+                                Send Your Customization Request
+
+                            </h5>
+
+                            <p class="mb-0">
+
+                                Your measurements, reference pictures and
+                                requirements will be sent to the shopkeeper.
+                                The shopkeeper will review your request and
+                                provide the customized price.
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-lg-5">
+
+                            <div class="d-flex justify-content-lg-end gap-2 flex-wrap">
+
+                                <a asp-controller="Customer"
+                                   asp-action="Cart"
+                                   class="btn btn-back">
+
+                                    <i class="bi bi-cart"></i>
+
+                                    Back to Cart
+
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-submit"
+                                        id="submitBtn">
+
+                                    <i class="bi bi-send-fill"></i>
+
+                                    Send Request
+
+                                </button>
+
                             </div>
 
                         </div>
-                    }
 
-
-                    @if (measurements.Any())
-                    {
-                        <div class="measurement-count">
-
-                            <i class="bi bi-info-circle"></i>
-
-                            Only the measurements required for
-
-                            <strong>
-                                @displaySubcategory
-                            </strong>
-
-                            are available.
-
-                            Values outside the displayed ranges
-                            cannot be saved.
-
-                        </div>
-
-
-                        <div class="mt-4 d-flex gap-2 flex-wrap">
-
-                            <button type="submit"
-                                    class="btn btn-customize">
-
-                                <i class="bi bi-check-circle"></i>
-
-                                Save Measurements
-
-                            </button>
-
-
-                            <a asp-controller="Customer"
-                               asp-action="Cart"
-                               class="btn btn-back">
-
-                                <i class="bi bi-cart"></i>
-
-                                Back to Cart
-
-                            </a>
-
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="mt-4">
-
-                            <a asp-controller="Customer"
-                               asp-action="Cart"
-                               class="btn btn-back">
-
-                                <i class="bi bi-cart"></i>
-
-                                Back to Cart
-
-                            </a>
-
-                        </div>
-                    }
+                    </div>
 
                 </div>
 
@@ -615,57 +938,382 @@
 
     <script>
 
-        document
-            .getElementById("customizationForm")
-            .addEventListener("submit", function (event) {
+        const measurementContainer =
+            document.getElementById("measurementContainer");
 
-                const inputs =
-                    document.querySelectorAll(".measurement-input");
+        const noMeasurementMessage =
+            document.getElementById("noMeasurementMessage");
+
+        const addMeasurementBtn =
+            document.getElementById("addMeasurementBtn");
+
+        const customMeasurementsInput =
+            document.getElementById("customMeasurements");
+
+        const customizationForm =
+            document.getElementById("customizationForm");
+
+        const referenceImages =
+            document.getElementById("referenceImages");
+
+        const imagePreview =
+            document.getElementById("imagePreview");
+
+        const imageError =
+            document.getElementById("imageError");
+
+        const customerNotes =
+            document.getElementById("customerNotes");
+
+        const characterCount =
+            document.getElementById("characterCount");
+
+
+        let measurementIndex = 0;
+
+
+        function updateMeasurementMessage() {
+
+            const rows =
+                measurementContainer.querySelectorAll(
+                    ".measurement-row"
+                );
+
+            if (rows.length === 0) {
+
+                noMeasurementMessage.style.display = "block";
+
+            }
+            else {
+
+                noMeasurementMessage.style.display = "none";
+
+            }
+
+        }
+
+
+        function createMeasurementRow(
+            name = "",
+            value = "") {
+
+            measurementIndex++;
+
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "measurement-row";
+
+
+            row.innerHTML = `
+
+                <div class="row g-2 align-items-end">
+
+                    <div class="col-md-5">
+
+                        <label class="form-label">
+
+                            Measurement Name
+
+                        </label>
+
+                        <input type="text"
+                               class="form-control measurement-name"
+                               placeholder="e.g. Chest, Shoulder, Sleeve Length"
+                               maxlength="100"
+                               value="${escapeHtml(name)}">
+
+                        <div class="measurement-error name-error">
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Measurement Value
+
+                        </label>
+
+                        <div class="measurement-value-group">
+
+                            <input type="number"
+                                   class="form-control measurement-value"
+                                   placeholder="e.g. 38"
+                                   min="0.1"
+                                   max="999"
+                                   step="0.1"
+                                   inputmode="decimal"
+                                   value="${escapeHtml(value)}">
+
+                            <div class="unit-box">
+
+                                inches
+
+                            </div>
+
+                        </div>
+
+                        <div class="measurement-error value-error">
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-1">
+
+                        <button type="button"
+                                class="remove-measurement"
+                                title="Remove measurement">
+
+                            <i class="bi bi-trash"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+
+            const removeButton =
+                row.querySelector(
+                    ".remove-measurement"
+                );
+
+
+            removeButton.addEventListener(
+                "click",
+                function () {
+
+                    row.remove();
+
+                    updateMeasurementMessage();
+
+                });
+
+
+            measurementContainer.appendChild(row);
+
+            updateMeasurementMessage();
+
+        }
+
+
+        function escapeHtml(value) {
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        function loadExistingMeasurements() {
+
+            const existing =
+                customMeasurementsInput.value.trim();
+
+
+            if (!existing)
+                return;
+
+
+            const parts =
+                existing.split("|");
+
+
+            parts.forEach(function (part) {
+
+                const text =
+                    part.trim();
+
+
+                if (!text)
+                    return;
+
+
+                const separator =
+                    text.indexOf(":");
+
+
+                if (separator <= 0)
+                    return;
+
+
+                const name =
+                    text
+                        .substring(0, separator)
+                        .trim();
+
+
+                let value =
+                    text
+                        .substring(separator + 1)
+                        .trim();
+
+
+                value =
+                    value
+                        .replace(
+                            /inches/gi,
+                            ""
+                        )
+                        .trim();
+
+
+                if (name && value) {
+
+                    createMeasurementRow(
+                        name,
+                        value
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        addMeasurementBtn.addEventListener(
+            "click",
+            function () {
+
+                createMeasurementRow();
+
+                const rows =
+                    measurementContainer.querySelectorAll(
+                        ".measurement-row"
+                    );
+
+                if (rows.length > 0) {
+
+                    const lastRow =
+                        rows[rows.length - 1];
+
+                    lastRow
+                        .querySelector(
+                            ".measurement-name"
+                        )
+                        .focus();
+
+                }
+
+            });
+
+
+        customizationForm.addEventListener(
+            "submit",
+            function (event) {
+
+                const rows =
+                    measurementContainer.querySelectorAll(
+                        ".measurement-row"
+                    );
+
+
+                if (rows.length === 0) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please add at least one measurement."
+                    );
+
+                    return;
+
+                }
+
 
                 const measurements = [];
 
-                const missingRequired = [];
+                const names =
+                    new Set();
 
-                const invalidMeasurements = [];
+                let hasError = false;
 
 
-                inputs.forEach(function (input) {
+                rows.forEach(function (row) {
+
+                    const nameInput =
+                        row.querySelector(
+                            ".measurement-name"
+                        );
+
+                    const valueInput =
+                        row.querySelector(
+                            ".measurement-value"
+                        );
+
+                    const nameError =
+                        row.querySelector(
+                            ".name-error"
+                        );
+
+                    const valueError =
+                        row.querySelector(
+                            ".value-error"
+                        );
+
+
+                    nameError.style.display = "none";
+                    valueError.style.display = "none";
+
+                    row.classList.remove(
+                        "invalid-row"
+                    );
+
 
                     const name =
-                        input.getAttribute("data-name");
+                        nameInput.value.trim();
 
                     const value =
-                        input.value.trim();
+                        valueInput.value.trim();
 
-                    const isRequired =
-                        input.getAttribute("data-required") === "true";
 
-                    const min =
-                        parseFloat(
-                            input.getAttribute("data-min")
+                    if (!name) {
+
+                        nameError.textContent =
+                            "Please enter the measurement name.";
+
+                        nameError.style.display =
+                            "block";
+
+                        row.classList.add(
+                            "invalid-row"
                         );
 
-                    const max =
-                        parseFloat(
-                            input.getAttribute("data-max")
-                        );
-
-
-                    input.classList.remove("is-invalid");
-
-
-                    if (isRequired && value === "") {
-
-                        missingRequired.push(name);
-
-                        input.classList.add("is-invalid");
+                        hasError = true;
 
                         return;
+
                     }
 
 
-                    if (value === "") {
+                    if (!value) {
+
+                        valueError.textContent =
+                            "Please enter the measurement value.";
+
+                        valueError.style.display =
+                            "block";
+
+                        row.classList.add(
+                            "invalid-row"
+                        );
+
+                        hasError = true;
+
                         return;
+
                     }
 
 
@@ -673,34 +1321,59 @@
                         parseFloat(value);
 
 
-                    if (isNaN(numericValue)) {
+                    if (
+                        isNaN(numericValue) ||
+                        numericValue <= 0 ||
+                        numericValue > 999
+                    ) {
 
-                        invalidMeasurements.push(
-                            name + " must contain a valid number."
+                        valueError.textContent =
+                            "Please enter a valid measurement.";
+
+                        valueError.style.display =
+                            "block";
+
+                        row.classList.add(
+                            "invalid-row"
                         );
 
-                        input.classList.add("is-invalid");
+                        hasError = true;
 
                         return;
+
                     }
 
 
-                    if (numericValue < min ||
-                        numericValue > max) {
+                    const normalizedName =
+                        name.toLowerCase();
 
-                        invalidMeasurements.push(
-                            name +
-                            " must be between " +
-                            min +
-                            " and " +
-                            max +
-                            " inches."
+
+                    if (
+                        names.has(
+                            normalizedName
+                        )
+                    ) {
+
+                        nameError.textContent =
+                            "This measurement has already been added.";
+
+                        nameError.style.display =
+                            "block";
+
+                        row.classList.add(
+                            "invalid-row"
                         );
 
-                        input.classList.add("is-invalid");
+                        hasError = true;
 
                         return;
+
                     }
+
+
+                    names.add(
+                        normalizedName
+                    );
 
 
                     measurements.push(
@@ -713,96 +1386,202 @@
                 });
 
 
-                if (missingRequired.length > 0) {
+                if (hasError) {
 
                     event.preventDefault();
 
-                    alert(
-                        "Please enter the required measurements:\n\n" +
-                        missingRequired.join("\n")
-                    );
+                    const firstError =
+                        document.querySelector(
+                            ".invalid-row"
+                        );
+
+                    if (firstError) {
+
+                        firstError.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                    }
 
                     return;
+
                 }
 
 
-                if (invalidMeasurements.length > 0) {
-
-                    event.preventDefault();
-
-                    alert(
-                        "Please correct the following measurements:\n\n" +
-                        invalidMeasurements.join("\n")
-                    );
-
-                    return;
-                }
-
-
-                if (measurements.length === 0) {
-
-                    event.preventDefault();
-
-                    alert(
-                        "Please enter your measurements."
-                    );
-
-                    return;
-                }
-
-
-                document.getElementById(
-                    "customMeasurements"
-                ).value =
+                customMeasurementsInput.value =
                     measurements.join(" | ");
 
-            });
+
+                const files =
+                    referenceImages.files;
 
 
-        document
-            .querySelectorAll(".measurement-input")
-            .forEach(function (input) {
+                if (files.length > 10) {
 
-                input.addEventListener("input", function () {
+                    event.preventDefault();
 
-                    const value =
-                        parseFloat(this.value);
+                    imageError.textContent =
+                        "You can upload a maximum of 10 reference pictures.";
 
-                    const min =
-                        parseFloat(
-                            this.getAttribute("data-min")
-                        );
+                    referenceImages.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
 
-                    const max =
-                        parseFloat(
-                            this.getAttribute("data-max")
-                        );
+                    return;
+
+                }
 
 
-                    if (this.value === "") {
+                for (
+                    let i = 0;
+                    i < files.length;
+                    i++
+                ) {
 
-                        this.classList.remove("is-invalid");
+                    const file =
+                        files[i];
+
+                    const maxSize =
+                        5 * 1024 * 1024;
+
+
+                    if (file.size > maxSize) {
+
+                        event.preventDefault();
+
+                        imageError.textContent =
+                            file.name +
+                            " is larger than 5 MB.";
+
+                        referenceImages.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
 
                         return;
-                    }
-
-
-                    if (isNaN(value) ||
-                        value < min ||
-                        value > max) {
-
-                        this.classList.add("is-invalid");
-
-                    }
-                    else {
-
-                        this.classList.remove("is-invalid");
 
                     }
 
-                });
+
+                    const allowedTypes = [
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp"
+                    ];
+
+
+                    if (
+                        !allowedTypes.includes(
+                            file.type
+                        )
+                    ) {
+
+                        event.preventDefault();
+
+                        imageError.textContent =
+                            file.name +
+                            " is not a supported image.";
+
+                        return;
+
+                    }
+
+                }
 
             });
+
+
+        referenceImages.addEventListener(
+            "change",
+            function () {
+
+                imagePreview.innerHTML = "";
+                imageError.textContent = "";
+
+
+                const files =
+                    this.files;
+
+
+                if (files.length > 10) {
+
+                    imageError.textContent =
+                        "You can upload a maximum of 10 pictures.";
+
+                    this.value = "";
+
+                    return;
+
+                }
+
+
+                Array.from(files).forEach(
+                    function (file) {
+
+                        if (
+                            !file.type.startsWith(
+                                "image/"
+                            )
+                        )
+                            return;
+
+
+                        const reader =
+                            new FileReader();
+
+
+                        reader.onload =
+                            function (event) {
+
+                                const preview =
+                                    document.createElement(
+                                        "div"
+                                    );
+
+                                preview.className =
+                                    "preview-item";
+
+
+                                preview.innerHTML = `
+
+                                    <img src="${event.target.result}"
+                                         alt="Reference image">
+
+                                `;
+
+
+                                imagePreview.appendChild(
+                                    preview
+                                );
+
+                            };
+
+
+                        reader.readAsDataURL(
+                            file
+                        );
+
+                    }
+                );
+
+            });
+
+
+        customerNotes.addEventListener(
+            "input",
+            function () {
+
+                characterCount.textContent =
+                    this.value.length;
+
+            });
+
+
+        loadExistingMeasurements();
+
+        updateMeasurementMessage();
 
     </script>
 

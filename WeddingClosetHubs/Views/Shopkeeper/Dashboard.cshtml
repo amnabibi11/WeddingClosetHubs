@@ -9,7 +9,6 @@
     string shopCategory =
         ViewBag.ShopCategory as string ?? "Not Selected";
 
-
     string shopkeeperName =
         ViewBag.ShopkeeperName as string ?? "Shopkeeper";
 
@@ -24,7 +23,6 @@
 
     string? shopkeeperProfileImage =
         ViewBag.ShopkeeperProfileImage as string;
-
 
     string? whatsappNumber =
         ViewBag.ShopWhatsApp as string;
@@ -41,13 +39,11 @@
     string? websiteLink =
         ViewBag.ShopWebsite as string;
 
-
     bool shopApproved =
         ViewBag.ShopApproved == true;
 
     bool shopStatus =
         ViewBag.ShopStatus == true;
-
 
     int totalProducts =
         ViewBag.TotalProducts ?? 0;
@@ -67,6 +63,23 @@
     int cancelledOrders =
         ViewBag.CancelledOrders ?? 0;
 
+    int totalRentalOrders =
+        ViewBag.TotalRentalOrders ?? 0;
+
+    int pendingRentalOrders =
+        ViewBag.PendingRentalOrders ?? 0;
+
+    int totalCustomizationRequests =
+        ViewBag.TotalCustomizationRequests ?? 0;
+
+    int pendingCustomizationRequests =
+        ViewBag.PendingCustomizationRequests ?? 0;
+
+    int totalNegotiations =
+        ViewBag.TotalNegotiations ?? 0;
+
+    int pendingNegotiations =
+        ViewBag.PendingNegotiations ?? 0;
 
     int totalReviews =
         ViewBag.TotalReviews ?? 0;
@@ -80,7 +93,6 @@
     int unreadNotifications =
         ViewBag.UnreadNotifications ?? 0;
 
-
     decimal totalSales =
         (decimal?)ViewBag.TotalSales ?? 0m;
 
@@ -93,11 +105,12 @@
     decimal paidPayments =
         (decimal?)ViewBag.PaidPayments ?? 0m;
 
-
     int fullStars =
         (int)Math.Round(
             averageRating,
             MidpointRounding.AwayFromZero);
+
+
 }
 
 <!DOCTYPE html>
@@ -105,6 +118,7 @@
 <html lang="en">
 
 <head>
+
 
     <meta charset="utf-8" />
 
@@ -121,7 +135,6 @@
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-
     <style>
 
         * {
@@ -134,7 +147,6 @@
             font-family: Arial, Helvetica, sans-serif;
             color: #333;
         }
-
 
         .sidebar {
             position: fixed;
@@ -154,20 +166,19 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .sidebar-brand i {
-            font-size: 35px;
-            color: #d4af37;
-        }
+            .sidebar-brand i {
+                font-size: 35px;
+                color: #d4af37;
+            }
 
-        .sidebar-brand h4 {
-            margin: 8px 0 0;
-            font-weight: 700;
-        }
+            .sidebar-brand h4 {
+                margin: 8px 0 0;
+                font-weight: 700;
+            }
 
-        .sidebar-brand small {
-            color: #aaa;
-        }
-
+            .sidebar-brand small {
+                color: #aaa;
+            }
 
         .sidebar-menu {
             padding: 15px 10px;
@@ -194,16 +205,16 @@
             transition: 0.2s;
         }
 
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: #800020;
-            color: white;
-        }
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                background: #800020;
+                color: white;
+            }
 
-        .sidebar-menu a i {
-            font-size: 18px;
-            width: 22px;
-        }
+            .sidebar-menu a i {
+                font-size: 18px;
+                width: 22px;
+            }
 
         .badge-count {
             margin-left: auto;
@@ -214,12 +225,10 @@
             border-radius: 20px;
         }
 
-
         .main-content {
             margin-left: 260px;
             min-height: 100vh;
         }
-
 
         .top-navbar {
             height: 70px;
@@ -233,12 +242,11 @@
             z-index: 1500;
         }
 
-        .top-navbar h5 {
-            margin: 0;
-            font-weight: 700;
-            color: #800020;
-        }
-
+            .top-navbar h5 {
+                margin: 0;
+                font-weight: 700;
+                color: #800020;
+            }
 
         .shopkeeper-info {
             display: flex;
@@ -260,9 +268,9 @@
             justify-content: center;
         }
 
-        .profile-button:focus {
-            outline: none;
-        }
+            .profile-button:focus {
+                outline: none;
+            }
 
         .profile-icon,
         .profile-image {
@@ -294,7 +302,6 @@
             border-color: #800020;
         }
 
-
         .profile-card {
             position: absolute;
             top: 58px;
@@ -309,10 +316,9 @@
             z-index: 2000;
         }
 
-        .profile-card.show {
-            display: block;
-        }
-
+            .profile-card.show {
+                display: block;
+            }
 
         .profile-card-header {
             text-align: center;
@@ -353,7 +359,6 @@
             color: #777;
         }
 
-
         .profile-detail {
             display: flex;
             align-items: flex-start;
@@ -362,32 +367,31 @@
             border-bottom: 1px solid #f1f1f1;
         }
 
-        .profile-detail:last-of-type {
-            border-bottom: none;
-        }
+            .profile-detail:last-of-type {
+                border-bottom: none;
+            }
 
-        .profile-detail > i {
-            width: 22px;
-            color: #800020;
-            font-size: 17px;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
+            .profile-detail > i {
+                width: 22px;
+                color: #800020;
+                font-size: 17px;
+                margin-top: 2px;
+                flex-shrink: 0;
+            }
 
-        .profile-detail strong {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 2px;
-        }
+            .profile-detail strong {
+                display: block;
+                font-size: 12px;
+                color: #888;
+                margin-bottom: 2px;
+            }
 
-        .profile-detail span {
-            display: block;
-            font-size: 14px;
-            color: #333;
-            word-break: break-word;
-        }
-
+            .profile-detail span {
+                display: block;
+                font-size: 14px;
+                color: #333;
+                word-break: break-word;
+            }
 
         .profile-shop {
             margin-top: 12px;
@@ -398,43 +402,40 @@
             color: #800020;
         }
 
-        .profile-shop i {
-            color: #d4af37;
-            margin-right: 5px;
-        }
+            .profile-shop i {
+                color: #d4af37;
+                margin-right: 5px;
+            }
 
-        .profile-shop small {
-            color: #777;
-        }
-
+            .profile-shop small {
+                color: #777;
+            }
 
         .profile-card-footer {
             margin-top: 15px;
         }
 
-        .profile-card-footer a {
-            display: block;
-            width: 100%;
-            text-align: center;
-            background: #800020;
-            color: white;
-            text-decoration: none;
-            padding: 9px;
-            border-radius: 7px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
+            .profile-card-footer a {
+                display: block;
+                width: 100%;
+                text-align: center;
+                background: #800020;
+                color: white;
+                text-decoration: none;
+                padding: 9px;
+                border-radius: 7px;
+                font-weight: 600;
+                transition: 0.2s;
+            }
 
-        .profile-card-footer a:hover {
-            background: #a52a45;
-            color: white;
-        }
-
+                .profile-card-footer a:hover {
+                    background: #a52a45;
+                    color: white;
+                }
 
         .content-wrapper {
             padding: 30px;
         }
-
 
         .welcome-box {
             background: linear-gradient(135deg, #800020, #a52a45);
@@ -444,15 +445,15 @@
             margin-bottom: 25px;
         }
 
-        .welcome-box h2 {
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
+            .welcome-box h2 {
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
 
-        .welcome-box p {
-            margin: 0;
-            opacity: 0.9;
-        }
+            .welcome-box p {
+                margin: 0;
+                opacity: 0.9;
+            }
 
         .shop-status {
             display: flex;
@@ -483,7 +484,6 @@
             font-size: 13px;
         }
 
-
         .dashboard-card-link {
             display: block;
             height: 100%;
@@ -491,25 +491,26 @@
             color: inherit;
         }
 
-        .dashboard-card-link:hover {
-            color: inherit;
-            text-decoration: none;
-        }
+            .dashboard-card-link:hover {
+                color: inherit;
+                text-decoration: none;
+            }
 
-        .dashboard-card-link .stat-card,
-        .dashboard-card-link .review-info,
-        .dashboard-card-link .rating-box {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+            .dashboard-card-link .stat-card,
+            .dashboard-card-link .review-info,
+            .dashboard-card-link .rating-box,
+            .dashboard-card-link .special-card {
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
 
-        .dashboard-card-link:hover .stat-card,
-        .dashboard-card-link:hover .review-info,
-        .dashboard-card-link:hover .rating-box {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 22px rgba(0,0,0,0.10);
-        }
-
+            .dashboard-card-link:hover .stat-card,
+            .dashboard-card-link:hover .review-info,
+            .dashboard-card-link:hover .rating-box,
+            .dashboard-card-link:hover .special-card {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+            }
 
         .stat-card {
             background: white;
@@ -518,11 +519,6 @@
             border: none;
             box-shadow: 0 3px 15px rgba(0,0,0,0.05);
             height: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            transition: 0.2s;
         }
 
         .stat-icon {
@@ -556,6 +552,21 @@
             color: #dc3545;
         }
 
+        .icon-rental {
+            background: #e8ddff;
+            color: #6f42c1;
+        }
+
+        .icon-customization {
+            background: #ffe5ec;
+            color: #800020;
+        }
+
+        .icon-negotiation {
+            background: #e0f7fa;
+            color: #00838f;
+        }
+
         .icon-reviews {
             background: #fff0f3;
             color: #800020;
@@ -572,6 +583,39 @@
             margin: 4px 0 0;
         }
 
+        .special-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border: none;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .special-card .pending-badge {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: #dc3545;
+                color: white;
+                font-size: 11px;
+                padding: 4px 8px;
+                border-radius: 20px;
+                font-weight: 700;
+            }
+
+            .special-card h3 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: 700;
+            }
+
+            .special-card p {
+                color: #777;
+                margin: 4px 0 0;
+            }
 
         .section-card {
             background: white;
@@ -590,15 +634,14 @@
             gap: 15px;
         }
 
-        .section-header h5 {
-            margin: 0;
-            font-weight: 700;
-        }
+            .section-header h5 {
+                margin: 0;
+                font-weight: 700;
+            }
 
         .section-body {
             padding: 22px;
         }
-
 
         .quick-action {
             display: flex;
@@ -613,16 +656,15 @@
             transition: 0.2s;
         }
 
-        .quick-action:hover {
-            background: #eee;
-            color: #800020;
-        }
+            .quick-action:hover {
+                background: #eee;
+                color: #800020;
+            }
 
-        .quick-action i {
-            font-size: 22px;
-            color: #800020;
-        }
-
+            .quick-action i {
+                font-size: 22px;
+                color: #800020;
+            }
 
         .rating-box {
             text-align: center;
@@ -649,11 +691,10 @@
             border-radius: 10px;
         }
 
-        .review-info h4 {
-            margin: 0;
-            font-weight: 700;
-        }
-
+            .review-info h4 {
+                margin: 0;
+                font-weight: 700;
+            }
 
         .status-approved {
             color: #198754;
@@ -681,11 +722,10 @@
             font-weight: 700;
         }
 
-        .shop-category-box i {
-            color: #d4af37;
-            font-size: 18px;
-        }
-
+            .shop-category-box i {
+                color: #d4af37;
+                font-size: 18px;
+            }
 
         .shop-contact-footer {
             margin-top: 30px;
@@ -709,17 +749,17 @@
             margin-bottom: 20px;
         }
 
-        .shop-contact-heading h5 {
-            margin: 0;
-            color: #d4af37;
-            font-weight: 700;
-        }
+            .shop-contact-heading h5 {
+                margin: 0;
+                color: #d4af37;
+                font-weight: 700;
+            }
 
-        .shop-contact-heading p {
-            margin: 5px 0 0;
-            color: #ccc;
-            font-size: 14px;
-        }
+            .shop-contact-heading p {
+                margin: 5px 0 0;
+                color: #ccc;
+                font-size: 14px;
+            }
 
         .contact-links {
             display: flex;
@@ -740,16 +780,16 @@
             font-size: 14px;
         }
 
-        .contact-link:hover {
-            background: #a52a45;
-            color: white;
-            transform: translateY(-2px);
-        }
+            .contact-link:hover {
+                background: #a52a45;
+                color: white;
+                transform: translateY(-2px);
+            }
 
-        .contact-link i {
-            color: #d4af37;
-            font-size: 17px;
-        }
+            .contact-link i {
+                color: #d4af37;
+                font-size: 17px;
+            }
 
         .no-contact-message {
             background: rgba(255,255,255,0.06);
@@ -771,11 +811,10 @@
             transition: 0.2s;
         }
 
-        .manage-contact-btn:hover {
-            background: #e5c45c;
-            color: #212529;
-        }
-
+            .manage-contact-btn:hover {
+                background: #e5c45c;
+                color: #212529;
+            }
 
         @@media (max-width: 992px) {
 
@@ -787,7 +826,6 @@
                 margin-left: 220px;
             }
         }
-
 
         @@media (max-width: 768px) {
 
@@ -840,6 +878,7 @@
 
     </style>
 
+
 </head>
 
 <body>
@@ -861,14 +900,11 @@
 
         </div>
 
-
         <div class="sidebar-menu">
-
 
             <div class="menu-title">
                 Main
             </div>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Dashboard"
@@ -882,7 +918,6 @@
 
             </a>
 
-
             <a asp-controller="Shopkeeper"
                asp-action="MyShop">
 
@@ -894,11 +929,9 @@
 
             </a>
 
-
             <div class="menu-title">
                 Store Management
             </div>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Products">
@@ -909,8 +942,14 @@
                     Products
                 </span>
 
-            </a>
+                @if (totalProducts > 0)
+                {
+                    <span class="badge-count">
+                        @totalProducts
+                    </span>
+                }
 
+            </a>
 
             <a asp-controller="Shopkeeper"
                asp-action="Orders">
@@ -921,8 +960,14 @@
                     Orders
                 </span>
 
-            </a>
+                @if (pendingOrders > 0)
+                {
+                    <span class="badge-count">
+                        @pendingOrders
+                    </span>
+                }
 
+            </a>
 
             <a asp-controller="Shopkeeper"
                asp-action="RentalOrders">
@@ -933,8 +978,14 @@
                     Rental Orders
                 </span>
 
-            </a>
+                @if (pendingRentalOrders > 0)
+                {
+                    <span class="badge-count">
+                        @pendingRentalOrders
+                    </span>
+                }
 
+            </a>
 
             <a asp-controller="Shopkeeper"
                asp-action="Negotiations">
@@ -945,8 +996,32 @@
                     Negotiations
                 </span>
 
+                @if (pendingNegotiations > 0)
+                {
+                    <span class="badge-count">
+                        @pendingNegotiations
+                    </span>
+                }
+
             </a>
 
+            <a asp-controller="Shopkeeper"
+               asp-action="CustomizationRequests">
+
+                <i class="bi bi-scissors"></i>
+
+                <span>
+                    Customization Requests
+                </span>
+
+                @if (pendingCustomizationRequests > 0)
+                {
+                    <span class="badge-count">
+                        @pendingCustomizationRequests
+                    </span>
+                }
+
+            </a>
 
             <a asp-controller="Shopkeeper"
                asp-action="Payments">
@@ -959,11 +1034,9 @@
 
             </a>
 
-
             <div class="menu-title">
                 Customer Interaction
             </div>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Feedback">
@@ -983,7 +1056,6 @@
 
             </a>
 
-
             <a asp-controller="Shopkeeper"
                asp-action="Chat">
 
@@ -1001,7 +1073,6 @@
                 }
 
             </a>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Notifications">
@@ -1021,11 +1092,9 @@
 
             </a>
 
-
             <div class="menu-title">
                 Account
             </div>
-
 
             <a asp-controller="Shopkeeper"
                asp-action="Profile">
@@ -1038,7 +1107,6 @@
 
             </a>
 
-
             <a asp-controller="Account"
                asp-action="Logout">
 
@@ -1050,14 +1118,11 @@
 
             </a>
 
-
         </div>
 
     </aside>
 
-
     <main class="main-content">
-
 
         <div class="top-navbar">
 
@@ -1069,11 +1134,9 @@
 
             </div>
 
-
             <div class="shopkeeper-info">
 
                 <div class="profile-dropdown">
-
 
                     <button type="button"
                             class="profile-button"
@@ -1081,69 +1144,48 @@
                             aria-label="Open Shopkeeper Profile"
                             title="Shopkeeper Profile">
 
-
                         @if (!string.IsNullOrWhiteSpace(shopkeeperProfileImage))
                         {
-
                             <img src="@shopkeeperProfileImage"
                                  alt="Shopkeeper Profile"
                                  class="profile-image" />
-
                         }
                         else
                         {
-
                             <div class="profile-icon">
-
                                 <i class="bi bi-person-fill"></i>
-
                             </div>
-
                         }
 
-
                     </button>
-
 
                     <div class="profile-card"
                          id="profileCard">
 
-
                         <div class="profile-card-header">
-
 
                             @if (!string.IsNullOrWhiteSpace(shopkeeperProfileImage))
                             {
-
                                 <img src="@shopkeeperProfileImage"
                                      alt="Shopkeeper Profile"
                                      class="profile-card-image" />
-
                             }
                             else
                             {
-
                                 <div class="profile-card-default">
-
                                     <i class="bi bi-person-fill"></i>
-
                                 </div>
-
                             }
-
 
                             <h5>
                                 @shopkeeperName
                             </h5>
 
-
                             <small>
                                 Shopkeeper
                             </small>
 
-
                         </div>
-
 
                         <div class="profile-detail">
 
@@ -1163,7 +1205,6 @@
 
                         </div>
 
-
                         <div class="profile-detail">
 
                             <i class="bi bi-telephone-fill"></i>
@@ -1181,7 +1222,6 @@
                             </div>
 
                         </div>
-
 
                         <div class="profile-detail">
 
@@ -1201,7 +1241,6 @@
 
                         </div>
 
-
                         <div class="profile-shop">
 
                             <i class="bi bi-shop"></i>
@@ -1218,7 +1257,6 @@
 
                         </div>
 
-
                         <div class="profile-card-footer">
 
                             <a asp-controller="Shopkeeper"
@@ -1232,7 +1270,6 @@
 
                         </div>
 
-
                     </div>
 
                 </div>
@@ -1241,39 +1278,31 @@
 
         </div>
 
-
         <div class="content-wrapper">
 
-
             <div class="welcome-box">
-
 
                 <h2>
                     Welcome to your Shopkeeper Panel
                 </h2>
 
-
                 <p>
-                    Manage your shop, products, orders, payments
-                    and customer feedback from one place.
+                    Manage your shop, products, orders, rentals,
+                    customization requests, negotiations and customer feedback
+                    from one place.
                 </p>
-
 
                 <div class="shop-status">
 
-
                     <i class="bi bi-shop"></i>
-
 
                     <strong>
                         @shopName
                     </strong>
 
-
                     <span class="shop-status-divider">
                         |
                     </span>
-
 
                     <span class="category-badge">
 
@@ -1283,45 +1312,30 @@
 
                     </span>
 
-
                     <span class="shop-status-divider">
                         |
                     </span>
 
-
                     @if (shopApproved)
                     {
-
                         <span>
-
                             <i class="bi bi-check-circle-fill"></i>
-
                             Approved
-
                         </span>
-
                     }
                     else
                     {
-
                         <span>
-
                             <i class="bi bi-clock-fill"></i>
-
                             Approval Pending
-
                         </span>
-
                     }
-
 
                 </div>
 
             </div>
 
-
             <div class="row g-4">
-
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1337,11 +1351,9 @@
 
                             </div>
 
-
                             <h3>
                                 @totalProducts
                             </h3>
-
 
                             <p>
                                 Total Products
@@ -1352,7 +1364,6 @@
                     </a>
 
                 </div>
-
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1368,11 +1379,9 @@
 
                             </div>
 
-
                             <h3>
                                 @totalOrders
                             </h3>
-
 
                             <p>
                                 Total Orders
@@ -1383,7 +1392,6 @@
                     </a>
 
                 </div>
-
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1399,12 +1407,10 @@
 
                             </div>
 
-
                             <h3>
                                 Rs.
                                 @totalSales.ToString("N0")
                             </h3>
-
 
                             <p>
                                 Total Sales
@@ -1415,7 +1421,6 @@
                     </a>
 
                 </div>
-
 
                 <div class="col-lg-3 col-md-6">
 
@@ -1431,11 +1436,9 @@
 
                             </div>
 
-
                             <h3>
                                 @pendingOrders
                             </h3>
-
 
                             <p>
                                 Pending Orders
@@ -1449,9 +1452,116 @@
 
             </div>
 
+            <div class="row g-4 mt-1">
+
+                <div class="col-lg-4 col-md-6">
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="RentalOrders"
+                       class="dashboard-card-link">
+
+                        <div class="special-card">
+
+                            @if (pendingRentalOrders > 0)
+                            {
+                                <span class="pending-badge">
+                                    @pendingRentalOrders Pending
+                                </span>
+                            }
+
+                            <div class="stat-icon icon-rental">
+
+                                <i class="bi bi-arrow-repeat"></i>
+
+                            </div>
+
+                            <h3>
+                                @totalRentalOrders
+                            </h3>
+
+                            <p>
+                                Total Rental Orders
+                            </p>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="CustomizationRequests"
+                       class="dashboard-card-link">
+
+                        <div class="special-card">
+
+                            @if (pendingCustomizationRequests > 0)
+                            {
+                                <span class="pending-badge">
+                                    @pendingCustomizationRequests Pending
+                                </span>
+                            }
+
+                            <div class="stat-icon icon-customization">
+
+                                <i class="bi bi-scissors"></i>
+
+                            </div>
+
+                            <h3>
+                                @totalCustomizationRequests
+                            </h3>
+
+                            <p>
+                                Customization Requests
+                            </p>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+
+                    <a asp-controller="Shopkeeper"
+                       asp-action="Negotiations"
+                       class="dashboard-card-link">
+
+                        <div class="special-card">
+
+                            @if (pendingNegotiations > 0)
+                            {
+                                <span class="pending-badge">
+                                    @pendingNegotiations Pending
+                                </span>
+                            }
+
+                            <div class="stat-icon icon-negotiation">
+
+                                <i class="bi bi-tags"></i>
+
+                            </div>
+
+                            <h3>
+                                @totalNegotiations
+                            </h3>
+
+                            <p>
+                                Total Negotiations
+                            </p>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            </div>
 
             <div class="section-card">
-
 
                 <div class="section-header">
 
@@ -1464,7 +1574,6 @@
 
                     </h5>
 
-
                     <a asp-controller="Shopkeeper"
                        asp-action="Feedback"
                        class="btn btn-sm btn-outline-primary">
@@ -1475,12 +1584,9 @@
 
                 </div>
 
-
                 <div class="section-body">
 
-
                     <div class="row g-4">
-
 
                         <div class="col-md-6">
 
@@ -1498,13 +1604,11 @@
 
                                         </div>
 
-
                                         <div>
 
                                             <h4>
                                                 @totalReviews
                                             </h4>
-
 
                                             <p class="text-muted mb-0">
                                                 Total Customer Reviews
@@ -1520,7 +1624,6 @@
 
                         </div>
 
-
                         <div class="col-md-6">
 
                             <a asp-controller="Shopkeeper"
@@ -1528,7 +1631,6 @@
                                class="dashboard-card-link">
 
                                 <div class="rating-box">
-
 
                                     <div class="rating-number">
 
@@ -1538,29 +1640,21 @@
 
                                     </div>
 
-
                                     <div class="stars">
 
                                         @for (int i = 1; i <= 5; i++)
                                         {
-
                                             if (i <= fullStars)
                                             {
-
                                                 <i class="bi bi-star-fill"></i>
-
                                             }
                                             else
                                             {
-
                                                 <i class="bi bi-star"></i>
-
                                             }
-
                                         }
 
                                     </div>
-
 
                                     <small class="text-muted">
 
@@ -1568,13 +1662,11 @@
 
                                     </small>
 
-
                                 </div>
 
                             </a>
 
                         </div>
-
 
                     </div>
 
@@ -1582,14 +1674,11 @@
 
             </div>
 
-
             <div class="row g-4">
 
                 <div class="col-lg-8">
 
-
                     <div class="section-card">
-
 
                         <div class="section-header">
 
@@ -1601,7 +1690,6 @@
 
                             </h5>
 
-
                             <a asp-controller="Shopkeeper"
                                asp-action="Orders"
                                class="btn btn-sm btn-outline-primary">
@@ -1612,12 +1700,9 @@
 
                         </div>
 
-
                         <div class="section-body">
 
-
                             <div class="row text-center">
-
 
                                 <div class="col-6 col-md-3">
 
@@ -1625,13 +1710,11 @@
                                         @pendingOrders
                                     </h4>
 
-
                                     <small class="text-warning">
                                         Pending
                                     </small>
 
                                 </div>
-
 
                                 <div class="col-6 col-md-3">
 
@@ -1639,13 +1722,11 @@
                                         @acceptedOrders
                                     </h4>
 
-
                                     <small class="text-primary">
                                         Accepted
                                     </small>
 
                                 </div>
-
 
                                 <div class="col-6 col-md-3 mt-3 mt-md-0">
 
@@ -1653,13 +1734,11 @@
                                         @completedOrders
                                     </h4>
 
-
                                     <small class="text-success">
                                         Completed
                                     </small>
 
                                 </div>
-
 
                                 <div class="col-6 col-md-3 mt-3 mt-md-0">
 
@@ -1667,13 +1746,11 @@
                                         @cancelledOrders
                                     </h4>
 
-
                                     <small class="text-danger">
                                         Cancelled
                                     </small>
 
                                 </div>
-
 
                             </div>
 
@@ -1681,9 +1758,122 @@
 
                     </div>
 
+                    <div class="section-card">
+
+                        <div class="section-header">
+
+                            <h5>
+
+                                <i class="bi bi-scissors"
+                                   style="color:#800020;"></i>
+
+                                Customization Summary
+
+                            </h5>
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="CustomizationRequests"
+                               class="btn btn-sm"
+                               style="background:#800020;color:white;">
+
+                                View Requests
+
+                            </a>
+
+                        </div>
+
+                        <div class="section-body">
+
+                            <div class="row text-center">
+
+                                <div class="col-md-6">
+
+                                    <h3 style="color:#800020;">
+                                        @totalCustomizationRequests
+                                    </h3>
+
+                                    <p class="text-muted mb-0">
+                                        Total Customization Requests
+                                    </p>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <h3 class="text-danger">
+                                        @pendingCustomizationRequests
+                                    </h3>
+
+                                    <p class="text-muted mb-0">
+                                        Requests Requiring Action
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                     <div class="section-card">
 
+                        <div class="section-header">
+
+                            <h5>
+
+                                <i class="bi bi-arrow-repeat"
+                                   style="color:#6f42c1;"></i>
+
+                                Rental Summary
+
+                            </h5>
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="RentalOrders"
+                               class="btn btn-sm btn-outline-primary">
+
+                                View Rental Orders
+
+                            </a>
+
+                        </div>
+
+                        <div class="section-body">
+
+                            <div class="row text-center">
+
+                                <div class="col-md-6">
+
+                                    <h3 style="color:#6f42c1;">
+                                        @totalRentalOrders
+                                    </h3>
+
+                                    <p class="text-muted mb-0">
+                                        Total Rental Orders
+                                    </p>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <h3 class="text-danger">
+                                        @pendingRentalOrders
+                                    </h3>
+
+                                    <p class="text-muted mb-0">
+                                        Rental Orders Requiring Action
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="section-card">
 
                         <div class="section-header">
 
@@ -1695,7 +1885,6 @@
 
                             </h5>
 
-
                             <a asp-controller="Shopkeeper"
                                asp-action="Payments"
                                class="btn btn-sm btn-outline-success">
@@ -1706,21 +1895,15 @@
 
                         </div>
 
-
                         <div class="section-body">
 
-
                             <div class="row">
-
 
                                 <div class="col-md-6">
 
                                     <p class="text-muted mb-1">
-
                                         Pending Settlement
-
                                     </p>
-
 
                                     <h4 class="text-warning">
 
@@ -1731,15 +1914,11 @@
 
                                 </div>
 
-
                                 <div class="col-md-6">
 
                                     <p class="text-muted mb-1">
-
                                         Paid Settlement
-
                                     </p>
-
 
                                     <h4 class="text-success">
 
@@ -1750,22 +1929,17 @@
 
                                 </div>
 
-
                             </div>
 
                         </div>
 
                     </div>
 
-
                 </div>
-
 
                 <div class="col-lg-4">
 
-
                     <div class="section-card">
-
 
                         <div class="section-header">
 
@@ -1779,9 +1953,7 @@
 
                         </div>
 
-
                         <div class="section-body">
-
 
                             <a asp-controller="Shopkeeper"
                                asp-action="AddProduct"
@@ -1795,7 +1967,6 @@
 
                             </a>
 
-
                             <a asp-controller="Shopkeeper"
                                asp-action="Products"
                                class="quick-action">
@@ -1807,7 +1978,6 @@
                                 </span>
 
                             </a>
-
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Orders"
@@ -1821,6 +1991,62 @@
 
                             </a>
 
+                            <a asp-controller="Shopkeeper"
+                               asp-action="RentalOrders"
+                               class="quick-action">
+
+                                <i class="bi bi-arrow-repeat"></i>
+
+                                <span>
+                                    Manage Rental Orders
+                                </span>
+
+                                @if (pendingRentalOrders > 0)
+                                {
+                                    <span class="badge-count">
+                                        @pendingRentalOrders
+                                    </span>
+                                }
+
+                            </a>
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="CustomizationRequests"
+                               class="quick-action">
+
+                                <i class="bi bi-scissors"></i>
+
+                                <span>
+                                    Customization Requests
+                                </span>
+
+                                @if (pendingCustomizationRequests > 0)
+                                {
+                                    <span class="badge-count">
+                                        @pendingCustomizationRequests
+                                    </span>
+                                }
+
+                            </a>
+
+                            <a asp-controller="Shopkeeper"
+                               asp-action="Negotiations"
+                               class="quick-action">
+
+                                <i class="bi bi-tags"></i>
+
+                                <span>
+                                    Negotiations
+                                </span>
+
+                                @if (pendingNegotiations > 0)
+                                {
+                                    <span class="badge-count">
+                                        @pendingNegotiations
+                                    </span>
+                                }
+
+                            </a>
 
                             <a asp-controller="Shopkeeper"
                                asp-action="Feedback"
@@ -1834,7 +2060,6 @@
 
                             </a>
 
-
                             <a asp-controller="Shopkeeper"
                                asp-action="Chat"
                                class="quick-action">
@@ -1846,7 +2071,6 @@
                                 </span>
 
                             </a>
-
 
                             <a asp-controller="Shopkeeper"
                                asp-action="MyShop"
@@ -1860,7 +2084,6 @@
 
                             </a>
 
-
                             <a asp-controller="Shopkeeper"
                                asp-action="Profile"
                                class="quick-action">
@@ -1873,7 +2096,6 @@
 
                             </a>
 
-
                         </div>
 
                     </div>
@@ -1882,9 +2104,7 @@
 
             </div>
 
-
             <div class="section-card">
-
 
                 <div class="section-header">
 
@@ -1898,12 +2118,9 @@
 
                 </div>
 
-
                 <div class="section-body">
 
-
                     <div class="row g-4">
-
 
                         <div class="col-md-4">
 
@@ -1913,10 +2130,8 @@
                                     Approval:
                                 </strong>
 
-
                                 @if (shopApproved)
                                 {
-
                                     <span class="status-approved">
 
                                         <i class="bi bi-check-circle-fill"></i>
@@ -1924,11 +2139,9 @@
                                         Approved
 
                                     </span>
-
                                 }
                                 else
                                 {
-
                                     <span class="status-pending">
 
                                         <i class="bi bi-clock-fill"></i>
@@ -1936,14 +2149,11 @@
                                         Pending
 
                                     </span>
-
                                 }
-
 
                             </p>
 
                         </div>
-
 
                         <div class="col-md-4">
 
@@ -1953,10 +2163,8 @@
                                     Shop Status:
                                 </strong>
 
-
                                 @if (shopStatus)
                                 {
-
                                     <span class="status-approved">
 
                                         <i class="bi bi-toggle-on"></i>
@@ -1964,11 +2172,9 @@
                                         Active
 
                                     </span>
-
                                 }
                                 else
                                 {
-
                                     <span class="status-disabled">
 
                                         <i class="bi bi-toggle-off"></i>
@@ -1976,14 +2182,11 @@
                                         Disabled
 
                                     </span>
-
                                 }
-
 
                             </p>
 
                         </div>
-
 
                         <div class="col-md-4">
 
@@ -1994,7 +2197,6 @@
                                 </strong>
 
                             </p>
-
 
                             <div class="shop-category-box">
 
@@ -2008,18 +2210,15 @@
 
                         </div>
 
-
                     </div>
 
                 </div>
 
             </div>
 
-
             <div class="shop-contact-footer">
 
                 <div class="shop-contact-inner">
-
 
                     <div class="shop-contact-heading">
 
@@ -2040,7 +2239,6 @@
 
                         </div>
 
-
                         <a asp-controller="Shopkeeper"
                            asp-action="EditShop"
                            class="manage-contact-btn">
@@ -2053,14 +2251,11 @@
 
                     </div>
 
-
                     <div class="contact-links">
 
-
                         @if (!string.IsNullOrWhiteSpace(shopkeeperPhone) &&
-                             shopkeeperPhone != "Phone not available")
+                                                shopkeeperPhone != "Phone not available")
                         {
-
                             <a href="tel:@shopkeeperPhone"
                                class="contact-link">
 
@@ -2071,20 +2266,17 @@
                                 </span>
 
                             </a>
-
                         }
-
 
                         @if (!string.IsNullOrWhiteSpace(whatsappNumber))
                         {
-
                             var cleanWhatsApp =
-                                whatsappNumber
-                                    .Replace("+", "")
-                                    .Replace(" ", "")
-                                    .Replace("-", "")
-                                    .Replace("(", "")
-                                    .Replace(")", "");
+                            whatsappNumber
+                            .Replace("+", "")
+                            .Replace(" ", "")
+                            .Replace("-", "")
+                            .Replace("(", "")
+                            .Replace(")", "");
 
                             <a href="https://wa.me/@cleanWhatsApp"
                                target="_blank"
@@ -2098,13 +2290,10 @@
                                 </span>
 
                             </a>
-
                         }
-
 
                         @if (!string.IsNullOrWhiteSpace(facebookLink))
                         {
-
                             <a href="@facebookLink"
                                target="_blank"
                                rel="noopener noreferrer"
@@ -2117,13 +2306,10 @@
                                 </span>
 
                             </a>
-
                         }
-
 
                         @if (!string.IsNullOrWhiteSpace(instagramLink))
                         {
-
                             <a href="@instagramLink"
                                target="_blank"
                                rel="noopener noreferrer"
@@ -2136,13 +2322,10 @@
                                 </span>
 
                             </a>
-
                         }
-
 
                         @if (!string.IsNullOrWhiteSpace(tikTokLink))
                         {
-
                             <a href="@tikTokLink"
                                target="_blank"
                                rel="noopener noreferrer"
@@ -2155,13 +2338,10 @@
                                 </span>
 
                             </a>
-
                         }
-
 
                         @if (!string.IsNullOrWhiteSpace(websiteLink))
                         {
-
                             <a href="@websiteLink"
                                target="_blank"
                                rel="noopener noreferrer"
@@ -2174,21 +2354,18 @@
                                 </span>
 
                             </a>
-
                         }
 
-
                         @if (
-                            (string.IsNullOrWhiteSpace(shopkeeperPhone) ||
-                             shopkeeperPhone == "Phone not available") &&
-                            string.IsNullOrWhiteSpace(whatsappNumber) &&
-                            string.IsNullOrWhiteSpace(facebookLink) &&
-                            string.IsNullOrWhiteSpace(instagramLink) &&
-                            string.IsNullOrWhiteSpace(tikTokLink) &&
-                            string.IsNullOrWhiteSpace(websiteLink)
-                        )
+                                                (string.IsNullOrWhiteSpace(shopkeeperPhone) ||
+                                                shopkeeperPhone == "Phone not available") &&
+                                                string.IsNullOrWhiteSpace(whatsappNumber) &&
+                                                string.IsNullOrWhiteSpace(facebookLink) &&
+                                                string.IsNullOrWhiteSpace(instagramLink) &&
+                                                string.IsNullOrWhiteSpace(tikTokLink) &&
+                                                string.IsNullOrWhiteSpace(websiteLink)
+                                                )
                         {
-
                             <div class="no-contact-message w-100">
 
                                 <i class="bi bi-info-circle"></i>
@@ -2202,9 +2379,7 @@
                                 <strong>Edit Shop</strong>.
 
                             </div>
-
                         }
-
 
                     </div>
 
@@ -2212,14 +2387,11 @@
 
             </div>
 
-
         </div>
 
     </main>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 
     <script>
 
@@ -2229,7 +2401,6 @@
         const profileCard =
             document.getElementById("profileCard");
 
-
         profileButton.addEventListener("click", function (event) {
 
             event.stopPropagation();
@@ -2238,20 +2409,17 @@
 
         });
 
-
         profileCard.addEventListener("click", function (event) {
 
             event.stopPropagation();
 
         });
 
-
         document.addEventListener("click", function () {
 
             profileCard.classList.remove("show");
 
         });
-
 
         document.addEventListener("keydown", function (event) {
 
@@ -2269,4 +2437,3 @@
 </body>
 
 </html>
-

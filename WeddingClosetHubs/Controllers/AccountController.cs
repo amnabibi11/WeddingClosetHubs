@@ -56,6 +56,26 @@ namespace WeddingClosetHubs.Controllers
             "Business Registration"
         };
 
+        private static readonly string[] AllowedShopCollections =
+        {
+            "Bridal Wear",
+            "Groom Wear",
+            "Formal Wear",
+            "Wedding Guest Wear",
+            "Footwear",
+            "Jewellery",
+            "Bridal Jewellery",
+            "Accessories",
+            "Bridal Accessories"
+        };
+
+        private static readonly string[] AllowedShopPurchaseTypes =
+        {
+            "Buy",
+            "Rent",
+            "Customize"
+        };
+
         private string NormalizeCNIC(string cnic)
         {
             return cnic
@@ -63,8 +83,6 @@ namespace WeddingClosetHubs.Controllers
                 .Replace(" ", "")
                 .Replace("-", "");
         }
-
-    
 
         [HttpGet]
         public async Task<IActionResult> Register()
@@ -74,26 +92,28 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
             User user,
 
-
             string? ShopName,
             string? ShopCategory,
             string[]? ShopCollections,
+            string[]? ShopPurchaseTypes,
             string? ShopPhone,
             string? ShopAddress,
             string? ShopDescription,
+            bool OffersBuy,
+            bool OffersRent,
+            bool OffersCustomization,
+
             IFormFile? ShopFrontPhoto,
             IFormFile? ShopInsidePhoto,
             IFormFile? ShopSignboardPhoto,
             string? ShopProofType,
             IFormFile? ShopProofDocument,
 
-         
             string? ShopkeeperCNIC,
             IFormFile? ShopkeeperCNICFrontImage,
             IFormFile? ShopkeeperCNICBackImage,
@@ -106,7 +126,6 @@ namespace WeddingClosetHubs.Controllers
             string? PreferredZone)
         {
             ModelState.Clear();
-
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
@@ -141,8 +160,6 @@ namespace WeddingClosetHubs.Controllers
                         "Name can contain letters and spaces only.");
                 }
             }
-
-            
 
             if (string.IsNullOrWhiteSpace(user.Email))
             {
@@ -210,8 +227,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-        
-
             if (!string.IsNullOrWhiteSpace(user.Email) &&
                 ModelState["Email"]?.Errors.Count == 0)
             {
@@ -233,8 +248,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-           
-
             if (string.IsNullOrWhiteSpace(user.Phone))
             {
                 ModelState.AddModelError(
@@ -253,8 +266,6 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter a valid Pakistani mobile number.");
                 }
             }
-
-           
 
             if (!string.IsNullOrWhiteSpace(user.Phone) &&
                 IsPakistaniPhone(user.Phone))
@@ -275,7 +286,6 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(user.Address))
             {
                 ModelState.AddModelError(
@@ -294,8 +304,6 @@ namespace WeddingClosetHubs.Controllers
                         "Please enter an address in Rawalpindi.");
                 }
             }
-
-        
 
             if (!user.RoleId.HasValue)
             {
@@ -335,8 +343,6 @@ namespace WeddingClosetHubs.Controllers
 
                 return View(user);
             }
-
-          
 
             if (string.IsNullOrWhiteSpace(user.Password))
             {
@@ -381,11 +387,8 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-         
-
             if (role.RoleName == "Shopkeeper")
             {
-
                 if (string.IsNullOrWhiteSpace(
                     ShopkeeperCNIC))
                 {
@@ -406,8 +409,6 @@ namespace WeddingClosetHubs.Controllers
                             "CNIC must be in the format 35202-1234567-1.");
                     }
                 }
-
-               
 
                 if (!string.IsNullOrWhiteSpace(
                     ShopkeeperCNIC) &&
@@ -434,8 +435,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-               
-
                 if (ShopkeeperCNICFrontImage == null ||
                     ShopkeeperCNICFrontImage.Length == 0)
                 {
@@ -451,8 +450,6 @@ namespace WeddingClosetHubs.Controllers
                         "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-             
-
                 if (ShopkeeperCNICBackImage == null ||
                     ShopkeeperCNICBackImage.Length == 0)
                 {
@@ -467,8 +464,6 @@ namespace WeddingClosetHubs.Controllers
                         "ShopkeeperCNICBackImage",
                         "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
-
-             
 
                 if (string.IsNullOrWhiteSpace(
                     ShopName))
@@ -497,7 +492,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (string.IsNullOrWhiteSpace(
                     ShopCategory))
                 {
@@ -517,21 +511,6 @@ namespace WeddingClosetHubs.Controllers
                             "Shop category cannot exceed 100 characters.");
                     }
                 }
-
-               
-
-                string[] allowedShopCollections =
-                {
-                    "Bridal Wear",
-                    "Groom Wear",
-                    "Formal Wear",
-                    "Wedding Guest Wear",
-                    "Footwear",
-                    "Jewellery",
-                    "Bridal Jewellery",
-                    "Accessories",
-                    "Bridal Accessories"
-                };
 
                 ShopCollections =
                     ShopCollections?
@@ -555,7 +534,7 @@ namespace WeddingClosetHubs.Controllers
                     foreach (string collection
                              in ShopCollections)
                     {
-                        if (!allowedShopCollections.Any(
+                        if (!AllowedShopCollections.Any(
                             x => string.Equals(
                                 x,
                                 collection,
@@ -570,7 +549,42 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-            
+                ShopPurchaseTypes =
+                    ShopPurchaseTypes?
+                        .Where(x =>
+                            !string.IsNullOrWhiteSpace(x))
+                        .Select(x =>
+                            x.Trim())
+                        .Distinct(
+                            StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
+
+                if (ShopPurchaseTypes == null ||
+                    ShopPurchaseTypes.Length == 0)
+                {
+                    ModelState.AddModelError(
+                        "ShopPurchaseTypes",
+                        "Please select at least one purchase type.");
+                }
+                else
+                {
+                    foreach (string purchaseType
+                             in ShopPurchaseTypes)
+                    {
+                        if (!AllowedShopPurchaseTypes.Any(
+                            x => string.Equals(
+                                x,
+                                purchaseType,
+                                StringComparison.OrdinalIgnoreCase)))
+                        {
+                            ModelState.AddModelError(
+                                "ShopPurchaseTypes",
+                                "One or more selected purchase types are invalid.");
+
+                            break;
+                        }
+                    }
+                }
 
                 if (string.IsNullOrWhiteSpace(
                     ShopPhone))
@@ -593,8 +607,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                
-
                 if (string.IsNullOrWhiteSpace(
                     ShopAddress))
                 {
@@ -615,8 +627,6 @@ namespace WeddingClosetHubs.Controllers
                             "Please enter a shop address in Rawalpindi.");
                     }
                 }
-
-                
 
                 if (string.IsNullOrWhiteSpace(
                     ShopDescription))
@@ -645,7 +655,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (ShopFrontPhoto == null ||
                     ShopFrontPhoto.Length == 0)
                 {
@@ -660,8 +669,6 @@ namespace WeddingClosetHubs.Controllers
                         "ShopFrontPhoto",
                         "Shop front photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
-
-               
 
                 if (ShopInsidePhoto == null ||
                     ShopInsidePhoto.Length == 0)
@@ -678,7 +685,6 @@ namespace WeddingClosetHubs.Controllers
                         "Shop inside photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-
                 if (ShopSignboardPhoto == null ||
                     ShopSignboardPhoto.Length == 0)
                 {
@@ -693,8 +699,6 @@ namespace WeddingClosetHubs.Controllers
                         "ShopSignboardPhoto",
                         "Shop signboard photo must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
-
-            
 
                 if (string.IsNullOrWhiteSpace(
                     ShopProofType))
@@ -723,8 +727,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-                
-
                 if (!IsAllowedProofDocument(
                     ShopProofDocument))
                 {
@@ -734,11 +736,8 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-          
-
             if (role.RoleName == "Delivery")
             {
-                
                 if (string.IsNullOrWhiteSpace(
                     DeliveryCNIC))
                 {
@@ -759,7 +758,6 @@ namespace WeddingClosetHubs.Controllers
                             "CNIC must be in the format 35202-1234567-1.");
                     }
                 }
-
 
                 if (!string.IsNullOrWhiteSpace(
                     DeliveryCNIC) &&
@@ -787,7 +785,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-
                 if (DeliveryCNICFrontImage == null ||
                     DeliveryCNICFrontImage.Length == 0)
                 {
@@ -803,8 +800,6 @@ namespace WeddingClosetHubs.Controllers
                         "CNIC front image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
 
-             
-
                 if (DeliveryCNICBackImage == null ||
                     DeliveryCNICBackImage.Length == 0)
                 {
@@ -819,8 +814,6 @@ namespace WeddingClosetHubs.Controllers
                         "DeliveryCNICBackImage",
                         "CNIC back image must be JPG, JPEG or PNG and maximum 5 MB.");
                 }
-
-            
 
                 if (string.IsNullOrWhiteSpace(
                     VehicleType))
@@ -838,8 +831,6 @@ namespace WeddingClosetHubs.Controllers
                         "VehicleType",
                         "Only Motorbike is allowed for delivery.");
                 }
-
-                
 
                 if (string.IsNullOrWhiteSpace(
                     MotorbikeNumber))
@@ -870,8 +861,6 @@ namespace WeddingClosetHubs.Controllers
                     }
                 }
 
-              
-
                 if (!string.IsNullOrWhiteSpace(
                     MotorbikeNumber))
                 {
@@ -894,8 +883,6 @@ namespace WeddingClosetHubs.Controllers
                             "This motorbike registration number is already registered.");
                     }
                 }
-
-              
 
                 if (string.IsNullOrWhiteSpace(
                     PreferredZone))
@@ -925,16 +912,12 @@ namespace WeddingClosetHubs.Controllers
                 }
             }
 
-         
-
             if (!ModelState.IsValid)
             {
                 await LoadRoles();
 
                 return View(user);
             }
-
-           
 
             user.Email =
                 user.Email!
@@ -958,15 +941,12 @@ namespace WeddingClosetHubs.Controllers
             user.CreatedDate =
                 DateTime.Now;
 
-          
             if (role.RoleName == "Shopkeeper")
             {
                 user.CNIC =
                     NormalizeCNIC(
                         ShopkeeperCNIC!);
             }
-
-            
 
             if (role.RoleName == "Customer")
             {
@@ -982,26 +962,18 @@ namespace WeddingClosetHubs.Controllers
                 user.ApprovedDate = null;
             }
 
-            
-
             using var transaction =
                 await _context.Database
                     .BeginTransactionAsync();
 
             try
             {
-                
-
                 _context.Users.Add(user);
 
                 await _context.SaveChangesAsync();
 
-               
-
                 if (role.RoleName == "Shopkeeper")
                 {
-                   
-
                     string shopFolder =
                         Path.Combine(
                             Directory.GetCurrentDirectory(),
@@ -1032,8 +1004,6 @@ namespace WeddingClosetHubs.Controllers
                     Directory.CreateDirectory(
                         shopProofFolder);
 
-                   
-
                     string frontExtension =
                         Path.GetExtension(
                             ShopFrontPhoto!.FileName)
@@ -1056,7 +1026,6 @@ namespace WeddingClosetHubs.Controllers
                         await ShopFrontPhoto
                             .CopyToAsync(stream);
                     }
-
 
                     string insideExtension =
                         Path.GetExtension(
@@ -1081,7 +1050,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-
                     string signboardExtension =
                         Path.GetExtension(
                             ShopSignboardPhoto!.FileName)
@@ -1104,8 +1072,6 @@ namespace WeddingClosetHubs.Controllers
                         await ShopSignboardPhoto
                             .CopyToAsync(stream);
                     }
-
-             
 
                     string cnicFrontExtension =
                         Path.GetExtension(
@@ -1130,8 +1096,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-                  
-
                     string cnicBackExtension =
                         Path.GetExtension(
                             ShopkeeperCNICBackImage!.FileName)
@@ -1155,7 +1119,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-                 
                     string proofExtension =
                         Path.GetExtension(
                             ShopProofDocument!.FileName)
@@ -1179,8 +1142,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-                  
-
                     var shop = new Shop
                     {
                         ShopkeeperId =
@@ -1197,6 +1158,11 @@ namespace WeddingClosetHubs.Controllers
                                 ",",
                                 ShopCollections!),
 
+                        ShopPurchaseTypes =
+                            string.Join(
+                                ",",
+                                ShopPurchaseTypes!),
+
                         ShopPhone =
                             NormalizePhone(
                                 ShopPhone!),
@@ -1209,7 +1175,11 @@ namespace WeddingClosetHubs.Controllers
                                 ShopDescription)
                                 ? null
                                 : ShopDescription.Trim(),
+                        OffersBuy = OffersBuy,
 
+                        OffersRent = OffersRent,
+
+                        OffersCustomization = OffersCustomization,
                         ShopFrontPhoto =
                             "/uploads/shops/" +
                             frontFileName,
@@ -1229,8 +1199,6 @@ namespace WeddingClosetHubs.Controllers
                             "/uploads/shopproof/" +
                             proofFileName,
 
-                        
-
                         CNICFrontImage =
                             "/uploads/cnic/" +
                             cnicFrontFileName,
@@ -1238,8 +1206,6 @@ namespace WeddingClosetHubs.Controllers
                         CNICBackImage =
                             "/uploads/cnic/" +
                             cnicBackFileName,
-
-                       
 
                         VerificationStatus =
                             "Pending",
@@ -1268,8 +1234,6 @@ namespace WeddingClosetHubs.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-           
-
                 if (role.RoleName == "Delivery")
                 {
                     string uploadFolder =
@@ -1281,8 +1245,6 @@ namespace WeddingClosetHubs.Controllers
 
                     Directory.CreateDirectory(
                         uploadFolder);
-
-                   
 
                     string frontExtension =
                         Path.GetExtension(
@@ -1307,8 +1269,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-                
-
                     string backExtension =
                         Path.GetExtension(
                             DeliveryCNICBackImage!.FileName)
@@ -1332,7 +1292,6 @@ namespace WeddingClosetHubs.Controllers
                             .CopyToAsync(stream);
                     }
 
-
                     var deliveryBoy =
                         new DeliveryBoy
                         {
@@ -1340,8 +1299,8 @@ namespace WeddingClosetHubs.Controllers
                                 user.UserId,
 
                             CNIC =
-                                DeliveryCNIC!
-                                    .Trim(),
+                                NormalizeCNIC(
+                                    DeliveryCNIC!),
 
                             MotorbikeNumber =
                                 MotorbikeNumber!
@@ -1381,8 +1340,6 @@ namespace WeddingClosetHubs.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-               
-
                 await transaction.CommitAsync();
             }
             catch (Exception ex)
@@ -1399,7 +1356,6 @@ namespace WeddingClosetHubs.Controllers
 
                 return View(user);
             }
-
 
             if (role.RoleName == "Customer")
             {
@@ -1421,8 +1377,6 @@ namespace WeddingClosetHubs.Controllers
                 "Login");
         }
 
-     
-
         [HttpGet]
         public IActionResult Login(
             string? returnUrl)
@@ -1432,8 +1386,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View();
         }
-
-     
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1537,7 +1489,6 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
-
             HttpContext.Session.SetInt32(
                 "UserId",
                 user.UserId);
@@ -1564,8 +1515,6 @@ namespace WeddingClosetHubs.Controllers
             HttpContext.Session.SetString(
                 "RoleName",
                 user.Role.RoleName);
-
-            
 
             switch (user.Role.RoleName)
             {
@@ -1710,15 +1659,11 @@ namespace WeddingClosetHubs.Controllers
             }
         }
 
-
-
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
-
-      
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1766,7 +1711,6 @@ namespace WeddingClosetHubs.Controllers
                 "ResetPassword");
         }
 
-
         [HttpGet]
         public IActionResult ResetPassword()
         {
@@ -1781,8 +1725,6 @@ namespace WeddingClosetHubs.Controllers
 
             return View();
         }
-
-     
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1901,9 +1843,6 @@ namespace WeddingClosetHubs.Controllers
                 "Login");
         }
 
-   
-      
-
         [HttpGet]
         public IActionResult Logout()
         {
@@ -1912,8 +1851,6 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction(
                 "Login");
         }
-
-     
 
         private bool IsPakistaniPhone(
             string? phone)
@@ -1931,8 +1868,6 @@ namespace WeddingClosetHubs.Controllers
                 phone,
                 @"^(03\d{2}-?\d{7}|(\+92|0092)-?3\d{2}-?\d{7})$");
         }
-
-     
 
         private string NormalizePhone(
             string phone)
@@ -1959,8 +1894,6 @@ namespace WeddingClosetHubs.Controllers
             return phone;
         }
 
-      
-
         private bool IsValidCNIC(
             string? cnic)
         {
@@ -1978,8 +1911,6 @@ namespace WeddingClosetHubs.Controllers
                 @"^\d{5}-\d{7}-\d$");
         }
 
-      
-
         private bool IsRawalpindiAddress(
             string? address)
         {
@@ -1993,8 +1924,6 @@ namespace WeddingClosetHubs.Controllers
                 "Rawalpindi",
                 StringComparison.OrdinalIgnoreCase);
         }
-
-      
 
         private bool IsAllowedImage(
             IFormFile? file)
@@ -2033,8 +1962,6 @@ namespace WeddingClosetHubs.Controllers
 
             return true;
         }
-
-       
 
         private bool IsAllowedProofDocument(
             IFormFile? file)
@@ -2075,8 +2002,6 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
-        
-
         private async Task LoadRoles()
         {
             ViewBag.Roles =
@@ -2089,4 +2014,3 @@ namespace WeddingClosetHubs.Controllers
         }
     }
 }
-

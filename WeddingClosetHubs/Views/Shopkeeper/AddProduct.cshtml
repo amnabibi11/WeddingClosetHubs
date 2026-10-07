@@ -1130,6 +1130,8 @@ string categoryDataJson =
 
             </div>
 
+          
+
             <div class="option-card sale-card">
 
                 <div class="d-flex align-items-start gap-3">
@@ -1624,6 +1626,9 @@ string categoryDataJson =
 
     const isAvailableForBuy =
         document.getElementById("isAvailableForBuy");
+
+    const isCustomizable =
+        document.getElementById("isCustomizable");
 
     const isOnSale =
         document.getElementById("isOnSale");
@@ -3937,11 +3942,12 @@ string categoryDataJson =
 
                 if (
                     !isAvailableForBuy.checked &&
-                    !isAvailableForRent.checked
+                    !isAvailableForRent.checked &&
+                    !isCustomizable.checked
                 ) {
 
                     alert(
-                        "Please select at least one selling option: Buy or Rent."
+                        "Please select at least one selling option: Buy, Rent, or Customize."
                     );
 
                     event.preventDefault();

@@ -34,7 +34,8 @@ namespace WeddingClosetHubs.Models
         public virtual DbSet<Negotiation> Negotiations { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
-          
+
+        public DbSet<CustomizationRequest> CustomizationRequests { get; set; }
 
 
 
@@ -44,7 +45,7 @@ namespace WeddingClosetHubs.Models
             base.OnModelCreating(modelBuilder);
 
 
-         
+
             modelBuilder.Entity<Role>().HasData(
 
                 new Role
@@ -107,19 +108,19 @@ namespace WeddingClosetHubs.Models
                 .HasForeignKey(od => od.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            
-             modelBuilder.Entity<Shop>()
-                 .HasOne(s => s.Shopkeeper)
-                 .WithOne(u => u.Shop)
-                 .HasForeignKey<Shop>(s => s.ShopkeeperId)
-                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Shop>()
+                .HasOne(s => s.Shopkeeper)
+                .WithOne(u => u.Shop)
+                .HasForeignKey<Shop>(s => s.ShopkeeperId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
-           modelBuilder.Entity<DeliveryBoy>()
-               .HasOne(d => d.User)
-               .WithOne(u => u.DeliveryBoy)
-               .HasForeignKey<DeliveryBoy>(d => d.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<DeliveryBoy>()
+                .HasOne(d => d.User)
+                .WithOne(u => u.DeliveryBoy)
+                .HasForeignKey<DeliveryBoy>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Payment>()
               .HasOne(p => p.Order)
@@ -137,7 +138,7 @@ namespace WeddingClosetHubs.Models
                .HasOne(p => p.Shop)
                .WithMany()
                .HasForeignKey(p => p.ShopId)
-               .OnDelete(DeleteBehavior.Restrict); 
+               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(c => c.Sender)
@@ -167,7 +168,7 @@ namespace WeddingClosetHubs.Models
                 .WithMany()
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
-                       
+
             modelBuilder.Entity<Negotiation>()
                 .HasOne(n => n.Product)
                 .WithMany()
@@ -221,6 +222,27 @@ namespace WeddingClosetHubs.Models
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.RentalSecurity)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<CustomizationRequest>()
+                .HasOne(c => c.Product)
+                .WithMany()
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<CustomizationRequest>()
+                .HasOne(c => c.Customer)
+                .WithMany()
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<CustomizationRequest>()
+                .HasOne(c => c.Shop)
+                .WithMany()
+                .HasForeignKey(c => c.ShopId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
     }
 }
