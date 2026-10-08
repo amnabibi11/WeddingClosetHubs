@@ -1,176 +1,181 @@
 ﻿@{
-ViewData["Title"] = "Login";
+    ViewData["Title"] = "Login";
 }
 
 <div class="container mt-5">
 
-<div class="row justify-content-center">
+    <div class="row justify-content-center">
 
-    <div class="col-md-5">
+        <div class="col-md-5">
 
-        <div class="card shadow">
+            <div class="card shadow">
 
-            
+                <div class="card-header bg-primary text-white text-center">
 
-            <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">
+                        Login
+                    </h3>
 
-                <h3 class="mb-0">
-                    Login
-                </h3>
+                </div>
 
-            </div>
+                <div class="card-body">
 
-            <div class="card-body">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
 
-              
-
-                @if (ViewBag.Error != null)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show">
-
-                        @ViewBag.Error
-
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="alert">
-                        </button>
-
-                    </div>
-                }
-
-
-                <form asp-controller="Account"
-                      asp-action="Login"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label fw-bold">
-                            Email
-                        </label>
-
-                        <input type="email"
-                               name="email"
-                               class="form-control"
-                               placeholder="Enter your email"
-                               autocomplete="email"
-                               required />
-
-                    </div>
-
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label fw-bold">
-                            Password
-                        </label>
-
-                        <div class="input-group">
-
-                            <input type="password"
-                                   name="password"
-                                   id="password"
-                                   class="form-control"
-                                   placeholder="Enter your password"
-                                   autocomplete="current-password"
-                                   required />
+                            @ViewBag.Error
 
                             <button type="button"
-                                    class="btn btn-outline-secondary"
-                                    id="togglePassword"
-                                    title="Show/Hide Password">
-
-                                <i class="bi bi-eye"
-                                   id="eyeIcon">
-                                </i>
-
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
                             </button>
 
                         </div>
+                    }
 
-                    </div>
+                    @if (ViewBag.Success != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
 
+                            @ViewBag.Success
 
-                    <div class="text-end mb-4">
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
+
+                        </div>
+                    }
+
+                    <form asp-controller="Account"
+                          asp-action="Login"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="returnUrl"
+                               value="@ViewBag.ReturnUrl" />
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="Enter your email"
+                                   autocomplete="email"
+                                   required />
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+                                Password
+                            </label>
+
+                            <div class="input-group">
+
+                                <input type="password"
+                                       name="password"
+                                       id="password"
+                                       class="form-control"
+                                       placeholder="Enter your password"
+                                       autocomplete="current-password"
+                                       required />
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="togglePassword"
+                                        title="Show/Hide Password">
+
+                                    <i class="bi bi-eye"
+                                       id="eyeIcon">
+                                    </i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="text-end mb-4">
+
+                            <a asp-controller="Account"
+                               asp-action="ForgotPassword"
+                               class="text-decoration-none">
+
+                                Forgot Password?
+
+                            </a>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold">
+                                Login As
+                            </label>
+
+                            <select name="roleName"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    -- Select Account Type --
+                                </option>
+
+                                <option value="Admin">
+                                    Admin
+                                </option>
+
+                                <option value="Shopkeeper">
+                                    Shopkeeper
+                                </option>
+
+                                <option value="Customer">
+                                    Customer
+                                </option>
+
+                                <option value="Delivery">
+                                    Delivery
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+
+                            <i class="bi bi-box-arrow-in-right"></i>
+
+                            Login
+
+                        </button>
+
+                    </form>
+
+                    <div class="text-center mt-4">
+
+                        <span>
+                            Don't have an account?
+                        </span>
 
                         <a asp-controller="Account"
-                           asp-action="ForgotPassword"
-                           class="text-decoration-none">
+                           asp-action="Register"
+                           class="text-decoration-none fw-bold">
 
-                            Forgot Password?
+                            Register
 
                         </a>
 
                     </div>
-
-
-
-                    <div class="mb-4">
-
-                        <label class="form-label fw-bold">
-                            Login As
-                        </label>
-
-                        <select name="roleName"
-                                class="form-select"
-                                required>
-
-                            <option value="">
-                                -- Select Account Type --
-                            </option>
-
-                            <option value="Admin">
-                                Admin
-                            </option>
-
-                            <option value="Shopkeeper">
-                                Shopkeeper
-                            </option>
-
-                            <option value="Customer">
-                                Customer
-                            </option>
-
-                            <option value="Delivery">
-                                Delivery
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-
-                    <button type="submit"
-                            class="btn btn-primary w-100">
-
-                        <i class="bi bi-box-arrow-in-right"></i>
-
-                        Login
-
-                    </button>
-
-                </form>
-
-
-                <div class="text-center mt-4">
-
-                    <span>
-                        Don't have an account?
-                    </span>
-
-                    <a asp-controller="Account"
-                       asp-action="Register"
-                       class="text-decoration-none fw-bold">
-
-                        Register
-
-                    </a>
 
                 </div>
 
@@ -182,48 +187,56 @@ ViewData["Title"] = "Login";
 
 </div>
 
-
-</div>
-
-
-
 <script>
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
 
-        const togglePassword =
-            document.getElementById("togglePassword");
+            const togglePassword =
+                document.getElementById("togglePassword");
 
-        const password =
-            document.getElementById("password");
+            const password =
+                document.getElementById("password");
 
-        const eyeIcon =
-            document.getElementById("eyeIcon");
+            const eyeIcon =
+                document.getElementById("eyeIcon");
 
+            togglePassword.addEventListener(
+                "click",
+                function () {
 
-        togglePassword.addEventListener("click", function () {
+                    if (password.type === "password") {
 
-            if (password.type === "password") {
+                        password.type = "text";
 
-                password.type = "text";
+                        eyeIcon.classList.remove(
+                            "bi-eye"
+                        );
 
-                eyeIcon.classList.remove("bi-eye");
+                        eyeIcon.classList.add(
+                            "bi-eye-slash"
+                        );
 
-                eyeIcon.classList.add("bi-eye-slash");
+                    }
+                    else {
 
-            }
-            else {
+                        password.type = "password";
 
-                password.type = "password";
+                        eyeIcon.classList.remove(
+                            "bi-eye-slash"
+                        );
 
-                eyeIcon.classList.remove("bi-eye-slash");
+                        eyeIcon.classList.add(
+                            "bi-eye"
+                        );
 
-                eyeIcon.classList.add("bi-eye");
+                    }
 
-            }
+                }
+            );
 
-        });
-
-    });
+        }
+    );
 
 </script>

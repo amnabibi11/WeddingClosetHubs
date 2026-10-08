@@ -81,6 +81,41 @@ namespace WeddingClosetHubs.Controllers
                        StringComparison.OrdinalIgnoreCase);
         }
 
+        private List<string> GetMissingShopEvidence(Shop shop)
+        {
+            var missing = new List<string>();
+
+            if (shop.Shopkeeper == null ||
+                string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC))
+                missing.Add("CNIC number");
+
+            if (shop.Shopkeeper == null ||
+                string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICFrontImage))
+                missing.Add("CNIC front image");
+
+            if (shop.Shopkeeper == null ||
+                string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICBackImage))
+                missing.Add("CNIC back image");
+
+            if (string.IsNullOrWhiteSpace(shop.ShopFrontPhoto))
+                missing.Add("Shop front photo");
+
+            if (string.IsNullOrWhiteSpace(shop.ShopInsidePhoto))
+                missing.Add("Shop inside photo");
+
+            if (string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto))
+                missing.Add("Shop signboard photo");
+
+            if (string.IsNullOrWhiteSpace(shop.ShopProofType))
+                missing.Add("Shop proof type");
+
+            if (string.IsNullOrWhiteSpace(shop.ShopProofDocument))
+                missing.Add("Shop proof document");
+
+            return missing;
+        }
+
+
 
 
 
@@ -304,47 +339,75 @@ namespace WeddingClosetHubs.Controllers
             return View(shopkeeper);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveShopkeeper(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shopkeeper =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .Include(u => u.Shop)
-                    .FirstOrDefaultAsync(u =>
-                        u.UserId == id &&
-                        u.Role != null &&
-                        u.Role.RoleName == ShopkeeperRole);
+            var shopkeeper = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Shop)
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == id &&
+                    u.Role != null &&
+                    u.Role.RoleName == ShopkeeperRole);
 
             if (shopkeeper == null)
             {
-                TempData["Error"] =
-                    "Shopkeeper not found.";
-
+                TempData["Error"] = "Shopkeeper not found.";
                 return RedirectToAction("Shopkeepers");
             }
 
+            if (shopkeeper.Shop == null)
+            {
+                TempData["Error"] =
+                    "This shopkeeper does not have an associated shop.";
+
+                return RedirectToAction("ShopkeeperDetails", new { id });
+            }
+
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == shopkeeper.Shop.ShopId);
+
+            if (shop == null)
+            {
+                TempData["Error"] = "Associated shop not found.";
+                return RedirectToAction("ShopkeeperDetails", new { id });
+            }
+
+            var missingEvidence = GetMissingShopEvidence(shop);
+
+            if (missingEvidence.Count > 0)
+            {
+                TempData["Error"] =
+                    "Approval failed. Missing evidence: " +
+                    string.Join(", ", missingEvidence) + ".";
+
+                return RedirectToAction("ShopkeeperDetails", new { id });
+            }
+
+            DateTime now = DateTime.Now;
+
             shopkeeper.IsApproved = true;
             shopkeeper.Status = true;
-            shopkeeper.ApprovedDate = DateTime.Now;
+            shopkeeper.ApprovedDate ??= now;
 
-            if (shopkeeper.Shop != null)
-            {
-                shopkeeper.Shop.IsApproved = true;
-                shopkeeper.Shop.Status = true;
-                shopkeeper.Shop.ApprovedDate = DateTime.Now;
-            }
+            shop.IsApproved = true;
+            shop.Status = true;
+            shop.VerificationStatus = "Approved";
+            shop.ApprovedDate ??= now;
+            shop.VerifiedDate = now;
+            shop.AdminNotes = null;
+            shop.RejectionReason = null;
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Shopkeeper and associated shop approved successfully.";
+                "Shopkeeper and shop approved and activated successfully.";
 
             return RedirectToAction("Shopkeepers");
         }
@@ -498,21 +561,15 @@ namespace WeddingClosetHubs.Controllers
         public async Task<IActionResult> ShopDetails(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .Include(s => s.Shopkeeper)
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
             }
 
@@ -525,70 +582,68 @@ namespace WeddingClosetHubs.Controllers
         public async Task<IActionResult> ApproveShop(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .Include(s => s.Shopkeeper)
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
             }
 
-            bool hasCnic =
-                shop.Shopkeeper != null &&
-                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC);
+          var missingEvidence = new List<string>();
 
-            bool hasCnicFront =
-                shop.Shopkeeper != null &&
-                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICFrontImage);
+if (shop.Shopkeeper == null ||
+string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC))
+missingEvidence.Add("CNIC number");
 
-            bool hasCnicBack =
-                shop.Shopkeeper != null &&
-                !string.IsNullOrWhiteSpace(shop.Shopkeeper.CNICBackImage);
+if (string.IsNullOrWhiteSpace(shop.CNICFrontImage))
+missingEvidence.Add("CNIC front image");
 
-            bool hasShopFront =
-                !string.IsNullOrWhiteSpace(shop.ShopFrontPhoto);
+if (string.IsNullOrWhiteSpace(shop.CNICBackImage))
+missingEvidence.Add("CNIC back image");
 
-            bool hasShopInside =
-                !string.IsNullOrWhiteSpace(shop.ShopInsidePhoto);
+if (string.IsNullOrWhiteSpace(shop.ShopFrontPhoto))
+missingEvidence.Add("Shop front photo");
 
-            bool hasShopSignboard =
-                !string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto);
+if (string.IsNullOrWhiteSpace(shop.ShopInsidePhoto))
+missingEvidence.Add("Shop inside photo");
 
-            bool hasVerificationProof =
-                !string.IsNullOrWhiteSpace(shop.ShopProofType) &&
-                !string.IsNullOrWhiteSpace(shop.ShopProofDocument);
+if (string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto))
+missingEvidence.Add("Shop signboard photo");
 
-            if (!hasCnic ||
-                !hasCnicFront ||
-                !hasCnicBack ||
-                !hasShopFront ||
-                !hasShopInside ||
-                !hasShopSignboard ||
-                !hasVerificationProof)
+if (string.IsNullOrWhiteSpace(shop.ShopProofType))
+missingEvidence.Add("Shop proof type");
+
+if (string.IsNullOrWhiteSpace(shop.ShopProofDocument))
+missingEvidence.Add("Shop proof document");
+
+            if (missingEvidence.Count > 0)
             {
                 TempData["Error"] =
-                    "Shop cannot be approved because required verification evidence is missing.";
+                "Shop approval failed. Missing evidence: " +
+                string.Join(", ", missingEvidence) + ".";
+
 
                 return RedirectToAction(
                     "ShopDetails",
                     new { id = shop.ShopId });
+
+
             }
+
+
+
+            DateTime now = DateTime.Now;
 
             shop.IsApproved = true;
             shop.Status = true;
-            shop.ApprovedDate = DateTime.Now;
             shop.VerificationStatus = "Approved";
-            shop.VerifiedDate = DateTime.Now;
+            shop.VerifiedDate = now;
+            shop.ApprovedDate ??= now;
             shop.AdminNotes = null;
             shop.RejectionReason = null;
 
@@ -596,12 +651,7 @@ namespace WeddingClosetHubs.Controllers
             {
                 shop.Shopkeeper.IsApproved = true;
                 shop.Shopkeeper.Status = true;
-
-                if (shop.Shopkeeper.ApprovedDate == null)
-                {
-                    shop.Shopkeeper.ApprovedDate =
-                        DateTime.Now;
-                }
+                shop.Shopkeeper.ApprovedDate ??= now;
             }
 
             await _context.SaveChangesAsync();
@@ -615,39 +665,29 @@ namespace WeddingClosetHubs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectShop(
-            int id,
-            string? rejectionReason)
+        public async Task<IActionResult> RejectShop(int id, string? rejectionReason)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .Include(s => s.Shopkeeper)
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
             }
 
             shop.IsApproved = false;
             shop.Status = false;
-            shop.ApprovedDate = null;
             shop.VerificationStatus = "Rejected";
+            shop.ApprovedDate = null;
             shop.VerifiedDate = null;
-
-            shop.RejectionReason =
-                string.IsNullOrWhiteSpace(rejectionReason)
-                    ? "Shop application rejected by Admin."
-                    : rejectionReason.Trim();
+            shop.RejectionReason = string.IsNullOrWhiteSpace(rejectionReason)
+                ? "Shop application rejected by Admin."
+                : rejectionReason.Trim();
 
             if (shop.Shopkeeper != null)
             {
@@ -658,46 +698,34 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Shop application rejected.";
+            TempData["Success"] = "Shop application rejected.";
 
             return RedirectToAction("Shops");
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestMoreShopEvidence(
-            int id,
-            string? adminNotes)
+        public async Task<IActionResult> RequestMoreShopEvidence(int id, string? adminNotes)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .Include(s => s.Shopkeeper)
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
             }
 
             if (string.IsNullOrWhiteSpace(adminNotes))
             {
                 TempData["Error"] =
-                    "Please provide a reason or specify what additional evidence is required.";
+                    "Please specify what additional evidence is required.";
 
-                return RedirectToAction(
-                    "ShopDetails",
-                    new { id = shop.ShopId });
+                return RedirectToAction("ShopDetails", new { id = shop.ShopId });
             }
 
             shop.IsApproved = false;
@@ -705,8 +733,8 @@ namespace WeddingClosetHubs.Controllers
             shop.VerificationStatus = "More Evidence Required";
             shop.AdminNotes = adminNotes.Trim();
             shop.RejectionReason = null;
-            shop.VerifiedDate = null;
             shop.ApprovedDate = null;
+            shop.VerifiedDate = null;
 
             if (shop.Shopkeeper != null)
             {
@@ -723,85 +751,95 @@ namespace WeddingClosetHubs.Controllers
             return RedirectToAction("Shops");
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableShop(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
             }
 
-            if (!shop.IsApproved ||
-                !string.Equals(
-                    shop.VerificationStatus,
-                    "Approved",
-                    StringComparison.OrdinalIgnoreCase))
+            bool isVerified = string.Equals(
+                shop.VerificationStatus?.Trim(),
+                "Approved",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!shop.IsApproved || !isVerified)
             {
                 TempData["Error"] =
-                    "Shop must be verified and approved before it can be activated.";
+                    "Only an approved and verified shop can be enabled. Complete the verification process first.";
 
-                return RedirectToAction("Shops");
+                return RedirectToAction("ShopDetails", new { id = shop.ShopId });
             }
 
             shop.Status = true;
+            shop.VerifiedDate ??= DateTime.Now;
+            shop.ApprovedDate ??= DateTime.Now;
+
+            if (shop.Shopkeeper != null)
+            {
+                shop.Shopkeeper.IsApproved = true;
+                shop.Shopkeeper.Status = true;
+                shop.Shopkeeper.ApprovedDate ??= DateTime.Now;
+            }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Shop enabled successfully.";
+            TempData["Success"] = "Shop enabled successfully.";
 
             return RedirectToAction("Shops");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DisableShop(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shop =
-                await _context.Shops
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopId == id);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s => s.ShopId == id);
 
             if (shop == null)
             {
-                TempData["Error"] =
-                    "Shop not found.";
-
+                TempData["Error"] = "Shop not found.";
                 return RedirectToAction("Shops");
+            }
+
+            bool isVerified = string.Equals(
+                shop.VerificationStatus?.Trim(),
+                "Approved",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!shop.IsApproved || !isVerified || !shop.Status)
+            {
+                TempData["Error"] =
+                    "Only an approved, verified, and active shop can be disabled.";
+
+                return RedirectToAction("ShopDetails", new { id = shop.ShopId });
             }
 
             shop.Status = false;
 
+            if (shop.Shopkeeper != null)
+                shop.Shopkeeper.Status = false;
+
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Shop disabled successfully.";
+            TempData["Success"] = "Shop disabled successfully.";
 
             return RedirectToAction("Shops");
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> Customers()

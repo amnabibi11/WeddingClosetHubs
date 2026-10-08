@@ -36,6 +36,7 @@ namespace WeddingClosetHubs.Models
         public DbSet<ProductVariant> ProductVariants { get; set; }
 
         public DbSet<CustomizationRequest> CustomizationRequests { get; set; }
+        public DbSet<CustomerCartItem> CustomerCartItems { get; set; }
 
 
 
@@ -223,11 +224,7 @@ namespace WeddingClosetHubs.Models
                 .Property(od => od.RentalSecurity)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<CustomizationRequest>()
-                .HasOne(c => c.Product)
-                .WithMany()
-                .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.NoAction);
+          
 
 
             modelBuilder.Entity<CustomizationRequest>()

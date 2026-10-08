@@ -1132,7 +1132,7 @@ namespace WeddingClosetHubs.Controllers
                         (
                             n.Status == "Pending" ||
                             n.Status == "CounterOffer"
-                     
+
 
                         ));
 
@@ -1844,6 +1844,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
+
         [HttpGet]
         public async Task<IActionResult> AddProduct()
         {
@@ -1869,8 +1870,24 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.OffersRent = shop.OffersRent;
             ViewBag.OffersCustomization = shop.OffersCustomization;
 
+            var shopPurchaseTypes = new List<string>();
+
+            if (shop.OffersBuy)
+                shopPurchaseTypes.Add("Buy");
+
+            if (shop.OffersRent)
+                shopPurchaseTypes.Add("Rent");
+
+            if (shop.OffersCustomization)
+                shopPurchaseTypes.Add("Customize");
+
+            ViewBag.ShopPurchaseTypes = shopPurchaseTypes;
+
             return View(new Product());
         }
+
+
+
 
 
         [HttpPost]
@@ -3703,7 +3720,7 @@ namespace WeddingClosetHubs.Controllers
 
             var requests = await _context.CustomizationRequests
                 .AsNoTracking()
-                .Include(r => r.Product)
+
                 .Include(r => r.Customer)
                 .Where(r =>
                     r.ShopId == shop.ShopId &&
@@ -3726,7 +3743,6 @@ namespace WeddingClosetHubs.Controllers
             return View(requests);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> CustomizationRequestDetails(int id)
         {
@@ -3739,8 +3755,6 @@ namespace WeddingClosetHubs.Controllers
                 return NotFound();
 
             var request = await _context.CustomizationRequests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p!.ProductImages)
                 .Include(r => r.Customer)
                 .FirstOrDefaultAsync(r =>
                     r.CustomizationRequestId == id &&
@@ -3768,23 +3782,27 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendCustomizationPrice(
-            int id,
-            decimal price,
-            string? notes)
+     int id,
+     decimal price,
+     string? notes)
         {
             if (!IsShopkeeper())
+            {
                 return RedirectToAction("Login", "Account");
+            }
 
             var shop = await GetMyShop();
 
             if (shop == null)
+            {
                 return NotFound();
+            }
 
             var request = await _context.CustomizationRequests
-                .Include(r => r.Product)
                 .FirstOrDefaultAsync(r =>
                     r.CustomizationRequestId == id &&
                     r.ShopId == shop.ShopId);
@@ -3799,9 +3817,9 @@ namespace WeddingClosetHubs.Controllers
             }
 
             if (string.Equals(
-                    request.Status,
-                    "Accepted",
-                    StringComparison.OrdinalIgnoreCase))
+                request.Status,
+                "Accepted",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "This customization request has already been accepted.";
@@ -3812,9 +3830,9 @@ namespace WeddingClosetHubs.Controllers
             }
 
             if (string.Equals(
-                    request.Status,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
+                request.Status,
+                "Cancelled",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
                     "This customization request has been cancelled.";
@@ -3833,34 +3851,60 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            if (string.IsNullOrWhiteSpace(notes))
-                notes = null;
-            else
-                notes = notes.Trim();
+            bool isRevision =
+                request.Status == "ChangeRequested" ||
+                request.Status == "PriceRejected";
 
-            request.ShopkeeperPrice = price;
-            request.ShopkeeperNotes = notes;
-            request.Status = "PriceSent";
-            request.UpdatedDate = DateTime.Now;
+            notes =
+                string.IsNullOrWhiteSpace(notes)
+                    ? null
+                    : notes.Trim();
+
+            request.ShopkeeperPrice =
+                price;
+
+            request.ShopkeeperNotes =
+                notes;
+
+            request.Status =
+                isRevision
+                    ? "RevisedPriceSent"
+                    : "PriceSent";
+
+            request.UpdatedDate =
+                DateTime.Now;
 
             await _context.SaveChangesAsync();
 
             if (request.CustomerId > 0)
             {
+                string notificationTitle =
+                    isRevision
+                        ? "Revised Customization Price Received"
+                        : "Customized Price Received";
+
+                string notificationMessage =
+                    isRevision
+                        ? $"The shopkeeper has sent a revised customized price of Rs. {price:N2} for {request.ProductName}."
+                        : $"The shopkeeper has sent a customized price of Rs. {price:N2} for {request.ProductName}.";
+
                 await CreateNotification(
                     request.CustomerId,
-                    "Customized Price Received",
-                    $"The shopkeeper has sent a customized price of Rs. {price:N2} for {request.Product?.ProductName ?? "your customization request"}.",
+                    notificationTitle,
+                    notificationMessage,
                     "Customization",
                     null);
             }
 
             TempData["Success"] =
-                "Customized price has been sent to the customer.";
+                isRevision
+                    ? "Revised customized price has been sent to the customer."
+                    : "Customized price has been sent to the customer.";
 
             return RedirectToAction(
                 "CustomizationRequests");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> RentalOrders()

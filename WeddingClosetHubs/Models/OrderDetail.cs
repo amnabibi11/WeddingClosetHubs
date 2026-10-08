@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,8 +14,12 @@ namespace WeddingClosetHubs.Models
         [ForeignKey("OrderId")]
         public virtual Order? Order { get; set; }
 
-        [Required]
-        public int ProductId { get; set; }
+        public int? ProductId { get; set; }
+
+        public int? CustomizationRequestId { get; set; }
+
+        [ForeignKey("CustomizationRequestId")]
+        public virtual CustomizationRequest? CustomizationRequest { get; set; }
 
         [ForeignKey("ProductId")]
         public virtual Product? Product { get; set; }

@@ -1,21 +1,96 @@
 ﻿@model WeddingClosetHubs.Models.User
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = ViewBag.IsEvidenceUpdate == true
+        ? "Update Verification Evidence"
+        : "Register";
+
+    bool isEvidenceUpdate = ViewBag.IsEvidenceUpdate == true;
+
+    var shop = Model.Shop;
+    var delivery = Model.DeliveryBoy;
+
+    var savedCollections = (shop?.ShopCollections ?? "")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    var savedPurchaseTypes = (shop?.ShopPurchaseTypes ?? "")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    var collections = new[]
+    {
+        "Bridal Wear",
+        "Groom Wear",
+        "Formal Wear",
+        "Wedding Guest Wear",
+        "Footwear",
+        "Jewellery",
+        "Bridal Jewellery",
+        "Accessories",
+        "Bridal Accessories"
+    };
+
+    var purchaseTypes = new[]
+    {
+        "Buy",
+        "Rent",
+        "Customize"
+    };
 }
 
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
-
             <div class="card shadow">
-
-                <div class="card-header bg-primary text-white text-center">
-                    <h3 class="mb-0">Create Account</h3>
+                <div class="card-header text-white text-center"
+                     style="background-color:#800020;">
+                    <h3 class="mb-0">
+                        @(isEvidenceUpdate ? "Update Verification Evidence" : "Create Account")
+                    </h3>
                     <small>Wedding Closet Hubs</small>
                 </div>
 
                 <div class="card-body">
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["Success"]
+                        </div>
+                    }
+
+                    @if (isEvidenceUpdate)
+                    {
+                        <div class="alert alert-warning">
+                            <h5 class="mb-2">Admin Requested More Evidence</h5>
+
+                            <p class="mb-0">
+                                @if (ViewBag.AdminNotes != null &&
+                                     !string.IsNullOrWhiteSpace((string)ViewBag.AdminNotes))
+                                {
+                                    @ViewBag.AdminNotes
+                                }
+                                else
+                                {
+                                    @:Please provide the requested verification evidence below.
+                                }
+                            </p>
+                        </div>
+
+                        <div class="alert alert-info">
+                            Your existing account and shop details are saved.
+                            You do not need to enter your password or fill in your
+                            shop details again. Upload the missing or replacement
+                            evidence below. Your account will remain disabled until
+                            the Admin reviews your submission.
+                        </div>
+                    }
 
                     <form asp-controller="Account"
                           asp-action="Register"
@@ -25,1134 +100,637 @@
 
                         @Html.AntiForgeryToken()
 
-                        @if (!ViewData.ModelState.IsValid)
+                        @if (!isEvidenceUpdate && !ViewData.ModelState.IsValid)
                         {
-                            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                                <strong>
-                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                    Registration failed.
-                                </strong>
-
-                                <div asp-validation-summary="All" class="mt-2 mb-0"></div>
-
-                                <button type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="alert"
-                                        aria-label="Close">
-                                </button>
+                            <div class="alert alert-danger">
+                                <strong>Registration failed.</strong>
+                                <div asp-validation-summary="All" class="mt-2"></div>
                             </div>
                         }
 
-                        <h5 class="border-bottom pb-2 mb-3">
-                            Personal Information
-                        </h5>
+                        @if (isEvidenceUpdate)
+                        {
+                            <h5 class="border-bottom pb-2 mb-3">
+                                Existing Account Information
+                            </h5>
 
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label">
-                                Full Name <span class="text-danger">*</span>
-                            </label>
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input class="form-control" value="@Model.Name" readonly />
+                            </div>
 
-                            <input asp-for="Name"
-                                   class="form-control"
-                                   id="name"
-                                   maxlength="100"
-                                   minlength="3"
-                                   required
-                                   placeholder="Enter your full name"
-                                   autocomplete="name" />
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" value="@Model.Email" readonly />
+                            </div>
 
-                            <span asp-validation-for="Name"
-                                  class="text-danger">
-                            </span>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input class="form-control" value="@Model.Phone" readonly />
+                            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label">
-                                Email <span class="text-danger">*</span>
-                            </label>
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" rows="2" readonly>@Model.Address</textarea>
+                            </div>
 
-                            <input asp-for="Email"
-                                   type="email"
-                                   class="form-control"
-                                   id="email"
-                                   maxlength="150"
-                                   required
-                                   placeholder="Enter email address"
-                                   autocomplete="email" />
+                            <div class="mb-3">
+                                <label class="form-label">Account Type</label>
+                                <input class="form-control" value="@Model.Role?.RoleName" readonly />
+                            </div>
 
-                            <span asp-validation-for="Email"
-                                  class="text-danger">
-                            </span>
+                            @if (Model.Role?.RoleName == "Shopkeeper" && shop != null)
+                            {
+                                <h5 class="border-bottom pb-2 mb-3 mt-4">
+                                    Existing Shop Information
+                                </h5>
 
-                            <small class="text-muted">
-                                Use Gmail, Yahoo, Hotmail or Outlook.
-                            </small>
-                        </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Name</label>
+                                    <input class="form-control" value="@shop.ShopName" readonly />
+                                </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">
-                                Password <span class="text-danger">*</span>
-                            </label>
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Category</label>
+                                    <input class="form-control" value="@shop.ShopCategory" readonly />
+                                </div>
 
-                            <div class="input-group">
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Collections</label>
+                                    <textarea class="form-control" rows="2" readonly>@shop.ShopCollections</textarea>
+                                </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label">Services Offered</label>
+                                    <input class="form-control" value="@shop.ShopPurchaseTypes" readonly />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Phone</label>
+                                    <input class="form-control" value="@shop.ShopPhone" readonly />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Address</label>
+                                    <textarea class="form-control" rows="2" readonly>@shop.ShopAddress</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Description</label>
+                                    <textarea class="form-control" rows="3" readonly>@shop.ShopDescription</textarea>
+                                </div>
+                            }
+
+                            @if (Model.Role?.RoleName == "Delivery" && delivery != null)
+                            {
+                                <h5 class="border-bottom pb-2 mb-3 mt-4">
+                                    Existing Delivery Information
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Vehicle Type</label>
+                                    <input class="form-control" value="Motorbike" readonly />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Motorbike Registration Number</label>
+                                    <input class="form-control" value="@delivery.MotorbikeNumber" readonly />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Preferred Delivery Zone</label>
+                                    <input class="form-control" value="@delivery.PreferredZone" readonly />
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <h5 class="border-bottom pb-2 mb-3">
+                                Personal Information
+                            </h5>
+
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Name"
+                                       class="form-control"
+                                       minlength="3"
+                                       maxlength="100"
+                                       required
+                                       autocomplete="name" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Email"
+                                       type="email"
+                                       class="form-control"
+                                       maxlength="150"
+                                       required
+                                       autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                                <small class="text-muted">Use Gmail, Yahoo, Hotmail or Outlook.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">
+                                    Password <span class="text-danger">*</span>
+                                </label>
                                 <input asp-for="Password"
                                        type="password"
-                                       id="registerPassword"
                                        class="form-control"
                                        minlength="8"
                                        maxlength="100"
                                        required
-                                       placeholder="Create password"
                                        autocomplete="new-password" />
-
-                                <button type="button"
-                                        class="btn btn-outline-secondary"
-                                        id="toggleRegisterPassword">
-
-                                    <i class="bi bi-eye"
-                                       id="registerEyeIcon"></i>
-                                </button>
-
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <small class="text-muted">
+                                    Minimum 8 characters with uppercase, lowercase and a number.
+                                </small>
                             </div>
 
-                            <span asp-validation-for="Password"
-                                  class="text-danger">
-                            </span>
+                            <div class="mb-3">
+                                <label asp-for="Phone" class="form-label">
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Phone"
+                                       type="tel"
+                                       class="form-control"
+                                       maxlength="12"
+                                       required
+                                       placeholder="03XX-XXXXXXX" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
 
-                            <small class="text-muted">
-                                Minimum 8 characters with uppercase,
-                                lowercase and a number.
-                            </small>
-                        </div>
+                            <div class="mb-3">
+                                <label asp-for="Address" class="form-label">
+                                    Address <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Address"
+                                          class="form-control"
+                                          rows="3"
+                                          maxlength="500"
+                                          required
+                                          placeholder="Enter your address in Rawalpindi"></textarea>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Phone" class="form-label">
-                                Phone Number <span class="text-danger">*</span>
-                            </label>
+                            <h5 class="border-bottom pb-2 mb-3 mt-4">
+                                Account Type
+                            </h5>
 
-                            <input asp-for="Phone"
-                                   type="tel"
-                                   class="form-control"
-                                   id="phone"
-                                   maxlength="12"
-                                   required
-                                   placeholder="03XX-XXXXXXX"
-                                   autocomplete="tel" />
-
-                            <span asp-validation-for="Phone"
-                                  class="text-danger">
-                            </span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label">
-                                Address <span class="text-danger">*</span>
-                            </label>
-
-                            <textarea asp-for="Address"
-                                      class="form-control"
-                                      id="address"
-                                      rows="3"
-                                      maxlength="500"
-                                      required
-                                      placeholder="Enter your address in Rawalpindi"></textarea>
-
-                            <span asp-validation-for="Address"
-                                  class="text-danger">
-                            </span>
-                        </div>
-
-                        <h5 class="border-bottom pb-2 mb-3 mt-4">
-                            Account Type
-                        </h5>
-
-                        <div class="mb-3">
-                            <label asp-for="RoleId" class="form-label">
-                                Select Account Type
-                                <span class="text-danger">*</span>
-                            </label>
-
-                            <select asp-for="RoleId"
-                                    class="form-control"
-                                    id="roleSelect"
-                                    required>
-
-                                <option value="">
-                                    -- Select Account Type --
-                                </option>
-
-                                @if (ViewBag.Roles != null)
-                                {
-                                    foreach (var role in ViewBag.Roles)
+                            <div class="mb-3">
+                                <label asp-for="RoleId" class="form-label">
+                                    Select Account Type <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="RoleId" class="form-control" id="roleSelect" required>
+                                    <option value="">-- Select Account Type --</option>
+                                    @if (ViewBag.Roles != null)
                                     {
-                                        <option value="@role.RoleId"
-                                                data-role="@role.RoleName">
-                                            @role.RoleName
-                                        </option>
+                                        foreach (var role in ViewBag.Roles)
+                                        {
+                                            <option value="@role.RoleId" data-role="@role.RoleName">
+                                                @role.RoleName
+                                            </option>
+                                        }
                                     }
-                                }
-                            </select>
-
-                            <span asp-validation-for="RoleId"
-                                  class="text-danger">
-                            </span>
-                        </div>
-
-                        <div id="customerSection"
-                             style="display:none;">
-
-                            <div class="alert alert-success">
-                                <h5>Customer Registration</h5>
-                                All personal information above is required.
+                                </select>
+                                <span asp-validation-for="RoleId" class="text-danger"></span>
                             </div>
 
-                        </div>
-
-                        <div id="shopkeeperSection"
-                             style="display:none;">
-
-                            <div class="card border-primary mb-4">
-
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">
-                                        Shopkeeper Registration
-                                    </h5>
-                                </div>
-
-                                <div class="card-body">
-
-                                    <h6 class="border-bottom pb-2 mb-3">
-                                        Shopkeeper Identity Verification
-                                    </h6>
-
-                                    <div class="alert alert-info">
-                                        <strong>Identity Verification</strong>
-                                        <br />
-                                        Please provide your CNIC details.
-                                        Admin will verify your identity before
-                                        approving the shopkeeper account.
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Number
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text"
-                                               name="ShopkeeperCNIC"
-                                               id="shopkeeperCNIC"
-                                               class="form-control"
-                                               placeholder="XXXXX-XXXXXXX-X"
-                                               maxlength="15"
-                                               inputmode="numeric"
-                                               autocomplete="off" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopkeeperCNICError"></span>
-
-                                        <small class="text-muted">
-                                            Format: 12345-1234567-1
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Front Image
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopkeeperCNICFrontImage"
-                                               id="shopkeeperCNICFront"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopkeeperCNICFrontError"></span>
-
-                                        <small class="text-muted">
-                                            JPG, JPEG or PNG. Maximum 5 MB.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Back Image
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopkeeperCNICBackImage"
-                                               id="shopkeeperCNICBack"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopkeeperCNICBackError"></span>
-
-                                        <small class="text-muted">
-                                            JPG, JPEG or PNG. Maximum 5 MB.
-                                        </small>
-                                    </div>
-
-                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
-                                        Shop Information
-                                    </h6>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Name
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text"
-                                               name="ShopName"
-                                               id="shopName"
-                                               class="form-control"
-                                               minlength="3"
-                                               maxlength="100"
-                                               placeholder="Enter shop name" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopNameError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Category
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <select name="ShopCategory"
-                                                id="shopCategory"
-                                                class="form-control">
-
-                                            <option value="">
-                                                -- Select Main Shop Category --
-                                            </option>
-
-                                            <option value="Bridal Wear">
-                                                Bridal Wear
-                                            </option>
-
-                                            <option value="Groom Wear">
-                                                Groom Wear
-                                            </option>
-
-                                            <option value="Formal Wear">
-                                                Formal Wear
-                                            </option>
-
-                                            <option value="Wedding Guest Wear">
-                                                Wedding Guest Wear
-                                            </option>
-
-                                            <option value="Footwear">
-                                                Footwear
-                                            </option>
-
-                                            <option value="Jewellery">
-                                                Jewellery
-                                            </option>
-
-                                            <option value="Accessories">
-                                                Accessories
-                                            </option>
-
-                                            <option value="Bridal Jewellery">
-                                                Bridal Jewellery
-                                            </option>
-
-                                            <option value="Bridal Accessories">
-                                                Bridal Accessories
-                                            </option>
-
-                                        </select>
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopCategoryError"></span>
-
-                                        <small class="text-muted">
-                                            This is the main business category of your shop.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-
-                                        <label class="form-label">
-                                            Shop Collections
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <div class="alert alert-info mb-3">
-                                            <strong>Select all collections available in your shop.</strong>
-                                            <br />
-                                            You can select more than one collection.
-                                            These selections determine which product categories
-                                            you can add later.
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Bridal Wear"
-                                                           id="collectionBridalWear" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionBridalWear">
-                                                        Bridal Wear
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Bridal dresses, lehengas, gowns, shararas,
-                                                        ghararas and wedding dresses.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Groom Wear"
-                                                           id="collectionGroomWear" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionGroomWear">
-                                                        Groom Wear
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Sherwani, prince coats, groom suits,
-                                                        waistcoats and other groom clothing.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Formal Wear"
-                                                           id="collectionFormalWear" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionFormalWear">
-                                                        Formal Wear
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Formal dresses, suits, gowns, blazers,
-                                                        tuxedos and formal clothing.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Wedding Guest Wear"
-                                                           id="collectionGuestWear" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionGuestWear">
-                                                        Wedding Guest Wear
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Party dresses, maxi, frocks, anarkali,
-                                                        saree and guest outfits.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Footwear"
-                                                           id="collectionFootwear" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionFootwear">
-                                                        Footwear
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Bridal shoes, heels, khussa, sandals,
-                                                        formal shoes and wedding footwear.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Jewellery"
-                                                           id="collectionJewellery" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionJewellery">
-                                                        Jewellery
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Necklace, earrings, bangles, rings,
-                                                        jhumka and jewellery sets.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Bridal Jewellery"
-                                                           id="collectionBridalJewellery" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionBridalJewellery">
-                                                        Bridal Jewellery
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Bridal necklace sets, matha patti,
-                                                        passa, choker and bridal jewellery.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Accessories"
-                                                           id="collectionAccessories" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionAccessories">
-                                                        Accessories
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Clutches, handbags, dupattas, veils,
-                                                        cufflinks, ties, bow ties and belts.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input class="form-check-input collection-checkbox"
-                                                           type="checkbox"
-                                                           name="ShopCollections"
-                                                           value="Bridal Accessories"
-                                                           id="collectionBridalAccessories" />
-
-                                                    <label class="form-check-label fw-semibold"
-                                                           for="collectionBridalAccessories">
-                                                        Bridal Accessories
-                                                    </label>
-
-                                                    <div class="small text-muted mt-1">
-                                                        Bridal clutches, handbags, dupattas,
-                                                        veils, hair accessories and bridal belts.
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <span class="text-danger custom-validation-error"
-                                                  id="shopCollectionsError"></span>
-                                        </div>
-
-                                        <div class="mt-2">
-                                            <small class="text-muted">
-                                                Example: A shop can select Bridal Wear + Bridal Jewellery
-                                                + Accessories, or Groom Wear + Formal Wear.
-                                            </small>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="mb-4">
-
-                                        <label class="form-label">
-                                            Services Offered
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <div class="alert alert-info mb-3">
-                                            <strong>Select the services your shop provides.</strong>
-                                            <br />
-                                            You can select more than one service. At least one service
-                                            must be selected.
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-4">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input type="checkbox"
-                                                           name="ShopPurchaseTypes"
-                                                           value="Buy"
-                                                           class="form-check-input service-checkbox"
-                                                           id="offersBuy" />
-
-                                                    <label class="form-check-label"
-                                                           for="offersBuy">
-
-                                                        <strong>
-                                                            <i class="bi bi-bag-check me-1"></i>
-                                                            Buy Products
-                                                        </strong>
-
-                                                        <div class="small text-muted mt-2">
-                                                            Customers can purchase products
-                                                            from your shop.
-                                                        </div>
-
-                                                    </label>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input type="checkbox"
-                                                           name="ShopPurchaseTypes"
-                                                           value="Rent"
-                                                           class="form-check-input service-checkbox"
-                                                           id="offersRent" />
-
-                                                    <label class="form-check-label"
-                                                           for="offersRent">
-
-                                                        <strong>
-                                                            <i class="bi bi-arrow-repeat me-1"></i>
-                                                            Rent Products
-                                                        </strong>
-
-                                                        <div class="small text-muted mt-2">
-                                                            Customers can rent products
-                                                            from your shop.
-                                                        </div>
-
-                                                    </label>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <div class="form-check border rounded p-3 h-100">
-
-                                                    <input type="checkbox"
-                                                           name="ShopPurchaseTypes"
-                                                           value="Customize"
-                                                           class="form-check-input service-checkbox"
-                                                           id="offersCustomization" />
-
-                                                    <label class="form-check-label"
-                                                           for="offersCustomization">
-
-                                                        <strong>
-                                                            <i class="bi bi-magic me-1"></i>
-                                                            Customize Products
-                                                        </strong>
-
-                                                        <div class="small text-muted mt-2">
-                                                            Customers can submit their own
-                                                            customization requirements,
-                                                            reference pictures and measurements.
-                                                        </div>
-
-                                                    </label>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <span class="text-danger custom-validation-error"
-                                                  id="shopServicesError"></span>
-                                        </div>
-
-                                        <div class="alert alert-warning mt-3 mb-0">
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            If you select <strong>Customize Products</strong>,
-                                            customers will be able to send customization requests
-                                            to your shop after your shop is approved.
-                                        </div>
-
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Phone
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="tel"
-                                               name="ShopPhone"
-                                               id="shopPhone"
-                                               class="form-control"
-                                               maxlength="12"
-                                               placeholder="03XX-XXXXXXX" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopPhoneError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Address
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <textarea name="ShopAddress"
-                                                  id="shopAddress"
-                                                  class="form-control"
-                                                  rows="3"
-                                                  maxlength="500"
-                                                  placeholder="Enter shop address in Rawalpindi"></textarea>
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopAddressError"></span>
-
-                                        <small class="text-muted">
-                                            This address should be located in Rawalpindi.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Description
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <textarea name="ShopDescription"
-                                                  id="shopDescription"
-                                                  class="form-control"
-                                                  rows="3"
-                                                  minlength="10"
-                                                  maxlength="1000"
-                                                  placeholder="Describe your shop (minimum 10 characters)"></textarea>
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopDescriptionError"></span>
-                                    </div>
-
-                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
-                                        Shop Verification
-                                    </h6>
-
-                                    <div class="alert alert-info">
-                                        <strong>Shop Existence Verification</strong>
-                                        <br />
-                                        Upload clear photos showing that the shop physically exists.
-                                        <br />
-                                        <small>
-                                            Admin will compare the shop photos with the submitted
-                                            shop information.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Front Photo
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopFrontPhoto"
-                                               id="shopFrontPhoto"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopFrontPhotoError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Inside Photo
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopInsidePhoto"
-                                               id="shopInsidePhoto"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopInsidePhotoError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Shop Signboard Photo
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopSignboardPhoto"
-                                               id="shopSignboardPhoto"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopSignboardPhotoError"></span>
-                                    </div>
-
-                                    <h6 class="border-bottom pb-2 mb-3 mt-4">
-                                        Shop Address / Association Proof
-                                    </h6>
-
-                                    <div class="alert alert-warning">
-                                        <strong>Shop Address Proof</strong>
-                                        <br />
-                                        Provide supporting evidence connecting you with the
-                                        submitted shop address.
-                                        <br />
-                                        <small>
-                                            Admin will review the submitted information before
-                                            approving the shop.
-                                        </small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Proof Type
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <select name="ShopProofType"
-                                                id="shopProofType"
-                                                class="form-control">
-
-                                            <option value="">
-                                                -- Select Proof Type --
-                                            </option>
-
-                                            <option value="Utility Bill">
-                                                Utility Bill
-                                            </option>
-
-                                            <option value="Rental Agreement">
-                                                Rental Agreement
-                                            </option>
-
-                                            <option value="Business Registration">
-                                                Business Registration
-                                            </option>
-
-                                        </select>
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopProofTypeError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Proof Document
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="ShopProofDocument"
-                                               id="shopProofDocument"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,application/pdf" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="shopProofDocumentError"></span>
-
-                                        <small class="text-muted">
-                                            JPG, JPEG, PNG or PDF. Maximum 5 MB.
-                                        </small>
-                                    </div>
-
-                                    <div class="alert alert-warning mt-4">
-                                        <strong>Verification Process</strong>
-                                        <br />
-                                        Your shopkeeper account will remain
-                                        <strong>Pending</strong> until Admin reviews
-                                        your submitted information.
-                                    </div>
-
+                            <div id="customerSection" style="display:none;">
+                                <div class="alert alert-success">
+                                    <h5>Customer Registration</h5>
+                                    All personal information above is required.
                                 </div>
                             </div>
-                        </div>
 
-                        <div id="deliverySection"
-                             style="display:none;">
-
-                            <div class="card border-warning mb-4">
-
-                                <div class="card-header bg-warning">
-                                    <h5 class="mb-0">
-                                        Delivery Boy Registration
-                                    </h5>
-                                </div>
-
-                                <div class="card-body">
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Number
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text"
-                                               name="DeliveryCNIC"
-                                               id="deliveryCNIC"
-                                               class="form-control"
-                                               placeholder="XXXXX-XXXXXXX-X"
-                                               maxlength="15"
-                                               inputmode="numeric"
-                                               autocomplete="off" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="cnicError"></span>
-
-                                        <small class="text-muted">
-                                            Format: 12345-1234567-1
-                                        </small>
+                            <div id="shopkeeperSection" style="display:none;">
+                                <div class="card border-primary mb-4">
+                                    <div class="card-header text-white" style="background-color:#800020;">
+                                        <h5 class="mb-0">Shopkeeper Registration</h5>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Front Image
-                                            <span class="text-danger">*</span>
-                                        </label>
+                                    <div class="card-body">
+                                        <h6 class="border-bottom pb-2 mb-3">Identity Verification</h6>
 
-                                        <input type="file"
-                                               name="DeliveryCNICFrontImage"
-                                               id="cnicFrontImage"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Number *</label>
+                                            <input name="ShopkeeperCNIC"
+                                                   id="shopkeeperCNIC"
+                                                   class="form-control"
+                                                   maxlength="15"
+                                                   placeholder="XXXXX-XXXXXXX-X" />
+                                            <span id="shopkeeperCNICError" class="text-danger"></span>
+                                        </div>
 
-                                        <span class="text-danger custom-validation-error"
-                                              id="cnicFrontImageError"></span>
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Front Image *</label>
+                                            <input type="file"
+                                                   name="ShopkeeperCNICFrontImage"
+                                                   id="shopkeeperCNICFront"
+                                                   class="form-control"
+                                                   accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="shopkeeperCNICFrontError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Back Image *</label>
+                                            <input type="file"
+                                                   name="ShopkeeperCNICBackImage"
+                                                   id="shopkeeperCNICBack"
+                                                   class="form-control"
+                                                   accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="shopkeeperCNICBackError" class="text-danger"></span>
+                                        </div>
+
+                                        <h6 class="border-bottom pb-2 mb-3 mt-4">Shop Information</h6>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Name *</label>
+                                            <input name="ShopName" id="shopName" class="form-control" minlength="3" maxlength="100" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Category *</label>
+                                            <select name="ShopCategory" id="shopCategory" class="form-control">
+                                                <option value="">-- Select Main Shop Category --</option>
+                                                @foreach (var category in collections)
+                                                {
+                                                    <option value="@category">@category</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Collections *</label>
+                                            <div class="row">
+                                                @foreach (var collection in collections)
+                                                {
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="form-check">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input collection-checkbox"
+                                                                   name="ShopCollections"
+                                                                   value="@collection"
+                                                                   id="collection_@collection.Replace(" ", "")" />
+                                                            <label class="form-check-label"
+                                                                   for="collection_@collection.Replace(" ", "")">
+                                                                @collection
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <span id="shopCollectionsError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Services Offered *</label>
+                                            @foreach (var service in purchaseTypes)
+                                            {
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                           class="form-check-input service-checkbox"
+                                                           name="ShopPurchaseTypes"
+                                                           value="@service"
+                                                           id="service_@service" />
+                                                    <label class="form-check-label" for="service_@service">
+                                                        @service
+                                                    </label>
+                                                </div>
+                                            }
+                                            <span id="shopServicesError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Phone *</label>
+                                            <input name="ShopPhone" id="shopPhone" class="form-control" maxlength="12" placeholder="03XX-XXXXXXX" />
+                                            <span id="shopPhoneError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Address *</label>
+                                            <textarea name="ShopAddress" id="shopAddress" class="form-control" rows="2"></textarea>
+                                            <span id="shopAddressError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Description *</label>
+                                            <textarea name="ShopDescription" id="shopDescription" class="form-control" rows="3" minlength="10" maxlength="1000"></textarea>
+                                            <span id="shopDescriptionError" class="text-danger"></span>
+                                        </div>
+
+                                        <h6 class="border-bottom pb-2 mb-3 mt-4">Shop Verification</h6>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Front Photo *</label>
+                                            <input type="file" name="ShopFrontPhoto" id="shopFrontPhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="shopFrontPhotoError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Inside Photo *</label>
+                                            <input type="file" name="ShopInsidePhoto" id="shopInsidePhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="shopInsidePhotoError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Signboard Photo *</label>
+                                            <input type="file" name="ShopSignboardPhoto" id="shopSignboardPhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="shopSignboardPhotoError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Proof Type *</label>
+                                            <select name="ShopProofType" id="shopProofType" class="form-control">
+                                                <option value="">-- Select Proof Type --</option>
+                                                <option value="Utility Bill">Utility Bill</option>
+                                                <option value="Rental Agreement">Rental Agreement</option>
+                                                <option value="Business Registration">Business Registration</option>
+                                            </select>
+                                            <span id="shopProofTypeError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Shop Proof Document *</label>
+                                            <input type="file" name="ShopProofDocument" id="shopProofDocument" class="form-control" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
+                                            <span id="shopProofDocumentError" class="text-danger"></span>
+                                        </div>
                                     </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            CNIC Back Image
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="file"
-                                               name="DeliveryCNICBackImage"
-                                               id="cnicBackImage"
-                                               class="form-control"
-                                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="cnicBackImageError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Vehicle Type
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text"
-                                               class="form-control"
-                                               value="Motorbike"
-                                               readonly />
-
-                                        <input type="hidden"
-                                               name="VehicleType"
-                                               id="vehicleType"
-                                               value="Motorbike" />
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Motorbike Registration Number
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text"
-                                               name="MotorbikeNumber"
-                                               id="motorbikeNumber"
-                                               class="form-control"
-                                               minlength="3"
-                                               maxlength="30"
-                                               placeholder="Enter motorbike registration number" />
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="motorbikeNumberError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Preferred Delivery Zone
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <select name="PreferredZone"
-                                                id="preferredZone"
-                                                class="form-control">
-
-                                            <option value="">
-                                                -- Select Zone --
-                                            </option>
-
-                                            <option value="Saddar">
-                                                Saddar
-                                            </option>
-
-                                            <option value="6th Road">
-                                                6th Road
-                                            </option>
-
-                                            <option value="Liaqat Bagh">
-                                                Liaqat Bagh
-                                            </option>
-
-                                        </select>
-
-                                        <span class="text-danger custom-validation-error"
-                                              id="preferredZoneError"></span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            Assigned Delivery Zone
-                                        </label>
-
-                                        <input type="text"
-                                               class="form-control"
-                                               value="Will be assigned by Admin"
-                                               readonly />
-                                    </div>
-
-                                    <div class="alert alert-warning">
-                                        <strong>Delivery Verification</strong>
-                                        <br />
-                                        Your delivery account will remain
-                                        <strong>Pending</strong> until Admin verifies
-                                        your information.
-                                    </div>
-
                                 </div>
                             </div>
-                        </div>
 
-                        <div id="generalMessage"
-                             class="alert alert-info">
+                            <div id="deliverySection" style="display:none;">
+                                <div class="card border-warning mb-4">
+                                    <div class="card-header bg-warning">
+                                        <h5 class="mb-0">Delivery Boy Registration</h5>
+                                    </div>
 
-                            <strong>Important:</strong>
-                            <br />
-                            Select an account type above to see the
-                            registration requirements.
-                        </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Number *</label>
+                                            <input name="DeliveryCNIC" id="deliveryCNIC" class="form-control" maxlength="15" placeholder="XXXXX-XXXXXXX-X" />
+                                            <span id="deliveryCNICError" class="text-danger"></span>
+                                        </div>
 
-                        <button type="submit"
-                                class="btn btn-primary w-100"
-                                id="registerButton">
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Front Image *</label>
+                                            <input type="file" name="DeliveryCNICFrontImage" id="deliveryCNICFrontImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="deliveryCNICFrontImageError" class="text-danger"></span>
+                                        </div>
 
-                            <i class="bi bi-person-plus"></i>
-                            Register
-                        </button>
+                                        <div class="mb-3">
+                                            <label class="form-label">CNIC Back Image *</label>
+                                            <input type="file" name="DeliveryCNICBackImage" id="deliveryCNICBackImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                            <span id="deliveryCNICBackImageError" class="text-danger"></span>
+                                        </div>
 
+                                        <div class="mb-3">
+                                            <label class="form-label">Vehicle Type</label>
+                                            <input class="form-control" value="Motorbike" readonly />
+                                            <input type="hidden" name="VehicleType" value="Motorbike" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Motorbike Registration Number *</label>
+                                            <input name="MotorbikeNumber" id="motorbikeNumber" class="form-control" minlength="3" maxlength="30" />
+                                            <span id="motorbikeNumberError" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Preferred Delivery Zone *</label>
+                                            <select name="PreferredZone" id="preferredZone" class="form-control">
+                                                <option value="">-- Select Zone --</option>
+                                                <option value="Saddar">Saddar</option>
+                                                <option value="6th Road">6th Road</option>
+                                                <option value="Liaqat Bagh">Liaqat Bagh</option>
+                                            </select>
+                                            <span id="preferredZoneError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (isEvidenceUpdate)
+                        {
+                            <h5 class="border-bottom pb-2 mb-3 mt-4">
+                                Upload or Replace Verification Evidence
+                            </h5>
+
+                            @if (Model.Role?.RoleName == "Shopkeeper" && shop != null)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Number</label>
+                                    <input name="ShopkeeperCNIC"
+                                           class="form-control"
+                                           value="@Model.CNIC"
+                                           placeholder="Enter CNIC only if it needs correction" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Front Image</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.CNICFrontImage))
+                                    {
+                                        <p>
+                                            <a href="@shop.CNICFrontImage" target="_blank">View current CNIC front image</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopkeeperCNICFrontImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Back Image</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.CNICBackImage))
+                                    {
+                                        <p>
+                                            <a href="@shop.CNICBackImage" target="_blank">View current CNIC back image</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopkeeperCNICBackImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Front Photo</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.ShopFrontPhoto))
+                                    {
+                                        <p>
+                                            <a href="@shop.ShopFrontPhoto" target="_blank">View current shop front photo</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopFrontPhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Inside Photo</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.ShopInsidePhoto))
+                                    {
+                                        <p>
+                                            <a href="@shop.ShopInsidePhoto" target="_blank">View current shop inside photo</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopInsidePhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Signboard Photo</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto))
+                                    {
+                                        <p>
+                                            <a href="@shop.ShopSignboardPhoto" target="_blank">View current shop signboard photo</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopSignboardPhoto" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Proof Type</label>
+                                    <select name="ShopProofType" class="form-control">
+                                        <option value="">Keep existing proof type</option>
+                                        <option value="Utility Bill">Utility Bill</option>
+                                        <option value="Rental Agreement">Rental Agreement</option>
+                                        <option value="Business Registration">Business Registration</option>
+                                    </select>
+                                    <small class="text-muted">Leave unchanged if the current proof type is correct.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Shop Proof Document</label>
+                                    @if (!string.IsNullOrWhiteSpace(shop.ShopProofDocument))
+                                    {
+                                        <p>
+                                            <a href="@shop.ShopProofDocument" target="_blank">View current proof document</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="ShopProofDocument" class="form-control" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
+                                </div>
+                            }
+
+                            @if (Model.Role?.RoleName == "Delivery" && delivery != null)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Number</label>
+                                    <input name="DeliveryCNIC" class="form-control" value="@delivery.CNIC" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Front Image</label>
+                                    @if (!string.IsNullOrWhiteSpace(delivery.CNICFrontImage))
+                                    {
+                                        <p>
+                                            <a href="@delivery.CNICFrontImage" target="_blank">View current CNIC front image</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="DeliveryCNICFrontImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">CNIC Back Image</label>
+                                    @if (!string.IsNullOrWhiteSpace(delivery.CNICBackImage))
+                                    {
+                                        <p>
+                                            <a href="@delivery.CNICBackImage" target="_blank">View current CNIC back image</a>
+                                        </p>
+                                    }
+                                    <input type="file" name="DeliveryCNICBackImage" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Vehicle Type</label>
+                                    <input class="form-control" value="Motorbike" readonly />
+                                    <input type="hidden" name="VehicleType" value="Motorbike" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Motorbike Registration Number</label>
+                                    <input name="MotorbikeNumber" class="form-control" value="@delivery.MotorbikeNumber" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Preferred Delivery Zone</label>
+                                    <select name="PreferredZone" class="form-control">
+                                        <option value="">Keep existing zone</option>
+                                        <option value="Saddar">Saddar</option>
+                                        <option value="6th Road">6th Road</option>
+                                        <option value="Liaqat Bagh">Liaqat Bagh</option>
+                                    </select>
+                                </div>
+                            }
+
+                            <div class="alert alert-secondary">
+                                Only select files you want to replace. Existing files and shop information
+                                will be retained when you leave their fields unchanged.
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-warning w-100"
+                                    id="registerButton">
+                                Submit Updated Evidence
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info" id="generalMessage">
+                                Select an account type to see the registration requirements.
+                            </div>
+
+                            <button type="submit"
+                                    class="btn w-100 text-white"
+                                    id="registerButton"
+                                    style="background-color:#800020;">
+                                <i class="bi bi-person-plus"></i>
+                                Register
+                            </button>
+                        }
                     </form>
 
                     <div class="text-center mt-3">
-                        Already have an account?
-
-                        <a asp-controller="Account"
-                           asp-action="Login">
-                            Login
+                        @if (!isEvidenceUpdate)
+                        {
+                            <span>Already have an account?</span>
+                        }
+                        <a asp-controller="Account" asp-action="Login">
+                            @(isEvidenceUpdate ? "Return to Login" : "Login")
                         </a>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts {
-
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-
         document.addEventListener("DOMContentLoaded", function () {
-
+            const isEvidenceUpdate = @isEvidenceUpdate.ToString().ToLowerInvariant();
             const form = document.getElementById("registerForm");
+
+            if (isEvidenceUpdate) {
+                form.querySelectorAll("input[type=file]").forEach(function (input) {
+                    input.required = false;
+                });
+
+                form.addEventListener("submit", function () {
+                    const button = document.getElementById("registerButton");
+                    button.disabled = true;
+                    button.textContent = "Submitting Evidence...";
+                });
+
+                return;
+            }
+
             const roleSelect = document.getElementById("roleSelect");
-
-            const customerSection =
-                document.getElementById("customerSection");
-
-            const shopkeeperSection =
-                document.getElementById("shopkeeperSection");
-
-            const deliverySection =
-                document.getElementById("deliverySection");
-
-            const generalMessage =
-                document.getElementById("generalMessage");
-
-            const registerPassword =
-                document.getElementById("registerPassword");
-
-            const toggleRegisterPassword =
-                document.getElementById("toggleRegisterPassword");
-
-            const registerEyeIcon =
-                document.getElementById("registerEyeIcon");
-
-            const collectionCheckboxes =
-                document.querySelectorAll(".collection-checkbox");
-
-            const serviceCheckboxes =
-                document.querySelectorAll(".service-checkbox");
+            const customerSection = document.getElementById("customerSection");
+            const shopkeeperSection = document.getElementById("shopkeeperSection");
+            const deliverySection = document.getElementById("deliverySection");
+            const generalMessage = document.getElementById("generalMessage");
 
             const roleFields = {
                 Customer: [],
@@ -1173,1107 +751,258 @@
                 ],
                 Delivery: [
                     "deliveryCNIC",
-                    "cnicFrontImage",
-                    "cnicBackImage",
-                    "vehicleType",
+                    "deliveryCNICFrontImage",
+                    "deliveryCNICBackImage",
                     "motorbikeNumber",
                     "preferredZone"
                 ]
             };
 
-            function getSelectedRole() {
-
-                const selectedOption =
-                    roleSelect.options[roleSelect.selectedIndex];
-
-                return selectedOption?.dataset?.role?.trim() || "";
+            function getRole() {
+                return roleSelect.options[roleSelect.selectedIndex]?.dataset.role || "";
             }
 
             function showSection() {
-
                 customerSection.style.display = "none";
                 shopkeeperSection.style.display = "none";
                 deliverySection.style.display = "none";
                 generalMessage.style.display = "none";
 
-                Object.values(roleFields)
-                    .flat()
-                    .forEach(function (id) {
+                Object.values(roleFields).flat().forEach(function (id) {
+                    const field = document.getElementById(id);
+                    if (field) {
+                        field.required = false;
+                        field.disabled = true;
+                    }
+                });
 
-                        const field =
-                            document.getElementById(id);
-
-                        if (field) {
-
-                            field.required = false;
-                            field.disabled = true;
-
-                        }
-
+                document.querySelectorAll(".collection-checkbox, .service-checkbox")
+                    .forEach(function (checkbox) {
+                        checkbox.disabled = true;
                     });
 
-                collectionCheckboxes.forEach(function (checkbox) {
-
-                    checkbox.disabled = true;
-
-                });
-
-                serviceCheckboxes.forEach(function (checkbox) {
-
-                    checkbox.disabled = true;
-
-                });
-
-                const role = getSelectedRole();
+                const role = getRole();
 
                 if (!role) {
-
                     generalMessage.style.display = "block";
-
                     return;
                 }
 
                 if (role === "Customer") {
-
                     customerSection.style.display = "block";
-
-                }
-                else if (role === "Shopkeeper") {
-
+                } else if (role === "Shopkeeper") {
                     shopkeeperSection.style.display = "block";
-
-                    collectionCheckboxes.forEach(function (checkbox) {
-
-                        checkbox.disabled = false;
-
-                    });
-
-                    serviceCheckboxes.forEach(function (checkbox) {
-
-                        checkbox.disabled = false;
-
-                    });
-
-                }
-                else if (role === "Delivery") {
-
+                    document.querySelectorAll(".collection-checkbox, .service-checkbox")
+                        .forEach(function (checkbox) {
+                            checkbox.disabled = false;
+                        });
+                } else if (role === "Delivery") {
                     deliverySection.style.display = "block";
-
-                }
-                else {
-
+                } else {
                     generalMessage.style.display = "block";
-
                     return;
                 }
 
-                if (roleFields[role]) {
-
-                    roleFields[role].forEach(function (id) {
-
-                        const field =
-                            document.getElementById(id);
-
-                        if (field) {
-
-                            field.disabled = false;
-                            field.required = true;
-
-                        }
-
-                    });
-
-                }
+                (roleFields[role] || []).forEach(function (id) {
+                    const field = document.getElementById(id);
+                    if (field) {
+                        field.disabled = false;
+                        field.required = true;
+                    }
+                });
             }
 
-            roleSelect.addEventListener(
-                "change",
-                showSection
-            );
-
+            roleSelect.addEventListener("change", showSection);
             showSection();
 
-            toggleRegisterPassword.addEventListener(
-                "click",
-                function () {
-
-                    if (registerPassword.type === "password") {
-
-                        registerPassword.type = "text";
-
-                        registerEyeIcon.classList.remove("bi-eye");
-                        registerEyeIcon.classList.add("bi-eye-slash");
-
-                    }
-                    else {
-
-                        registerPassword.type = "password";
-
-                        registerEyeIcon.classList.remove("bi-eye-slash");
-                        registerEyeIcon.classList.add("bi-eye");
-
-                    }
-
-                }
-            );
-
-            const shopkeeperCNIC =
-                document.getElementById("shopkeeperCNIC");
-
-            const deliveryCNIC =
-                document.getElementById("deliveryCNIC");
-
             function formatCNIC(input) {
+                if (!input) return;
 
-                if (!input) {
-                    return;
-                }
+                input.addEventListener("input", function () {
+                    let value = this.value.replace(/\D/g, "").substring(0, 13);
 
-                input.addEventListener(
-                    "input",
-                    function () {
-
-                        let value =
-                            this.value.replace(/\D/g, "");
-
-                        if (value.length > 13) {
-
-                            value =
-                                value.substring(0, 13);
-
-                        }
-
-                        if (value.length > 12) {
-
-                            value =
-                                value.substring(0, 5) +
-                                "-" +
-                                value.substring(5, 12) +
-                                "-" +
-                                value.substring(12);
-
-                        }
-                        else if (value.length > 5) {
-
-                            value =
-                                value.substring(0, 5) +
-                                "-" +
-                                value.substring(5);
-
-                        }
-
-                        this.value = value;
-
+                    if (value.length > 12) {
+                        value = value.substring(0, 5) + "-" +
+                            value.substring(5, 12) + "-" + value.substring(12);
+                    } else if (value.length > 5) {
+                        value = value.substring(0, 5) + "-" + value.substring(5);
                     }
-                );
+
+                    this.value = value;
+                });
             }
 
-            formatCNIC(shopkeeperCNIC);
-            formatCNIC(deliveryCNIC);
+            formatCNIC(document.getElementById("shopkeeperCNIC"));
+            formatCNIC(document.getElementById("deliveryCNIC"));
 
             function formatPhone(input) {
+                if (!input) return;
 
-                if (!input) {
-                    return;
-                }
+                input.addEventListener("input", function () {
+                    let value = this.value.replace(/\D/g, "").substring(0, 11);
 
-                input.addEventListener(
-                    "input",
-                    function () {
-
-                        let value =
-                            this.value.replace(/[^\d+]/g, "");
-
-                        if (value.startsWith("+92")) {
-
-                            value =
-                                "0" +
-                                value.substring(3);
-
-                        }
-
-                        value =
-                            value.replace(/\D/g, "");
-
-                        if (value.length > 11) {
-
-                            value =
-                                value.substring(0, 11);
-
-                        }
-
-                        if (value.length > 4) {
-
-                            value =
-                                value.substring(0, 4) +
-                                "-" +
-                                value.substring(4);
-
-                        }
-
-                        this.value = value;
-
+                    if (value.length > 4) {
+                        value = value.substring(0, 4) + "-" + value.substring(4);
                     }
-                );
+
+                    this.value = value;
+                });
             }
 
-            formatPhone(
-                document.getElementById("phone")
-            );
+            formatPhone(document.getElementById("Phone"));
+            formatPhone(document.getElementById("shopPhone"));
 
-            formatPhone(
-                document.getElementById("shopPhone")
-            );
+            const maxFileSize = 5 * 1024 * 1024;
 
-            const maxFileSize =
-                5 * 1024 * 1024;
+            function validateFile(input, proofDocument) {
+                if (!input || !input.files || !input.files.length) return true;
 
-            function validateImage(
-                input,
-                errorElementId
-            ) {
+                const file = input.files[0];
+                const extension = file.name.toLowerCase().split(".").pop();
+                const allowed = proofDocument
+                    ? ["jpg", "jpeg", "png", "pdf"]
+                    : ["jpg", "jpeg", "png"];
 
-                const error =
-                    document.getElementById(errorElementId);
-
-                if (!input || !error) {
-                    return true;
-                }
-
-                error.textContent = "";
-
-                if (!input.files ||
-                    input.files.length === 0) {
-
-                    return true;
-                }
-
-                const file =
-                    input.files[0];
-
-                const allowedTypes = [
-                    "image/jpeg",
-                    "image/png"
-                ];
-
-                const allowedExtensions = [
-                    ".jpg",
-                    ".jpeg",
-                    ".png"
-                ];
-
-                const fileName =
-                    file.name.toLowerCase();
-
-                const validExtension =
-                    allowedExtensions.some(
-                        function (extension) {
-
-                            return fileName.endsWith(
-                                extension
-                            );
-
-                        }
-                    );
-
-                if (!validExtension ||
-                    !allowedTypes.includes(file.type)) {
-
-                    error.textContent =
-                        "Only JPG, JPEG or PNG images are allowed.";
-
+                if (!allowed.includes(extension) || file.size > maxFileSize) {
+                    alert(proofDocument
+                        ? "Choose a JPG, JPEG, PNG or PDF file no larger than 5 MB."
+                        : "Choose a JPG, JPEG or PNG image no larger than 5 MB.");
                     input.value = "";
-
-                    return false;
-                }
-
-                if (file.size > maxFileSize) {
-
-                    error.textContent =
-                        "Image size must not exceed 5 MB.";
-
-                    input.value = "";
-
                     return false;
                 }
 
                 return true;
             }
 
-            function validateProofDocument(
-                input,
-                errorElementId
-            ) {
+            form.querySelectorAll('input[type="file"]').forEach(function (input) {
+                input.addEventListener("change", function () {
+                    validateFile(this, this.name === "ShopProofDocument");
+                });
+            });
 
-                const error =
-                    document.getElementById(errorElementId);
-
-                if (!input || !error) {
-                    return true;
-                }
-
-                error.textContent = "";
-
-                if (!input.files ||
-                    input.files.length === 0) {
-
-                    return true;
-                }
-
-                const file =
-                    input.files[0];
-
-                const allowedTypes = [
-                    "image/jpeg",
-                    "image/png",
-                    "application/pdf"
-                ];
-
-                const allowedExtensions = [
-                    ".jpg",
-                    ".jpeg",
-                    ".png",
-                    ".pdf"
-                ];
-
-                const fileName =
-                    file.name.toLowerCase();
-
-                const validExtension =
-                    allowedExtensions.some(
-                        function (extension) {
-
-                            return fileName.endsWith(
-                                extension
-                            );
-
-                        }
-                    );
-
-                if (!validExtension ||
-                    !allowedTypes.includes(file.type)) {
-
-                    error.textContent =
-                        "Only JPG, JPEG, PNG or PDF documents are allowed.";
-
-                    input.value = "";
-
-                    return false;
-                }
-
-                if (file.size > maxFileSize) {
-
-                    error.textContent =
-                        "Document size must not exceed 5 MB.";
-
-                    input.value = "";
-
-                    return false;
-                }
-
-                return true;
+            function validPhone(value) {
+                return /^03\d{9}$/.test(value.replace(/\D/g, ""));
             }
 
-            const imageFields = [
-                ["shopkeeperCNICFront", "shopkeeperCNICFrontError"],
-                ["shopkeeperCNICBack", "shopkeeperCNICBackError"],
-                ["shopFrontPhoto", "shopFrontPhotoError"],
-                ["shopInsidePhoto", "shopInsidePhotoError"],
-                ["shopSignboardPhoto", "shopSignboardPhotoError"],
-                ["cnicFrontImage", "cnicFrontImageError"],
-                ["cnicBackImage", "cnicBackImageError"]
-            ];
-
-            imageFields.forEach(
-                function (item) {
-
-                    const input =
-                        document.getElementById(item[0]);
-
-                    if (input) {
-
-                        input.addEventListener(
-                            "change",
-                            function () {
-
-                                validateImage(
-                                    this,
-                                    item[1]
-                                );
-
-                            }
-                        );
-                    }
-                }
-            );
-
-            const shopProofDocument =
-                document.getElementById("shopProofDocument");
-
-            if (shopProofDocument) {
-
-                shopProofDocument.addEventListener(
-                    "change",
-                    function () {
-
-                        validateProofDocument(
-                            this,
-                            "shopProofDocumentError"
-                        );
-
-                    }
-                );
-            }
-
-            function isValidPhone(phone) {
-
-                const cleaned =
-                    phone
-                        .replace(/\s/g, "")
-                        .replace(/-/g, "");
-
-                return /^03\d{9}$/.test(cleaned);
-            }
-
-            function isValidCNIC(value) {
-
+            function validCNIC(value) {
                 return /^\d{5}-\d{7}-\d$/.test(value);
             }
 
-            function hasRawalpindi(address) {
-
-                return address
-                    .toLowerCase()
-                    .includes("rawalpindi");
+            function setError(id, message) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = message;
             }
 
-            function clearErrors() {
+            form.addEventListener("submit", function (event) {
+                let valid = true;
+                const role = getRole();
 
-                document.querySelectorAll(
-                    ".custom-validation-error"
-                ).forEach(
-                    function (element) {
-
-                        element.textContent = "";
-
-                    }
-                );
-            }
-
-            function setError(
-                elementId,
-                message
-            ) {
-
-                const element =
-                    document.getElementById(elementId);
-
-                if (element) {
-                    element.textContent = message;
+                if (!role) {
+                    valid = false;
+                    roleSelect.setCustomValidity("Please select an account type.");
+                } else {
+                    roleSelect.setCustomValidity("");
                 }
-            }
 
-            form.addEventListener(
-                "submit",
-                function (event) {
-
-                    clearErrors();
-
-                    const selectedRole =
-                        getSelectedRole();
-
-                    let valid = true;
-
-                    if (!roleSelect.value ||
-                        !selectedRole) {
-
-                        valid = false;
-
-                        roleSelect.setCustomValidity(
-                            "Please select an account type."
-                        );
-
-                    }
-                    else {
-
-                        roleSelect.setCustomValidity("");
-
-                    }
-
-                    const name =
-                        document
-                            .getElementById("name")
-                            .value
-                            .trim();
-
-                    const email =
-                        document
-                            .getElementById("email")
-                            .value
-                            .trim();
-
-                    const password =
-                        registerPassword.value;
-
-                    const phone =
-                        document
-                            .getElementById("phone")
-                            .value
-                            .trim();
-
-                    const address =
-                        document
-                            .getElementById("address")
-                            .value
-                            .trim();
-
-                    const nameInput =
-                        document.getElementById("name");
-
-                    if (name.length < 3 ||
-                        !/^[A-Za-z ]+$/.test(name)) {
-
-                        valid = false;
-
-                        nameInput.setCustomValidity(
-                            "Enter a valid name with at least 3 letters."
-                        );
-
-                    }
-                    else {
-
-                        nameInput.setCustomValidity("");
-
-                    }
-
-                    const emailInput =
-                        document.getElementById("email");
-
-                    if (!email) {
-
-                        valid = false;
-
-                        emailInput.setCustomValidity(
-                            "Email is required."
-                        );
-
-                    }
-                    else {
-
-                        emailInput.setCustomValidity("");
-
-                    }
-
-                    if (
-                        password.length < 8 ||
-                        !/[A-Z]/.test(password) ||
-                        !/[a-z]/.test(password) ||
-                        !/\d/.test(password)
-                    ) {
-
-                        valid = false;
-
-                        registerPassword.setCustomValidity(
-                            "Password must contain at least 8 characters, uppercase, lowercase and a number."
-                        );
-
-                    }
-                    else {
-
-                        registerPassword.setCustomValidity("");
-
-                    }
-
-                    const phoneInput =
-                        document.getElementById("phone");
-
-                    if (!isValidPhone(phone)) {
-
-                        valid = false;
-
-                        phoneInput.setCustomValidity(
-                            "Enter a valid Pakistani mobile number."
-                        );
-
-                    }
-                    else {
-
-                        phoneInput.setCustomValidity("");
-
-                    }
-
-                    const addressInput =
-                        document.getElementById("address");
-
-                    if (!address ||
-                        !hasRawalpindi(address)) {
-
-                        valid = false;
-
-                        addressInput.setCustomValidity(
-                            "Enter an address in Rawalpindi."
-                        );
-
-                    }
-                    else {
-
-                        addressInput.setCustomValidity("");
-
-                    }
-
-                    if (selectedRole === "Shopkeeper") {
-
-                        const shopkeeperCNICValue =
-                            document
-                                .getElementById("shopkeeperCNIC")
-                                .value
-                                .trim();
-
-                        const shopName =
-                            document
-                                .getElementById("shopName")
-                                .value
-                                .trim();
-
-                        const shopCategory =
-                            document
-                                .getElementById("shopCategory")
-                                .value
-                                .trim();
-
-                        const selectedCollections =
-                            Array.from(
-                                collectionCheckboxes
-                            )
-                            .filter(
-                                function (checkbox) {
-                                    return checkbox.checked;
-                                }
-                            )
-                            .map(
-                                function (checkbox) {
-                                    return checkbox.value;
-                                }
-                            );
-
-                        const selectedServices =
-                            Array.from(
-                                serviceCheckboxes
-                            )
-                            .filter(
-                                function (checkbox) {
-                                    return checkbox.checked;
-                                }
-                            );
-
-                        const shopPhone =
-                            document
-                                .getElementById("shopPhone")
-                                .value
-                                .trim();
-
-                        const shopAddress =
-                            document
-                                .getElementById("shopAddress")
-                                .value
-                                .trim();
-
-                        const shopDescription =
-                            document
-                                .getElementById("shopDescription")
-                                .value
-                                .trim();
-
-                        const shopProofType =
-                            document
-                                .getElementById("shopProofType")
-                                .value
-                                .trim();
-
-                        if (!isValidCNIC(shopkeeperCNICValue)) {
-
-                            setError(
-                                "shopkeeperCNICError",
-                                "Enter CNIC in XXXXX-XXXXXXX-X format."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (shopName.length < 3) {
-
-                            setError(
-                                "shopNameError",
-                                "Shop name must be at least 3 characters."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopCategory) {
-
-                            setError(
-                                "shopCategoryError",
-                                "Please select a main shop category."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (selectedCollections.length === 0) {
-
-                            setError(
-                                "shopCollectionsError",
-                                "Please select at least one shop collection."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (selectedServices.length === 0) {
-
-                            setError(
-                                "shopServicesError",
-                                "Please select at least one service."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!isValidPhone(shopPhone)) {
-
-                            setError(
-                                "shopPhoneError",
-                                "Enter a valid Pakistani phone number."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopAddress) {
-
-                            setError(
-                                "shopAddressError",
-                                "Shop address is required."
-                            );
-
-                            valid = false;
-
-                        }
-                        else if (!hasRawalpindi(shopAddress)) {
-
-                            setError(
-                                "shopAddressError",
-                                "Shop address must be in Rawalpindi."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (shopDescription.length < 10) {
-
-                            setError(
-                                "shopDescriptionError",
-                                "Shop description must contain at least 10 characters."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (shopDescription.length > 1000) {
-
-                            setError(
-                                "shopDescriptionError",
-                                "Shop description cannot exceed 1000 characters."
-                            );
-
-                            valid = false;
-                        }
-
-                        const shopkeeperCNICFront =
-                            document.getElementById(
-                                "shopkeeperCNICFront"
-                            );
-
-                        const shopkeeperCNICBack =
-                            document.getElementById(
-                                "shopkeeperCNICBack"
-                            );
-
-                        const shopFront =
-                            document.getElementById(
-                                "shopFrontPhoto"
-                            );
-
-                        const shopInside =
-                            document.getElementById(
-                                "shopInsidePhoto"
-                            );
-
-                        const shopSignboard =
-                            document.getElementById(
-                                "shopSignboardPhoto"
-                            );
-
-                        if (!shopkeeperCNICFront.files.length) {
-
-                            setError(
-                                "shopkeeperCNICFrontError",
-                                "CNIC front image is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopkeeperCNICBack.files.length) {
-
-                            setError(
-                                "shopkeeperCNICBackError",
-                                "CNIC back image is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopFront.files.length) {
-
-                            setError(
-                                "shopFrontPhotoError",
-                                "Shop front photo is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopInside.files.length) {
-
-                            setError(
-                                "shopInsidePhotoError",
-                                "Shop inside photo is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopSignboard.files.length) {
-
-                            setError(
-                                "shopSignboardPhotoError",
-                                "Shop signboard photo is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!shopProofType) {
-
-                            setError(
-                                "shopProofTypeError",
-                                "Please select a shop proof type."
-                            );
-
-                            valid = false;
-                        }
-
-                        const shopProofDocument =
-                            document.getElementById(
-                                "shopProofDocument"
-                            );
-
-                        if (!shopProofDocument.files.length) {
-
-                            setError(
-                                "shopProofDocumentError",
-                                "Shop proof document is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            shopkeeperCNICFront,
-                            "shopkeeperCNICFrontError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            shopkeeperCNICBack,
-                            "shopkeeperCNICBackError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            shopFront,
-                            "shopFrontPhotoError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            shopInside,
-                            "shopInsidePhotoError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            shopSignboard,
-                            "shopSignboardPhotoError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateProofDocument(
-                            shopProofDocument,
-                            "shopProofDocumentError"
-                        )) {
-
-                            valid = false;
-                        }
-                    }
-
-                    if (selectedRole === "Delivery") {
-
-                        const cnicValue =
-                            document
-                                .getElementById("deliveryCNIC")
-                                .value
-                                .trim();
-
-                        const motorbikeNumber =
-                            document
-                                .getElementById("motorbikeNumber")
-                                .value
-                                .trim();
-
-                        const preferredZone =
-                            document
-                                .getElementById("preferredZone")
-                                .value
-                                .trim();
-
-                        if (!isValidCNIC(cnicValue)) {
-
-                            setError(
-                                "cnicError",
-                                "Enter CNIC in XXXXX-XXXXXXX-X format."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (
-                            !motorbikeNumber ||
-                            motorbikeNumber.length < 3 ||
-                            motorbikeNumber.length > 30
-                        ) {
-
-                            setError(
-                                "motorbikeNumberError",
-                                "Enter a motorbike registration number between 3 and 30 characters."
-                            );
-
-                            valid = false;
-                        }
-
-                        const allowedZones = [
-                            "Saddar",
-                            "6th Road",
-                            "Liaqat Bagh"
-                        ];
-
-                        if (!allowedZones.includes(
-                            preferredZone
-                        )) {
-
-                            setError(
-                                "preferredZoneError",
-                                "Please select a valid delivery zone."
-                            );
-
-                            valid = false;
-                        }
-
-                        const cnicFront =
-                            document.getElementById(
-                                "cnicFrontImage"
-                            );
-
-                        const cnicBack =
-                            document.getElementById(
-                                "cnicBackImage"
-                            );
-
-                        if (!cnicFront.files.length) {
-
-                            setError(
-                                "cnicFrontImageError",
-                                "CNIC front image is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!cnicBack.files.length) {
-
-                            setError(
-                                "cnicBackImageError",
-                                "CNIC back image is required."
-                            );
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            cnicFront,
-                            "cnicFrontImageError"
-                        )) {
-
-                            valid = false;
-                        }
-
-                        if (!validateImage(
-                            cnicBack,
-                            "cnicBackImageError"
-                        )) {
-
-                            valid = false;
-                        }
-                    }
-
-                    if (!valid) {
-
-                        event.preventDefault();
-
-                        window.scrollTo({
-                            top: 0,
-                            behavior: "smooth"
-                        });
-
-                        return;
-                    }
-
-                    const registerButton =
-                        document.getElementById(
-                            "registerButton"
-                        );
-
-                    registerButton.disabled = true;
-
-                    registerButton.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>Registering...';
-
+                const name = document.getElementById("Name");
+                if (name && (!/^[A-Za-z ]+$/.test(name.value.trim()) ||
+                    name.value.trim().length < 3)) {
+                    name.setCustomValidity("Enter a valid name with at least 3 characters.");
+                    valid = false;
+                } else if (name) {
+                    name.setCustomValidity("");
                 }
-            );
 
+                const password = document.getElementById("Password");
+                if (password && (password.value.length < 8 ||
+                    !/[A-Z]/.test(password.value) ||
+                    !/[a-z]/.test(password.value) ||
+                    !/\d/.test(password.value))) {
+                    password.setCustomValidity(
+                        "Use at least 8 characters with uppercase, lowercase and a number.");
+                    valid = false;
+                } else if (password) {
+                    password.setCustomValidity("");
+                }
+
+                const phone = document.getElementById("Phone");
+                if (phone && !validPhone(phone.value)) {
+                    phone.setCustomValidity("Enter a valid Pakistani mobile number.");
+                    valid = false;
+                } else if (phone) {
+                    phone.setCustomValidity("");
+                }
+
+                const address = document.getElementById("Address");
+                if (address && !address.value.toLowerCase().includes("rawalpindi")) {
+                    address.setCustomValidity("Enter an address in Rawalpindi.");
+                    valid = false;
+                } else if (address) {
+                    address.setCustomValidity("");
+                }
+
+                if (role === "Shopkeeper") {
+                    const cnic = document.getElementById("shopkeeperCNIC");
+                    if (!validCNIC(cnic.value.trim())) {
+                        setError("shopkeeperCNICError", "Enter CNIC in XXXXX-XXXXXXX-X format.");
+                        valid = false;
+                    }
+
+                    if (!document.querySelector(".collection-checkbox:checked")) {
+                        setError("shopCollectionsError", "Select at least one shop collection.");
+                        valid = false;
+                    }
+
+                    if (!document.querySelector(".service-checkbox:checked")) {
+                        setError("shopServicesError", "Select at least one service.");
+                        valid = false;
+                    }
+
+                    const shopPhone = document.getElementById("shopPhone");
+                    if (!validPhone(shopPhone.value)) {
+                        setError("shopPhoneError", "Enter a valid Pakistani mobile number.");
+                        valid = false;
+                    }
+
+                    const shopAddress = document.getElementById("shopAddress");
+                    if (!shopAddress.value.toLowerCase().includes("rawalpindi")) {
+                        setError("shopAddressError", "Shop address must be in Rawalpindi.");
+                        valid = false;
+                    }
+
+                    const description = document.getElementById("shopDescription");
+                    if (description.value.trim().length < 10) {
+                        setError("shopDescriptionError", "Description must contain at least 10 characters.");
+                        valid = false;
+                    }
+
+                    if (!validCNIC(cnic.value.trim())) valid = false;
+                }
+
+                if (role === "Delivery") {
+                    const cnic = document.getElementById("deliveryCNIC");
+                    if (!validCNIC(cnic.value.trim())) {
+                        setError("deliveryCNICError", "Enter CNIC in XXXXX-XXXXXXX-X format.");
+                        valid = false;
+                    }
+                }
+
+                form.querySelectorAll('input[type="file"]').forEach(function (input) {
+                    if (!input.disabled && !validateFile(input, input.name === "ShopProofDocument")) {
+                        valid = false;
+                    }
+                });
+
+                if (!valid) {
+                    event.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    return;
+                }
+
+                const button = document.getElementById("registerButton");
+                button.disabled = true;
+                button.textContent = "Registering...";
+            });
         });
-
     </script>
 }

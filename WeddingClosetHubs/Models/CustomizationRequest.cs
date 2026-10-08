@@ -8,12 +8,6 @@ namespace WeddingClosetHubs.Models
         public int CustomizationRequestId { get; set; }
 
         [Required]
-        public int ProductId { get; set; }
-
-        [ForeignKey("ProductId")]
-        public virtual Product? Product { get; set; }
-
-        [Required]
         public int CustomerId { get; set; }
 
         [ForeignKey("CustomerId")]
@@ -25,7 +19,13 @@ namespace WeddingClosetHubs.Models
         [ForeignKey("ShopId")]
         public virtual Shop? Shop { get; set; }
 
-        public string? SelectedSize { get; set; }
+        [Required]
+        public string ProductName { get; set; } = string.Empty;
+
+        [Required]
+        public string Category { get; set; } = string.Empty;
+
+        public string? Color { get; set; }
 
         [Required]
         public string Measurements { get; set; } = string.Empty;
@@ -38,6 +38,9 @@ namespace WeddingClosetHubs.Models
         public decimal? ShopkeeperPrice { get; set; }
 
         public string? ShopkeeperNotes { get; set; }
+        public string? CustomerResponseNotes { get; set; }
+        public string? CustomerUpdatedMeasurements { get; set; }
+        public DateTime? CustomerResponseDate { get; set; }
 
         public string Status { get; set; } = "Pending";
 

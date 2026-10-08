@@ -1,19 +1,13 @@
-﻿@model WeddingClosetHubs.Models.Product
-
-@{
-    ViewData["Title"] = "Customize Product";
+﻿@{
+    ViewData["Title"] = "Create Custom Product";
     Layout = null;
 
-    string selectedSize =
-        ViewBag.SelectedSize as string ?? "";
+    var shop = ViewBag.Shop as WeddingClosetHubs.Models.Shop;
 
-    string existingMeasurements =
-        ViewBag.CustomMeasurements as string ?? "";
-
-    string displaySubcategory =
-        string.IsNullOrWhiteSpace(Model.Subcategory)
-            ? "Dress"
-            : Model.Subcategory;
+    if (shop == null)
+    {
+        throw new InvalidOperationException("Shop information is required.");
+    }
 }
 
 <!DOCTYPE html>
@@ -27,465 +21,464 @@
           content="width=device-width, initial-scale=1.0" />
 
     <title>
-        Customize @Model.ProductName - Wedding Closet Hubs
+        Customize Your Product - Wedding Closet Hubs
     </title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background:
-                linear-gradient(
-                    135deg,
-                    #f8f3f5 0%,
-                    #fffaf0 100%
-                );
-            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #faf7f8;
+            font-family: Arial, Helvetica, sans-serif;
             color: #333;
         }
 
         .navbar-custom {
             background: #800020;
-            padding: 15px 30px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.12);
+            padding: 15px 35px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.12);
         }
 
         .brand {
-            color: #d4af37;
-            font-size: 23px;
-            font-weight: bold;
-        }
-
-        .main-container {
-            max-width: 1150px;
-            margin: 35px auto 60px;
-            padding: 0 15px;
-        }
-
-        .card-custom {
-            background: white;
-            border-radius: 18px;
-            padding: 32px;
-            box-shadow: 0 8px 30px rgba(128,0,32,.08);
-            border: 1px solid #eee;
-        }
-
-        .page-title {
-            color: #800020;
+            color: white;
+            font-size: 25px;
             font-weight: 700;
-            font-size: 30px;
+            text-decoration: none;
         }
 
-        .page-subtitle {
-            color: #6c757d;
-            font-size: 15px;
+            .brand span {
+                color: #d4af37;
+            }
+
+        .nav-link-custom {
+            color: white;
+            text-decoration: none;
+            margin-left: 22px;
+            font-weight: 500;
+            transition: .2s;
+        }
+
+            .nav-link-custom:hover {
+                color: #d4af37;
+            }
+
+        .logout-btn {
+            border: 1px solid #d4af37;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 7px;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: .2s;
+        }
+
+            .logout-btn:hover {
+                background: #d4af37;
+                color: #800020;
+            }
+
+        .page-wrapper {
+            max-width: 1150px;
+            margin: auto;
+            padding: 35px 20px 60px;
+        }
+
+        .back-section {
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            border-radius: 8px;
+            padding: 9px 17px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+            .back-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
+        .hero-card {
+            background: linear-gradient( 135deg, #800020, #5f0018 );
+            color: white;
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(128,0,32,.18);
+        }
+
+        .hero-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: rgba(212,175,55,.18);
+            border: 1px solid rgba(212,175,55,.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            color: #d4af37;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero-text {
+            color: #f7e9ed;
             line-height: 1.7;
+            margin: 0;
+            max-width: 850px;
+        }
+
+        .shop-name {
+            margin-top: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(72,24,38,.08);
+            border: 1px solid #eee5e8;
         }
 
         .section-title {
             color: #800020;
-            font-weight: 700;
-            border-bottom: 2px solid #d4af37;
-            padding-bottom: 10px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-        }
-
-        .product-image {
-            width: 100%;
-            max-width: 350px;
-            height: 390px;
-            object-fit: cover;
-            border-radius: 15px;
-            border: 1px solid #ddd;
-            box-shadow: 0 5px 18px rgba(0,0,0,.08);
-        }
-
-        .product-placeholder {
-            width: 100%;
-            max-width: 350px;
-            height: 390px;
-            border-radius: 15px;
-            background: #f5f1f2;
-            border: 1px solid #ddd;
-            color: #aaa;
-        }
-
-        .product-info {
-            background: #fdf6f8;
-            border-radius: 14px;
-            padding: 25px;
-            border-left: 4px solid #d4af37;
-        }
-
-        .product-name {
-            color: #800020;
-            font-weight: 700;
-        }
-
-        .price {
-            color: #800020;
-            font-size: 25px;
-            font-weight: bold;
-        }
-
-        .dress-badge {
-            background: #800020;
-            color: white;
-            padding: 7px 14px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 13px;
-        }
-
-        .selected-size-box {
-            background: #fffaf0;
-            border: 1px solid #d4af37;
-            border-radius: 10px;
-            padding: 11px 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .selected-size-label {
-            color: #800020;
-            font-weight: 600;
-        }
-
-        .info-banner {
-            background: linear-gradient(
-                135deg,
-                #fdf0f4,
-                #fffaf0
-            );
-            border: 1px solid #ead8dd;
-            border-radius: 12px;
-            padding: 18px 20px;
-            margin-top: 25px;
-        }
-
-        .info-banner i {
-            color: #d4af37;
             font-size: 21px;
-        }
-
-        .custom-section {
-            background: #fffdf9;
-            border: 1px solid #eadfc7;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 25px;
-        }
-
-        .section-heading {
-            color: #800020;
             font-weight: 700;
-            font-size: 20px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
-        .section-description {
+        .section-subtitle {
             color: #777;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 13px;
+            margin-bottom: 22px;
         }
 
-        .measurement-row {
-            background: white;
-            border: 1px solid #e1d8db;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            transition: .2s ease;
-        }
-
-        .measurement-row:hover {
-            border-color: #d4af37;
-            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        .form-section {
+            background: #fcfafb;
+            border: 1px solid #eadfe3;
+            border-radius: 15px;
+            padding: 22px;
+            margin-bottom: 22px;
         }
 
         .form-label {
-            font-weight: 600;
-            color: #444;
+            color: #555;
+            font-weight: 700;
+            font-size: 14px;
         }
 
         .form-control,
         .form-select {
-            min-height: 45px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
+            border: 1px solid #d9cdd1;
+            border-radius: 9px;
+            padding: 11px 13px;
         }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 .2rem rgba(128,0,32,.10);
-        }
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #800020;
+                box-shadow: 0 0 0 .2rem rgba(128,0,32,.1);
+            }
 
-        .measurement-value-group {
+        .measurement-header {
             display: flex;
-            gap: 8px;
-        }
-
-        .measurement-value-group .form-control {
-            flex: 1;
-        }
-
-        .unit-box {
-            min-width: 82px;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            background: #f3edf0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            color: #800020;
-            font-weight: 600;
+            gap: 15px;
+            margin-bottom: 15px;
         }
+
+        .measurement-row {
+            background: white;
+            border: 1px solid #e7dfe2;
+            border-radius: 11px;
+            padding: 13px;
+            margin-bottom: 10px;
+        }
+
+            .measurement-row .form-control {
+                padding: 9px 11px;
+            }
 
         .remove-measurement {
-            height: 45px;
-            width: 45px;
-            border-radius: 8px;
-            border: 1px solid #dc3545;
+            border: none;
+            background: #fdeaea;
             color: #dc3545;
-            background: white;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
         }
 
-        .remove-measurement:hover {
-            background: #dc3545;
-            color: white;
-        }
+            .remove-measurement:hover {
+                background: #dc3545;
+                color: white;
+            }
 
-        .add-measurement {
-            border: 1px dashed #800020;
-            color: #800020;
-            background: #fff;
-            border-radius: 9px;
-            padding: 10px 18px;
-            font-weight: 600;
-        }
-
-        .add-measurement:hover {
-            background: #800020;
-            color: white;
-        }
-
-        .measurement-help {
-            background: #f8e9ed;
-            border-radius: 10px;
-            padding: 15px;
-            color: #6b4a53;
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .upload-box {
-            border: 2px dashed #d4af37;
-            border-radius: 14px;
-            padding: 28px;
-            text-align: center;
+        .add-measurement-btn {
             background: #fffaf0;
-            cursor: pointer;
-            transition: .2s ease;
+            border: 1px solid #d4af37;
+            color: #705900;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 700;
         }
 
-        .upload-box:hover {
-            background: #fff6dc;
-            border-color: #800020;
+            .add-measurement-btn:hover {
+                background: #d4af37;
+                color: #800020;
+            }
+
+        .measurement-note {
+            background: #fffaf0;
+            border: 1px solid #ead9a4;
+            color: #665c35;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 18px;
         }
+
+            .measurement-note i {
+                color: #d4af37;
+                margin-right: 5px;
+            }
+
+        .upload-area {
+            background: white;
+            border: 2px dashed #d8c4ca;
+            border-radius: 13px;
+            padding: 25px;
+            text-align: center;
+            transition: .2s;
+        }
+
+            .upload-area:hover {
+                border-color: #d4af37;
+                background: #fffdf8;
+            }
 
         .upload-icon {
             font-size: 42px;
             color: #800020;
+            margin-bottom: 10px;
         }
 
         .upload-title {
             color: #800020;
             font-weight: 700;
-            font-size: 17px;
+            margin-bottom: 5px;
         }
 
         .upload-text {
             color: #777;
             font-size: 13px;
+            margin-bottom: 15px;
         }
 
-        #referenceImages {
-            display: none;
-        }
-
-        .preview-container {
+        .reference-preview {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin-top: 18px;
+            margin-top: 15px;
         }
 
         .preview-item {
             position: relative;
-            width: 120px;
-            height: 120px;
-        }
-
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: 105px;
+            height: 105px;
             border-radius: 10px;
+            overflow: hidden;
             border: 1px solid #ddd;
         }
 
+            .preview-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
         .preview-remove {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 28px;
-            height: 28px;
+            right: 5px;
+            top: 5px;
+            width: 25px;
+            height: 25px;
             border: none;
+            border-radius: 50%;
+            background: rgba(128,0,32,.9);
+            color: white;
+            font-size: 13px;
+        }
+
+        .process-card {
+            background: #f8e9ed;
+            border: 1px solid #e2c8d0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+
+        .process-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .process-step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 13px;
+        }
+
+            .process-step:last-child {
+                margin-bottom: 0;
+            }
+
+        .step-number {
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: #800020;
             color: white;
-            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .preview-remove:hover {
-            background: #5f0018;
-        }
-
-        .note-area {
-            min-height: 130px;
-            resize: vertical;
-        }
-
-        .char-count {
-            color: #777;
-            font-size: 12px;
-            text-align: right;
-            margin-top: 5px;
+        .step-text {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            padding-top: 4px;
         }
 
         .submit-area {
-            background: linear-gradient(
-                135deg,
-                #800020,
-                #650018
-            );
-            color: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 22px;
+            margin-top: 10px;
         }
 
-        .submit-area h5 {
-            color: #d4af37;
-            font-weight: 700;
-        }
-
-        .btn-submit {
-            background: #d4af37;
-            color: #3f3000;
-            border: none;
-            padding: 13px 30px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .btn-submit:hover {
-            background: #e1bd4a;
-            color: #3f3000;
-        }
-
-        .btn-back {
-            background: white;
-            color: #800020;
-            border: 1px solid #800020;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .btn-back:hover {
+        .submit-btn {
             background: #800020;
             color: white;
+            border: none;
+            border-radius: 9px;
+            padding: 13px 25px;
+            font-weight: 700;
+            font-size: 15px;
+            transition: .2s;
         }
 
-        .empty-measurement {
-            text-align: center;
-            background: #f8f4f5;
-            border-radius: 12px;
-            padding: 25px;
-            color: #777;
+            .submit-btn:hover {
+                background: #650018;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+        .cancel-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            border-radius: 9px;
+            padding: 12px 22px;
+            font-weight: 700;
+            text-decoration: none;
         }
 
-        .measurement-error {
+            .cancel-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
+        .required-star {
+            color: #dc3545;
+        }
+
+        .validation-message {
             color: #dc3545;
             font-size: 13px;
-            margin-top: 5px;
+            font-weight: 600;
             display: none;
+            margin-top: 10px;
         }
 
-        .invalid-row {
-            border-color: #dc3545 !important;
-        }
-
-        @@media(max-width:768px) {
-
-            .main-container {
-                margin: 20px 10px 40px;
-                padding: 0;
-            }
-
-            .card-custom {
-                padding: 20px;
-            }
+        @@media (max-width: 768px) {
 
             .navbar-custom {
-                padding: 13px 15px;
+                padding: 14px 15px;
             }
 
             .brand {
-                font-size: 18px;
+                font-size: 20px;
             }
 
-            .page-title {
-                font-size: 24px;
+            .nav-link-custom {
+                display: none;
             }
 
-            .product-image,
-            .product-placeholder {
-                max-width: 100%;
-                height: 320px;
-                margin-bottom: 20px;
+            .logout-btn {
+                margin-left: 8px;
+                padding: 6px 10px;
+                font-size: 12px;
             }
 
-            .measurement-value-group {
-                flex-wrap: wrap;
+            .page-wrapper {
+                padding: 20px 12px 40px;
             }
 
-            .unit-box {
-                width: 100%;
-                height: 40px;
+            .hero-card {
+                padding: 25px 20px;
             }
 
-            .remove-measurement {
-                width: 100%;
+            .hero-title {
+                font-size: 27px;
             }
 
-            .submit-area {
-                padding: 20px;
+            .main-card {
+                padding: 18px;
             }
 
+            .form-section {
+                padding: 17px;
+            }
+
+            .measurement-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
 
     </style>
@@ -496,172 +489,195 @@
 
     <nav class="navbar-custom">
 
-        <div class="d-flex justify-content-between align-items-center gap-3">
-
-            <span class="brand">
-                <i class="bi bi-gem"></i>
-                Wedding Closet Hubs
-            </span>
+        <div class="container-fluid d-flex align-items-center justify-content-between">
 
             <a asp-controller="Customer"
-               asp-action="ProductDetails"
-               asp-route-id="@Model.ProductId"
-               class="btn btn-light">
+               asp-action="Dashboard"
+               class="brand">
 
-                <i class="bi bi-arrow-left"></i>
-                Back to Product
+                Wedding Closet <span>Hubs</span>
 
             </a>
+
+            <div class="d-flex align-items-center">
+
+                <a asp-controller="Customer"
+                   asp-action="Dashboard"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-house"></i>
+                    Dashboard
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Shops"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-shop"></i>
+                    Shops
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Cart"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-cart3"></i>
+                    Cart
+
+                </a>
+
+                <a asp-controller="Account"
+                   asp-action="Logout"
+                   class="logout-btn">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </div>
 
         </div>
 
     </nav>
 
 
-    <div class="main-container">
+    <div class="page-wrapper">
 
-        <div class="card-custom">
+        <div class="back-section">
 
-            <div class="text-center mb-4">
+            <a asp-controller="Customer"
+               asp-action="ShopProducts"
+               asp-route-id="@shop.ShopId"
+               class="back-btn">
 
-                <h1 class="page-title">
+                <i class="bi bi-arrow-left"></i>
 
-                    <i class="bi bi-magic"></i>
+                Back to Shop
 
-                    Customize Your @displaySubcategory
+            </a>
 
-                </h1>
+        </div>
 
-                <p class="page-subtitle mb-0">
 
-                    Tell the shopkeeper exactly how you want your dress
-                    customized. Enter the measurements that are relevant
-                    to you and share reference pictures if needed.
+        <div class="hero-card">
 
-                </p>
+            <div class="hero-icon">
+
+                <i class="bi bi-magic"></i>
 
             </div>
 
+            <div class="hero-title">
 
-            @if (!string.IsNullOrWhiteSpace(selectedSize))
-            {
-                <div class="selected-size-box mb-4">
+                Create Your Own Custom Product
 
-                    <span class="selected-size-label">
+            </div>
 
-                        <i class="bi bi-tag"></i>
+            <p class="hero-text">
 
-                        Selected Size:
+                Tell the shopkeeper exactly what you want to create.
+                You can provide your own measurements, design requirements,
+                preferred style, colors, fabric details and reference images.
+                The shopkeeper will review your request and discuss the price
+                with you before anything is added to your cart.
 
-                    </span>
+            </p>
 
-                    <span class="badge bg-secondary">
+            <div class="shop-name">
 
-                        @selectedSize
+                <i class="bi bi-shop"></i>
 
-                    </span>
+                @shop.ShopName
 
-                </div>
-            }
+            </div>
+
+        </div>
 
 
-            <div class="row g-4">
+        <div class="main-card">
 
-                <div class="col-lg-5 text-center">
+            <div class="process-card">
 
-                    @if (!string.IsNullOrWhiteSpace(Model.Image))
-                    {
-                        <img src="@Url.Content(Model.Image)"
-                             class="product-image"
-                             alt="@Model.ProductName" />
-                    }
-                    else
-                    {
-                        <div class="product-placeholder d-flex align-items-center justify-content-center">
+                <div class="process-title">
 
-                            <i class="bi bi-image fs-1"></i>
+                    <i class="bi bi-arrow-right-circle"></i>
 
-                        </div>
-                    }
+                    How Customization Works
 
                 </div>
 
+                <div class="process-step">
 
-                <div class="col-lg-7">
+                    <div class="step-number">
+                        1
+                    </div>
 
-                    <div class="product-info">
+                    <div class="step-text">
 
-                        <span class="dress-badge mb-3">
-
-                            <i class="bi bi-stars"></i>
-
-                            Customization Available
-
-                        </span>
-
-                        <h3 class="product-name mt-3">
-
-                            @Model.ProductName
-
-                        </h3>
-
-                        @if (!string.IsNullOrWhiteSpace(Model.Description))
-                        {
-                            <p class="text-muted mt-3 mb-3">
-
-                                @Model.Description
-
-                            </p>
-                        }
-
-                        <div class="price">
-
-                            Rs. @Model.Price.ToString("N2")
-
-                        </div>
-
-                        <p class="text-muted mt-3 mb-0">
-
-                            <i class="bi bi-shop"></i>
-
-                            Shop:
-
-                            <strong>
-                                @(Model.Shop?.ShopName ?? "Shop")
-                            </strong>
-
-                        </p>
+                        Submit your own product design,
+                        measurements and requirements.
 
                     </div>
 
                 </div>
 
-            </div>
+                <div class="process-step">
 
+                    <div class="step-number">
+                        2
+                    </div>
 
-            <div class="info-banner">
+                    <div class="step-text">
 
-                <div class="d-flex gap-3">
+                        The shopkeeper reviews your request
+                        and discusses the customized product with you.
 
-                    <i class="bi bi-lightbulb-fill"></i>
+                    </div>
 
-                    <div>
+                </div>
 
-                        <strong>
-                            How customization works
-                        </strong>
+                <div class="process-step">
 
-                        <div class="mt-1">
+                    <div class="step-number">
+                        3
+                    </div>
 
-                            Enter your own measurements below.
-                            You can add as many measurements as you need
-                            because different dresses may require different
-                            measurements.
+                    <div class="step-text">
 
-                            You can also upload reference pictures and
-                            explain your requirements.
+                        The shopkeeper provides or negotiates
+                        the customized price.
 
-                        </div>
+                    </div>
+
+                </div>
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        4
+                    </div>
+
+                    <div class="step-text">
+
+                        You accept the final offer.
+
+                    </div>
+
+                </div>
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        5
+                    </div>
+
+                    <div class="step-text">
+
+                        Only after you accept the final offer,
+                        the customized item is added to your cart.
 
                     </div>
 
@@ -678,26 +694,166 @@
 
                 @Html.AntiForgeryToken()
 
-
                 <input type="hidden"
-                       name="productId"
-                       value="@Model.ProductId" />
+                       name="shopId"
+                       value="@shop.ShopId" />
 
 
-                <input type="hidden"
-                       name="size"
-                       value="@selectedSize" />
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <i class="bi bi-scissors"></i>
+
+                        Custom Product Details
+
+                    </div>
+
+                    <div class="section-subtitle">
+
+                        Describe the product you want the shopkeeper
+                        to create for you.
+
+                    </div>
 
 
-                <input type="hidden"
-                       name="customMeasurements"
-                       id="customMeasurements"
-                       value="@existingMeasurements" />
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Product / Design Name
+                            <span class="required-star">*</span>
+
+                        </label>
+
+                        <input type="text"
+                               name="ProductName"
+                               class="form-control"
+                               maxlength="150"
+                               placeholder="Example: Custom Bridal Maxi Dress"
+                               required />
+
+                    </div>
 
 
-                <div class="custom-section">
+                    <div class="row g-3">
 
-                    <div class="section-heading">
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Category
+                                <span class="required-star">*</span>
+
+                            </label>
+
+                            <select name="Category"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Select Category
+                                </option>
+
+                                <option value="Bridal Wear">
+                                    Bridal Wear
+                                </option>
+
+                                <option value="Groom Wear">
+                                    Groom Wear
+                                </option>
+
+                                <option value="Formal Wear">
+                                    Formal Wear
+                                </option>
+
+                                <option value="Wedding Guest Wear">
+                                    Wedding Guest Wear
+                                </option>
+
+                                <option value="Footwear">
+                                    Footwear
+                                </option>
+
+                                <option value="Jewellery">
+                                    Jewellery
+                                </option>
+
+                                <option value="Accessories">
+                                    Accessories
+                                </option>
+
+                                <option value="Bridal Jewellery">
+                                    Bridal Jewellery
+                                </option>
+
+                                <option value="Bridal Accessories">
+                                    Bridal Accessories
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Preferred Color
+                            </label>
+
+                            <select name="Color" class="form-select">
+                                <option value="">Select Color</option>
+                                <option value="Maroon">Maroon</option>
+                                <option value="Red">Red</option>
+                                <option value="Burgundy">Burgundy</option>
+                                <option value="Wine">Wine</option>
+                                <option value="Pink">Pink</option>
+                                <option value="Rose Pink">Rose Pink</option>
+                                <option value="Blush Pink">Blush Pink</option>
+                                <option value="Baby Pink">Baby Pink</option>
+                                <option value="Peach">Peach</option>
+                                <option value="Coral">Coral</option>
+                                <option value="Orange">Orange</option>
+                                <option value="Yellow">Yellow</option>
+                                <option value="Mustard">Mustard</option>
+                                <option value="Gold">Gold</option>
+                                <option value="Silver">Silver</option>
+                                <option value="White">White</option>
+                                <option value="Ivory">Ivory</option>
+                                <option value="Off White">Off White</option>
+                                <option value="Cream">Cream</option>
+                                <option value="Beige">Beige</option>
+                                <option value="Black">Black</option>
+                                <option value="Navy Blue">Navy Blue</option>
+                                <option value="Royal Blue">Royal Blue</option>
+                                <option value="Sky Blue">Sky Blue</option>
+                                <option value="Turquoise">Turquoise</option>
+                                <option value="Teal">Teal</option>
+                                <option value="Green">Green</option>
+                                <option value="Bottle Green">Bottle Green</option>
+                                <option value="Olive Green">Olive Green</option>
+                                <option value="Purple">Purple</option>
+                                <option value="Lavender">Lavender</option>
+                                <option value="Plum">Plum</option>
+                                <option value="Brown">Brown</option>
+                                <option value="Chocolate Brown">Chocolate Brown</option>
+                                <option value="Grey">Grey</option>
+                                <option value="Charcoal">Charcoal</option>
+                                <option value="Other">Other</option>
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-section">
+
+                    <div class="section-title">
 
                         <i class="bi bi-rulers"></i>
 
@@ -705,82 +861,126 @@
 
                     </div>
 
-                    <div class="section-description">
+                    <div class="section-subtitle">
 
-                        Add only the measurements you need.
-                        There are no fixed measurement types.
+                        Enter your measurements in inches.
+                        You can add as many measurements as required.
+
+                    </div>
+
+                    <div class="measurement-note">
+
+                        <i class="bi bi-info-circle"></i>
+
+                        Please enter accurate measurements.
+                        For example: Bust, Waist, Hip, Shoulder,
+                        Sleeve Length, Shirt Length, Trouser Length, etc.
 
                     </div>
 
 
-                    <div class="measurement-help mb-4">
+                    <div class="measurement-header">
 
-                        <i class="bi bi-info-circle me-1"></i>
+                        <div class="fw-bold text-dark">
 
-                        <strong>Example:</strong>
+                            Measurement Details
 
-                        You can enter measurements such as
-                        Chest, Shoulder, Waist, Hip, Sleeve Length,
-                        Shirt Length, Trouser Length, Lehenga Length,
-                        or any other measurement required for your dress.
+                        </div>
 
-                        Enter the value in inches.
+                        <button type="button"
+                                class="add-measurement-btn"
+                                id="addMeasurementBtn">
 
-                    </div>
+                            <i class="bi bi-plus-circle"></i>
 
+                            Add Measurement
 
-                    <div id="measurementContainer"></div>
-
-
-                    <div id="noMeasurementMessage"
-                         class="empty-measurement mb-3">
-
-                        <i class="bi bi-rulers fs-3 d-block mb-2"></i>
-
-                        No measurements added yet.
-
-                        <br />
-
-                        Click <strong>Add Measurement</strong> to enter
-                        your measurements.
+                        </button>
 
                     </div>
 
 
-                    <button type="button"
-                            class="btn add-measurement"
-                            id="addMeasurementBtn">
+                    <div id="measurementsContainer">
 
-                        <i class="bi bi-plus-circle"></i>
+                        <div class="measurement-row">
 
-                        Add Measurement
+                            <div class="row g-2 align-items-center">
 
-                    </button>
+                                <div class="col-md-6">
+
+                                    <input type="text"
+                                           class="form-control measurement-name"
+                                           placeholder="Example: Bust"
+                                           maxlength="80" />
+
+                                </div>
+
+                                <div class="col-md-5">
+
+                                    <input type="number"
+                                           class="form-control measurement-value"
+                                           placeholder="Example: 36"
+                                           min="0.1"
+                                           max="200"
+                                           step="0.1" />
+
+                                </div>
+
+                                <div class="col-md-1 text-end">
+
+                                    <button type="button"
+                                            class="remove-measurement"
+                                            onclick="removeMeasurement(this)">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="measurementError"
+                         class="validation-message">
+
+                        <i class="bi bi-exclamation-circle"></i>
+
+                        Please enter at least one valid measurement.
+
+                    </div>
+
+                    <input type="hidden"
+                           name="CustomMeasurements"
+                           id="customMeasurements" />
 
                 </div>
 
 
-                <div class="custom-section">
+                <div class="form-section">
 
-                    <div class="section-heading">
+                    <div class="section-title">
 
-                        <i class="bi bi-images"></i>
+                        <i class="bi bi-image"></i>
 
-                        Reference Pictures
-
-                    </div>
-
-                    <div class="section-description">
-
-                        Upload pictures showing the design, sleeves,
-                        embroidery, neckline, color, fitting or any other
-                        detail you want the shopkeeper to understand.
+                        Reference Images
 
                     </div>
 
+                    <div class="section-subtitle">
 
-                    <label for="referenceImages"
-                           class="upload-box d-block">
+                        Upload pictures showing the design, style,
+                        embroidery, fabric, shape or any other details
+                        you want.
+
+                    </div>
+
+
+                    <div class="upload-area">
 
                         <div class="upload-icon">
 
@@ -788,84 +988,75 @@
 
                         </div>
 
-                        <div class="upload-title mt-2">
+                        <div class="upload-title">
 
-                            Upload Reference Pictures
-
-                        </div>
-
-                        <div class="upload-text mt-1">
-
-                            JPG, JPEG, PNG or WEBP
-
-                            <br />
-
-                            You can select multiple pictures.
+                            Upload Your Design References
 
                         </div>
 
-                        <div class="btn btn-sm btn-outline-dark mt-3">
+                        <div class="upload-text">
 
-                            <i class="bi bi-image"></i>
-
-                            Choose Pictures
+                            JPG, JPEG, PNG or WEBP.
+                            Maximum 10 images.
+                            Maximum 5 MB per image.
 
                         </div>
 
-                    </label>
+                        <input type="file"
+                               name="ReferenceImages"
+                               id="referenceImages"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               multiple />
 
+                        <div id="referencePreview"
+                             class="reference-preview">
+                        </div>
 
-                    <input type="file"
-                           id="referenceImages"
-                           name="referenceImages"
-                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                           multiple />
+                        <div id="imageError"
+                             class="validation-message">
 
+                            Please select valid image files only.
+                            Maximum 10 images and 5 MB per image.
 
-                    <div id="imagePreview"
-                         class="preview-container">
-                    </div>
+                        </div>
 
-                    <div id="imageError"
-                         class="text-danger small mt-2">
                     </div>
 
                 </div>
 
 
-                <div class="custom-section">
+                <div class="form-section">
 
-                    <div class="section-heading">
+                    <div class="section-title">
 
                         <i class="bi bi-chat-left-text"></i>
 
                         Additional Requirements
 
-                        <span class="badge bg-secondary ms-2">
-                            Optional
-                        </span>
-
                     </div>
 
-                    <div class="section-description">
+                    <div class="section-subtitle">
 
                         Tell the shopkeeper anything else about your
-                        customization.
+                        customized product.
 
                     </div>
 
 
-                    <textarea name="customerNotes"
-                              id="customerNotes"
-                              class="form-control note-area"
+                    <textarea name="Notes"
+                              class="form-control"
+                              rows="7"
                               maxlength="2000"
-                              placeholder="Example: I want the sleeves similar to the reference picture, heavy embroidery around the neckline, and a comfortable fitting."></textarea>
+                              placeholder="Example: I want a heavily embroidered maroon bridal maxi with gold detailing. Please use a soft fabric and keep the sleeves full length. I want the neckline similar to the reference image."></textarea>
 
+                    <div class="text-end mt-2">
 
-                    <div class="char-count">
+                        <small class="text-muted">
 
-                        <span id="characterCount">0</span>
-                        / 2000
+                            Maximum 2000 characters
+
+                        </small>
 
                     </div>
 
@@ -874,56 +1065,27 @@
 
                 <div class="submit-area">
 
-                    <div class="row align-items-center g-3">
+                    <div class="d-flex flex-wrap gap-2">
 
-                        <div class="col-lg-7">
+                        <button type="submit"
+                                class="submit-btn">
 
-                            <h5>
+                            <i class="bi bi-send"></i>
 
-                                <i class="bi bi-send"></i>
+                            Send Customization Request
 
-                                Send Your Customization Request
+                        </button>
 
-                            </h5>
+                        <a asp-controller="Customer"
+                           asp-action="ShopProducts"
+                           asp-route-id="@shop.ShopId"
+                           class="cancel-btn">
 
-                            <p class="mb-0">
+                            <i class="bi bi-arrow-left"></i>
 
-                                Your measurements, reference pictures and
-                                requirements will be sent to the shopkeeper.
-                                The shopkeeper will review your request and
-                                provide the customized price.
+                            Cancel
 
-                            </p>
-
-                        </div>
-
-                        <div class="col-lg-5">
-
-                            <div class="d-flex justify-content-lg-end gap-2 flex-wrap">
-
-                                <a asp-controller="Customer"
-                                   asp-action="Cart"
-                                   class="btn btn-back">
-
-                                    <i class="bi bi-cart"></i>
-
-                                    Back to Cart
-
-                                </a>
-
-                                <button type="submit"
-                                        class="btn btn-submit"
-                                        id="submitBtn">
-
-                                    <i class="bi bi-send-fill"></i>
-
-                                    Send Request
-
-                                </button>
-
-                            </div>
-
-                        </div>
+                        </a>
 
                     </div>
 
@@ -938,272 +1100,239 @@
 
     <script>
 
-        const measurementContainer =
-            document.getElementById("measurementContainer");
-
-        const noMeasurementMessage =
-            document.getElementById("noMeasurementMessage");
+        const measurementsContainer =
+            document.getElementById("measurementsContainer");
 
         const addMeasurementBtn =
             document.getElementById("addMeasurementBtn");
 
-        const customMeasurementsInput =
-            document.getElementById("customMeasurements");
-
         const customizationForm =
             document.getElementById("customizationForm");
+
+        const customMeasurements =
+            document.getElementById("customMeasurements");
+
+        const measurementError =
+            document.getElementById("measurementError");
 
         const referenceImages =
             document.getElementById("referenceImages");
 
-        const imagePreview =
-            document.getElementById("imagePreview");
+        const referencePreview =
+            document.getElementById("referencePreview");
 
         const imageError =
             document.getElementById("imageError");
-
-        const customerNotes =
-            document.getElementById("customerNotes");
-
-        const characterCount =
-            document.getElementById("characterCount");
-
-
-        let measurementIndex = 0;
-
-
-        function updateMeasurementMessage() {
-
-            const rows =
-                measurementContainer.querySelectorAll(
-                    ".measurement-row"
-                );
-
-            if (rows.length === 0) {
-
-                noMeasurementMessage.style.display = "block";
-
-            }
-            else {
-
-                noMeasurementMessage.style.display = "none";
-
-            }
-
-        }
-
-
-        function createMeasurementRow(
-            name = "",
-            value = "") {
-
-            measurementIndex++;
-
-
-            const row =
-                document.createElement("div");
-
-            row.className =
-                "measurement-row";
-
-
-            row.innerHTML = `
-
-                <div class="row g-2 align-items-end">
-
-                    <div class="col-md-5">
-
-                        <label class="form-label">
-
-                            Measurement Name
-
-                        </label>
-
-                        <input type="text"
-                               class="form-control measurement-name"
-                               placeholder="e.g. Chest, Shoulder, Sleeve Length"
-                               maxlength="100"
-                               value="${escapeHtml(name)}">
-
-                        <div class="measurement-error name-error">
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-
-                            Measurement Value
-
-                        </label>
-
-                        <div class="measurement-value-group">
-
-                            <input type="number"
-                                   class="form-control measurement-value"
-                                   placeholder="e.g. 38"
-                                   min="0.1"
-                                   max="999"
-                                   step="0.1"
-                                   inputmode="decimal"
-                                   value="${escapeHtml(value)}">
-
-                            <div class="unit-box">
-
-                                inches
-
-                            </div>
-
-                        </div>
-
-                        <div class="measurement-error value-error">
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-1">
-
-                        <button type="button"
-                                class="remove-measurement"
-                                title="Remove measurement">
-
-                            <i class="bi bi-trash"></i>
-
-                        </button>
-
-                    </div>
-
-                </div>
-            `;
-
-
-            const removeButton =
-                row.querySelector(
-                    ".remove-measurement"
-                );
-
-
-            removeButton.addEventListener(
-                "click",
-                function () {
-
-                    row.remove();
-
-                    updateMeasurementMessage();
-
-                });
-
-
-            measurementContainer.appendChild(row);
-
-            updateMeasurementMessage();
-
-        }
-
-
-        function escapeHtml(value) {
-
-            return String(value)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-
-        }
-
-
-        function loadExistingMeasurements() {
-
-            const existing =
-                customMeasurementsInput.value.trim();
-
-
-            if (!existing)
-                return;
-
-
-            const parts =
-                existing.split("|");
-
-
-            parts.forEach(function (part) {
-
-                const text =
-                    part.trim();
-
-
-                if (!text)
-                    return;
-
-
-                const separator =
-                    text.indexOf(":");
-
-
-                if (separator <= 0)
-                    return;
-
-
-                const name =
-                    text
-                        .substring(0, separator)
-                        .trim();
-
-
-                let value =
-                    text
-                        .substring(separator + 1)
-                        .trim();
-
-
-                value =
-                    value
-                        .replace(
-                            /inches/gi,
-                            ""
-                        )
-                        .trim();
-
-
-                if (name && value) {
-
-                    createMeasurementRow(
-                        name,
-                        value
-                    );
-
-                }
-
-            });
-
-        }
 
 
         addMeasurementBtn.addEventListener(
             "click",
             function () {
 
-                createMeasurementRow();
+                const row =
+                    document.createElement("div");
 
-                const rows =
-                    measurementContainer.querySelectorAll(
-                        ".measurement-row"
+                row.className =
+                    "measurement-row";
+
+                row.innerHTML = `
+                    <div class="row g-2 align-items-center">
+
+                        <div class="col-md-6">
+
+                            <input type="text"
+                                   class="form-control measurement-name"
+                                   placeholder="Example: Waist"
+                                   maxlength="80" />
+
+                        </div>
+
+                        <div class="col-md-5">
+
+                            <input type="number"
+                                   class="form-control measurement-value"
+                                   placeholder="Example: 30"
+                                   min="0.1"
+                                   max="200"
+                                   step="0.1" />
+
+                        </div>
+
+                        <div class="col-md-1 text-end">
+
+                            <button type="button"
+                                    class="remove-measurement"
+                                    onclick="removeMeasurement(this)">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+                `;
+
+                measurementsContainer.appendChild(row);
+
+            });
+
+
+        function removeMeasurement(button) {
+
+            const rows =
+                measurementsContainer.querySelectorAll(
+                    ".measurement-row");
+
+            if (rows.length <= 1) {
+
+                const nameInput =
+                    rows[0].querySelector(
+                        ".measurement-name");
+
+                const valueInput =
+                    rows[0].querySelector(
+                        ".measurement-value");
+
+                nameInput.value = "";
+                valueInput.value = "";
+
+                return;
+            }
+
+            button.closest(".measurement-row").remove();
+
+        }
+
+
+        function collectMeasurements() {
+
+            const rows =
+                measurementsContainer.querySelectorAll(
+                    ".measurement-row");
+
+            const measurements = [];
+
+            rows.forEach(function (row) {
+
+                const nameInput =
+                    row.querySelector(
+                        ".measurement-name");
+
+                const valueInput =
+                    row.querySelector(
+                        ".measurement-value");
+
+                const name =
+                    nameInput.value.trim();
+
+                const value =
+                    valueInput.value.trim();
+
+                if (name !== "" &&
+                    value !== "" &&
+                    !isNaN(parseFloat(value)) &&
+                    parseFloat(value) > 0) {
+
+                    measurements.push(
+                        name +
+                        ": " +
+                        parseFloat(value).toFixed(1) +
+                        " inches"
                     );
 
-                if (rows.length > 0) {
+                }
 
-                    const lastRow =
-                        rows[rows.length - 1];
+            });
 
-                    lastRow
-                        .querySelector(
-                            ".measurement-name"
-                        )
-                        .focus();
+            customMeasurements.value =
+                measurements.join(" | ");
+
+            return measurements;
+
+        }
+
+
+        referenceImages.addEventListener(
+            "change",
+            function () {
+
+                referencePreview.innerHTML = "";
+                imageError.style.display = "none";
+
+                const files =
+                    Array.from(this.files);
+
+                if (files.length > 10) {
+
+                    imageError.textContent =
+                        "You can upload a maximum of 10 images.";
+
+                    imageError.style.display =
+                        "block";
+
+                    this.value = "";
+
+                    return;
+                }
+
+                for (const file of files) {
+
+                    if (!file.type.startsWith("image/")) {
+
+                        imageError.textContent =
+                            "Only image files are allowed.";
+
+                        imageError.style.display =
+                            "block";
+
+                        this.value = "";
+
+                        referencePreview.innerHTML = "";
+
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+
+                        imageError.textContent =
+                            "Each image must be 5 MB or smaller.";
+
+                        imageError.style.display =
+                            "block";
+
+                        this.value = "";
+
+                        referencePreview.innerHTML = "";
+
+                        return;
+                    }
+
+                    const reader =
+                        new FileReader();
+
+                    reader.onload =
+                        function (event) {
+
+                            const wrapper =
+                                document.createElement("div");
+
+                            wrapper.className =
+                                "preview-item";
+
+                            const image =
+                                document.createElement("img");
+
+                            image.src =
+                                event.target.result;
+
+                            wrapper.appendChild(image);
+
+                            referencePreview.appendChild(wrapper);
+
+                        };
+
+                    reader.readAsDataURL(file);
 
                 }
 
@@ -1214,376 +1343,84 @@
             "submit",
             function (event) {
 
-                const rows =
-                    measurementContainer.querySelectorAll(
-                        ".measurement-row"
-                    );
+                const measurements =
+                    collectMeasurements();
 
-
-                if (rows.length === 0) {
+                if (measurements.length === 0) {
 
                     event.preventDefault();
 
-                    alert(
-                        "Please add at least one measurement."
-                    );
+                    measurementError.style.display =
+                        "block";
 
-                    return;
-
-                }
-
-
-                const measurements = [];
-
-                const names =
-                    new Set();
-
-                let hasError = false;
-
-
-                rows.forEach(function (row) {
-
-                    const nameInput =
-                        row.querySelector(
-                            ".measurement-name"
-                        );
-
-                    const valueInput =
-                        row.querySelector(
-                            ".measurement-value"
-                        );
-
-                    const nameError =
-                        row.querySelector(
-                            ".name-error"
-                        );
-
-                    const valueError =
-                        row.querySelector(
-                            ".value-error"
-                        );
-
-
-                    nameError.style.display = "none";
-                    valueError.style.display = "none";
-
-                    row.classList.remove(
-                        "invalid-row"
-                    );
-
-
-                    const name =
-                        nameInput.value.trim();
-
-                    const value =
-                        valueInput.value.trim();
-
-
-                    if (!name) {
-
-                        nameError.textContent =
-                            "Please enter the measurement name.";
-
-                        nameError.style.display =
-                            "block";
-
-                        row.classList.add(
-                            "invalid-row"
-                        );
-
-                        hasError = true;
-
-                        return;
-
-                    }
-
-
-                    if (!value) {
-
-                        valueError.textContent =
-                            "Please enter the measurement value.";
-
-                        valueError.style.display =
-                            "block";
-
-                        row.classList.add(
-                            "invalid-row"
-                        );
-
-                        hasError = true;
-
-                        return;
-
-                    }
-
-
-                    const numericValue =
-                        parseFloat(value);
-
-
-                    if (
-                        isNaN(numericValue) ||
-                        numericValue <= 0 ||
-                        numericValue > 999
-                    ) {
-
-                        valueError.textContent =
-                            "Please enter a valid measurement.";
-
-                        valueError.style.display =
-                            "block";
-
-                        row.classList.add(
-                            "invalid-row"
-                        );
-
-                        hasError = true;
-
-                        return;
-
-                    }
-
-
-                    const normalizedName =
-                        name.toLowerCase();
-
-
-                    if (
-                        names.has(
-                            normalizedName
-                        )
-                    ) {
-
-                        nameError.textContent =
-                            "This measurement has already been added.";
-
-                        nameError.style.display =
-                            "block";
-
-                        row.classList.add(
-                            "invalid-row"
-                        );
-
-                        hasError = true;
-
-                        return;
-
-                    }
-
-
-                    names.add(
-                        normalizedName
-                    );
-
-
-                    measurements.push(
-                        name +
-                        ": " +
-                        numericValue.toFixed(1) +
-                        " inches"
-                    );
-
-                });
-
-
-                if (hasError) {
-
-                    event.preventDefault();
-
-                    const firstError =
-                        document.querySelector(
-                            ".invalid-row"
-                        );
-
-                    if (firstError) {
-
-                        firstError.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        });
-
-                    }
-
-                    return;
-
-                }
-
-
-                customMeasurementsInput.value =
-                    measurements.join(" | ");
-
-
-                const files =
-                    referenceImages.files;
-
-
-                if (files.length > 10) {
-
-                    event.preventDefault();
-
-                    imageError.textContent =
-                        "You can upload a maximum of 10 reference pictures.";
-
-                    referenceImages.scrollIntoView({
+                    measurementsContainer.scrollIntoView({
                         behavior: "smooth",
                         block: "center"
                     });
 
                     return;
-
                 }
 
-
-                for (
-                    let i = 0;
-                    i < files.length;
-                    i++
-                ) {
-
-                    const file =
-                        files[i];
-
-                    const maxSize =
-                        5 * 1024 * 1024;
-
-
-                    if (file.size > maxSize) {
-
-                        event.preventDefault();
-
-                        imageError.textContent =
-                            file.name +
-                            " is larger than 5 MB.";
-
-                        referenceImages.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        });
-
-                        return;
-
-                    }
-
-
-                    const allowedTypes = [
-                        "image/jpeg",
-                        "image/png",
-                        "image/webp"
-                    ];
-
-
-                    if (
-                        !allowedTypes.includes(
-                            file.type
-                        )
-                    ) {
-
-                        event.preventDefault();
-
-                        imageError.textContent =
-                            file.name +
-                            " is not a supported image.";
-
-                        return;
-
-                    }
-
-                }
-
-            });
-
-
-        referenceImages.addEventListener(
-            "change",
-            function () {
-
-                imagePreview.innerHTML = "";
-                imageError.textContent = "";
+                measurementError.style.display =
+                    "none";
 
 
                 const files =
-                    this.files;
-
+                    Array.from(referenceImages.files);
 
                 if (files.length > 10) {
 
-                    imageError.textContent =
-                        "You can upload a maximum of 10 pictures.";
+                    event.preventDefault();
 
-                    this.value = "";
+                    imageError.textContent =
+                        "You can upload a maximum of 10 images.";
+
+                    imageError.style.display =
+                        "block";
 
                     return;
+                }
+
+                for (const file of files) {
+
+                    if (!file.type.startsWith("image/") ||
+                        file.size > 5 * 1024 * 1024) {
+
+                        event.preventDefault();
+
+                        imageError.textContent =
+                            "Each reference image must be a valid image and 5 MB or smaller.";
+
+                        imageError.style.display =
+                            "block";
+
+                        return;
+                    }
 
                 }
 
-
-                Array.from(files).forEach(
-                    function (file) {
-
-                        if (
-                            !file.type.startsWith(
-                                "image/"
-                            )
-                        )
-                            return;
-
-
-                        const reader =
-                            new FileReader();
-
-
-                        reader.onload =
-                            function (event) {
-
-                                const preview =
-                                    document.createElement(
-                                        "div"
-                                    );
-
-                                preview.className =
-                                    "preview-item";
-
-
-                                preview.innerHTML = `
-
-                                    <img src="${event.target.result}"
-                                         alt="Reference image">
-
-                                `;
-
-
-                                imagePreview.appendChild(
-                                    preview
-                                );
-
-                            };
-
-
-                        reader.readAsDataURL(
-                            file
-                        );
-
-                    }
-                );
-
             });
 
 
-        customerNotes.addEventListener(
-            "input",
-            function () {
+        document
+            .querySelectorAll(".measurement-name, .measurement-value")
+            .forEach(function (input) {
 
-                characterCount.textContent =
-                    this.value.length;
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        measurementError.style.display =
+                            "none";
+
+                    });
 
             });
-
-
-        loadExistingMeasurements();
-
-        updateMeasurementMessage();
 
     </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

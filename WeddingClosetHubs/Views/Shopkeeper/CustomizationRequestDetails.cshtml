@@ -3,58 +3,63 @@
 @{
     ViewData["Title"] = "Customization Request Details";
 
-    var imagePaths =
-        string.IsNullOrWhiteSpace(Model.ReferenceImages)
-            ? new List<string>()
-            : Model.ReferenceImages
-                .Split(
-                    '|',
-                    StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
+    var shopkeeperName =
+        ViewBag.ShopkeeperName as string ?? "Shopkeeper";
+
+    var shopName =
+        ViewBag.ShopName as string ?? "My Shop";
+
+    string badgeClass =
+        Model.Status switch
+        {
+            "Pending" => "bg-warning text-dark",
+            "PriceSent" => "bg-info text-dark",
+            "ChangeRequested" => "bg-warning text-dark",
+            "RevisedPriceSent" => "bg-primary",
+            "PriceRejected" => "bg-danger",
+            "Accepted" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
+
             <h2 class="fw-bold mb-1"
                 style="color:#800020;">
-                Customization Request
+
+                <i class="bi bi-scissors me-2"></i>
+                Customization Request Details
+
             </h2>
 
             <p class="text-muted mb-0">
-                Review the customer's customization requirements.
+                Review the customer's custom design, measurements,
+                requested changes, and send the customized price.
             </p>
+
         </div>
 
         <a asp-controller="Shopkeeper"
            asp-action="CustomizationRequests"
            class="btn"
            style="background:#800020;color:white;">
+
             <i class="bi bi-arrow-left me-1"></i>
             Back to Requests
+
         </a>
 
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">
-            <i class="bi bi-check-circle me-2"></i>
-            @TempData["Success"]
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            @TempData["Error"]
-        </div>
-    }
 
     <div class="row g-4">
+
+        <!-- CUSTOMER / BASIC INFORMATION -->
 
         <div class="col-lg-5">
 
@@ -62,60 +67,79 @@
 
                 <div class="card-header text-white"
                      style="background:#800020;">
+
                     <h5 class="mb-0">
+
                         <i class="bi bi-person me-2"></i>
-                        Customer & Product
+                        Customer & Custom Design
+
                     </h5>
+
                 </div>
 
                 <div class="card-body">
 
-                    @if (!string.IsNullOrWhiteSpace(
-                        Model.Product?.Image))
-                    {
-                        <div class="text-center mb-3">
-
-                            <img src="@Model.Product.Image"
-                                 class="img-fluid rounded"
-                                 style="max-height:280px;object-fit:contain;" />
-
-                        </div>
-                    }
-
                     <h4 style="color:#800020;">
-                        @(Model.Product?.ProductName ?? "Product")
+                        @Model.ProductName
                     </h4>
+
+                    <p class="text-muted mb-3">
+                        Custom product requested by the customer
+                    </p>
 
                     <hr />
 
                     <p class="mb-2">
+
                         <strong>Customer:</strong>
+
                         @(Model.Customer?.Name ?? "Customer")
+
                     </p>
 
                     <p class="mb-2">
+
                         <strong>Email:</strong>
+
                         @(Model.Customer?.Email ?? "Not available")
+
                     </p>
 
                     <p class="mb-2">
-                        <strong>Selected Size:</strong>
-                        @(string.IsNullOrWhiteSpace(Model.SelectedSize)
-                            ? "Not selected"
-                            : Model.SelectedSize)
+
+                        <strong>Category:</strong>
+
+                        @Model.Category
+
                     </p>
 
                     <p class="mb-2">
+
+                        <strong>Color:</strong>
+
+                        @(string.IsNullOrWhiteSpace(Model.Color)
+                            ? "Not specified"
+                            : Model.Color)
+
+                    </p>
+
+                    <p class="mb-2">
+
                         <strong>Request Date:</strong>
-                        @Model.CreatedDate.ToString("dd MMM yyyy hh:mm tt")
+
+                        @Model.CreatedDate.ToString(
+                            "dd MMM yyyy hh:mm tt")
+
                     </p>
 
                     <p class="mb-0">
+
                         <strong>Status:</strong>
 
-                        <span class="badge bg-info text-dark ms-1">
+                        <span class="badge @badgeClass ms-1">
                             @Model.Status
                         </span>
+
                     </p>
 
                 </div>
@@ -124,66 +148,114 @@
 
         </div>
 
+
+        <!-- ORIGINAL REQUEST -->
+
         <div class="col-lg-7">
 
-            <div class="card shadow-sm border-0 mb-4">
+            <div class="card shadow-sm border-0">
 
-                <div class="card-header"
-                     style="background:#f8f1f3;color:#800020;">
+                <div class="card-header text-white"
+                     style="background:#800020;">
+
                     <h5 class="mb-0">
+
                         <i class="bi bi-rulers me-2"></i>
                         Customer Measurements
+
                     </h5>
+
                 </div>
 
                 <div class="card-body">
 
-                    @if (string.IsNullOrWhiteSpace(Model.Measurements))
-                    {
-                        <p class="text-muted mb-0">
-                            No measurements provided.
-                        </p>
-                    }
-                    else
-                    {
-                        var measurements =
-                            Model.Measurements
-                                .Split(
-                                    '|',
-                                    StringSplitOptions.RemoveEmptyEntries);
+                    <div class="measurement-box">
 
-                        <div class="row g-2">
+                        <div class="section-title">
 
-                            @foreach (var measurement in measurements)
+                            <i class="bi bi-person-standing me-1"></i>
+                            Original Measurements
+
+                        </div>
+
+                        <div class="measurement-text">
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Measurements))
                             {
-                                var parts =
-                                    measurement.Split(
-                                        ':',
-                                        2,
-                                        StringSplitOptions.None);
+                                @Model.Measurements
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    No measurements provided.
+                                </span>
+                            }
 
-                                <div class="col-md-6">
+                        </div>
 
-                                    <div class="border rounded p-3 bg-light">
+                    </div>
 
-                                        @if (parts.Length == 2)
-                                        {
-                                            <strong>
-                                                @parts[0].Trim()
-                                            </strong>
 
-                                            <div class="mt-1">
-                                                @parts[1].Trim()
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            @measurement.Trim()
-                                        }
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.CustomerUpdatedMeasurements))
+                    {
+                        <div class="updated-measurement-box mt-3">
 
-                                    </div>
+                            <div class="section-title">
 
-                                </div>
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Customer Updated Measurements
+
+                            </div>
+
+                            <div class="measurement-text">
+
+                                @Model.CustomerUpdatedMeasurements
+
+                            </div>
+
+                            @if (Model.CustomerResponseDate.HasValue)
+                            {
+                                <small class="text-muted d-block mt-2">
+
+                                    Updated on
+                                    @Model.CustomerResponseDate.Value.ToString(
+                                        "dd MMM yyyy hh:mm tt")
+
+                                </small>
+                            }
+
+                        </div>
+                    }
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        Model.CustomerResponseNotes))
+                    {
+                        <div class="customer-request-box mt-3">
+
+                            <div class="section-title">
+
+                                <i class="bi bi-chat-left-text me-1"></i>
+                                Customer's Latest Request
+
+                            </div>
+
+                            <div class="response-text">
+
+                                @Model.CustomerResponseNotes
+
+                            </div>
+
+                            @if (Model.CustomerResponseDate.HasValue)
+                            {
+                                <small class="text-muted d-block mt-2">
+
+                                    Sent on
+                                    @Model.CustomerResponseDate.Value.ToString(
+                                        "dd MMM yyyy hh:mm tt")
+
+                                </small>
                             }
 
                         </div>
@@ -193,108 +265,222 @@
 
             </div>
 
-
-            <div class="card shadow-sm border-0 mb-4">
-
-                <div class="card-header"
-                     style="background:#f8f1f3;color:#800020;">
-                    <h5 class="mb-0">
-                        <i class="bi bi-chat-left-text me-2"></i>
-                        Customer Notes
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    @if (string.IsNullOrWhiteSpace(
-                        Model.CustomerNotes))
-                    {
-                        <span class="text-muted">
-                            No additional notes provided.
-                        </span>
-                    }
-                    else
-                    {
-                        <p class="mb-0"
-                           style="white-space:pre-wrap;">
-                            @Model.CustomerNotes
-                        </p>
-                    }
-
-                </div>
-
-            </div>
+        </div>
 
 
-            <div class="card shadow-sm border-0 mb-4">
+        <!-- REFERENCE IMAGES -->
 
-                <div class="card-header"
-                     style="background:#f8f1f3;color:#800020;">
-                    <h5 class="mb-0">
-                        <i class="bi bi-images me-2"></i>
-                        Reference Images
-                    </h5>
-                </div>
+        @if (!string.IsNullOrWhiteSpace(Model.ReferenceImages))
+        {
+            <div class="col-12">
 
-                <div class="card-body">
-
-                    @if (!imagePaths.Any())
-                    {
-                        <p class="text-muted mb-0">
-                            No reference images were uploaded.
-                        </p>
-                    }
-                    else
-                    {
-                        <div class="row g-3">
-
-                            @foreach (var imagePath in imagePaths)
-                            {
-                                <div class="col-md-4">
-
-                                    <a href="@imagePath"
-                                       target="_blank">
-
-                                        <img src="@imagePath"
-                                             class="img-fluid rounded border"
-                                             style="width:100%;height:180px;object-fit:cover;" />
-
-                                    </a>
-
-                                </div>
-                            }
-
-                        </div>
-                    }
-
-                </div>
-
-            </div>
-
-
-            @if (!string.Equals(
-                Model.Status,
-                "Accepted",
-                StringComparison.OrdinalIgnoreCase)
-                &&
-                !string.Equals(
-                    Model.Status,
-                    "Cancelled",
-                    StringComparison.OrdinalIgnoreCase))
-            {
                 <div class="card shadow-sm border-0">
 
                     <div class="card-header text-white"
                          style="background:#800020;">
 
                         <h5 class="mb-0">
-                            <i class="bi bi-tag me-2"></i>
-                            Send Customized Price
+
+                            <i class="bi bi-images me-2"></i>
+                            Reference Images
+
                         </h5>
 
                     </div>
 
                     <div class="card-body">
+
+                        <div class="d-flex flex-wrap gap-3">
+
+                            @foreach (var image in Model.ReferenceImages.Split(
+                                '|',
+                                StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <a href="@image"
+                                   target="_blank">
+
+                                    <img src="@image"
+                                         style="width:150px;
+                                                height:150px;
+                                                object-fit:cover;
+                                                border-radius:10px;
+                                                border:1px solid #ddd;" />
+
+                                </a>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- ORIGINAL CUSTOMER NOTES -->
+
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerNotes))
+        {
+            <div class="col-lg-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-header"
+                         style="background:#fffaf0;color:#800020;">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-chat-square-text me-2"></i>
+                            Customer Original Notes
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <p class="mb-0"
+                           style="line-height:1.7;">
+
+                            @Model.CustomerNotes
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- SHOPKEEPER PREVIOUS NOTES -->
+
+        @if (!string.IsNullOrWhiteSpace(Model.ShopkeeperNotes))
+        {
+            <div class="col-lg-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-header"
+                         style="background:#f8f1f3;color:#800020;">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-shop me-2"></i>
+                            Your Previous Notes
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <p class="mb-0"
+                           style="line-height:1.7;">
+
+                            @Model.ShopkeeperNotes
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- CURRENT PRICE -->
+
+        @if (Model.ShopkeeperPrice.HasValue)
+        {
+            <div class="col-12">
+
+                <div class="price-display">
+
+                    <div>
+
+                        <div class="price-label">
+                            Current Customized Price
+                        </div>
+
+                        <div class="price-value">
+
+                            Rs.
+                            @Model.ShopkeeperPrice.Value.ToString("N2")
+
+                        </div>
+
+                    </div>
+
+                    <i class="bi bi-tag-fill"></i>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- SEND / REVISE PRICE -->
+
+        @if (Model.Status != "Accepted" &&
+             Model.Status != "Cancelled")
+        {
+            <div class="col-12">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header text-white"
+                         style="background:#800020;">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-send me-2"></i>
+
+                            @if (Model.Status == "ChangeRequested" ||
+                                 Model.Status == "PriceRejected")
+                            {
+                                <span>Send Revised Price</span>
+                            }
+                            else
+                            {
+                                <span>Send Customized Price</span>
+                            }
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        @if (Model.Status == "ChangeRequested")
+                        {
+                            <div class="alert alert-warning">
+
+                                <i class="bi bi-exclamation-circle me-2"></i>
+
+                                The customer has requested changes.
+                                Review the updated measurements and message
+                                above before sending a revised price.
+
+                            </div>
+                        }
+
+                        @if (Model.Status == "PriceRejected")
+                        {
+                            <div class="alert alert-danger">
+
+                                <i class="bi bi-x-circle me-2"></i>
+
+                                The customer rejected the previous price.
+                                You can reconsider the price and send a new
+                                customized price.
+
+                            </div>
+                        }
 
                         <form asp-controller="Shopkeeper"
                               asp-action="SendCustomizationPrice"
@@ -306,53 +492,72 @@
                                    name="id"
                                    value="@Model.CustomizationRequestId" />
 
-                            <div class="mb-3">
+                            <div class="row g-3">
 
-                                <label class="form-label fw-semibold">
-                                    Customized Price
-                                </label>
+                                <div class="col-md-5">
 
-                                <div class="input-group">
+                                    <label class="form-label fw-bold"
+                                           style="color:#800020;">
 
-                                    <span class="input-group-text">
-                                        Rs.
-                                    </span>
+                                        Customized Price
 
-                                    <input type="number"
-                                           name="price"
-                                           class="form-control"
-                                           min="1"
-                                           step="0.01"
-                                           value="@(Model.ShopkeeperPrice?.ToString("0.00"))"
-                                           required />
+                                    </label>
+
+                                    <div class="input-group">
+
+                                        <span class="input-group-text">
+                                            Rs.
+                                        </span>
+
+                                        <input type="number"
+                                               name="price"
+                                               class="form-control"
+                                               min="1"
+                                               step="0.01"
+                                               value="@(Model.ShopkeeperPrice?.ToString("0.00") ?? "")"
+                                               placeholder="Enter price"
+                                               required />
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-7">
+
+                                    <label class="form-label fw-bold"
+                                           style="color:#800020;">
+
+                                        Notes for Customer
+
+                                    </label>
+
+                                    <textarea name="notes"
+                                              class="form-control"
+                                              rows="3"
+                                              maxlength="2000"
+                                              placeholder="Explain the price or any important details...">@Model.ShopkeeperNotes</textarea>
 
                                 </div>
 
                             </div>
 
-                            <div class="mb-3">
-
-                                <label class="form-label fw-semibold">
-                                    Note for Customer
-                                    <span class="text-muted">
-                                        (Optional)
-                                    </span>
-                                </label>
-
-                                <textarea name="notes"
-                                          class="form-control"
-                                          rows="4"
-                                          maxlength="2000"
-                                          placeholder="Add any details about the customized price or customization...">@Model.ShopkeeperNotes</textarea>
-
-                            </div>
-
                             <button type="submit"
-                                    class="btn w-100"
-                                    style="background:#800020;color:white;">
+                                    class="btn mt-4"
+                                    style="background:#d4af37;
+                                           color:#000;
+                                           font-weight:600;">
 
-                                <i class="bi bi-send me-2"></i>
-                                Send Customized Price
+                                <i class="bi bi-send me-1"></i>
+
+                                @if (Model.Status == "ChangeRequested" ||
+                                     Model.Status == "PriceRejected")
+                                {
+                                    <span>Send Revised Price</span>
+                                }
+                                else
+                                {
+                                    <span>Send Price to Customer</span>
+                                }
 
                             </button>
 
@@ -361,52 +566,101 @@
                     </div>
 
                 </div>
-            }
-            else
-            {
-                <div class="card shadow-sm border-0">
 
-                    <div class="card-body">
+            </div>
+        }
 
-                        <div class="alert alert-success mb-0">
+        @if (Model.Status == "Accepted")
+        {
+            <div class="col-12">
 
-                            <strong>
-                                Current Status:
-                            </strong>
+                <div class="alert alert-success">
 
-                            @Model.Status
+                    <i class="bi bi-check-circle me-2"></i>
 
-                            @if (Model.ShopkeeperPrice.HasValue)
-                            {
-                                <div class="mt-2">
-                                    Customized Price:
-                                    <strong>
-                                        Rs.
-                                        @Model.ShopkeeperPrice.Value.ToString("N2")
-                                    </strong>
-                                </div>
-                            }
-
-                            @if (!string.IsNullOrWhiteSpace(
-                                Model.ShopkeeperNotes))
-                            {
-                                <div class="mt-2">
-                                    <strong>Shopkeeper Note:</strong>
-                                    <div>
-                                        @Model.ShopkeeperNotes
-                                    </div>
-                                </div>
-                            }
-
-                        </div>
-
-                    </div>
+                    The customer has accepted this customized price.
 
                 </div>
-            }
 
-        </div>
+            </div>
+        }
 
     </div>
 
 </div>
+
+<style>
+
+    .measurement-box {
+        background: #faf7f0;
+        border: 1px solid #ead9a4;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .updated-measurement-box {
+        background: #f8f1f3;
+        border-left: 4px solid #800020;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .customer-request-box {
+        background: #fffaf0;
+        border-left: 4px solid #d4af37;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .section-title {
+        color: #800020;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .measurement-text {
+        color: #5c5050;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .response-text {
+        color: #665c35;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .price-display {
+        background: #fffaf0;
+        border: 1px solid #d4af37;
+        border-radius: 12px;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .price-label {
+        color: #665c35;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .price-value {
+        color: #800020;
+        font-size: 30px;
+        font-weight: 700;
+        margin-top: 3px;
+    }
+
+    .price-display > i {
+        color: #d4af37;
+        font-size: 35px;
+    }
+
+    .form-control:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 .15rem rgba(212,175,55,.15);
+    }
+
+</style>

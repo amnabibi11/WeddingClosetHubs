@@ -1,36 +1,42 @@
-﻿@model IEnumerable<WeddingClosetHubs.Models.Shop>
+﻿
+@model IEnumerable<WeddingClosetHubs.Models.Shop>
 
 @{
     ViewData["Title"] = "Manage Shops";
 
     int pendingCount = Model?.Count(s =>
         string.IsNullOrWhiteSpace(s.VerificationStatus) ||
-        s.VerificationStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
-        s.VerificationStatus.Equals("Under Review", StringComparison.OrdinalIgnoreCase)) ?? 0;
+        s.VerificationStatus.Trim().Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
+        s.VerificationStatus.Trim().Equals("Under Review", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
     int moreEvidenceCount = Model?.Count(s =>
-        s.VerificationStatus != null &&
-        s.VerificationStatus.Equals("More Evidence Required", StringComparison.OrdinalIgnoreCase)) ?? 0;
+        string.Equals(
+            s.VerificationStatus?.Trim(),
+            "More Evidence Required",
+            StringComparison.OrdinalIgnoreCase)) ?? 0;
 
     int approvedCount = Model?.Count(s =>
-     s.IsApproved &&
-     s.Status) ?? 0;
-
+        s.IsApproved &&
+        s.Status &&
+        string.Equals(
+            s.VerificationStatus?.Trim(),
+            "Approved",
+            StringComparison.OrdinalIgnoreCase)) ?? 0;
 
     int disabledCount = Model?.Count(s =>
         s.IsApproved &&
-        !s.Status) ?? 0;
+        !s.Status &&
+        string.Equals(
+            s.VerificationStatus?.Trim(),
+            "Approved",
+            StringComparison.OrdinalIgnoreCase)) ?? 0;
 }
 
 <div class="container-fluid mt-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-
         <div>
-            <h2 class="fw-bold">
-                Manage Shops
-            </h2>
-
+            <h2 class="fw-bold">Manage Shops</h2>
             <p class="text-muted mb-0">
                 Review shopkeeper verification and manage registered shops.
             </p>
@@ -39,456 +45,277 @@
         <a asp-controller="Admin"
            asp-action="Dashboard"
            class="btn btn-secondary">
-
             Back to Dashboard
-
         </a>
-
     </div>
-
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
-
             @TempData["Success"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
 
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show">
-
             @TempData["Error"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
 
     <div class="row mb-4">
 
         <div class="col-md-3 mb-3">
-
             <div class="card border-warning shadow-sm h-100">
-
                 <div class="card-body">
-
-                    <h6 class="text-warning fw-bold">
-                        Pending Verification
-                    </h6>
-
-                    <h3 class="fw-bold mb-2">
-                        @pendingCount
-                    </h3>
-
-                    <p class="mb-0 text-muted">
-                        Shops waiting for Admin verification.
-                    </p>
-
+                    <h6 class="text-warning fw-bold">Pending Verification</h6>
+                    <h3 class="fw-bold mb-2">@pendingCount</h3>
+                    <p class="mb-0 text-muted">Shops waiting for Admin verification.</p>
                 </div>
-
             </div>
-
         </div>
 
-
         <div class="col-md-3 mb-3">
-
             <div class="card border-info shadow-sm h-100">
-
                 <div class="card-body">
-
-                    <h6 class="text-info fw-bold">
-                        More Evidence Required
-                    </h6>
-
-                    <h3 class="fw-bold mb-2">
-                        @moreEvidenceCount
-                    </h3>
-
-                    <p class="mb-0 text-muted">
-                        Shops requiring additional evidence.
-                    </p>
-
+                    <h6 class="text-info fw-bold">More Evidence Required</h6>
+                    <h3 class="fw-bold mb-2">@moreEvidenceCount</h3>
+                    <p class="mb-0 text-muted">Shops requiring additional evidence.</p>
                 </div>
-
             </div>
-
         </div>
 
-
         <div class="col-md-3 mb-3">
-
             <div class="card border-success shadow-sm h-100">
-
                 <div class="card-body">
-
-                    <h6 class="text-success fw-bold">
-                        Active
-                    </h6>
-
-                    <h3 class="fw-bold mb-2">
-                        @approvedCount
-                    </h3>
-
-                    <p class="mb-0 text-muted">
-                        Verified and enabled shops.
-                    </p>
-
+                    <h6 class="text-success fw-bold">Active</h6>
+                    <h3 class="fw-bold mb-2">@approvedCount</h3>
+                    <p class="mb-0 text-muted">Verified, approved and enabled shops.</p>
                 </div>
-
             </div>
-
         </div>
 
-
         <div class="col-md-3 mb-3">
-
             <div class="card border-danger shadow-sm h-100">
-
                 <div class="card-body">
-
-                    <h6 class="text-danger fw-bold">
-                        Disabled
-                    </h6>
-
-                    <h3 class="fw-bold mb-2">
-                        @disabledCount
-                    </h3>
-
-                    <p class="mb-0 text-muted">
-                        Approved shops currently disabled.
-                    </p>
-
+                    <h6 class="text-danger fw-bold">Disabled</h6>
+                    <h3 class="fw-bold mb-2">@disabledCount</h3>
+                    <p class="mb-0 text-muted">Approved shops currently disabled.</p>
                 </div>
-
             </div>
-
         </div>
 
     </div>
 
-
     <div class="card shadow">
 
         <div class="card-header bg-dark text-white">
-
-            <h5 class="mb-0">
-                Registered Shops
-            </h5>
-
+            <h5 class="mb-0">Registered Shops</h5>
         </div>
-
 
         <div class="card-body">
 
             @if (Model != null && Model.Any())
             {
-
                 <div class="table-responsive">
 
                     <table class="table table-bordered table-striped table-hover align-middle">
 
                         <thead class="table-dark">
-
                             <tr>
-
-                                <th>
-                                    ID
-                                </th>
-
-                                <th>
-                                    Logo
-                                </th>
-
-                                <th>
-                                    Shop Name
-                                </th>
-
-                                <th>
-                                    Shopkeeper
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Phone
-                                </th>
-
-                                <th>
-                                    Address
-                                </th>
-
-                                <th>
-                                    Verification
-                                </th>
-
-                                <th>
-                                    Approval
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Created Date
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
+                                <th>ID</th>
+                                <th>Logo</th>
+                                <th>Shop Name</th>
+                                <th>Shopkeeper</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Verification</th>
+                                <th>Approval</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Action</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
                             @foreach (var shop in Model)
                             {
+                                string verificationStatus =
+                                    string.IsNullOrWhiteSpace(shop.VerificationStatus)
+                                        ? "Pending"
+                                        : shop.VerificationStatus.Trim();
+
+                                bool isVerified = string.Equals(
+                                    verificationStatus,
+                                    "Approved",
+                                    StringComparison.OrdinalIgnoreCase);
+
+                                bool isActive =
+                                    isVerified &&
+                                    shop.IsApproved &&
+                                    shop.Status;
+
+                                bool isDisabled =
+                                    isVerified &&
+                                    shop.IsApproved &&
+                                    !shop.Status;
 
                                 <tr>
 
-                                    <td>
-                                        @shop.ShopId
-                                    </td>
-
+                                    <td>@shop.ShopId</td>
 
                                     <td>
-
                                         @if (!string.IsNullOrEmpty(shop.Logo))
                                         {
                                             <img src="@shop.Logo"
                                                  alt="@shop.ShopName Logo"
                                                  width="70"
                                                  height="70"
-                                                 style="object-fit:cover;
-                                                                    border-radius:8px;
-                                                                    border:1px solid #ddd;" />
+                                                 style="object-fit:cover;border-radius:8px;border:1px solid #ddd;" />
                                         }
                                         else
                                         {
-                                            <span class="text-muted">
-                                                No Logo
-                                            </span>
+                                            <span class="text-muted">No Logo</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
-                                        <strong>
-                                            @shop.ShopName
-                                        </strong>
-
+                                        <strong>@shop.ShopName</strong>
                                     </td>
 
-
                                     <td>
-
                                         @if (shop.Shopkeeper != null)
                                         {
-                                            <span>
-                                                @shop.Shopkeeper.Name
-                                            </span>
+                                            @shop.Shopkeeper.Name
                                         }
                                         else
                                         {
-                                            <span class="text-danger">
-                                                No Shopkeeper
-                                            </span>
+                                            <span class="text-danger">No Shopkeeper</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
                                         @if (!string.IsNullOrEmpty(shop.Email))
                                         {
                                             @shop.Email
                                         }
                                         else
                                         {
-                                            <span class="text-muted">
-                                                Not Provided
-                                            </span>
+                                            <span class="text-muted">Not Provided</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
                                         @if (!string.IsNullOrEmpty(shop.ShopPhone))
                                         {
                                             @shop.ShopPhone
                                         }
                                         else
                                         {
-                                            <span class="text-muted">
-                                                Not Provided
-                                            </span>
+                                            <span class="text-muted">Not Provided</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
                                         @if (!string.IsNullOrEmpty(shop.ShopAddress))
                                         {
                                             @shop.ShopAddress
                                         }
                                         else
                                         {
-                                            <span class="text-muted">
-                                                Not Provided
-                                            </span>
+                                            <span class="text-muted">Not Provided</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
-                                        @{
-                                            string verificationStatus =
-                                            string.IsNullOrWhiteSpace(shop.VerificationStatus)
-                                            ? "Pending"
-                                            : shop.VerificationStatus;
-                                        }
-
-
-                                        @if (verificationStatus.Equals(
-                                                                        "Approved",
-                                                                        StringComparison.OrdinalIgnoreCase))
+                                        @if (isVerified)
                                         {
-                                            <span class="badge bg-success">
-                                                Approved
-                                            </span>
+                                            <span class="badge bg-success">Approved</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                        "Rejected",
-                                        StringComparison.OrdinalIgnoreCase))
+                                            "Rejected",
+                                            StringComparison.OrdinalIgnoreCase))
                                         {
-                                            <span class="badge bg-danger">
-                                                Rejected
-                                            </span>
+                                            <span class="badge bg-danger">Rejected</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                        "More Evidence Required",
-                                        StringComparison.OrdinalIgnoreCase))
+                                            "More Evidence Required",
+                                            StringComparison.OrdinalIgnoreCase))
                                         {
-                                            <span class="badge bg-info text-dark">
-                                                More Evidence Required
-                                            </span>
+                                            <span class="badge bg-info text-dark">More Evidence Required</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                        "Under Review",
-                                        StringComparison.OrdinalIgnoreCase))
+                                            "Under Review",
+                                            StringComparison.OrdinalIgnoreCase))
                                         {
-                                            <span class="badge bg-primary">
-                                                Under Review
-                                            </span>
+                                            <span class="badge bg-primary">Under Review</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                        "Suspended",
-                                        StringComparison.OrdinalIgnoreCase))
+                                            "Suspended",
+                                            StringComparison.OrdinalIgnoreCase))
                                         {
-                                            <span class="badge bg-dark">
-                                                Suspended
-                                            </span>
+                                            <span class="badge bg-dark">Suspended</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">
-                                                Pending
-                                            </span>
+                                            <span class="badge bg-warning text-dark">Pending</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
-                                        @if (shop.IsApproved)
+                                        @if (shop.IsApproved && isVerified)
                                         {
-                                            <span class="badge bg-success">
-                                                Approved
-                                            </span>
+                                            <span class="badge bg-success">Approved</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">
-                                                Not Approved
-                                            </span>
+                                            <span class="badge bg-warning text-dark">Not Approved</span>
                                         }
-
                                     </td>
 
-
                                     <td>
-
-                                        @if (!shop.IsApproved)
+                                        @if (isActive)
                                         {
-                                            <span class="badge bg-warning text-dark">
-                                                Pending
-                                            </span>
+                                            <span class="badge bg-success">Active</span>
                                         }
-                                        else if (shop.Status)
+                                        else if (isDisabled)
                                         {
-                                            <span class="badge bg-success">
-                                                Active
-                                            </span>
+                                            <span class="badge bg-danger">Disabled</span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "More Evidence Required",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-info text-dark">Evidence Required</span>
+                                        }
+                                        else if (verificationStatus.Equals(
+                                            "Rejected",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-danger">
-                                                Disabled
-                                            </span>
+                                            <span class="badge bg-warning text-dark">Pending Verification</span>
                                         }
-
                                     </td>
 
+                                    <td>@shop.CreatedDate.ToString("dd-MM-yyyy")</td>
 
                                     <td>
-                                        @shop.CreatedDate.ToString("dd-MM-yyyy")
-                                    </td>
-
-
-                                    <td>
-
                                         <a asp-controller="Admin"
                                            asp-action="ShopDetails"
                                            asp-route-id="@shop.ShopId"
                                            class="btn btn-primary btn-sm">
-
                                             View Details
-
                                         </a>
-
                                     </td>
 
                                 </tr>
-
                             }
 
                         </tbody>
@@ -496,23 +323,15 @@
                     </table>
 
                 </div>
-
             }
             else
             {
-
                 <div class="alert alert-info text-center">
-
-                    <h5>
-                        No Shops Registered
-                    </h5>
-
+                    <h5>No Shops Registered</h5>
                     <p class="mb-0">
                         No shops have been registered in the system yet.
                     </p>
-
                 </div>
-
             }
 
         </div>

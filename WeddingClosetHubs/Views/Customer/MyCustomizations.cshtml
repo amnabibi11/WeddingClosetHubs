@@ -1,0 +1,760 @@
+﻿@model IEnumerable<WeddingClosetHubs.Models.CustomizationRequest>
+
+@{
+    ViewData["Title"] = "My Customizations";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h2 class="fw-bold" style="color:#800020;">
+            <i class="bi bi-scissors me-2"></i>
+            My Customizations
+        </h2>
+
+        <p class="text-muted">
+            Review your custom designs, update measurements, discuss changes
+            with the shopkeeper, and accept the final customized price.
+        </p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                <i class="bi bi-scissors"
+                   style="font-size:60px;color:#d4af37;">
+                </i>
+
+                <h4 class="mt-3"
+                    style="color:#800020;">
+                    No Customization Requests
+                </h4>
+
+                <p class="text-muted">
+                    You have not submitted any custom design requests yet.
+                </p>
+
+                <a asp-controller="Customer"
+                   asp-action="Shops"
+                   class="btn"
+                   style="background:#800020;color:white;">
+
+                    <i class="bi bi-shop me-1"></i>
+                    Browse Shops
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var request in Model)
+            {
+                string badgeClass =
+                    request.Status switch
+                    {
+                        "Pending" =>
+                            "bg-warning text-dark",
+
+                        "PriceSent" =>
+                            "bg-info text-dark",
+
+                        "ChangeRequested" =>
+                            "bg-warning text-dark",
+
+                        "RevisedPriceSent" =>
+                            "bg-primary",
+
+                        "PriceRejected" =>
+                            "bg-danger",
+
+                        "Accepted" =>
+                            "bg-success",
+
+                        "Cancelled" =>
+                            "bg-danger",
+
+                        _ =>
+                            "bg-secondary"
+                    };
+
+                <div class="col-lg-6">
+
+                    <div class="card h-100 border-0 shadow-sm">
+
+                        <div class="card-header text-white"
+                             style="background:#800020;">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <h5 class="mb-0">
+                                    @request.ProductName
+                                </h5>
+
+                                <span class="badge @badgeClass">
+                                    @request.Status
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <p class="mb-2">
+                                <strong>Shop:</strong>
+                                @(request.Shop?.ShopName ?? "Shop")
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Category:</strong>
+                                @request.Category
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Color:</strong>
+
+                                @(string.IsNullOrWhiteSpace(request.Color)
+                                    ? "Not specified"
+                                    : request.Color)
+                            </p>
+
+                            <div class="info-box mb-3">
+
+                                <strong>
+                                    <i class="bi bi-rulers me-1"></i>
+                                    Original Measurements
+                                </strong>
+
+                                <div class="mt-2">
+                                    @request.Measurements
+                                </div>
+
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                request.CustomerUpdatedMeasurements))
+                            {
+                                <div class="updated-measurements-box mb-3">
+
+                                    <strong>
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Your Updated Measurements
+                                    </strong>
+
+                                    <div class="mt-2">
+                                        @request.CustomerUpdatedMeasurements
+                                    </div>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(request.CustomerNotes))
+                            {
+                                <div class="info-box mb-3">
+
+                                    <strong>
+                                        <i class="bi bi-person me-1"></i>
+                                        Your Original Notes
+                                    </strong>
+
+                                    <div class="mt-2">
+                                        @request.CustomerNotes
+                                    </div>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(request.ReferenceImages))
+                            {
+                                <div class="mb-3">
+
+                                    <strong>
+                                        Reference Images
+                                    </strong>
+
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+
+                                        @foreach (var image in request.ReferenceImages.Split(
+                                            '|',
+                                            StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <img src="@image"
+                                                 style="width:90px;
+                                                        height:90px;
+                                                        object-fit:cover;
+                                                        border-radius:8px;
+                                                        border:1px solid #ddd;" />
+                                        }
+
+                                    </div>
+
+                                </div>
+                            }
+
+                            <hr />
+
+                            <div class="mb-3">
+
+                                <strong>
+                                    Request Date:
+                                </strong>
+
+                                @request.CreatedDate.ToString(
+                                    "dd MMM yyyy hh:mm tt")
+
+                            </div>
+
+                            <div class="price-box">
+
+                                <div class="price-title">
+                                    <i class="bi bi-tag me-1"></i>
+                                    Shopkeeper Price
+                                </div>
+
+                                @if (request.ShopkeeperPrice.HasValue)
+                                {
+                                    <div class="price-value">
+                                        Rs.
+                                        @request.ShopkeeperPrice.Value.ToString("N2")
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-muted mt-1">
+                                        Waiting for shopkeeper to provide a price.
+                                    </div>
+                                }
+
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                request.ShopkeeperNotes))
+                            {
+                                <div class="shopkeeper-box mt-3">
+
+                                    <strong>
+                                        <i class="bi bi-shop me-1"></i>
+                                        Shopkeeper Notes
+                                    </strong>
+
+                                    <div class="mt-2">
+                                        @request.ShopkeeperNotes
+                                    </div>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                request.CustomerResponseNotes))
+                            {
+                                <div class="customer-response-box mt-3">
+
+                                    <strong>
+                                        <i class="bi bi-chat-left-text me-1"></i>
+                                        Your Latest Response
+                                    </strong>
+
+                                    <div class="mt-2">
+                                        @request.CustomerResponseNotes
+                                    </div>
+
+                                    @if (request.CustomerResponseDate.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @request.CustomerResponseDate.Value.ToString(
+                                                "dd MMM yyyy hh:mm tt")
+                                        </small>
+                                    }
+
+                                </div>
+                            }
+
+                            @if (request.Status == "PriceSent" ||
+                                 request.Status == "RevisedPriceSent")
+                            {
+                                <div class="action-area mt-4">
+
+                                    <h6 class="fw-bold"
+                                        style="color:#800020;">
+
+                                        <i class="bi bi-arrow-repeat me-1"></i>
+                                        Request Changes / Negotiate Price
+
+                                    </h6>
+
+                                    <p class="text-muted small mb-3">
+                                        Edit your measurements if the shopkeeper
+                                        requested more information. You can also
+                                        ask the shopkeeper to reduce the price.
+                                    </p>
+
+                                    <form asp-controller="Customer"
+                                          asp-action="RequestCustomizationChanges"
+                                          method="post"
+                                          class="customization-change-form">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@request.CustomizationRequestId" />
+
+                                        <div class="measurement-editor">
+
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                                <label class="form-label fw-bold mb-0"
+                                                       style="color:#800020;">
+                                                    <i class="bi bi-rulers me-1"></i>
+                                                    Edit / Add Measurements
+                                                </label>
+
+                                                <button type="button"
+                                                        class="btn btn-sm"
+                                                        style="background:#d4af37;color:#000;"
+                                                        onclick="addMeasurementRow(this)">
+
+                                                    <i class="bi bi-plus-circle me-1"></i>
+                                                    Add Measurement
+
+                                                </button>
+
+                                            </div>
+
+                                            <div class="measurement-rows">
+
+                                                @{
+                                                    var measurements =
+                                                        request.Measurements?
+                                                            .Split(
+                                                                '|',
+                                                                StringSplitOptions.RemoveEmptyEntries)
+                                                            .Select(x => x.Trim())
+                                                            .ToList()
+                                                        ?? new List<string>();
+                                                }
+
+                                                @if (measurements.Any())
+                                                {
+                                                    foreach (var measurement in measurements)
+                                                    {
+                                                        int separatorIndex =
+                                                            measurement.IndexOf(':');
+
+                                                        string measurementName =
+                                                            separatorIndex > 0
+                                                                ? measurement.Substring(
+                                                                    0,
+                                                                    separatorIndex).Trim()
+                                                                : measurement;
+
+                                                        string measurementValue =
+                                                            separatorIndex > 0
+                                                                ? measurement.Substring(
+                                                                    separatorIndex + 1).Trim()
+                                                                : "";
+
+                                                        <div class="row g-2 measurement-row mb-2">
+
+                                                            <div class="col-5">
+
+                                                                <input type="text"
+                                                                       name="measurementNames"
+                                                                       class="form-control"
+                                                                       value="@measurementName"
+                                                                       placeholder="Measurement name"
+                                                                       required />
+
+                                                            </div>
+
+                                                            <div class="col-5">
+
+                                                                <input type="text"
+                                                                       name="measurementValues"
+                                                                       class="form-control"
+                                                                       value="@measurementValue"
+                                                                       placeholder="Value"
+                                                                       required />
+
+                                                            </div>
+
+                                                            <div class="col-2">
+
+                                                                <button type="button"
+                                                                        class="btn btn-outline-danger w-100"
+                                                                        onclick="removeMeasurementRow(this)">
+
+                                                                    <i class="bi bi-trash"></i>
+
+                                                                </button>
+
+                                                            </div>
+
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="row g-2 measurement-row mb-2">
+
+                                                        <div class="col-5">
+
+                                                            <input type="text"
+                                                                   name="measurementNames"
+                                                                   class="form-control"
+                                                                   placeholder="Measurement name"
+                                                                   required />
+
+                                                        </div>
+
+                                                        <div class="col-5">
+
+                                                            <input type="text"
+                                                                   name="measurementValues"
+                                                                   class="form-control"
+                                                                   placeholder="Value"
+                                                                   required />
+
+                                                        </div>
+
+                                                        <div class="col-2">
+
+                                                            <button type="button"
+                                                                    class="btn btn-outline-danger w-100"
+                                                                    onclick="removeMeasurementRow(this)">
+
+                                                                <i class="bi bi-trash"></i>
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="mt-3">
+
+                                            <label class="form-label fw-bold"
+                                                   style="color:#800020;">
+
+                                                <i class="bi bi-chat-left-text me-1"></i>
+                                                Message to Shopkeeper
+
+                                            </label>
+
+                                            <textarea name="customerResponseNotes"
+                                                      class="form-control"
+                                                      rows="4"
+                                                      maxlength="2000"
+                                                      placeholder="For example: Please add sleeve length 24 inches. Also, can you reduce the price to Rs. 8,000?"
+                                                      required></textarea>
+
+                                        </div>
+
+                                        <button type="submit"
+                                                class="btn w-100 mt-3"
+                                                style="background:#d4af37;color:#000;font-weight:600;">
+
+                                            <i class="bi bi-send me-1"></i>
+                                            Send Changes to Shopkeeper
+
+                                        </button>
+
+                                    </form>
+
+                                    <div class="row g-2 mt-2">
+
+                                        <div class="col-6">
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="AcceptCustomizationPrice"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@request.CustomizationRequestId" />
+
+                                                <button type="submit"
+                                                        class="btn w-100"
+                                                        style="background:#800020;color:white;"
+                                                        onclick="return confirm('Do you want to accept this customized price?');">
+
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    Accept Price
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                        <div class="col-6">
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="RejectCustomizationPrice"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@request.CustomizationRequestId" />
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger w-100"
+                                                        onclick="return confirm('Do you want to reject this price and send it back to the shopkeeper?');">
+
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    Reject Price
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                            @if (request.Status == "Pending")
+                            {
+                                <div class="alert alert-warning mt-3 mb-0">
+
+                                    <i class="bi bi-hourglass-split me-2"></i>
+
+                                    Waiting for the shopkeeper to review
+                                    your customization request.
+
+                                </div>
+                            }
+
+                            @if (request.Status == "ChangeRequested")
+                            {
+                                <div class="alert alert-info mt-3 mb-0">
+
+                                    <i class="bi bi-arrow-repeat me-2"></i>
+
+                                    Your updated measurements and requested
+                                    changes have been sent to the shopkeeper.
+                                    Waiting for a revised price.
+
+                                </div>
+                            }
+
+                            @if (request.Status == "PriceRejected")
+                            {
+                                <div class="alert alert-danger mt-3 mb-0">
+
+                                    <i class="bi bi-x-circle me-2"></i>
+
+                                    You rejected the previous price.
+                                    The request has been returned to the shopkeeper
+                                    for reconsideration.
+
+                                </div>
+                            }
+
+                            @if (request.Status == "Accepted")
+                            {
+                                <div class="alert alert-success mt-3 mb-0">
+
+                                    <i class="bi bi-check-circle me-2"></i>
+
+                                    You accepted the customized price.
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+<style>
+
+    .info-box {
+        background: #faf7f0;
+        border: 1px solid #ead9a4;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #665c35;
+        line-height: 1.6;
+    }
+
+    .updated-measurements-box {
+        background: #f8f1f3;
+        border-left: 4px solid #800020;
+        border-radius: 8px;
+        padding: 13px 15px;
+        color: #5c5050;
+        line-height: 1.6;
+    }
+
+    .price-box {
+        background: #fffaf0;
+        border: 1px solid #d4af37;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .price-title {
+        color: #800020;
+        font-weight: 700;
+    }
+
+    .price-value {
+        color: #800020;
+        font-size: 25px;
+        font-weight: 700;
+        margin-top: 5px;
+    }
+
+    .shopkeeper-box {
+        background: #f8f1f3;
+        border-left: 4px solid #800020;
+        border-radius: 8px;
+        padding: 13px 15px;
+        color: #5c5050;
+        line-height: 1.6;
+    }
+
+    .customer-response-box {
+        background: #fffaf0;
+        border-left: 4px solid #d4af37;
+        border-radius: 8px;
+        padding: 13px 15px;
+        color: #665c35;
+        line-height: 1.6;
+    }
+
+    .action-area {
+        border-top: 1px solid #eee;
+        padding-top: 18px;
+    }
+
+    .measurement-editor {
+        background: #faf7f0;
+        border: 1px solid #ead9a4;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .measurement-row .form-control {
+        border-color: #ddd;
+    }
+
+    .measurement-row .form-control:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 .15rem rgba(212,175,55,.15);
+    }
+
+</style>
+
+<script>
+
+    function addMeasurementRow(button) {
+
+        const container =
+            button.closest(".action-area")
+                   .querySelector(".measurement-rows");
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "row g-2 measurement-row mb-2";
+
+        row.innerHTML = `
+            <div class="col-5">
+                <input type="text"
+                       name="measurementNames"
+                       class="form-control"
+                       placeholder="Measurement name"
+                       required />
+            </div>
+
+            <div class="col-5">
+                <input type="text"
+                       name="measurementValues"
+                       class="form-control"
+                       placeholder="Value"
+                       required />
+            </div>
+
+            <div class="col-2">
+                <button type="button"
+                        class="btn btn-outline-danger w-100"
+                        onclick="removeMeasurementRow(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+
+        container.appendChild(row);
+    }
+
+    function removeMeasurementRow(button) {
+
+        const container =
+            button.closest(".measurement-rows");
+
+        const rows =
+            container.querySelectorAll(".measurement-row");
+
+        if (rows.length <= 1) {
+            return;
+        }
+
+        button.closest(".measurement-row").remove();
+    }
+
+</script>

@@ -1129,10 +1129,7 @@ string categoryDataJson =
                 </div>
 
             </div>
-
-          
-
-            <div class="option-card sale-card">
+<div class="option-card sale-card">
 
                 <div class="d-flex align-items-start gap-3">
 
@@ -1626,11 +1623,7 @@ string categoryDataJson =
 
     const isAvailableForBuy =
         document.getElementById("isAvailableForBuy");
-
-    const isCustomizable =
-        document.getElementById("isCustomizable");
-
-    const isOnSale =
+const isOnSale =
         document.getElementById("isOnSale");
 
     const saleDetails =
@@ -2913,37 +2906,12 @@ string categoryDataJson =
 
     function updateBuyDependentOptions() {
 
-        if (
-            isAvailableForBuy.checked
-        ) {
-
-            saleCard.style.display =
-                "block";
-
-            negotiationCard.style.display =
-                "block";
-
+        if (saleCard) {
+            saleCard.style.display = "block";
         }
-        else {
 
-            saleCard.style.display =
-                "none";
-
-            negotiationCard.style.display =
-                "none";
-
-            isOnSale.checked =
-                false;
-
-            allowNegotiation.checked =
-                false;
-
-            saleDetails.style.display =
-                "none";
-
-            salePrice.value =
-                "";
-
+        if (negotiationCard) {
+            negotiationCard.style.display = "block";
         }
 
     }
@@ -2951,10 +2919,7 @@ string categoryDataJson =
 
     function updateSaleSection() {
 
-        if (
-            isAvailableForBuy.checked &&
-            isOnSale.checked
-        ) {
+        if (isOnSale.checked) {
 
             saleDetails.style.display =
                 "block";
@@ -3942,12 +3907,11 @@ string categoryDataJson =
 
                 if (
                     !isAvailableForBuy.checked &&
-                    !isAvailableForRent.checked &&
-                    !isCustomizable.checked
+                    !isAvailableForRent.checked
                 ) {
 
                     alert(
-                        "Please select at least one selling option: Buy, Rent, or Customize."
+                        "Please select at least one selling option: Buy or Rent."
                     );
 
                     event.preventDefault();

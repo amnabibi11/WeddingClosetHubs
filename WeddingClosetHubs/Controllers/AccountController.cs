@@ -56,7 +56,7 @@ namespace WeddingClosetHubs.Controllers
             "Business Registration"
         };
 
-        private static readonly string[] AllowedShopCollections =
+        private static readonly string[] AllowedShopCategories =
         {
             "Bridal Wear",
             "Groom Wear",
@@ -76,6 +76,320 @@ namespace WeddingClosetHubs.Controllers
             "Customize"
         };
 
+        private async Task<IActionResult> UpdateRegistrationEvidence(
+    int userId,
+    IFormFile? ShopFrontPhoto,
+    IFormFile? ShopInsidePhoto,
+    IFormFile? ShopSignboardPhoto,
+    string? ShopProofType,
+    IFormFile? ShopProofDocument,
+    string? ShopkeeperCNIC,
+    IFormFile? ShopkeeperCNICFrontImage,
+    IFormFile? ShopkeeperCNICBackImage,
+    string? DeliveryCNIC,
+    IFormFile? DeliveryCNICFrontImage,
+    IFormFile? DeliveryCNICBackImage,
+    string? VehicleType,
+    string? MotorbikeNumber,
+    string? PreferredZone)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Shop)
+                .Include(u => u.DeliveryBoy)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                HttpContext.Session.Remove("EvidenceUpdateUserId");
+                TempData["Error"] = "Account not found. Please log in again.";
+                return RedirectToAction("Login");
+            }
+
+            bool isShopkeeper = user.Role?.RoleName == "Shopkeeper";
+            bool isDelivery = user.Role?.RoleName == "Delivery";
+
+            if (isShopkeeper && user.Shop == null)
+            {
+                TempData["Error"] = "Your shop record could not be found.";
+                return RedirectToAction("Register");
+            }
+
+            if (isDelivery && user.DeliveryBoy == null)
+            {
+                TempData["Error"] = "Your delivery record could not be found.";
+                return RedirectToAction("Register");
+            }
+
+            if (!isShopkeeper && !isDelivery)
+            {
+                HttpContext.Session.Remove("EvidenceUpdateUserId");
+                return RedirectToAction("Login");
+            }
+
+            var filesToValidate = new List<(IFormFile? File, string Name, bool IsProof)>
+    {
+        (ShopFrontPhoto, "Shop front photo", false),
+        (ShopInsidePhoto, "Shop inside photo", false),
+        (ShopSignboardPhoto, "Shop signboard photo", false),
+        (ShopProofDocument, "Shop proof document", true),
+        (ShopkeeperCNICFrontImage, "CNIC front image", false),
+        (ShopkeeperCNICBackImage, "CNIC back image", false),
+        (DeliveryCNICFrontImage, "CNIC front image", false),
+        (DeliveryCNICBackImage, "CNIC back image", false)
+    };
+
+            foreach (var item in filesToValidate)
+            {
+                if (item.File == null || item.File.Length == 0)
+                    continue;
+
+                bool valid = item.IsProof
+                    ? IsAllowedProofDocument(item.File)
+                    : IsAllowedImage(item.File);
+
+                if (!valid)
+                {
+                    TempData["Error"] = item.IsProof
+                        ? $"{item.Name} must be JPG, JPEG, PNG or PDF and maximum 5 MB."
+                        : $"{item.Name} must be JPG, JPEG or PNG and maximum 5 MB.";
+
+                    return RedirectToAction("Register");
+                }
+            }
+
+            if (isShopkeeper)
+            {
+                var shop = user.Shop!;
+
+                if (!string.IsNullOrWhiteSpace(ShopkeeperCNIC))
+                {
+                    string normalizedCNIC = NormalizeCNIC(ShopkeeperCNIC.Trim());
+
+                    if (!IsValidCNIC(ShopkeeperCNIC.Trim()))
+                    {
+                        TempData["Error"] = "Please enter a valid CNIC.";
+                        return RedirectToAction("Register");
+                    }
+
+                    bool cnicExists = await _context.Users.AnyAsync(u =>
+                        u.UserId != userId &&
+                        u.CNIC != null &&
+                        u.CNIC.Replace("-", "").Replace(" ", "") == normalizedCNIC);
+
+                    if (cnicExists)
+                    {
+                        TempData["Error"] = "This CNIC is already registered.";
+                        return RedirectToAction("Register");
+                    }
+
+                    user.CNIC = normalizedCNIC;
+                }
+
+                if (!string.IsNullOrWhiteSpace(ShopProofType))
+                {
+                    bool validProofType = AllowedShopProofTypes.Any(p =>
+                        string.Equals(
+                            p,
+                            ShopProofType.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+                    if (!validProofType)
+                    {
+                        TempData["Error"] = "Please select a valid shop proof type.";
+                        return RedirectToAction("Register");
+                    }
+
+                    shop.ShopProofType = ShopProofType.Trim();
+                }
+
+                if (ShopFrontPhoto != null && ShopFrontPhoto.Length > 0)
+                {
+                    shop.ShopFrontPhoto = await SaveEvidenceFile(
+                        ShopFrontPhoto, "shops");
+                }
+
+                if (ShopInsidePhoto != null && ShopInsidePhoto.Length > 0)
+                {
+                    shop.ShopInsidePhoto = await SaveEvidenceFile(
+                        ShopInsidePhoto, "shops");
+                }
+
+                if (ShopSignboardPhoto != null && ShopSignboardPhoto.Length > 0)
+                {
+                    shop.ShopSignboardPhoto = await SaveEvidenceFile(
+                        ShopSignboardPhoto, "shops");
+                }
+
+                if (ShopProofDocument != null && ShopProofDocument.Length > 0)
+                {
+                    shop.ShopProofDocument = await SaveEvidenceFile(
+                        ShopProofDocument, "shopproof");
+                }
+
+                if (ShopkeeperCNICFrontImage != null &&
+                    ShopkeeperCNICFrontImage.Length > 0)
+                {
+                    shop.CNICFrontImage = await SaveEvidenceFile(
+                        ShopkeeperCNICFrontImage, "cnic");
+                }
+
+                if (ShopkeeperCNICBackImage != null &&
+                    ShopkeeperCNICBackImage.Length > 0)
+                {
+                    shop.CNICBackImage = await SaveEvidenceFile(
+                        ShopkeeperCNICBackImage, "cnic");
+                }
+
+                shop.IsApproved = false;
+                shop.Status = false;
+                shop.VerificationStatus = "Pending";
+                shop.VerificationSubmittedDate = DateTime.Now;
+                shop.VerifiedDate = null;
+                shop.ApprovedDate = null;
+                shop.RejectionReason = null;
+                shop.AdminNotes = null;
+
+                user.IsApproved = false;
+                user.Status = false;
+                user.ApprovedDate = null;
+            }
+            else
+            {
+                var deliveryBoy = user.DeliveryBoy!;
+
+                if (!string.IsNullOrWhiteSpace(DeliveryCNIC))
+                {
+                    string normalizedCNIC = NormalizeCNIC(DeliveryCNIC.Trim());
+
+                    if (!IsValidCNIC(DeliveryCNIC.Trim()))
+                    {
+                        TempData["Error"] = "Please enter a valid CNIC.";
+                        return RedirectToAction("Register");
+                    }
+
+                    bool cnicExists = await _context.DeliveryBoys.AnyAsync(d =>
+                        d.UserId != userId &&
+                        d.CNIC != null &&
+                        d.CNIC.Replace("-", "").Replace(" ", "") == normalizedCNIC);
+
+                    if (cnicExists)
+                    {
+                        TempData["Error"] = "This CNIC is already registered.";
+                        return RedirectToAction("Register");
+                    }
+
+                    deliveryBoy.CNIC = normalizedCNIC;
+                }
+
+                if (DeliveryCNICFrontImage != null &&
+                    DeliveryCNICFrontImage.Length > 0)
+                {
+                    deliveryBoy.CNICFrontImage = await SaveEvidenceFile(
+                        DeliveryCNICFrontImage, "cnic");
+                }
+
+                if (DeliveryCNICBackImage != null &&
+                    DeliveryCNICBackImage.Length > 0)
+                {
+                    deliveryBoy.CNICBackImage = await SaveEvidenceFile(
+                        DeliveryCNICBackImage, "cnic");
+                }
+
+                if (!string.IsNullOrWhiteSpace(VehicleType) &&
+                    !string.Equals(
+                        VehicleType.Trim(),
+                        "Motorbike",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] = "Only Motorbike is allowed for delivery.";
+                    return RedirectToAction("Register");
+                }
+
+                if (!string.IsNullOrWhiteSpace(MotorbikeNumber))
+                {
+                    string number = MotorbikeNumber.Trim().ToUpperInvariant();
+
+                    bool numberExists = await _context.DeliveryBoys.AnyAsync(d =>
+                        d.UserId != userId &&
+                        d.MotorbikeNumber != null &&
+                        d.MotorbikeNumber.ToUpper() == number);
+
+                    if (numberExists)
+                    {
+                        TempData["Error"] =
+                            "This motorbike registration number is already registered.";
+                        return RedirectToAction("Register");
+                    }
+
+                    deliveryBoy.MotorbikeNumber = number;
+                }
+
+                if (!string.IsNullOrWhiteSpace(PreferredZone))
+                {
+                    bool validZone = AllowedDeliveryZones.Any(z =>
+                        string.Equals(
+                            z,
+                            PreferredZone.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+                    if (!validZone)
+                    {
+                        TempData["Error"] = "Please select a valid delivery zone.";
+                        return RedirectToAction("Register");
+                    }
+
+                    deliveryBoy.PreferredZone = PreferredZone.Trim();
+                }
+
+                deliveryBoy.VerificationStatus = "Pending";
+                deliveryBoy.ApprovedDate = null;
+                deliveryBoy.RejectionReason = null;
+                deliveryBoy.AdminNotes = null;
+
+                user.IsApproved = false;
+                user.Status = false;
+                user.ApprovedDate = null;
+            }
+
+            await _context.SaveChangesAsync();
+
+            HttpContext.Session.Remove("EvidenceUpdateUserId");
+
+            TempData["Success"] =
+                "Your updated evidence has been submitted successfully. Please wait for Admin verification.";
+
+            return RedirectToAction("Login");
+        }
+
+        private async Task<string> SaveEvidenceFile(
+    IFormFile file,
+    string folderName)
+        {
+            string uploadFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                folderName);
+
+            Directory.CreateDirectory(uploadFolder);
+
+            string extension = Path.GetExtension(file.FileName)
+                .ToLowerInvariant();
+
+            string fileName = Guid.NewGuid().ToString() + extension;
+
+            string filePath = Path.Combine(uploadFolder, fileName);
+
+            await using var stream = new FileStream(
+                filePath,
+                FileMode.Create);
+
+            await file.CopyToAsync(stream);
+
+            return $"/uploads/{folderName}/{fileName}";
+        }
+
         private string NormalizeCNIC(string cnic)
         {
             return cnic
@@ -84,13 +398,43 @@ namespace WeddingClosetHubs.Controllers
                 .Replace("-", "");
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Register()
         {
             await LoadRoles();
 
-            return View();
+            int? evidenceUpdateUserId =
+                HttpContext.Session.GetInt32("EvidenceUpdateUserId");
+
+            if (evidenceUpdateUserId.HasValue)
+            {
+                var user = await _context.Users
+                    .Include(u => u.Role)
+                    .Include(u => u.Shop)
+                    .Include(u => u.DeliveryBoy)
+                    .FirstOrDefaultAsync(u =>
+                        u.UserId == evidenceUpdateUserId.Value);
+
+                if (user == null)
+                {
+                    HttpContext.Session.Remove("EvidenceUpdateUserId");
+                    TempData["Error"] = "Account not found. Please log in again.";
+                    return RedirectToAction("Login");
+                }
+
+                ViewBag.IsEvidenceUpdate = true;
+                ViewBag.AdminNotes = user.Shop?.AdminNotes
+                    ?? user.DeliveryBoy?.AdminNotes;
+
+                return View(user);
+            }
+
+            ViewBag.IsEvidenceUpdate = false;
+            return View(new User());
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -126,6 +470,30 @@ namespace WeddingClosetHubs.Controllers
             string? PreferredZone)
         {
             ModelState.Clear();
+
+            int? evidenceUpdateUserId =
+                HttpContext.Session.GetInt32("EvidenceUpdateUserId");
+
+            if (evidenceUpdateUserId.HasValue)
+            {
+                return await UpdateRegistrationEvidence(
+                    evidenceUpdateUserId.Value,
+                    ShopFrontPhoto,
+                    ShopInsidePhoto,
+                    ShopSignboardPhoto,
+                    ShopProofType,
+                    ShopProofDocument,
+                    ShopkeeperCNIC,
+                    ShopkeeperCNICFrontImage,
+                    ShopkeeperCNICBackImage,
+                    DeliveryCNIC,
+                    DeliveryCNICFrontImage,
+                    DeliveryCNICBackImage,
+                    VehicleType,
+                    MotorbikeNumber,
+                    PreferredZone);
+            }
+
 
             if (string.IsNullOrWhiteSpace(user.Name))
             {
@@ -493,7 +861,7 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 if (string.IsNullOrWhiteSpace(
-                    ShopCategory))
+           ShopCategory))
                 {
                     ModelState.AddModelError(
                         "ShopCategory",
@@ -510,7 +878,18 @@ namespace WeddingClosetHubs.Controllers
                             "ShopCategory",
                             "Shop category cannot exceed 100 characters.");
                     }
+                    else if (!AllowedShopCategories.Any(
+                        x => string.Equals(
+                            x,
+                            ShopCategory,
+                            StringComparison.OrdinalIgnoreCase)))
+                    {
+                        ModelState.AddModelError(
+                            "ShopCategory",
+                            "Please select a valid shop category.");
+                    }
                 }
+
 
                 ShopCollections =
                     ShopCollections?
@@ -534,7 +913,7 @@ namespace WeddingClosetHubs.Controllers
                     foreach (string collection
                              in ShopCollections)
                     {
-                        if (!AllowedShopCollections.Any(
+                        if (!AllowedShopCategories.Any(
                             x => string.Equals(
                                 x,
                                 collection,
@@ -585,6 +964,28 @@ namespace WeddingClosetHubs.Controllers
                         }
                     }
                 }
+                OffersBuy = ShopPurchaseTypes != null &&
+                          ShopPurchaseTypes.Any(x =>
+                              string.Equals(
+                                   x,
+                                  "Buy",
+                                  StringComparison.OrdinalIgnoreCase));
+
+
+                OffersRent = ShopPurchaseTypes != null &&
+                            ShopPurchaseTypes.Any(x =>
+                                string.Equals(
+                                    x,
+                                    "Rent",
+                                    StringComparison.OrdinalIgnoreCase));
+
+
+                OffersCustomization = ShopPurchaseTypes != null &&
+                                      ShopPurchaseTypes.Any(x =>
+                                          string.Equals(
+                                              x,
+                                              "Customize",
+                                              StringComparison.OrdinalIgnoreCase));
 
                 if (string.IsNullOrWhiteSpace(
                     ShopPhone))
@@ -1158,10 +1559,7 @@ namespace WeddingClosetHubs.Controllers
                                 ",",
                                 ShopCollections!),
 
-                        ShopPurchaseTypes =
-                            string.Join(
-                                ",",
-                                ShopPurchaseTypes!),
+
 
                         ShopPhone =
                             NormalizePhone(
@@ -1175,6 +1573,10 @@ namespace WeddingClosetHubs.Controllers
                                 ShopDescription)
                                 ? null
                                 : ShopDescription.Trim(),
+                        ShopPurchaseTypes =
+                            string.Join(
+                                ",",
+                                ShopPurchaseTypes!),
                         OffersBuy = OffersBuy,
 
                         OffersRent = OffersRent,
@@ -1387,6 +1789,7 @@ namespace WeddingClosetHubs.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(
@@ -1397,264 +1800,204 @@ namespace WeddingClosetHubs.Controllers
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                ViewBag.Error =
-                    "Please enter your email.";
-
-                ViewBag.ReturnUrl =
-                    returnUrl;
-
+                ViewBag.Error = "Please enter your email.";
+                ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error =
-                    "Please enter your password.";
-
-                ViewBag.ReturnUrl =
-                    returnUrl;
-
+                ViewBag.Error = "Please enter your password.";
+                ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
             if (string.IsNullOrWhiteSpace(roleName))
             {
-                ViewBag.Error =
-                    "Please select an account type.";
-
-                ViewBag.ReturnUrl =
-                    returnUrl;
-
+                ViewBag.Error = "Please select an account type.";
+                ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
-            email =
-                email.Trim()
-                     .ToLowerInvariant();
+            email = email.Trim().ToLowerInvariant();
 
-            var user =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .FirstOrDefaultAsync(u =>
-                        u.Email != null &&
-                        u.Email.ToLower() == email &&
-                        u.Password == password &&
-                        u.Status == true &&
-                        u.Role != null &&
-                        u.Role.RoleName == roleName);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u =>
+                    u.Email != null &&
+                    u.Email.ToLower() == email &&
+                    u.Password == password &&
+                    u.Role != null &&
+                    u.Role.RoleName == roleName);
 
             if (user == null)
             {
-                ViewBag.Error =
-                    "Invalid email, password, or account type.";
+                ViewBag.Error = "Invalid email, password, or account type.";
+                ViewBag.ReturnUrl = returnUrl;
+                return View();
+            }
 
-                ViewBag.ReturnUrl =
-                    returnUrl;
+            if (user.Role!.RoleName == "Shopkeeper")
+            {
+                var shop = await _context.Shops
+                    .FirstOrDefaultAsync(s =>
+                        s.ShopkeeperId == user.UserId);
 
+                if (shop != null &&
+                    string.Equals(
+                        shop.VerificationStatus?.Trim(),
+                        "More Evidence Required",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    HttpContext.Session.SetInt32(
+                        "EvidenceUpdateUserId",
+                        user.UserId);
+
+                    return RedirectToAction("Register");
+                }
+            }
+
+            if (user.Role.RoleName == "Delivery")
+            {
+                var deliveryBoy = await _context.DeliveryBoys
+                    .FirstOrDefaultAsync(d =>
+                        d.UserId == user.UserId);
+
+                if (deliveryBoy != null &&
+                    string.Equals(
+                        deliveryBoy.VerificationStatus?.Trim(),
+                        "More Evidence Required",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    HttpContext.Session.SetInt32(
+                        "EvidenceUpdateUserId",
+                        user.UserId);
+
+                    return RedirectToAction("Register");
+                }
+            }
+
+            if (!user.Status)
+            {
+                ViewBag.Error = "Your account is disabled. Please contact Admin.";
+                ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
             if (!user.IsApproved)
             {
-                if (user.Role!.RoleName ==
-                    "Shopkeeper")
-                {
-                    ViewBag.Error =
-                        "Your shopkeeper account is waiting for Admin approval.";
+                ViewBag.Error = user.Role.RoleName == "Delivery"
+                    ? "Your delivery account is waiting for Admin verification and approval."
+                    : user.Role.RoleName == "Shopkeeper"
+                        ? "Your shopkeeper account is waiting for Admin approval."
+                        : "Your account is waiting for Admin approval.";
 
-                    ViewBag.ReturnUrl =
-                        returnUrl;
-
-                    return View();
-                }
-
-                if (user.Role!.RoleName ==
-                    "Delivery")
-                {
-                    ViewBag.Error =
-                        "Your delivery account is waiting for Admin verification and approval.";
-
-                    ViewBag.ReturnUrl =
-                        returnUrl;
-
-                    return View();
-                }
-
-                ViewBag.Error =
-                    "Your account is waiting for Admin approval.";
-
-                ViewBag.ReturnUrl =
-                    returnUrl;
-
+                ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
-            HttpContext.Session.SetInt32(
-                "UserId",
-                user.UserId);
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("UserName", user.Name ?? "");
 
-            HttpContext.Session.SetString(
-                "UserName",
-                user.Name ?? "");
-
-            if (user.Role!.RoleName ==
-                "Customer")
+            if (user.Role.RoleName == "Customer")
             {
-                HttpContext.Session.SetInt32(
-                    "CustomerId",
-                    user.UserId);
+                HttpContext.Session.SetInt32("CustomerId", user.UserId);
             }
 
             if (user.RoleId.HasValue)
             {
-                HttpContext.Session.SetInt32(
-                    "RoleId",
-                    user.RoleId.Value);
+                HttpContext.Session.SetInt32("RoleId", user.RoleId.Value);
             }
 
-            HttpContext.Session.SetString(
-                "RoleName",
-                user.Role.RoleName);
+            HttpContext.Session.SetString("RoleName", user.Role.RoleName);
 
             switch (user.Role.RoleName)
             {
                 case "Admin":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Admin");
+                    return RedirectToAction("Dashboard", "Admin");
 
                 case "Shopkeeper":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Shopkeeper");
+                    return RedirectToAction("Dashboard", "Shopkeeper");
 
                 case "Customer":
+                    var pendingJson = HttpContext.Session.GetString("PendingCartItems");
 
-                    var pendingJson =
-                        HttpContext.Session
-                            .GetString(
-                                "PendingCartItems");
-
-                    if (!string.IsNullOrWhiteSpace(
-                        pendingJson))
+                    if (!string.IsNullOrWhiteSpace(pendingJson))
                     {
                         try
                         {
                             var pendingItems =
-                                JsonSerializer
-                                    .Deserialize<
-                                        List<CustomerCartItem>>(
-                                            pendingJson,
-                                            new JsonSerializerOptions
-                                            {
-                                                PropertyNameCaseInsensitive =
-                                                    true
-                                            })
-                                ?? new List<CustomerCartItem>();
+                                JsonSerializer.Deserialize<List<CustomerCartItem>>(
+                                    pendingJson,
+                                    new JsonSerializerOptions
+                                    {
+                                        PropertyNameCaseInsensitive = true
+                                    }) ?? new List<CustomerCartItem>();
 
                             if (pendingItems.Any())
                             {
-                                var cartJson =
-                                    HttpContext.Session
-                                        .GetString(
-                                            "CustomerCart");
+                                var cartJson = HttpContext.Session.GetString("CustomerCart");
 
-                                var cartItems =
-                                    string.IsNullOrWhiteSpace(
-                                        cartJson)
-                                        ? new List<CustomerCartItem>()
-                                        : JsonSerializer
-                                            .Deserialize<
-                                                List<CustomerCartItem>>(
-                                                cartJson,
-                                                new JsonSerializerOptions
-                                                {
-                                                    PropertyNameCaseInsensitive =
-                                                        true
-                                                })
-                                          ?? new List<CustomerCartItem>();
+                                var cartItems = string.IsNullOrWhiteSpace(cartJson)
+                                    ? new List<CustomerCartItem>()
+                                    : JsonSerializer.Deserialize<List<CustomerCartItem>>(
+                                        cartJson,
+                                        new JsonSerializerOptions
+                                        {
+                                            PropertyNameCaseInsensitive = true
+                                        }) ?? new List<CustomerCartItem>();
 
-                                foreach (
-                                    var pendingItem
-                                    in pendingItems)
+                                foreach (var pendingItem in pendingItems)
                                 {
-                                    var existingItem =
-                                        cartItems.FirstOrDefault(
-                                            x =>
-                                                x.ProductId ==
-                                                pendingItem.ProductId &&
-
-                                                string.Equals(
-                                                    x.Size ?? "",
-                                                    pendingItem.Size ?? "",
-                                                    StringComparison.OrdinalIgnoreCase) &&
-
-                                                string.Equals(
-                                                    x.PurchaseType ??
-                                                        "Buy",
-                                                    pendingItem.PurchaseType ??
-                                                        "Buy",
-                                                    StringComparison.OrdinalIgnoreCase));
+                                    var existingItem = cartItems.FirstOrDefault(x =>
+                                        x.ProductId == pendingItem.ProductId &&
+                                        string.Equals(
+                                            x.Size ?? "",
+                                            pendingItem.Size ?? "",
+                                            StringComparison.OrdinalIgnoreCase) &&
+                                        string.Equals(
+                                            x.PurchaseType ?? "Buy",
+                                            pendingItem.PurchaseType ?? "Buy",
+                                            StringComparison.OrdinalIgnoreCase));
 
                                     if (existingItem != null)
                                     {
-                                        existingItem.Quantity +=
-                                            pendingItem.Quantity;
+                                        existingItem.Quantity += pendingItem.Quantity;
                                     }
                                     else
                                     {
-                                        cartItems.Add(
-                                            pendingItem);
+                                        cartItems.Add(pendingItem);
                                     }
                                 }
 
                                 HttpContext.Session.SetString(
                                     "CustomerCart",
-                                    JsonSerializer.Serialize(
-                                        cartItems));
+                                    JsonSerializer.Serialize(cartItems));
                             }
 
-                            HttpContext.Session.Remove(
-                                "PendingCartItems");
+                            HttpContext.Session.Remove("PendingCartItems");
                         }
                         catch
                         {
-                            HttpContext.Session.Remove(
-                                "PendingCartItems");
+                            HttpContext.Session.Remove("PendingCartItems");
                         }
                     }
 
-                    if (!string.IsNullOrWhiteSpace(
-                        returnUrl) &&
-                        Url.IsLocalUrl(
-                            returnUrl))
+                    if (!string.IsNullOrWhiteSpace(returnUrl) &&
+                        Url.IsLocalUrl(returnUrl))
                     {
-                        return Redirect(
-                            returnUrl);
+                        return Redirect(returnUrl);
                     }
 
-                    return RedirectToAction(
-                        "Cart",
-                        "Customer");
+                    return RedirectToAction("Cart", "Customer");
 
                 case "Delivery":
-
-                    return RedirectToAction(
-                        "Dashboard",
-                        "Delivery");
+                    return RedirectToAction("Dashboard", "Delivery");
 
                 default:
-
                     HttpContext.Session.Clear();
-
-                    ViewBag.Error =
-                        "Invalid account type.";
-
-                    ViewBag.ReturnUrl =
-                        returnUrl;
-
+                    ViewBag.Error = "Invalid account type.";
+                    ViewBag.ReturnUrl = returnUrl;
                     return View();
             }
         }

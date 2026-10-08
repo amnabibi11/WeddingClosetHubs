@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 using System.Text.Json;
 using WeddingClosetHubs.Models;
 
@@ -72,43 +74,58 @@ namespace WeddingClosetHubs.Controllers
 
         private List<CustomerCartItem> GetCartItems()
         {
-            var cartJson =
-                HttpContext.Session.GetString(CartSessionKey);
-
-            if (string.IsNullOrWhiteSpace(cartJson))
+            if (!IsCustomerLoggedIn())
             {
                 return new List<CustomerCartItem>();
             }
 
-            try
-            {
-                return JsonSerializer.Deserialize<
-                    List<CustomerCartItem>
-                >(
-                    cartJson,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }
-                ) ?? new List<CustomerCartItem>();
-            }
-            catch
-            {
-                HttpContext.Session.Remove(CartSessionKey);
+            int customerId = GetCustomerId()!.Value;
 
-                return new List<CustomerCartItem>();
-            }
+            return _context.CustomerCartItems
+                .Where(c => c.CustomerId == customerId)
+                .OrderBy(c => c.CartItemId)
+                .ToList();
         }
 
 
-        private void SaveCartItems(
-            List<CustomerCartItem> cartItems)
+
+        private void SaveCartItems(List<CustomerCartItem> cartItems)
         {
-            HttpContext.Session.SetString(
-                CartSessionKey,
-                JsonSerializer.Serialize(cartItems)
-            );
+            if (!IsCustomerLoggedIn())
+            {
+                return;
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var existingItems = _context.CustomerCartItems
+                .Where(c => c.CustomerId == customerId)
+                .ToList();
+
+            if (existingItems.Any())
+            {
+                _context.CustomerCartItems.RemoveRange(existingItems);
+            }
+
+            if (cartItems.Any())
+            {
+                foreach (var item in cartItems)
+                {
+                    item.CartItemId = 0;
+                    item.CustomerId = customerId;
+
+                    if (string.IsNullOrWhiteSpace(item.PurchaseType))
+                    {
+                        item.PurchaseType = "Buy";
+                    }
+
+                    _context.CustomerCartItems.Add(item);
+                }
+            }
+
+            _context.SaveChanges();
         }
+
         private List<CustomerCartItem> GetPendingCartItems()
         {
             var json =
@@ -150,6 +167,23 @@ namespace WeddingClosetHubs.Controllers
 
         private void ClearCart()
         {
+            if (!IsCustomerLoggedIn())
+            {
+                return;
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var cartItems = _context.CustomerCartItems
+                .Where(c => c.CustomerId == customerId)
+                .ToList();
+
+            if (cartItems.Any())
+            {
+                _context.CustomerCartItems.RemoveRange(cartItems);
+                _context.SaveChanges();
+            }
+
             HttpContext.Session.Remove(CartSessionKey);
         }
 
@@ -168,13 +202,11 @@ namespace WeddingClosetHubs.Controllers
 
             var dressCategories = new[]
             {
-                "bridal dresses",
-                "bridal wear",
-                "groom dresses",
-                "groom wear",
-                "wedding guest wear",
-                "dress"
-            };
+        "bridal wear",
+        "groom wear",
+        "wedding guest wear",
+        "formal wear"
+    };
 
             if (dressCategories.Contains(category))
             {
@@ -183,40 +215,41 @@ namespace WeddingClosetHubs.Controllers
 
             var dressSubCategories = new[]
             {
-                "mehndi dress",
-                "nikkah dress",
-                "baraat dress",
-                "walima dress",
-                "bridal lehenga",
-                "bridal gown",
-                "bridal maxi",
-                "sharara",
-                "gharara",
-                "pishwas",
-                "saree",
-                "frock",
-                "party wear dress",
-                "party dress",
-                "maxi",
-                "anarkali",
-                "lehenga",
-                "palazzo suit",
-                "shalwar kameez",
-                "men's suit",
-                "men suit",
-                "kurta pajama",
-                "men's shalwar kameez",
-                "men shalwar kameez",
-                "boys sherwani",
-                "boys kurta pajama",
-                "boys waistcoat",
-                "boys suit",
-                "sherwani",
-                "prince coat",
-                "groom suit",
-                "tuxedo",
-                "bridal dress"
-            };
+        "mehndi dress",
+        "nikkah dress",
+        "baraat dress",
+        "walima dress",
+        "bridal lehenga",
+        "bridal gown",
+        "bridal maxi",
+        "sharara",
+        "gharara",
+        "pishwas",
+        "saree",
+        "sari",
+        "frock",
+        "party wear dress",
+        "party dress",
+        "maxi",
+        "anarkali",
+        "lehenga",
+        "palazzo suit",
+        "shalwar kameez",
+        "men's suit",
+        "men suit",
+        "kurta pajama",
+        "men's shalwar kameez",
+        "men shalwar kameez",
+        "boys sherwani",
+        "boys kurta pajama",
+        "boys waistcoat",
+        "boys suit",
+        "sherwani",
+        "prince coat",
+        "groom suit",
+        "tuxedo",
+        "bridal dress"
+    };
 
             return dressSubCategories.Contains(subCategory);
         }
@@ -325,7 +358,7 @@ namespace WeddingClosetHubs.Controllers
         }
         private string GetMeasurementType(string subcategory)
         {
-            subcategory = subcategory
+            subcategory = (subcategory ?? "")
                 .Trim()
                 .ToLowerInvariant();
 
@@ -366,14 +399,20 @@ namespace WeddingClosetHubs.Controllers
                 return "princecoat";
 
             if (subcategory.Contains("kurta shalwar") ||
+                subcategory.Contains("kurta pajama") ||
                 subcategory.Contains("kurtashalwar"))
                 return "kurtashalwar";
 
-            if (subcategory.Contains("suit"))
+            if (subcategory.Contains("men's suit") ||
+                subcategory.Contains("men suit") ||
+                subcategory == "suit" ||
+                subcategory.Contains("tuxedo"))
                 return "suit";
 
             return "general";
         }
+
+
         private List<(string Name, bool Required, decimal Min, decimal Max)>
     GetAllowedMeasurements(string measurementType)
         {
@@ -564,6 +603,7 @@ namespace WeddingClosetHubs.Controllers
             };
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -1144,269 +1184,118 @@ namespace WeddingClosetHubs.Controllers
 
             return View(negotiations);
         }
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> AddToCart(
-    int productId,
-    int quantity,
-    string? purchaseType,
-    string? size,
-    string[]? VariantSizes,
-    int[]? VariantQuantities)
-{
-    if (!IsCustomerLoggedIn())
-    {
-        var pendingItems = new List<CustomerCartItem>();
-
-        purchaseType =
-            string.IsNullOrWhiteSpace(purchaseType)
-                ? "Buy"
-                : purchaseType.Trim();
-
-        if (VariantSizes != null &&
-            VariantQuantities != null &&
-            VariantSizes.Length == VariantQuantities.Length &&
-            VariantSizes.Length > 0)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCart(
+            int productId,
+            int quantity,
+            string? purchaseType,
+            string? size,
+            string[]? VariantSizes,
+            int[]? VariantQuantities)
         {
-            for (int i = 0; i < VariantSizes.Length; i++)
+            if (!IsCustomerLoggedIn())
             {
-                string selectedSize =
-                    VariantSizes[i]?.Trim() ?? "";
+                var pendingItems = new List<CustomerCartItem>();
 
-                int selectedQuantity =
-                    VariantQuantities[i];
+                purchaseType =
+                    string.IsNullOrWhiteSpace(purchaseType)
+                        ? "Buy"
+                        : purchaseType.Trim();
 
-                if (string.IsNullOrWhiteSpace(selectedSize) ||
-                    selectedQuantity <= 0)
+                if (VariantSizes != null &&
+                    VariantQuantities != null &&
+                    VariantSizes.Length == VariantQuantities.Length &&
+                    VariantSizes.Length > 0)
                 {
-                    continue;
+                    for (int i = 0; i < VariantSizes.Length; i++)
+                    {
+                        string selectedSize =
+                            VariantSizes[i]?.Trim() ?? "";
+
+                        int selectedQuantity =
+                            VariantQuantities[i];
+
+                        if (string.IsNullOrWhiteSpace(selectedSize) ||
+                            selectedQuantity <= 0)
+                        {
+                            continue;
+                        }
+
+                        pendingItems.Add(
+                            new CustomerCartItem
+                            {
+                                ProductId = productId,
+                                CustomizationRequestId = null,
+                                Quantity = selectedQuantity,
+                                Size = selectedSize,
+                                PurchaseType = purchaseType
+                            });
+                    }
+                }
+                else
+                {
+                    pendingItems.Add(
+                        new CustomerCartItem
+                        {
+                            ProductId = productId,
+                            CustomizationRequestId = null,
+                            Quantity = quantity < 1 ? 1 : quantity,
+                            Size = size,
+                            PurchaseType = purchaseType
+                        });
                 }
 
-                pendingItems.Add(
-                    new CustomerCartItem
-                    {
-                        ProductId = productId,
-                        Quantity = selectedQuantity,
-                        Size = selectedSize,
-                        PurchaseType = purchaseType
-                    });
-            }
-        }
-        else
-        {
-            pendingItems.Add(
-                new CustomerCartItem
+                if (pendingItems.Any())
                 {
-                    ProductId = productId,
-                    Quantity = quantity < 1 ? 1 : quantity,
-                    Size = size,
-                    PurchaseType = purchaseType
-                });
-        }
+                    SavePendingCartItems(pendingItems);
+                }
 
-        if (pendingItems.Any())
-        {
-            SavePendingCartItems(pendingItems);
-        }
-
-        string returnUrl =
-            Url.Action(
-                "Cart",
-                "Customer") ?? "/";
-
-        return RedirectToAction(
-            "Login",
-            "Account",
-            new { returnUrl });
-    }
-
-    var product = await _context.Products
-        .Include(p => p.ProductVariants)
-        .Include(p => p.Shop)
-        .FirstOrDefaultAsync(p =>
-            p.ProductId == productId &&
-            p.Status);
-
-    if (product == null)
-    {
-        TempData["Error"] = "Product not found.";
-        return RedirectToAction("Shops");
-    }
-
-    if (product.Shop == null ||
-        !product.Shop.Status ||
-        !product.Shop.IsApproved)
-    {
-        TempData["Error"] =
-            "This shop is currently unavailable.";
-
-        return RedirectToAction("Shops");
-    }
-
-    purchaseType =
-        string.IsNullOrWhiteSpace(purchaseType)
-            ? "Buy"
-            : purchaseType.Trim();
-
-    if (purchaseType.Equals(
-            "Rent",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        if (!product.Shop.OffersRent ||
-            !product.IsAvailableForRent)
-        {
-            TempData["Error"] =
-                "This product is no longer available for rent.";
-
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-    }
-    else if (purchaseType.Equals(
-                 "Buy",
-                 StringComparison.OrdinalIgnoreCase) ||
-             purchaseType.Equals(
-                 "Sale",
-                 StringComparison.OrdinalIgnoreCase) ||
-             purchaseType.Equals(
-                 "Negotiated",
-                 StringComparison.OrdinalIgnoreCase))
-    {
-        if (!product.Shop.OffersBuy ||
-            !product.IsAvailableForBuy)
-        {
-            TempData["Error"] =
-                "Buying is not available for this product.";
-
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-    }
-
-    var cartItems = GetCartItems();
-
-    bool hasVariants =
-        product.ProductVariants != null &&
-        product.ProductVariants.Any();
-
-    if (hasVariants &&
-        !purchaseType.Equals(
-            "Negotiated",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        if (VariantSizes == null ||
-            VariantQuantities == null ||
-            VariantSizes.Length == 0 ||
-            VariantQuantities.Length == 0)
-        {
-            TempData["Error"] =
-                "Please select at least one size and quantity.";
-
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-
-        if (VariantSizes.Length != VariantQuantities.Length)
-        {
-            TempData["Error"] =
-                "Invalid size and quantity selection.";
-
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-
-        bool atLeastOneSelected = false;
-
-        for (int i = 0; i < VariantSizes.Length; i++)
-        {
-            string selectedSize =
-                VariantSizes[i]?.Trim() ?? "";
-
-            int selectedQuantity =
-                VariantQuantities[i];
-
-            if (string.IsNullOrWhiteSpace(selectedSize))
-                continue;
-
-            if (selectedQuantity <= 0)
-                continue;
-
-            atLeastOneSelected = true;
-
-            var variant =
-                product.ProductVariants
-                    .FirstOrDefault(v =>
-                        string.Equals(
-                            v.Size,
-                            selectedSize,
-                            StringComparison.OrdinalIgnoreCase));
-
-            if (variant == null)
-            {
-                TempData["Error"] =
-                    $"Size {selectedSize} is not available.";
+                string returnUrl =
+                    Url.Action(
+                        "Cart",
+                        "Customer") ?? "/";
 
                 return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                    "Login",
+                    "Account",
+                    new { returnUrl });
             }
 
-            if (variant.StockQuantity <= 0)
+            var product = await _context.Products
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId &&
+                    p.Status);
+
+            if (product == null)
+            {
+                TempData["Error"] = "Product not found.";
+                return RedirectToAction("Shops");
+            }
+
+            if (product.Shop == null ||
+                !product.Shop.Status ||
+                !product.Shop.IsApproved)
             {
                 TempData["Error"] =
-                    $"Size {variant.Size} is out of stock.";
+                    "This shop is currently unavailable.";
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                return RedirectToAction("Shops");
             }
 
-            if (selectedQuantity > variant.StockQuantity)
-            {
-                TempData["Error"] =
-                    $"Only {variant.StockQuantity} item(s) are available in size {variant.Size}.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            decimal selectedPrice;
+            purchaseType =
+                string.IsNullOrWhiteSpace(purchaseType)
+                    ? "Buy"
+                    : purchaseType.Trim();
 
             if (purchaseType.Equals(
-                    "Sale",
+                    "Rent",
                     StringComparison.OrdinalIgnoreCase))
             {
-                if (!product.Shop.OffersBuy ||
-                    !product.IsAvailableForBuy ||
-                    !product.IsOnSale ||
-                    !product.SalePrice.HasValue ||
-                    product.SalePrice.Value <= 0 ||
-                    product.SalePrice.Value >= product.Price)
-                {
-                    TempData["Error"] =
-                        "This sale price is no longer available.";
-
-                    return RedirectToAction(
-                        "ProductDetails",
-                        new { id = productId });
-                }
-
-                selectedPrice =
-                    product.SalePrice.Value;
-            }
-            else if (purchaseType.Equals(
-                         "Rent",
-                         StringComparison.OrdinalIgnoreCase))
-            {
                 if (!product.Shop.OffersRent ||
-                    !product.IsAvailableForRent ||
-                    !product.RentPrice.HasValue ||
-                    product.RentPrice.Value <= 0)
+                    !product.IsAvailableForRent)
                 {
                     TempData["Error"] =
                         "This product is no longer available for rent.";
@@ -1415,11 +1304,16 @@ public async Task<IActionResult> AddToCart(
                         "ProductDetails",
                         new { id = productId });
                 }
-
-                selectedPrice =
-                    product.RentPrice.Value;
             }
-            else
+            else if (purchaseType.Equals(
+                         "Buy",
+                         StringComparison.OrdinalIgnoreCase) ||
+                     purchaseType.Equals(
+                         "Sale",
+                         StringComparison.OrdinalIgnoreCase) ||
+                     purchaseType.Equals(
+                         "Negotiated",
+                         StringComparison.OrdinalIgnoreCase))
             {
                 if (!product.Shop.OffersBuy ||
                     !product.IsAvailableForBuy)
@@ -1431,692 +1325,958 @@ public async Task<IActionResult> AddToCart(
                         "ProductDetails",
                         new { id = productId });
                 }
-
-                selectedPrice =
-                    product.Price;
             }
 
-            var existingItem =
-                cartItems.FirstOrDefault(x =>
-                    x.ProductId == productId &&
-                    string.Equals(
-                        x.Size ?? "",
-                        variant.Size ?? "",
-                        StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(
-                        x.PurchaseType ?? "Buy",
-                        purchaseType,
-                        StringComparison.OrdinalIgnoreCase));
+            var cartItems = GetCartItems();
 
-            if (existingItem != null)
+            bool hasVariants =
+                product.ProductVariants != null &&
+                product.ProductVariants.Any();
+
+            if (hasVariants &&
+                !purchaseType.Equals(
+                    "Negotiated",
+                    StringComparison.OrdinalIgnoreCase))
             {
-                int newQuantity =
-                    existingItem.Quantity +
-                    selectedQuantity;
-
-                if (newQuantity > variant.StockQuantity)
+                if (VariantSizes == null ||
+                    VariantQuantities == null ||
+                    VariantSizes.Length == 0 ||
+                    VariantQuantities.Length == 0)
                 {
                     TempData["Error"] =
-                        $"You already have {existingItem.Quantity} item(s) of size {variant.Size} in your cart. " +
-                        $"Only {variant.StockQuantity} item(s) are available.";
+                        "Please select at least one size and quantity.";
 
                     return RedirectToAction(
                         "ProductDetails",
                         new { id = productId });
                 }
 
-                existingItem.Quantity =
-                    newQuantity;
+                if (VariantSizes.Length != VariantQuantities.Length)
+                {
+                    TempData["Error"] =
+                        "Invalid size and quantity selection.";
 
-                existingItem.Price =
-                    selectedPrice;
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
 
-                existingItem.ProductName =
-                    product.ProductName;
+                bool atLeastOneSelected = false;
+
+                for (int i = 0; i < VariantSizes.Length; i++)
+                {
+                    string selectedSize =
+                        VariantSizes[i]?.Trim() ?? "";
+
+                    int selectedQuantity =
+                        VariantQuantities[i];
+
+                    if (string.IsNullOrWhiteSpace(selectedSize))
+                        continue;
+
+                    if (selectedQuantity <= 0)
+                        continue;
+
+                    atLeastOneSelected = true;
+
+                    var variant =
+                        product.ProductVariants
+                            .FirstOrDefault(v =>
+                                string.Equals(
+                                    v.Size,
+                                    selectedSize,
+                                    StringComparison.OrdinalIgnoreCase));
+
+                    if (variant == null)
+                    {
+                        TempData["Error"] =
+                            $"Size {selectedSize} is not available.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    if (variant.StockQuantity <= 0)
+                    {
+                        TempData["Error"] =
+                            $"Size {variant.Size} is out of stock.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    if (selectedQuantity > variant.StockQuantity)
+                    {
+                        TempData["Error"] =
+                            $"Only {variant.StockQuantity} item(s) are available in size {variant.Size}.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    decimal selectedPrice;
+
+                    if (purchaseType.Equals(
+                            "Sale",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!product.Shop.OffersBuy ||
+                            !product.IsAvailableForBuy ||
+                            !product.IsOnSale ||
+                            !product.SalePrice.HasValue ||
+                            product.SalePrice.Value <= 0 ||
+                            product.SalePrice.Value >= product.Price)
+                        {
+                            TempData["Error"] =
+                                "This sale price is no longer available.";
+
+                            return RedirectToAction(
+                                "ProductDetails",
+                                new { id = productId });
+                        }
+
+                        selectedPrice =
+                            product.SalePrice.Value;
+                    }
+                    else if (purchaseType.Equals(
+                                 "Rent",
+                                 StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!product.Shop.OffersRent ||
+                            !product.IsAvailableForRent ||
+                            !product.RentPrice.HasValue ||
+                            product.RentPrice.Value <= 0)
+                        {
+                            TempData["Error"] =
+                                "This product is no longer available for rent.";
+
+                            return RedirectToAction(
+                                "ProductDetails",
+                                new { id = productId });
+                        }
+
+                        selectedPrice =
+                            product.RentPrice.Value;
+                    }
+                    else
+                    {
+                        if (!product.Shop.OffersBuy ||
+                            !product.IsAvailableForBuy)
+                        {
+                            TempData["Error"] =
+                                "Buying is not available for this product.";
+
+                            return RedirectToAction(
+                                "ProductDetails",
+                                new { id = productId });
+                        }
+
+                        selectedPrice =
+                            product.Price;
+                    }
+
+                    var existingItem =
+                        cartItems.FirstOrDefault(x =>
+                            x.ProductId == productId &&
+                            x.CustomizationRequestId == null &&
+                            string.Equals(
+                                x.Size ?? "",
+                                variant.Size ?? "",
+                                StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(
+                                x.PurchaseType ?? "Buy",
+                                purchaseType,
+                                StringComparison.OrdinalIgnoreCase));
+
+                    if (existingItem != null)
+                    {
+                        int newQuantity =
+                            existingItem.Quantity +
+                            selectedQuantity;
+
+                        if (newQuantity > variant.StockQuantity)
+                        {
+                            TempData["Error"] =
+                                $"You already have {existingItem.Quantity} item(s) of size {variant.Size} in your cart. " +
+                                $"Only {variant.StockQuantity} item(s) are available.";
+
+                            return RedirectToAction(
+                                "ProductDetails",
+                                new { id = productId });
+                        }
+
+                        existingItem.Quantity =
+                            newQuantity;
+
+                        existingItem.Price =
+                            selectedPrice;
+
+                        existingItem.ProductName =
+                            product.ProductName;
+                    }
+                    else
+                    {
+                        cartItems.Add(
+                            new CustomerCartItem
+                            {
+                                ProductId =
+                                    product.ProductId,
+
+                                CustomizationRequestId =
+                                    null,
+
+                                ProductName =
+                                    product.ProductName,
+
+                                Price =
+                                    selectedPrice,
+
+                                Quantity =
+                                    selectedQuantity,
+
+                                Size =
+                                    variant.Size,
+
+                                PurchaseType =
+                                    purchaseType,
+
+                                NegotiationId =
+                                    null
+                            });
+                    }
+                }
+
+                if (!atLeastOneSelected)
+                {
+                    TempData["Error"] =
+                        "Please select at least one size and quantity.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                SaveCartItems(cartItems);
+
+                TempData["Success"] =
+                    "Selected sizes and quantities were added to your cart.";
+
+                return RedirectToAction("Cart");
             }
-            else
+
+            if (!hasVariants)
             {
+                if (quantity < 1)
+                    quantity = 1;
+
+                if (product.StockQuantity <= 0)
+                {
+                    TempData["Error"] =
+                        "This product is currently out of stock.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                if (quantity > product.StockQuantity)
+                {
+                    TempData["Error"] =
+                        $"Only {product.StockQuantity} item(s) are available.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                decimal selectedPrice;
+
+                if (purchaseType.Equals(
+                        "Sale",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!product.Shop.OffersBuy ||
+                        !product.IsAvailableForBuy ||
+                        !product.IsOnSale ||
+                        !product.SalePrice.HasValue ||
+                        product.SalePrice.Value <= 0 ||
+                        product.SalePrice.Value >= product.Price)
+                    {
+                        TempData["Error"] =
+                            "This sale price is no longer available.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    selectedPrice =
+                        product.SalePrice.Value;
+                }
+                else if (purchaseType.Equals(
+                             "Rent",
+                             StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!product.Shop.OffersRent ||
+                        !product.IsAvailableForRent ||
+                        !product.RentPrice.HasValue ||
+                        product.RentPrice.Value <= 0)
+                    {
+                        TempData["Error"] =
+                            "This product is no longer available for rent.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    selectedPrice =
+                        product.RentPrice.Value;
+                }
+                else
+                {
+                    if (!product.Shop.OffersBuy ||
+                        !product.IsAvailableForBuy)
+                    {
+                        TempData["Error"] =
+                            "Buying is not available for this product.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    selectedPrice =
+                        product.Price;
+                }
+
+                var existingItem =
+                    cartItems.FirstOrDefault(x =>
+                        x.ProductId == productId &&
+                        x.CustomizationRequestId == null &&
+                        string.Equals(
+                            x.Size ?? "",
+                            "",
+                            StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(
+                            x.PurchaseType ?? "Buy",
+                            purchaseType,
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (existingItem != null)
+                {
+                    int newQuantity =
+                        existingItem.Quantity + quantity;
+
+                    if (newQuantity > product.StockQuantity)
+                    {
+                        TempData["Error"] =
+                            $"Only {product.StockQuantity} item(s) are available.";
+
+                        return RedirectToAction(
+                            "ProductDetails",
+                            new { id = productId });
+                    }
+
+                    existingItem.Quantity =
+                        newQuantity;
+
+                    existingItem.Price =
+                        selectedPrice;
+
+                    existingItem.ProductName =
+                        product.ProductName;
+                }
+                else
+                {
+                    cartItems.Add(
+                        new CustomerCartItem
+                        {
+                            ProductId =
+                                product.ProductId,
+
+                            CustomizationRequestId =
+                                null,
+
+                            ProductName =
+                                product.ProductName,
+
+                            Price =
+                                selectedPrice,
+
+                            Quantity =
+                                quantity,
+
+                            Size =
+                                null,
+
+                            PurchaseType =
+                                purchaseType,
+
+                            NegotiationId =
+                                null
+                        });
+                }
+
+                SaveCartItems(cartItems);
+
+                TempData["Success"] =
+                    "Product added to your cart.";
+
+                return RedirectToAction("Cart");
+            }
+
+            if (purchaseType.Equals(
+                    "Negotiated",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (!product.Shop.OffersBuy ||
+                    !product.IsAvailableForBuy)
+                {
+                    TempData["Error"] =
+                        "Negotiation is not available for this product.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                if (string.IsNullOrWhiteSpace(size))
+                {
+                    TempData["Error"] =
+                        "Please select a size.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                var variant =
+                    product.ProductVariants
+                        .FirstOrDefault(v =>
+                            string.Equals(
+                                v.Size,
+                                size,
+                                StringComparison.OrdinalIgnoreCase));
+
+                if (variant == null ||
+                    variant.StockQuantity <= 0)
+                {
+                    TempData["Error"] =
+                        "The selected size is out of stock.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                int customerId =
+                    GetCustomerId()!.Value;
+
+                var negotiation =
+                    await _context.Negotiations
+                        .Where(n =>
+                            n.ProductId == productId &&
+                            n.CustomerId == customerId &&
+                            n.Status == "Accepted" &&
+                            n.AgreedPrice.HasValue &&
+                            n.AgreedPrice.Value > 0)
+                        .OrderByDescending(
+                            n => n.RespondedDate ?? n.CreatedDate)
+                        .FirstOrDefaultAsync();
+
+                if (negotiation == null)
+                {
+                    TempData["Error"] =
+                        "No accepted negotiated price is available.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
+                bool alreadyInCart =
+                    cartItems.Any(x =>
+                        x.ProductId == productId &&
+                        x.CustomizationRequestId == null &&
+                        x.PurchaseType == "Negotiated");
+
+                if (alreadyInCart)
+                {
+                    TempData["Error"] =
+                        "This negotiated product is already in your cart.";
+
+                    return RedirectToAction(
+                        "ProductDetails",
+                        new { id = productId });
+                }
+
                 cartItems.Add(
                     new CustomerCartItem
                     {
                         ProductId =
                             product.ProductId,
 
+                        CustomizationRequestId =
+                            null,
+
                         ProductName =
                             product.ProductName,
 
                         Price =
-                            selectedPrice,
+                            negotiation.AgreedPrice!.Value,
 
                         Quantity =
-                            selectedQuantity,
+                            1,
 
                         Size =
                             variant.Size,
 
                         PurchaseType =
-                            purchaseType,
+                            "Negotiated",
 
                         NegotiationId =
-                            null
+                            negotiation.NegotiationId
                     });
-            }
-        }
 
-        if (!atLeastOneSelected)
-        {
-            TempData["Error"] =
-                "Please select at least one size and quantity.";
+                SaveCartItems(cartItems);
+
+                TempData["Success"] =
+                    "Negotiated product added to your cart.";
+
+                return RedirectToAction("Cart");
+            }
 
             return RedirectToAction(
                 "ProductDetails",
                 new { id = productId });
         }
 
-        SaveCartItems(cartItems);
 
-        TempData["Success"] =
-            "Selected sizes and quantities were added to your cart.";
-
-        return RedirectToAction("Cart");
-    }
-
-    if (!hasVariants)
-    {
-        if (quantity < 1)
-            quantity = 1;
-
-        if (product.StockQuantity <= 0)
+        [HttpGet]
+        public async Task<IActionResult> Cart()
         {
-            TempData["Error"] =
-                "This product is currently out of stock.";
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+            int customerId =
+                GetCustomerId()!.Value;
 
-        if (quantity > product.StockQuantity)
-        {
-            TempData["Error"] =
-                $"Only {product.StockQuantity} item(s) are available.";
+            var cartItems =
+                GetCartItems();
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
-
-        decimal selectedPrice;
-
-        if (purchaseType.Equals(
-                "Sale",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (!product.Shop.OffersBuy ||
-                !product.IsAvailableForBuy ||
-                !product.IsOnSale ||
-                !product.SalePrice.HasValue ||
-                product.SalePrice.Value <= 0 ||
-                product.SalePrice.Value >= product.Price)
+            if (!cartItems.Any())
             {
-                TempData["Error"] =
-                    "This sale price is no longer available.";
+                ViewBag.CartItems =
+                    cartItems;
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                ViewBag.CustomizationRequests =
+                    new List<CustomizationRequest>();
+
+                return View(
+                    new List<Product>());
             }
 
-            selectedPrice =
-                product.SalePrice.Value;
-        }
-        else if (purchaseType.Equals(
-                     "Rent",
-                     StringComparison.OrdinalIgnoreCase))
-        {
-            if (!product.Shop.OffersRent ||
-                !product.IsAvailableForRent ||
-                !product.RentPrice.HasValue ||
-                product.RentPrice.Value <= 0)
+            var productIds =
+                cartItems
+                    .Where(x => x.ProductId.HasValue)
+                    .Select(x => x.ProductId!.Value)
+                    .Distinct()
+                    .ToList();
+
+            var customizationRequestIds =
+                cartItems
+                    .Where(x => x.CustomizationRequestId.HasValue)
+                    .Select(x => x.CustomizationRequestId!.Value)
+                    .Distinct()
+                    .ToList();
+
+            var products =
+                await _context.Products
+                    .Include(p => p.Shop)
+                    .Include(p => p.ProductVariants)
+                    .Include(p => p.ProductImages)
+                    .Where(p =>
+                        productIds.Contains(p.ProductId) &&
+                        p.Status)
+                    .ToListAsync();
+
+            var customizationRequests =
+                await _context.CustomizationRequests
+                    .Include(r => r.Shop)
+                    .Where(r =>
+                        customizationRequestIds.Contains(
+                            r.CustomizationRequestId) &&
+                        r.CustomerId == customerId)
+                    .ToListAsync();
+
+            var validProductIds =
+                products
+                    .Select(p => p.ProductId)
+                    .ToHashSet();
+
+            var validCustomizationIds =
+                customizationRequests
+                    .Select(r => r.CustomizationRequestId)
+                    .ToHashSet();
+
+            var itemsToRemove =
+                new List<CustomerCartItem>();
+
+            foreach (var item in cartItems)
             {
-                TempData["Error"] =
-                    "This product is no longer available for rent.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            selectedPrice =
-                product.RentPrice.Value;
-        }
-        else
-        {
-            if (!product.Shop.OffersBuy ||
-                !product.IsAvailableForBuy)
-            {
-                TempData["Error"] =
-                    "Buying is not available for this product.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            selectedPrice =
-                product.Price;
-        }
-
-        var existingItem =
-            cartItems.FirstOrDefault(x =>
-                x.ProductId == productId &&
-                string.Equals(
-                    x.Size ?? "",
-                    "",
-                    StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(
-                    x.PurchaseType ?? "Buy",
-                    purchaseType,
-                    StringComparison.OrdinalIgnoreCase));
-
-        if (existingItem != null)
-        {
-            int newQuantity =
-                existingItem.Quantity + quantity;
-
-            if (newQuantity > product.StockQuantity)
-            {
-                TempData["Error"] =
-                    $"Only {product.StockQuantity} item(s) are available.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            existingItem.Quantity =
-                newQuantity;
-
-            existingItem.Price =
-                selectedPrice;
-        }
-        else
-        {
-            cartItems.Add(
-                new CustomerCartItem
+                if (item.CustomizationRequestId.HasValue)
                 {
-                    ProductId =
-                        product.ProductId,
+                    var customization =
+                        customizationRequests.FirstOrDefault(
+                            r =>
+                                r.CustomizationRequestId ==
+                                item.CustomizationRequestId.Value);
 
-                    ProductName =
-                        product.ProductName,
+                    if (customization == null)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                    Price =
-                        selectedPrice,
+                    if (!string.Equals(
+                            customization.Status,
+                            "Accepted",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                    Quantity =
-                        quantity,
+                    if (!customization.Shop.Status ||
+                        !customization.Shop.IsApproved ||
+                        !customization.Shop.OffersCustomization)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                    Size =
-                        null,
+                    if (!customization.ShopkeeperPrice.HasValue ||
+                        customization.ShopkeeperPrice.Value <= 0)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                    PurchaseType =
-                        purchaseType,
+                    item.ProductId = null;
 
-                    NegotiationId =
-                        null
-                });
-        }
+                    item.ProductName =
+                        customization.ProductName;
 
-        SaveCartItems(cartItems);
+                    item.Price =
+                        customization.ShopkeeperPrice.Value;
 
-        TempData["Success"] =
-            "Product added to your cart.";
+                    item.Quantity =
+                        1;
 
-        return RedirectToAction("Cart");
-    }
+                    item.Size =
+                        null;
 
-    if (purchaseType.Equals(
-            "Negotiated",
-            StringComparison.OrdinalIgnoreCase))
-    {
-        if (!product.Shop.OffersBuy ||
-            !product.IsAvailableForBuy)
-        {
-            TempData["Error"] =
-                "Negotiation is not available for this product.";
+                    item.PurchaseType =
+                        "Customized";
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+                    item.NegotiationId =
+                        null;
 
-        if (string.IsNullOrWhiteSpace(size))
-        {
-            TempData["Error"] =
-                "Please select a size.";
+                    item.CustomMeasurements =
+                        !string.IsNullOrWhiteSpace(
+                            customization.CustomerUpdatedMeasurements)
+                            ? customization.CustomerUpdatedMeasurements
+                            : customization.Measurements;
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+                    continue;
+                }
 
-        var variant =
-            product.ProductVariants
-                .FirstOrDefault(v =>
-                    string.Equals(
-                        v.Size,
-                        size,
-                        StringComparison.OrdinalIgnoreCase));
+                if (!item.ProductId.HasValue)
+                {
+                    itemsToRemove.Add(item);
+                    continue;
+                }
 
-        if (variant == null ||
-            variant.StockQuantity <= 0)
-        {
-            TempData["Error"] =
-                "The selected size is out of stock.";
+                var product =
+                    products.FirstOrDefault(
+                        p => p.ProductId == item.ProductId.Value);
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+                if (product == null)
+                {
+                    itemsToRemove.Add(item);
+                    continue;
+                }
 
-        int customerId =
-            GetCustomerId()!.Value;
+                if (product.Shop == null ||
+                    !product.Shop.Status ||
+                    !product.Shop.IsApproved)
+                {
+                    itemsToRemove.Add(item);
+                    continue;
+                }
 
-        var negotiation =
-            await _context.Negotiations
-                .Where(n =>
-                    n.ProductId == productId &&
-                    n.CustomerId == customerId &&
-                    n.Status == "Accepted" &&
-                    n.AgreedPrice.HasValue &&
-                    n.AgreedPrice.Value > 0)
-                .OrderByDescending(
-                    n => n.RespondedDate ?? n.CreatedDate)
-                .FirstOrDefaultAsync();
+                item.ProductName =
+                    product.ProductName;
 
-        if (negotiation == null)
-        {
-            TempData["Error"] =
-                "No accepted negotiated price is available.";
+                string purchaseType =
+                    string.IsNullOrWhiteSpace(
+                        item.PurchaseType)
+                        ? "Buy"
+                        : item.PurchaseType.Trim();
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+                if (purchaseType.Equals(
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!product.Shop.OffersRent ||
+                        !product.IsAvailableForRent)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (!product.Shop.OffersBuy ||
+                        !product.IsAvailableForBuy)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
+                }
 
-        bool alreadyInCart =
-            cartItems.Any(x =>
-                x.ProductId == productId &&
-                x.PurchaseType == "Negotiated");
+                bool hasVariants =
+                    product.ProductVariants != null &&
+                    product.ProductVariants.Any();
 
-        if (alreadyInCart)
-        {
-            TempData["Error"] =
-                "This negotiated product is already in your cart.";
+                ProductVariant? selectedVariant =
+                    null;
 
-            return RedirectToAction(
-                "ProductDetails",
-                new { id = productId });
-        }
+                if (hasVariants)
+                {
+                    if (string.IsNullOrWhiteSpace(item.Size))
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-        cartItems.Add(
-            new CustomerCartItem
-            {
-                ProductId =
-                    product.ProductId,
+                    selectedVariant =
+                        product.ProductVariants
+                            .FirstOrDefault(v =>
+                                string.Equals(
+                                    v.Size,
+                                    item.Size,
+                                    StringComparison.OrdinalIgnoreCase));
 
-                ProductName =
-                    product.ProductName,
+                    if (selectedVariant == null ||
+                        selectedVariant.StockQuantity <= 0)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                Price =
-                    negotiation.AgreedPrice!.Value,
+                    if (item.Quantity >
+                        selectedVariant.StockQuantity)
+                    {
+                        item.Quantity =
+                            selectedVariant.StockQuantity;
+                    }
 
-                Quantity =
-                    1,
+                    if (item.Quantity < 1)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                Size =
-                    variant.Size,
+                    item.Size =
+                        selectedVariant.Size;
+                }
+                else
+                {
+                    if (product.StockQuantity <= 0)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-                PurchaseType =
-                    "Negotiated",
+                    if (item.Quantity >
+                        product.StockQuantity)
+                    {
+                        item.Quantity =
+                            product.StockQuantity;
+                    }
 
-                NegotiationId =
-                    negotiation.NegotiationId
-            });
+                    if (item.Quantity < 1)
+                    {
+                        itemsToRemove.Add(item);
+                        continue;
+                    }
 
-        SaveCartItems(cartItems);
+                    item.Size =
+                        null;
+                }
 
-        TempData["Success"] =
-            "Negotiated product added to your cart.";
+                if (purchaseType.Equals(
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (product.Shop.OffersRent &&
+                        product.IsAvailableForRent &&
+                        product.RentPrice.HasValue &&
+                        product.RentPrice.Value > 0)
+                    {
+                        item.Price =
+                            product.RentPrice.Value;
 
-        return RedirectToAction("Cart");
-    }
+                        item.PurchaseType =
+                            "Rent";
 
-    return RedirectToAction(
-        "ProductDetails",
-        new { id = productId });
-}
+                        item.NegotiationId =
+                            null;
+                    }
+                    else
+                    {
+                        itemsToRemove.Add(item);
+                    }
 
-[HttpGet]
-public async Task<IActionResult> Cart()
-{
-    if (!IsCustomerLoggedIn())
-        return CustomerLogin();
+                    continue;
+                }
 
-    int customerId =
-        GetCustomerId()!.Value;
+                if (purchaseType.Equals(
+                        "Negotiated",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    Negotiation? negotiation =
+                        null;
 
-    var cartItems =
-        GetCartItems();
+                    if (item.NegotiationId.HasValue)
+                    {
+                        negotiation =
+                            await _context.Negotiations
+                                .FirstOrDefaultAsync(n =>
+                                    n.NegotiationId ==
+                                        item.NegotiationId.Value &&
+                                    n.ProductId ==
+                                        product.ProductId &&
+                                    n.CustomerId ==
+                                        customerId &&
+                                    n.Status ==
+                                        "Accepted" &&
+                                    n.AgreedPrice.HasValue &&
+                                    n.AgreedPrice.Value > 0);
+                    }
 
-    if (!cartItems.Any())
-    {
-        ViewBag.CartItems =
-            cartItems;
+                    if (negotiation == null)
+                    {
+                        negotiation =
+                            await _context.Negotiations
+                                .Where(n =>
+                                    n.ProductId ==
+                                        product.ProductId &&
+                                    n.CustomerId ==
+                                        customerId &&
+                                    n.Status ==
+                                        "Accepted" &&
+                                    n.AgreedPrice.HasValue &&
+                                    n.AgreedPrice.Value > 0)
+                                .OrderByDescending(n =>
+                                    n.RespondedDate ??
+                                    n.CreatedDate)
+                                .FirstOrDefaultAsync();
+                    }
 
-        return View(
-            new List<Product>());
-    }
+                    if (negotiation != null &&
+                        negotiation.AgreedPrice.HasValue)
+                    {
+                        item.Price =
+                            negotiation.AgreedPrice.Value;
 
-    var productIds =
-        cartItems
-            .Select(x => x.ProductId)
-            .Distinct()
-            .ToList();
+                        item.PurchaseType =
+                            "Negotiated";
 
-    var products =
-        await _context.Products
-            .Include(p => p.Shop)
-            .Include(p => p.ProductVariants)
-            .Include(p => p.ProductImages)
-            .Where(p =>
-                productIds.Contains(p.ProductId) &&
-                p.Status)
-            .ToListAsync();
+                        item.NegotiationId =
+                            negotiation.NegotiationId;
 
-    var validIds =
-        products
-            .Select(p => p.ProductId)
-            .ToHashSet();
+                        item.Quantity =
+                            1;
+                    }
+                    else
+                    {
+                        itemsToRemove.Add(item);
+                    }
 
-    cartItems =
-        cartItems
-            .Where(x =>
-                validIds.Contains(x.ProductId))
-            .ToList();
+                    continue;
+                }
 
-    var itemsToRemove =
-        new List<CustomerCartItem>();
+                if (purchaseType.Equals(
+                        "Sale",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (product.Shop.OffersBuy &&
+                        product.IsAvailableForBuy &&
+                        product.IsOnSale &&
+                        product.SalePrice.HasValue &&
+                        product.SalePrice.Value > 0 &&
+                        product.SalePrice.Value < product.Price)
+                    {
+                        item.Price =
+                            product.SalePrice.Value;
 
-    foreach (var item in cartItems)
-    {
-        var product =
-            products.FirstOrDefault(
-                p => p.ProductId == item.ProductId);
+                        item.PurchaseType =
+                            "Sale";
 
-        if (product == null)
-        {
-            itemsToRemove.Add(item);
-            continue;
-        }
+                        item.NegotiationId =
+                            null;
+                    }
+                    else
+                    {
+                        itemsToRemove.Add(item);
+                    }
 
-        if (product.Shop == null ||
-            !product.Shop.Status ||
-            !product.Shop.IsApproved)
-        {
-            itemsToRemove.Add(item);
-            continue;
-        }
+                    continue;
+                }
 
-        item.ProductName =
-            product.ProductName;
-
-        string purchaseType =
-            string.IsNullOrWhiteSpace(
-                item.PurchaseType)
-                ? "Buy"
-                : item.PurchaseType.Trim();
-
-        if (purchaseType.Equals(
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (!product.Shop.OffersRent ||
-                !product.IsAvailableForRent)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-        }
-        else
-        {
-            if (!product.Shop.OffersBuy ||
-                !product.IsAvailableForBuy)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-        }
-
-        bool hasVariants =
-            product.ProductVariants != null &&
-            product.ProductVariants.Any();
-
-        ProductVariant? selectedVariant =
-            null;
-
-        if (hasVariants)
-        {
-            if (string.IsNullOrWhiteSpace(item.Size))
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-
-            selectedVariant =
-                product.ProductVariants
-                    .FirstOrDefault(v =>
-                        string.Equals(
-                            v.Size,
-                            item.Size,
-                            StringComparison.OrdinalIgnoreCase));
-
-            if (selectedVariant == null ||
-                selectedVariant.StockQuantity <= 0)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-
-            if (item.Quantity >
-                selectedVariant.StockQuantity)
-            {
-                item.Quantity =
-                    selectedVariant.StockQuantity;
-            }
-
-            if (item.Quantity < 1)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-
-            item.Size =
-                selectedVariant.Size;
-        }
-        else
-        {
-            if (product.StockQuantity <= 0)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-
-            if (item.Quantity >
-                product.StockQuantity)
-            {
-                item.Quantity =
-                    product.StockQuantity;
-            }
-
-            if (item.Quantity < 1)
-            {
-                itemsToRemove.Add(item);
-                continue;
-            }
-
-            item.Size =
-                null;
-        }
-
-        if (purchaseType.Equals(
-                "Rent",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (product.Shop.OffersRent &&
-                product.IsAvailableForRent &&
-                product.RentPrice.HasValue &&
-                product.RentPrice.Value > 0)
-            {
                 item.Price =
-                    product.RentPrice.Value;
+                    product.Price;
 
                 item.PurchaseType =
-                    "Rent";
+                    "Buy";
 
                 item.NegotiationId =
                     null;
             }
-            else
+
+            foreach (var item in itemsToRemove)
             {
-                itemsToRemove.Add(item);
+                cartItems.Remove(item);
             }
 
-            continue;
+            SaveCartItems(cartItems);
+
+            ViewBag.CartItems =
+                cartItems;
+
+            ViewBag.CustomizationRequests =
+                customizationRequests
+                    .Where(r =>
+                        cartItems.Any(c =>
+                            c.CustomizationRequestId ==
+                            r.CustomizationRequestId))
+                    .ToList();
+
+            return View(products);
         }
 
-        if (purchaseType.Equals(
-                "Negotiated",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            Negotiation? negotiation =
-                null;
-
-            if (item.NegotiationId.HasValue)
-            {
-                negotiation =
-                    await _context.Negotiations
-                        .FirstOrDefaultAsync(n =>
-                            n.NegotiationId ==
-                                item.NegotiationId.Value &&
-                            n.ProductId ==
-                                product.ProductId &&
-                            n.CustomerId ==
-                                customerId &&
-                            n.Status ==
-                                "Accepted" &&
-                            n.AgreedPrice.HasValue &&
-                            n.AgreedPrice.Value > 0);
-            }
-
-            if (negotiation == null)
-            {
-                negotiation =
-                    await _context.Negotiations
-                        .Where(n =>
-                            n.ProductId ==
-                                product.ProductId &&
-                            n.CustomerId ==
-                                customerId &&
-                            n.Status ==
-                                "Accepted" &&
-                            n.AgreedPrice.HasValue &&
-                            n.AgreedPrice.Value > 0)
-                        .OrderByDescending(n =>
-                            n.RespondedDate ??
-                            n.CreatedDate)
-                        .FirstOrDefaultAsync();
-            }
-
-            if (negotiation != null &&
-                negotiation.AgreedPrice.HasValue)
-            {
-                item.Price =
-                    negotiation.AgreedPrice.Value;
-
-                item.PurchaseType =
-                    "Negotiated";
-
-                item.NegotiationId =
-                    negotiation.NegotiationId;
-
-                item.Quantity =
-                    1;
-            }
-            else
-            {
-                itemsToRemove.Add(item);
-            }
-
-            continue;
-        }
-
-        if (purchaseType.Equals(
-                "Sale",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (product.Shop.OffersBuy &&
-                product.IsAvailableForBuy &&
-                product.IsOnSale &&
-                product.SalePrice.HasValue &&
-                product.SalePrice.Value > 0 &&
-                product.SalePrice.Value < product.Price)
-            {
-                item.Price =
-                    product.SalePrice.Value;
-
-                item.PurchaseType =
-                    "Sale";
-
-                item.NegotiationId =
-                    null;
-            }
-            else
-            {
-                itemsToRemove.Add(item);
-            }
-
-            continue;
-        }
-
-        item.Price =
-            product.Price;
-
-        item.PurchaseType =
-            "Buy";
-
-        item.NegotiationId =
-            null;
-    }
-
-    foreach (var item in itemsToRemove)
-    {
-        cartItems.Remove(item);
-    }
-
-    SaveCartItems(cartItems);
-
-    ViewBag.CartItems =
-        cartItems;
-
-    return View(products);
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCartQuantity(
-            int productId,
+            int? productId,
+            int? customizationRequestId,
             int quantity,
             string? size,
             string? purchaseType)
@@ -2127,12 +2287,117 @@ public async Task<IActionResult> Cart()
             if (quantity < 1)
                 quantity = 1;
 
+            var cartItems =
+                GetCartItems();
+
+            string selectedPurchaseType =
+                string.IsNullOrWhiteSpace(purchaseType)
+                    ? "Buy"
+                    : purchaseType.Trim();
+
+            if (customizationRequestId.HasValue &&
+                selectedPurchaseType.Equals(
+                    "Customized",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                var customization =
+                    await _context.CustomizationRequests
+                        .Include(r => r.Shop)
+                        .FirstOrDefaultAsync(r =>
+                            r.CustomizationRequestId ==
+                                customizationRequestId.Value &&
+                            r.CustomerId ==
+                                GetCustomerId()!.Value);
+
+                if (customization == null ||
+                    !string.Equals(
+                        customization.Status,
+                        "Accepted",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    customization.Shop == null ||
+                    !customization.Shop.Status ||
+                    !customization.Shop.IsApproved ||
+                    !customization.Shop.OffersCustomization ||
+                    !customization.ShopkeeperPrice.HasValue ||
+                    customization.ShopkeeperPrice.Value <= 0)
+                {
+                    TempData["Error"] =
+                        "This customized item is no longer available.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                var customItem =
+                    cartItems.FirstOrDefault(x =>
+                        x.ProductId == null &&
+                        x.CustomizationRequestId ==
+                            customizationRequestId.Value &&
+                        string.Equals(
+                            x.PurchaseType ?? "Buy",
+                            "Customized",
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (customItem == null)
+                {
+                    TempData["Error"] =
+                        "The customized item is not in your cart.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                customItem.ProductId =
+                    null;
+
+                customItem.CustomizationRequestId =
+                    customizationRequestId.Value;
+
+                customItem.ProductName =
+                    customization.ProductName;
+
+                customItem.Price =
+                    customization.ShopkeeperPrice.Value;
+
+                customItem.Quantity =
+                    1;
+
+                customItem.Size =
+                    null;
+
+                customItem.PurchaseType =
+                    "Customized";
+
+                customItem.CustomMeasurements =
+                    !string.IsNullOrWhiteSpace(
+                        customization.CustomerUpdatedMeasurements)
+                        ? customization.CustomerUpdatedMeasurements
+                        : customization.Measurements;
+
+                customItem.NegotiationId =
+                    null;
+
+                SaveCartItems(cartItems);
+
+                TempData["Success"] =
+                    "Customized item updated.";
+
+                return RedirectToAction("Cart");
+            }
+
+            if (!productId.HasValue)
+            {
+                TempData["Error"] =
+                    "Product not found.";
+
+                return RedirectToAction("Cart");
+            }
+
             var product =
                 await _context.Products
                     .Include(p => p.ProductVariants)
                     .Include(p => p.Shop)
                     .FirstOrDefaultAsync(p =>
-                        p.ProductId == productId &&
+                        p.ProductId ==
+                            productId.Value &&
                         p.Status);
 
             if (product == null)
@@ -2152,11 +2417,6 @@ public async Task<IActionResult> Cart()
 
                 return RedirectToAction("Cart");
             }
-
-            string selectedPurchaseType =
-                string.IsNullOrWhiteSpace(purchaseType)
-                    ? "Buy"
-                    : purchaseType.Trim();
 
             if (selectedPurchaseType.Equals(
                     "Rent",
@@ -2183,12 +2443,10 @@ public async Task<IActionResult> Cart()
                 }
             }
 
-            var cartItems =
-                GetCartItems();
-
             var item =
                 cartItems.FirstOrDefault(x =>
-                    x.ProductId == productId &&
+                    x.ProductId == productId.Value &&
+                    x.CustomizationRequestId == null &&
                     string.Equals(
                         x.Size ?? "",
                         size ?? "",
@@ -2221,11 +2479,12 @@ public async Task<IActionResult> Cart()
                 }
 
                 var selectedVariant =
-                    product.ProductVariants.FirstOrDefault(v =>
-                        string.Equals(
-                            v.Size,
-                            size,
-                            StringComparison.OrdinalIgnoreCase));
+                    product.ProductVariants
+                        .FirstOrDefault(v =>
+                            string.Equals(
+                                v.Size,
+                                size,
+                                StringComparison.OrdinalIgnoreCase));
 
                 if (selectedVariant == null)
                 {
@@ -2243,7 +2502,8 @@ public async Task<IActionResult> Cart()
                     return RedirectToAction("Cart");
                 }
 
-                if (quantity > selectedVariant.StockQuantity)
+                if (quantity >
+                    selectedVariant.StockQuantity)
                 {
                     TempData["Error"] =
                         $"Only {selectedVariant.StockQuantity} item(s) are available in size {selectedVariant.Size}.";
@@ -2264,7 +2524,8 @@ public async Task<IActionResult> Cart()
                     return RedirectToAction("Cart");
                 }
 
-                if (quantity > product.StockQuantity)
+                if (quantity >
+                    product.StockQuantity)
                 {
                     TempData["Error"] =
                         $"Only {product.StockQuantity} item(s) are available.";
@@ -2327,9 +2588,12 @@ public async Task<IActionResult> Cart()
                 var negotiation =
                     await _context.Negotiations
                         .Where(n =>
-                            n.ProductId == productId &&
-                            n.CustomerId == customerId &&
-                            n.Status == "Accepted" &&
+                            n.ProductId ==
+                                productId.Value &&
+                            n.CustomerId ==
+                                customerId &&
+                            n.Status ==
+                                "Accepted" &&
                             n.AgreedPrice.HasValue &&
                             n.AgreedPrice.Value > 0)
                         .OrderByDescending(n =>
@@ -2418,30 +2682,51 @@ public async Task<IActionResult> Cart()
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveFromCart(
-             int productId,
-             string? size,
-             string? purchaseType)
+            int? productId,
+            int? customizationRequestId,
+            string? size,
+            string? purchaseType)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            var cartItems = GetCartItems();
+            var cartItems =
+                GetCartItems();
 
-            var item = cartItems.FirstOrDefault(x =>
-                x.ProductId == productId &&
-                string.Equals(
-                    x.Size ?? "",
-                    size ?? "",
-                    StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(
-                    x.PurchaseType ?? "Buy",
-                    purchaseType ?? "Buy",
-                    StringComparison.OrdinalIgnoreCase));
+            CustomerCartItem? item = null;
+
+            if (customizationRequestId.HasValue)
+            {
+                item =
+                    cartItems.FirstOrDefault(x =>
+                        x.ProductId == null &&
+                        x.CustomizationRequestId ==
+                            customizationRequestId.Value &&
+                        string.Equals(
+                            x.PurchaseType ?? "Buy",
+                            "Customized",
+                            StringComparison.OrdinalIgnoreCase));
+            }
+            else if (productId.HasValue)
+            {
+                item =
+                    cartItems.FirstOrDefault(x =>
+                        x.ProductId == productId.Value &&
+                        x.CustomizationRequestId == null &&
+                        string.Equals(
+                            x.Size ?? "",
+                            size ?? "",
+                            StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(
+                            x.PurchaseType ?? "Buy",
+                            purchaseType ?? "Buy",
+                            StringComparison.OrdinalIgnoreCase));
+            }
 
             if (item == null)
             {
                 TempData["Error"] =
-                    "The selected product is not in your cart.";
+                    "The selected item is not in your cart.";
 
                 return RedirectToAction("Cart");
             }
@@ -2451,102 +2736,497 @@ public async Task<IActionResult> Cart()
             SaveCartItems(cartItems);
 
             TempData["Success"] =
-                "Product removed from cart.";
+                "Item removed from cart.";
 
             return RedirectToAction("Cart");
         }
 
         [HttpGet]
-        public async Task<IActionResult> CustomizeProduct(
-     int id,
-     string? size)
+        public async Task<IActionResult> Customize(int shopId)
         {
             if (!IsCustomerLoggedIn())
-                return CustomerLogin();
-
-            var cartItems = GetCartItems();
-
-            var cartItem = cartItems.FirstOrDefault(x =>
-                x.ProductId == id &&
-                string.Equals(
-                    x.Size ?? "",
-                    size ?? "",
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (cartItem == null)
             {
-                TempData["Error"] =
-                    "Please add this product to your cart first.";
-
-                return RedirectToAction("Cart");
+                return RedirectToAction(
+                    "Login",
+                    "Account",
+                    new
+                    {
+                        returnUrl = Url.Action(
+                            "Customize",
+                            "Customer",
+                            new { shopId })
+                    });
             }
 
-            var product = await _context.Products
-                .Include(p => p.Shop)
-                .FirstOrDefaultAsync(p =>
-                    p.ProductId == id &&
-                    p.Status);
+            var shop = await _context.Shops
+                .Include(s => s.Shopkeeper)
+                .FirstOrDefaultAsync(s =>
+                    s.ShopId == shopId &&
+                    s.Status &&
+                    s.IsApproved);
 
-            if (product == null)
+            if (shop == null)
             {
-                TempData["Error"] =
-                    "Product not found.";
-
-                return RedirectToAction("Cart");
+                TempData["Error"] = "Shop not found or unavailable.";
+                return RedirectToAction("Shops");
             }
 
-            if (product.Shop == null ||
-                !product.Shop.Status ||
-                !product.Shop.IsApproved)
-            {
-                TempData["Error"] =
-                    "This shop is currently unavailable.";
-
-                return RedirectToAction("Cart");
-            }
-
-            if (!product.Shop.OffersCustomization)
+            if (!shop.OffersCustomization)
             {
                 TempData["Error"] =
                     "Customization is not available from this shop.";
 
-                return RedirectToAction("Cart");
+                return RedirectToAction("ShopProducts", new { id = shopId });
             }
 
-            if (!product.HasCustomMeasurement)
+            ViewBag.Shop = shop;
+
+            return View("CustomizeProduct");
+        }
+        [HttpGet]
+        public async Task<IActionResult> MyCustomizations()
+        {
+            if (!IsCustomerLoggedIn())
+            {
+                return CustomerLogin();
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var requests = await _context.CustomizationRequests
+                .AsNoTracking()
+                .Include(r => r.Shop)
+                .Where(r =>
+                    r.CustomerId == customerId &&
+                    r.Status != "Cancelled")
+                .OrderByDescending(r => r.CreatedDate)
+                .ToListAsync();
+
+            return View(requests);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptCustomizationPrice(int id)
+        {
+            if (!IsCustomerLoggedIn())
+            {
+                return CustomerLogin();
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var request = await _context.CustomizationRequests
+                .Include(r => r.Shop)
+                .FirstOrDefaultAsync(r =>
+                    r.CustomizationRequestId == id &&
+                    r.CustomerId == customerId);
+
+            if (request == null)
             {
                 TempData["Error"] =
-                    "Custom measurements are not available for this product.";
+                    "Customization request not found.";
 
-                return RedirectToAction("Cart");
+                return RedirectToAction("MyCustomizations");
             }
 
-            if (!IsDressProduct(product))
+            if (request.Status != "PriceSent" &&
+                request.Status != "RevisedPriceSent")
             {
                 TempData["Error"] =
-                    "Custom measurements are only available for dress products.";
+                    "This customization price cannot be accepted.";
 
-                return RedirectToAction("Cart");
+                return RedirectToAction("MyCustomizations");
             }
 
-            ViewBag.SelectedSize = cartItem.Size;
-            ViewBag.CustomMeasurements = cartItem.CustomMeasurements;
+            if (!request.ShopkeeperPrice.HasValue ||
+                request.ShopkeeperPrice.Value <= 0)
+            {
+                TempData["Error"] =
+                    "The shopkeeper has not provided a valid price.";
 
-            return View(product);
+                return RedirectToAction("MyCustomizations");
+            }
+
+            if (request.Shop == null ||
+                !request.Shop.Status ||
+                !request.Shop.IsApproved ||
+                !request.Shop.OffersCustomization)
+            {
+                TempData["Error"] =
+                    "This shop is currently unavailable for customization.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            var cartItems = GetCartItems();
+
+            var existingItem = cartItems.FirstOrDefault(x =>
+                x.ProductId == null &&
+                x.CustomizationRequestId == request.CustomizationRequestId &&
+                string.Equals(
+                    x.PurchaseType ?? "Buy",
+                    "Customized",
+                    StringComparison.OrdinalIgnoreCase));
+
+            string customMeasurements =
+                !string.IsNullOrWhiteSpace(
+                    request.CustomerUpdatedMeasurements)
+                    ? request.CustomerUpdatedMeasurements
+                    : request.Measurements;
+
+            if (existingItem != null)
+            {
+                existingItem.ProductId = null;
+
+                existingItem.CustomizationRequestId =
+                    request.CustomizationRequestId;
+
+                existingItem.ProductName =
+                 request.ProductName;
+
+                existingItem.CustomImage =
+                    !string.IsNullOrWhiteSpace(request.ReferenceImages)
+                        ? request.ReferenceImages
+                            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault()
+                        : null;
+
+                existingItem.Price =
+                    request.ShopkeeperPrice.Value;
+
+
+                existingItem.Quantity =
+                    1;
+
+                existingItem.Size =
+                    null;
+
+                existingItem.PurchaseType =
+                    "Customized";
+
+                existingItem.CustomMeasurements =
+                    customMeasurements;
+
+                existingItem.NegotiationId =
+                    null;
+            }
+            else
+            {
+                cartItems.Add(
+                    new CustomerCartItem
+                    {
+                        ProductId = null,
+
+                        CustomizationRequestId =
+                            request.CustomizationRequestId,
+
+                        ProductName =
+                            request.ProductName,
+                        CustomImage =
+                             !string.IsNullOrWhiteSpace(request.ReferenceImages)
+                              ? request.ReferenceImages
+                             .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                             .FirstOrDefault()
+                             : null,
+
+
+                        Price =
+                            request.ShopkeeperPrice.Value,
+
+                        Quantity =
+                            1,
+
+                        Size = null,
+
+                        PurchaseType =
+                            "Customized",
+
+                        CustomMeasurements =
+                            customMeasurements,
+
+                        NegotiationId = null
+                    });
+            }
+
+            request.Status =
+                "Accepted";
+
+            request.AcceptedDate =
+                DateTime.Now;
+
+            request.UpdatedDate =
+                DateTime.Now;
+
+            SaveCartItems(cartItems);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Customized price accepted and the customized item has been added to your cart.";
+
+            return RedirectToAction("Cart");
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveCustomMeasurements(
-     int productId,
-     string? size,
-     string customMeasurements,
-     string? customerNotes,
-     List<IFormFile>? referenceImages)
+        public async Task<IActionResult> RequestCustomizationChanges(
+     int id,
+     List<string> measurementNames,
+     List<string> measurementValues,
+     string? customerResponseNotes)
         {
             if (!IsCustomerLoggedIn())
+            {
                 return CustomerLogin();
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var request = await _context.CustomizationRequests
+                .FirstOrDefaultAsync(r =>
+                    r.CustomizationRequestId == id &&
+                    r.CustomerId == customerId);
+
+            if (request == null)
+            {
+                TempData["Error"] =
+                    "Customization request not found.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            if (request.Status != "PriceSent" &&
+                request.Status != "RevisedPriceSent")
+            {
+                TempData["Error"] =
+                    "Changes cannot be requested at this stage.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            if (measurementNames == null ||
+                measurementValues == null ||
+                measurementNames.Count == 0 ||
+                measurementValues.Count == 0 ||
+                measurementNames.Count != measurementValues.Count)
+            {
+                TempData["Error"] =
+                    "Please provide valid measurements.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            var updatedMeasurements = new List<string>();
+
+            var measurementNamesUsed =
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < measurementNames.Count; i++)
+            {
+                string name =
+                    measurementNames[i]?.Trim() ?? string.Empty;
+
+                string value =
+                    measurementValues[i]?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    TempData["Error"] =
+                        "Measurement name cannot be empty.";
+
+                    return RedirectToAction("MyCustomizations");
+                }
+
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    TempData["Error"] =
+                        "Please enter a value for " + name + ".";
+
+                    return RedirectToAction("MyCustomizations");
+                }
+
+                if (!measurementNamesUsed.Add(name))
+                {
+                    TempData["Error"] =
+                        "Duplicate measurement found: " + name;
+
+                    return RedirectToAction("MyCustomizations");
+                }
+
+                updatedMeasurements.Add(
+                    $"{name}: {value}");
+            }
+
+            if (!updatedMeasurements.Any())
+            {
+                TempData["Error"] =
+                    "Please provide at least one measurement.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            if (string.IsNullOrWhiteSpace(customerResponseNotes))
+            {
+                TempData["Error"] =
+                    "Please explain what changes you want or whether you want a lower price.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            request.CustomerUpdatedMeasurements =
+                string.Join(" | ", updatedMeasurements);
+
+            request.CustomerResponseNotes =
+                customerResponseNotes.Trim();
+
+            request.CustomerResponseDate =
+                DateTime.Now;
+
+            request.Status =
+                "ChangeRequested";
+
+            request.ShopkeeperPrice =
+                null;
+
+            request.UpdatedDate =
+                DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Your updated measurements and requested changes have been sent to the shopkeeper.";
+
+            return RedirectToAction("MyCustomizations");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectCustomizationPrice(
+    int id,
+    string? customerResponseNotes)
+        {
+            if (!IsCustomerLoggedIn())
+            {
+                return CustomerLogin();
+            }
+
+            int customerId = GetCustomerId()!.Value;
+
+            var request = await _context.CustomizationRequests
+                .FirstOrDefaultAsync(r =>
+                    r.CustomizationRequestId == id &&
+                    r.CustomerId == customerId);
+
+            if (request == null)
+            {
+                TempData["Error"] =
+                    "Customization request not found.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            if (request.Status != "PriceSent" &&
+                request.Status != "RevisedPriceSent")
+            {
+                TempData["Error"] =
+                    "This customization price cannot be rejected at this stage.";
+
+                return RedirectToAction("MyCustomizations");
+            }
+
+            request.CustomerResponseNotes =
+                string.IsNullOrWhiteSpace(customerResponseNotes)
+                    ? "Customer rejected the proposed price and requested reconsideration."
+                    : customerResponseNotes.Trim();
+
+            request.CustomerResponseDate =
+                DateTime.Now;
+
+            request.Status =
+                "PriceRejected";
+
+            request.UpdatedDate =
+                DateTime.Now;
+
+            request.ShopkeeperPrice =
+                null;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "The price has been rejected and the request has been returned to the shopkeeper for reconsideration.";
+
+            return RedirectToAction("MyCustomizations");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveCustomMeasurements(
+      int shopId,
+      string productName,
+      string category,
+      string? color,
+      string customMeasurements,
+      string? notes,
+      List<IFormFile>? referenceImages)
+        {
+            if (!IsCustomerLoggedIn())
+            {
+                return CustomerLogin();
+            }
+
+            if (shopId <= 0)
+            {
+                TempData["Error"] =
+                    "Invalid shop.";
+
+                return RedirectToAction("Shops");
+            }
+
+            var shop = await _context.Shops
+                .FirstOrDefaultAsync(s =>
+                    s.ShopId == shopId &&
+                    s.Status &&
+                    s.IsApproved);
+
+            if (shop == null)
+            {
+                TempData["Error"] =
+                    "Shop not found or unavailable.";
+
+                return RedirectToAction("Shops");
+            }
+
+            if (!shop.OffersCustomization)
+            {
+                TempData["Error"] =
+                    "Customization is not available from this shop.";
+
+                return RedirectToAction(
+                    "ShopProducts",
+                    new { id = shopId });
+            }
+
+            if (string.IsNullOrWhiteSpace(productName))
+            {
+                TempData["Error"] =
+                    "Please enter the name of your custom product.";
+
+                return RedirectToAction(
+                    "Customize",
+                    new { shopId });
+            }
+
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                TempData["Error"] =
+                    "Please select a category.";
+
+                return RedirectToAction(
+                    "Customize",
+                    new { shopId });
+            }
 
             if (string.IsNullOrWhiteSpace(customMeasurements))
             {
@@ -2554,77 +3234,8 @@ public async Task<IActionResult> Cart()
                     "Please add at least one measurement.";
 
                 return RedirectToAction(
-                    "CustomizeProduct",
-                    new
-                    {
-                        id = productId,
-                        size = size
-                    });
-            }
-
-            var product = await _context.Products
-                .Include(p => p.Shop)
-                .FirstOrDefaultAsync(p =>
-                    p.ProductId == productId &&
-                    p.Status);
-
-            if (product == null)
-            {
-                TempData["Error"] =
-                    "Product not found.";
-
-                return RedirectToAction("Cart");
-            }
-
-            if (product.Shop == null ||
-                !product.Shop.Status ||
-                !product.Shop.IsApproved)
-            {
-                TempData["Error"] =
-                    "This shop is currently unavailable.";
-
-                return RedirectToAction("Cart");
-            }
-
-            if (!product.Shop.OffersCustomization)
-            {
-                TempData["Error"] =
-                    "Customization is not available from this shop.";
-
-                return RedirectToAction("Cart");
-            }
-
-            if (!product.HasCustomMeasurement)
-            {
-                TempData["Error"] =
-                    "Custom measurements are not available for this product.";
-
-                return RedirectToAction("Cart");
-            }
-
-            if (!IsDressProduct(product))
-            {
-                TempData["Error"] =
-                    "Custom measurements are only available for dress products.";
-
-                return RedirectToAction("Cart");
-            }
-
-            var cartItems = GetCartItems();
-
-            var cartItem = cartItems.FirstOrDefault(x =>
-                x.ProductId == productId &&
-                string.Equals(
-                    x.Size ?? "",
-                    size ?? "",
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (cartItem == null)
-            {
-                TempData["Error"] =
-                    "This product is not in your cart.";
-
-                return RedirectToAction("Cart");
+                    "Customize",
+                    new { shopId });
             }
 
             var submittedMeasurements =
@@ -2642,12 +3253,8 @@ public async Task<IActionResult> Cart()
                     "Please add at least one measurement.";
 
                 return RedirectToAction(
-                    "CustomizeProduct",
-                    new
-                    {
-                        id = productId,
-                        size = size
-                    });
+                    "Customize",
+                    new { shopId });
             }
 
             var submittedNames =
@@ -2665,12 +3272,8 @@ public async Task<IActionResult> Cart()
                         "Invalid measurement format.";
 
                     return RedirectToAction(
-                        "CustomizeProduct",
-                        new
-                        {
-                            id = productId,
-                            size = size
-                        });
+                        "Customize",
+                        new { shopId });
                 }
 
                 string measurementName =
@@ -2689,12 +3292,8 @@ public async Task<IActionResult> Cart()
                         "Measurement name cannot be empty.";
 
                     return RedirectToAction(
-                        "CustomizeProduct",
-                        new
-                        {
-                            id = productId,
-                            size = size
-                        });
+                        "Customize",
+                        new { shopId });
                 }
 
                 if (string.IsNullOrWhiteSpace(measurementValue))
@@ -2704,12 +3303,8 @@ public async Task<IActionResult> Cart()
                         measurementName + ".";
 
                     return RedirectToAction(
-                        "CustomizeProduct",
-                        new
-                        {
-                            id = productId,
-                            size = size
-                        });
+                        "Customize",
+                        new { shopId });
                 }
 
                 if (!submittedNames.Add(measurementName))
@@ -2719,12 +3314,8 @@ public async Task<IActionResult> Cart()
                         measurementName;
 
                     return RedirectToAction(
-                        "CustomizeProduct",
-                        new
-                        {
-                            id = productId,
-                            size = size
-                        });
+                        "Customize",
+                        new { shopId });
                 }
             }
 
@@ -2733,6 +3324,16 @@ public async Task<IActionResult> Cart()
             if (referenceImages != null &&
                 referenceImages.Count > 0)
             {
+                if (referenceImages.Count > 10)
+                {
+                    TempData["Error"] =
+                        "You can upload a maximum of 10 reference images.";
+
+                    return RedirectToAction(
+                        "Customize",
+                        new { shopId });
+                }
+
                 var imagePaths =
                     new List<string>();
 
@@ -2744,6 +3345,18 @@ public async Task<IActionResult> Cart()
                 ".png",
                 ".webp"
                     };
+
+                string uploadsFolder =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "uploads",
+                        "customizations");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
 
                 foreach (var image in referenceImages)
                 {
@@ -2758,12 +3371,8 @@ public async Task<IActionResult> Cart()
                             "Each reference image must be 5 MB or smaller.";
 
                         return RedirectToAction(
-                            "CustomizeProduct",
-                            new
-                            {
-                                id = productId,
-                                size = size
-                            });
+                            "Customize",
+                            new { shopId });
                     }
 
                     string extension =
@@ -2771,38 +3380,18 @@ public async Task<IActionResult> Cart()
                             image.FileName)
                             .ToLowerInvariant();
 
-                    if (!allowedExtensions.Contains(
-                            extension))
+                    if (!allowedExtensions.Contains(extension))
                     {
                         TempData["Error"] =
                             "Only JPG, JPEG, PNG and WEBP reference images are allowed.";
 
                         return RedirectToAction(
-                            "CustomizeProduct",
-                            new
-                            {
-                                id = productId,
-                                size = size
-                            });
-                    }
-
-                    string uploadsFolder =
-                        Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot",
-                            "uploads",
-                            "customizations");
-
-                    if (!Directory.Exists(
-                            uploadsFolder))
-                    {
-                        Directory.CreateDirectory(
-                            uploadsFolder);
+                            "Customize",
+                            new { shopId });
                     }
 
                     string fileName =
-                        Guid.NewGuid()
-                        .ToString() +
+                        Guid.NewGuid().ToString() +
                         extension;
 
                     string filePath =
@@ -2839,13 +3428,20 @@ public async Task<IActionResult> Cart()
             var customizationRequest =
                 new CustomizationRequest
                 {
-                    ProductId = product.ProductId,
-
                     CustomerId = customerId,
 
-                    ShopId = product.Shop.ShopId,
+                    ShopId = shopId,
 
-                    SelectedSize = size,
+                    ProductName =
+                        productName.Trim(),
+
+                    Category =
+                        category.Trim(),
+
+                    Color =
+                        string.IsNullOrWhiteSpace(color)
+                            ? null
+                            : color.Trim(),
 
                     Measurements =
                         string.Join(
@@ -2856,10 +3452,9 @@ public async Task<IActionResult> Cart()
                         referenceImagePaths,
 
                     CustomerNotes =
-                        string.IsNullOrWhiteSpace(
-                            customerNotes)
+                        string.IsNullOrWhiteSpace(notes)
                             ? null
-                            : customerNotes.Trim(),
+                            : notes.Trim(),
 
                     Status = "Pending",
 
@@ -2875,11 +3470,11 @@ public async Task<IActionResult> Cart()
                 "Your customization request has been sent to the shopkeeper. You will receive the customized price after the shopkeeper reviews your request.";
 
             return RedirectToAction(
-                "CustomizationRequests");
+                "MyCustomizations",
+                "Customer");
         }
 
 
-       
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
@@ -2887,16 +3482,12 @@ public async Task<IActionResult> Cart()
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            int customerId =
-                GetCustomerId()!.Value;
+            int customerId = GetCustomerId()!.Value;
 
             var customer =
                 await _context.Users
                     .FirstOrDefaultAsync(
-                        u =>
-                            u.UserId ==
-                            customerId
-                    );
+                        u => u.UserId == customerId);
 
             if (customer == null)
             {
@@ -2904,8 +3495,7 @@ public async Task<IActionResult> Cart()
 
                 return RedirectToAction(
                     "Login",
-                    "Account"
-                );
+                    "Account");
             }
 
             if (!customer.Status)
@@ -2917,12 +3507,10 @@ public async Task<IActionResult> Cart()
 
                 return RedirectToAction(
                     "Login",
-                    "Account"
-                );
+                    "Account");
             }
 
-            var cartItems =
-                GetCartItems();
+            var cartItems = GetCartItems();
 
             if (!cartItems.Any())
             {
@@ -2932,26 +3520,27 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
-            var productIds =
-                cartItems
-                    .Select(x => x.ProductId)
-                    .Distinct()
-                    .ToList();
+            var productIds = cartItems
+                .Where(x => x.ProductId.HasValue)
+                .Select(x => x.ProductId!.Value)
+                .Distinct()
+                .ToList();
+
+            var customizationIds = cartItems
+                .Where(x => x.CustomizationRequestId.HasValue)
+                .Select(x => x.CustomizationRequestId!.Value)
+                .Distinct()
+                .ToList();
 
             var products =
                 await _context.Products
                     .Include(p => p.Shop)
-                    .Where(
-                        p =>
-                            productIds.Contains(
-                                p.ProductId
-                            ) &&
-                            p.Status
-                    )
+                    .Where(p =>
+                        productIds.Contains(p.ProductId) &&
+                        p.Status)
                     .ToListAsync();
 
-            if (products.Count !=
-                productIds.Count)
+            if (products.Count != productIds.Count)
             {
                 TempData["Error"] =
                     "One or more products in your cart are no longer available.";
@@ -2959,19 +3548,125 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
+            var customizations =
+                await _context.CustomizationRequests
+                    .Include(c => c.Shop)
+                    .Where(c =>
+                        customizationIds.Contains(
+                            c.CustomizationRequestId) &&
+                        c.CustomerId == customerId &&
+                        c.Status == "Accepted")
+                    .ToListAsync();
+
+            if (customizations.Count != customizationIds.Count)
+            {
+                TempData["Error"] =
+                    "One or more customized items in your cart are no longer available.";
+
+                return RedirectToAction("Cart");
+            }
+
             foreach (var item in cartItems)
             {
-                var product =
-                    products.First(
-                        p =>
-                            p.ProductId ==
-                            item.ProductId
-                    );
+                if (!item.ProductId.HasValue &&
+                    !item.CustomizationRequestId.HasValue)
+                {
+                    TempData["Error"] =
+                        "Invalid cart item.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                if (item.ProductId.HasValue &&
+                    item.CustomizationRequestId.HasValue)
+                {
+                    TempData["Error"] =
+                        "Invalid cart item configuration.";
+
+                    return RedirectToAction("Cart");
+                }
 
                 if (item.Quantity < 1)
                 {
                     TempData["Error"] =
                         "Invalid cart quantity.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                if (item.CustomizationRequestId.HasValue)
+                {
+                    var customization =
+                        customizations.FirstOrDefault(
+                            c =>
+                                c.CustomizationRequestId ==
+                                item.CustomizationRequestId.Value);
+
+                    if (customization == null)
+                    {
+                        TempData["Error"] =
+                            "Customized item could not be found.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (!customization.Shop!.Status ||
+                        !customization.Shop.IsApproved ||
+                        !customization.Shop.OffersCustomization)
+                    {
+                        TempData["Error"] =
+                            $"Customization for {customization.ProductName} is no longer available.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (!customization.ShopkeeperPrice.HasValue ||
+                        customization.ShopkeeperPrice.Value <= 0)
+                    {
+                        TempData["Error"] =
+                            $"The customized price for {customization.ProductName} is invalid.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(
+                        customization.Measurements))
+                    {
+                        TempData["Error"] =
+                            $"Measurements for {customization.ProductName} are missing.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    item.ProductName =
+                        customization.ProductName;
+
+                    item.Price =
+                        customization.ShopkeeperPrice.Value;
+
+                    item.PurchaseType =
+                        "Customized";
+
+                    item.CustomMeasurements =
+                        string.IsNullOrWhiteSpace(
+                            customization.CustomerUpdatedMeasurements)
+                            ? customization.Measurements
+                            : customization.CustomerUpdatedMeasurements;
+
+                    item.Quantity = 1;
+
+                    continue;
+                }
+
+                var product =
+                    products.FirstOrDefault(
+                        p => p.ProductId ==
+                             item.ProductId!.Value);
+
+                if (product == null)
+                {
+                    TempData["Error"] =
+                        "A product in your cart could not be found.";
 
                     return RedirectToAction("Cart");
                 }
@@ -2986,13 +3681,16 @@ public async Task<IActionResult> Cart()
                 }
             }
 
-            int shopId =
-                products.First().ShopId;
+            var shopIds =
+                products
+                    .Select(p => p.ShopId)
+                    .Concat(
+                        customizations
+                            .Select(c => c.ShopId))
+                    .Distinct()
+                    .ToList();
 
-            if (!products.All(
-                p =>
-                    p.ShopId ==
-                    shopId))
+            if (shopIds.Count != 1)
             {
                 TempData["Error"] =
                     "You can only place an order from one shop at a time.";
@@ -3000,8 +3698,13 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
+            int shopId =
+                shopIds.First();
+
             var shop =
-                products.First().Shop;
+                await _context.Shops
+                    .FirstOrDefaultAsync(
+                        s => s.ShopId == shopId);
 
             if (shop == null ||
                 !shop.Status ||
@@ -3016,126 +3719,200 @@ public async Task<IActionResult> Cart()
             decimal productTotal = 0m;
 
             var checkoutPrices =
-                new Dictionary<int, decimal>();
+                new Dictionary<string, decimal>();
 
             var checkoutPurchaseTypes =
-                new Dictionary<int, string>();
+                new Dictionary<string, string>();
 
             var checkoutNegotiationIds =
-                new Dictionary<int, int?>();
+                new Dictionary<string, int?>();
+
+            var checkoutQuantities =
+                new Dictionary<string, int>();
+
+            var checkoutMeasurements =
+                new Dictionary<string, string>();
 
             foreach (var item in cartItems)
             {
-                var product =
-                    products.First(
-                        p =>
-                            p.ProductId ==
-                            item.ProductId
-                    );
-
-                string purchaseType =
-                    item.PurchaseType ??
-                    "Buy";
-
                 decimal finalUnitPrice;
+
+                string purchaseType;
 
                 int? negotiationId = null;
 
-                if (purchaseType.Equals(
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!product.IsAvailableForRent ||
-                        !product.RentPrice.HasValue ||
-                        product.RentPrice.Value <= 0)
-                    {
-                        TempData["Error"] =
-                            $"Rental option for {product.ProductName} is no longer available.";
+                string itemKey;
 
-                        return RedirectToAction("Cart");
-                    }
+                if (item.CustomizationRequestId.HasValue)
+                {
+                    var customization =
+                        customizations.First(
+                            c =>
+                                c.CustomizationRequestId ==
+                                item.CustomizationRequestId.Value);
 
                     finalUnitPrice =
-                        product.RentPrice.Value;
-                }
-                else if (purchaseType.Equals(
-                    "Negotiated",
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    var negotiation =
-                        await _context.Negotiations
-                            .Where(n =>
-                                n.ProductId ==
-                                    product.ProductId &&
-                                n.CustomerId ==
-                                    customerId &&
-                                n.Status ==
-                                    "Accepted" &&
-                                n.AgreedPrice.HasValue)
-                            .OrderByDescending(
-                                n =>
-                                    n.RespondedDate ??
-                                    n.CreatedDate)
-                            .FirstOrDefaultAsync();
-
-                    if (negotiation == null ||
-                        !negotiation.AgreedPrice.HasValue ||
-                        negotiation.AgreedPrice.Value <= 0)
-                    {
-                        TempData["Error"] =
-                            $"The negotiated price for {product.ProductName} is no longer valid.";
-
-                        return RedirectToAction("Cart");
-                    }
-
-                    finalUnitPrice =
-                        negotiation.AgreedPrice.Value;
-
-                    negotiationId =
-                        negotiation.NegotiationId;
+                        customization.ShopkeeperPrice!.Value;
 
                     purchaseType =
-                        "Negotiated";
-                }
-                else if (
-                    product.IsOnSale &&
-                    product.SalePrice.HasValue &&
-                    product.SalePrice.Value > 0 &&
-                    product.SalePrice.Value <
-                        product.Price)
-                {
-                    finalUnitPrice =
-                        product.SalePrice.Value;
+                        "Customized";
 
-                    purchaseType =
-                        "Sale";
+                    itemKey =
+                        "C" +
+                        item.CustomizationRequestId.Value;
+
+                    item.Price =
+                        finalUnitPrice;
+
+                    item.ProductName =
+                        customization.ProductName;
+
+                    item.CustomMeasurements =
+                        string.IsNullOrWhiteSpace(
+                            customization.CustomerUpdatedMeasurements)
+                            ? customization.Measurements
+                            : customization.CustomerUpdatedMeasurements;
+
+                    item.Quantity = 1;
                 }
                 else
                 {
-                    finalUnitPrice =
-                        product.Price;
+                    var product =
+                        products.First(
+                            p =>
+                                p.ProductId ==
+                                item.ProductId!.Value);
 
                     purchaseType =
+                        item.PurchaseType ??
                         "Buy";
+
+                    if (purchaseType.Equals(
+                        "Rent",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!product.IsAvailableForRent ||
+                            !product.RentPrice.HasValue ||
+                            product.RentPrice.Value <= 0)
+                        {
+                            TempData["Error"] =
+                                $"Rental option for {product.ProductName} is no longer available.";
+
+                            return RedirectToAction("Cart");
+                        }
+
+                        finalUnitPrice =
+                            product.RentPrice.Value;
+
+                        purchaseType =
+                            "Rent";
+                    }
+                    else if (purchaseType.Equals(
+                        "Negotiated",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        var negotiation =
+                            await _context.Negotiations
+                                .Where(n =>
+                                    n.ProductId ==
+                                        product.ProductId &&
+                                    n.CustomerId ==
+                                        customerId &&
+                                    n.Status ==
+                                        "Accepted" &&
+                                    n.AgreedPrice.HasValue)
+                                .OrderByDescending(
+                                    n =>
+                                        n.RespondedDate ??
+                                        n.CreatedDate)
+                                .FirstOrDefaultAsync();
+
+                        if (negotiation == null ||
+                            !negotiation.AgreedPrice.HasValue ||
+                            negotiation.AgreedPrice.Value <= 0)
+                        {
+                            TempData["Error"] =
+                                $"The negotiated price for {product.ProductName} is no longer valid.";
+
+                            return RedirectToAction("Cart");
+                        }
+
+                        finalUnitPrice =
+                            negotiation.AgreedPrice.Value;
+
+                        negotiationId =
+                            negotiation.NegotiationId;
+
+                        purchaseType =
+                            "Negotiated";
+                    }
+                    else if (purchaseType.Equals(
+                        "Sale",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!product.IsOnSale ||
+                            !product.SalePrice.HasValue ||
+                            product.SalePrice.Value <= 0 ||
+                            product.SalePrice.Value >= product.Price)
+                        {
+                            TempData["Error"] =
+                                $"The sale price for {product.ProductName} is no longer available.";
+
+                            return RedirectToAction("Cart");
+                        }
+
+                        finalUnitPrice =
+                            product.SalePrice.Value;
+
+                        purchaseType =
+                            "Sale";
+                    }
+                    else
+                    {
+                        if (product.IsOnSale &&
+                            product.SalePrice.HasValue &&
+                            product.SalePrice.Value > 0 &&
+                            product.SalePrice.Value <
+                            product.Price)
+                        {
+                            finalUnitPrice =
+                                product.SalePrice.Value;
+
+                            purchaseType =
+                                "Sale";
+                        }
+                        else
+                        {
+                            finalUnitPrice =
+                                product.Price;
+
+                            purchaseType =
+                                "Buy";
+                        }
+                    }
+
+                    itemKey =
+                        "P" +
+                        product.ProductId;
+
+                    item.Price =
+                        finalUnitPrice;
                 }
 
-                checkoutPrices[
-                    product.ProductId] =
+                checkoutPrices[itemKey] =
                     finalUnitPrice;
 
-                checkoutPurchaseTypes[
-                    product.ProductId] =
+                checkoutPurchaseTypes[itemKey] =
                     purchaseType;
 
-                checkoutNegotiationIds[
-                    product.ProductId] =
+                checkoutNegotiationIds[itemKey] =
                     negotiationId;
 
-                item.Price =
-                    finalUnitPrice;
+                checkoutQuantities[itemKey] =
+                    item.Quantity;
 
-                item.PurchaseType =
-                    purchaseType;
+                checkoutMeasurements[itemKey] =
+                    item.CustomMeasurements ?? "";
 
                 productTotal +=
                     finalUnitPrice *
@@ -3163,12 +3940,17 @@ public async Task<IActionResult> Cart()
                     continue;
                 }
 
+                if (!item.ProductId.HasValue)
+                    continue;
+
                 var product =
-                    products.First(
+                    products.FirstOrDefault(
                         p =>
                             p.ProductId ==
-                            item.ProductId
-                    );
+                            item.ProductId.Value);
+
+                if (product == null)
+                    continue;
 
                 decimal securityPerItem =
                     product.RentalSecurity ?? 0m;
@@ -3185,8 +3967,7 @@ public async Task<IActionResult> Cart()
                 Math.Round(
                     productTotal *
                     ServiceFeeRate,
-                    2
-                );
+                    2);
 
             decimal totalAmount =
                 productTotal +
@@ -3205,13 +3986,14 @@ public async Task<IActionResult> Cart()
 
             ViewBag.CustomerAddress =
                 customer.Address;
-            ViewBag.EasypaisaAccount =
-               _configuration["PaymentSettings:EasypaisaAccount"];
 
+            ViewBag.EasypaisaAccount =
+                _configuration[
+                    "PaymentSettings:EasypaisaAccount"];
 
             ViewBag.JazzCashAccount =
-                _configuration["PaymentSettings:JazzCashAccount"];
-
+                _configuration[
+                    "PaymentSettings:JazzCashAccount"];
 
             ViewBag.DeliveryCharges =
                 deliveryCharges;
@@ -3237,6 +4019,9 @@ public async Task<IActionResult> Cart()
             ViewBag.Products =
                 products;
 
+            ViewBag.Customizations =
+                customizations;
+
             ViewBag.Shop =
                 shop;
 
@@ -3247,20 +4032,17 @@ public async Task<IActionResult> Cart()
                 checkoutPurchaseTypes;
 
             ViewBag.CheckoutQuantities =
-                cartItems.ToDictionary(
-                    x => x.ProductId,
-                    x => x.Quantity
-                );
+                checkoutQuantities;
+
             ViewBag.CheckoutMeasurements =
-                cartItems.ToDictionary(
-                    x => x.ProductId,
-                    x => x.CustomMeasurements ?? ""
-                );
+                checkoutMeasurements;
+
             ViewBag.CheckoutNegotiationIds =
                 checkoutNegotiationIds;
 
             return View(products);
         }
+
 
 
         [HttpPost]
@@ -3421,7 +4203,14 @@ public async Task<IActionResult> Cart()
             }
 
             var productIds = cartItems
-                .Select(x => x.ProductId)
+                .Where(x => x.ProductId.HasValue)
+                .Select(x => x.ProductId!.Value)
+                .Distinct()
+                .ToList();
+
+            var customizationIds = cartItems
+                .Where(x => x.CustomizationRequestId.HasValue)
+                .Select(x => x.CustomizationRequestId!.Value)
                 .Distinct()
                 .ToList();
 
@@ -3440,9 +4229,55 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
-            int shopId = products.First().ShopId;
+            var customizations =
+                await _context.CustomizationRequests
+                    .Include(c => c.Shop)
+                    .Where(c =>
+                        customizationIds.Contains(
+                            c.CustomizationRequestId) &&
+                        c.CustomerId == customerId &&
+                        c.Status == "Accepted")
+                    .ToListAsync();
 
-            if (!products.All(p => p.ShopId == shopId))
+            if (customizations.Count != customizationIds.Count)
+            {
+                TempData["Error"] =
+                    "One or more customized items in your cart are no longer available.";
+
+                return RedirectToAction("Cart");
+            }
+
+            foreach (var item in cartItems)
+            {
+                if (!item.ProductId.HasValue &&
+                    !item.CustomizationRequestId.HasValue)
+                {
+                    TempData["Error"] =
+                        "Invalid cart item.";
+
+                    return RedirectToAction("Cart");
+                }
+
+                if (item.ProductId.HasValue &&
+                    item.CustomizationRequestId.HasValue)
+                {
+                    TempData["Error"] =
+                        "Invalid cart item configuration.";
+
+                    return RedirectToAction("Cart");
+                }
+            }
+
+            var shopIds =
+                products
+                    .Select(p => p.ShopId)
+                    .Concat(
+                        customizations
+                            .Select(c => c.ShopId))
+                    .Distinct()
+                    .ToList();
+
+            if (shopIds.Count != 1)
             {
                 TempData["Error"] =
                     "You can only place an order from one shop at a time.";
@@ -3450,7 +4285,13 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Cart");
             }
 
-            var shop = products.First().Shop;
+            int shopId =
+                shopIds.First();
+
+            var shop =
+                await _context.Shops
+                    .FirstOrDefaultAsync(
+                        s => s.ShopId == shopId);
 
             if (shop == null ||
                 !shop.Status ||
@@ -3462,6 +4303,7 @@ public async Task<IActionResult> Cart()
                 return RedirectToAction("Shops");
             }
 
+
             decimal productTotal = 0m;
 
             decimal refundableSecurity = 0m;
@@ -3469,6 +4311,9 @@ public async Task<IActionResult> Cart()
             bool containsRental = false;
 
             var finalPrices =
+                new Dictionary<int, decimal>();
+
+            var finalCustomizationPrices =
                 new Dictionary<int, decimal>();
 
             var finalPurchaseTypes =
@@ -3484,8 +4329,89 @@ public async Task<IActionResult> Cart()
                     return RedirectToAction("Cart");
                 }
 
-                var product = products.FirstOrDefault(
-                    p => p.ProductId == item.ProductId);
+                if (item.CustomizationRequestId.HasValue)
+                {
+                    var customization =
+                        customizations.FirstOrDefault(
+                            c =>
+                                c.CustomizationRequestId ==
+                                item.CustomizationRequestId.Value);
+
+                    if (customization == null)
+                    {
+                        TempData["Error"] =
+                            "Customized item could not be found.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (!customization.Shop!.Status ||
+                        !customization.Shop.IsApproved ||
+                        !customization.Shop.OffersCustomization)
+                    {
+                        TempData["Error"] =
+                            $"Customization for {customization.ProductName} is no longer available.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (!customization.ShopkeeperPrice.HasValue ||
+                        customization.ShopkeeperPrice.Value <= 0)
+                    {
+                        TempData["Error"] =
+                            $"The customized price for {customization.ProductName} is invalid.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    string measurements =
+                        string.IsNullOrWhiteSpace(
+                            customization.CustomerUpdatedMeasurements)
+                                ? customization.Measurements
+                                : customization.CustomerUpdatedMeasurements;
+
+                    if (string.IsNullOrWhiteSpace(measurements))
+                    {
+                        TempData["Error"] =
+                            $"Measurements for {customization.ProductName} are missing.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    item.ProductName =
+                        customization.ProductName;
+
+                    item.Price =
+                        customization.ShopkeeperPrice.Value;
+
+                    item.CustomMeasurements =
+                        measurements;
+
+                    item.PurchaseType =
+                        "Customized";
+
+                    item.Quantity =
+                        1;
+
+                    finalCustomizationPrices[
+                        customization.CustomizationRequestId] =
+                            customization.ShopkeeperPrice.Value;
+
+                    finalPurchaseTypes[
+                        customization.CustomizationRequestId] =
+                            "Customized";
+
+                    productTotal +=
+                        customization.ShopkeeperPrice.Value;
+
+                    continue;
+                }
+
+                var product =
+                    products.FirstOrDefault(
+                        p =>
+                            p.ProductId ==
+                            item.ProductId!.Value);
 
                 if (product == null)
                 {
@@ -3495,7 +4421,8 @@ public async Task<IActionResult> Cart()
                     return RedirectToAction("Cart");
                 }
 
-                if (item.Quantity > product.StockQuantity)
+                if (item.Quantity >
+                    product.StockQuantity)
                 {
                     TempData["Error"] =
                         $"Only {product.StockQuantity} unit(s) of {product.ProductName} are available.";
@@ -3504,18 +4431,16 @@ public async Task<IActionResult> Cart()
                 }
 
                 string purchaseType =
-     string.IsNullOrWhiteSpace(item.PurchaseType)
-         ? "Buy"
-         : item.PurchaseType.Trim();
-
-                bool isCustomized =
-                    !string.IsNullOrWhiteSpace(item.CustomMeasurements);
+                    string.IsNullOrWhiteSpace(
+                        item.PurchaseType)
+                            ? "Buy"
+                            : item.PurchaseType.Trim();
 
                 decimal finalUnitPrice;
 
                 if (purchaseType.Equals(
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase))
+                    "Rent",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     if (!product.IsAvailableForRent ||
                         !product.RentPrice.HasValue ||
@@ -3530,15 +4455,18 @@ public async Task<IActionResult> Cart()
                     finalUnitPrice =
                         product.RentPrice.Value;
 
-                    purchaseType = "Rent";
+                    purchaseType =
+                        "Rent";
 
-                    containsRental = true;
+                    containsRental =
+                        true;
 
                     decimal securityPerItem =
                         product.RentalSecurity ?? 0m;
 
                     refundableSecurity +=
-                        securityPerItem * item.Quantity;
+                        securityPerItem *
+                        item.Quantity;
                 }
                 else if (purchaseType.Equals(
                     "Negotiated",
@@ -3547,13 +4475,17 @@ public async Task<IActionResult> Cart()
                     var negotiation =
                         await _context.Negotiations
                             .Where(n =>
-                                n.ProductId == product.ProductId &&
-                                n.CustomerId == customerId &&
-                                n.Status == "Accepted" &&
+                                n.ProductId ==
+                                    product.ProductId &&
+                                n.CustomerId ==
+                                    customerId &&
+                                n.Status ==
+                                    "Accepted" &&
                                 n.AgreedPrice.HasValue)
-                            .OrderByDescending(n =>
-                                n.RespondedDate ??
-                                n.CreatedDate)
+                            .OrderByDescending(
+                                n =>
+                                    n.RespondedDate ??
+                                    n.CreatedDate)
                             .FirstOrDefaultAsync();
 
                     if (negotiation == null ||
@@ -3563,13 +4495,14 @@ public async Task<IActionResult> Cart()
                         TempData["Error"] =
                             $"The negotiated price for {product.ProductName} is no longer valid.";
 
-                        return RedirectToAction("Checkout");
+                        return RedirectToAction("Cart");
                     }
 
                     finalUnitPrice =
                         negotiation.AgreedPrice.Value;
 
-                    purchaseType = "Negotiated";
+                    purchaseType =
+                        "Negotiated";
                 }
                 else if (purchaseType.Equals(
                     "Sale",
@@ -3589,44 +4522,52 @@ public async Task<IActionResult> Cart()
                     finalUnitPrice =
                         product.SalePrice.Value;
 
-                    purchaseType = "Sale";
+                    purchaseType =
+                        "Sale";
                 }
                 else
                 {
                     if (product.IsOnSale &&
                         product.SalePrice.HasValue &&
                         product.SalePrice.Value > 0 &&
-                        product.SalePrice.Value < product.Price)
+                        product.SalePrice.Value <
+                        product.Price)
                     {
                         finalUnitPrice =
                             product.SalePrice.Value;
 
-                        purchaseType = "Sale";
+                        purchaseType =
+                            "Sale";
                     }
                     else
                     {
                         finalUnitPrice =
                             product.Price;
 
-                        purchaseType = "Buy";
+                        purchaseType =
+                            "Buy";
                     }
                 }
 
-                if (isCustomized)
-                {
-                    purchaseType =
-                        "Customize/" + purchaseType;
-                }
-
-                finalPrices[product.ProductId] =
+                finalPrices[
+                    product.ProductId] =
                     finalUnitPrice;
 
-                finalPurchaseTypes[product.ProductId] =
+                finalPurchaseTypes[
+                    product.ProductId] =
+                    purchaseType;
+
+                item.Price =
+                    finalUnitPrice;
+
+                item.PurchaseType =
                     purchaseType;
 
                 productTotal +=
-                    finalUnitPrice * item.Quantity;
+                    finalUnitPrice *
+                    item.Quantity;
             }
+
 
             if (productTotal <= 0)
             {
@@ -3934,40 +4875,82 @@ public async Task<IActionResult> Cart()
 
                 foreach (var cartItem in cartItems)
                 {
-                    var product =
-                        products.FirstOrDefault(
-                            p => p.ProductId ==
-                                 cartItem.ProductId);
+                    decimal unitPrice;
+                    decimal subtotal;
+                    string purchaseType;
+                    bool isRental;
 
-                    if (product == null)
+                    Product? product = null;
+
+                    CustomizationRequest? customization = null;
+
+                    if (cartItem.CustomizationRequestId.HasValue)
                     {
-                        throw new InvalidOperationException(
-                            "A product could not be found while creating the order.");
-                    }
+                        customization =
+                            customizations.FirstOrDefault(
+                                c =>
+                                    c.CustomizationRequestId ==
+                                    cartItem.CustomizationRequestId.Value);
 
-                    if (cartItem.Quantity >
-                        product.StockQuantity)
+                        if (customization == null)
+                        {
+                            throw new InvalidOperationException(
+                                "Customized request could not be found.");
+                        }
+
+                        unitPrice =
+                            customization.ShopkeeperPrice!.Value;
+
+                        subtotal =
+                            unitPrice;
+
+                        purchaseType =
+                            "Customized";
+
+                        isRental =
+                            false;
+                    }
+                    else
                     {
-                        throw new InvalidOperationException(
-                            $"The available stock for {product.ProductName} changed while placing the order.");
+                        product =
+                            products.FirstOrDefault(
+                                p =>
+                                    p.ProductId ==
+                                    cartItem.ProductId!.Value);
+
+                        if (product == null)
+                        {
+                            throw new InvalidOperationException(
+                                "A product could not be found while creating the order.");
+                        }
+
+                        if (cartItem.Quantity >
+                            product.StockQuantity)
+                        {
+                            throw new InvalidOperationException(
+                                $"The available stock for {product.ProductName} changed while placing the order.");
+                        }
+
+                        unitPrice =
+                            finalPrices[
+                                product.ProductId];
+
+                        subtotal =
+                            unitPrice *
+                            cartItem.Quantity;
+
+                        purchaseType =
+                            finalPurchaseTypes[
+                                product.ProductId];
+
+                        isRental =
+                            purchaseType.Equals(
+                                "Rent",
+                                StringComparison.OrdinalIgnoreCase);
+
+                        product.StockQuantity -=
+                            cartItem.Quantity;
                     }
-
-                    decimal unitPrice =
-                        finalPrices[
-                            product.ProductId];
-
-                    decimal subtotal =
-                        unitPrice *
-                        cartItem.Quantity;
-
-                    string purchaseType =
-                        finalPurchaseTypes[
-                            product.ProductId];
-
-                    bool isRental =
-                        purchaseType.Contains(
-                            "Rent",
-                            StringComparison.OrdinalIgnoreCase);
 
                     var orderDetail =
                         new OrderDetail
@@ -3976,10 +4959,15 @@ public async Task<IActionResult> Cart()
                                 order.OrderId,
 
                             ProductId =
-                                product.ProductId,
+                                product?.ProductId,
+
+                            CustomizationRequestId =
+                                customization?.CustomizationRequestId,
 
                             Quantity =
-                                cartItem.Quantity,
+                                cartItem.CustomizationRequestId.HasValue
+                                    ? 1
+                                    : cartItem.Quantity,
 
                             UnitPrice =
                                 unitPrice,
@@ -3995,17 +4983,17 @@ public async Task<IActionResult> Cart()
 
                             RentalSecurity =
                                 isRental
-                                    ? product.RentalSecurity ?? 0m
+                                    ? product!.RentalSecurity ?? 0m
                                     : 0m,
 
                             RentalDuration =
                                 isRental
-                                    ? product.RentalDuration
+                                    ? product!.RentalDuration
                                     : null,
 
                             RentalConditions =
                                 isRental
-                                    ? product.RentalConditions
+                                    ? product!.RentalConditions
                                     : null,
 
                             RentalReturnStatus =
@@ -4044,10 +5032,8 @@ public async Task<IActionResult> Cart()
 
                     _context.OrderDetails.Add(
                         orderDetail);
-
-                    product.StockQuantity -=
-                        cartItem.Quantity;
                 }
+
 
                 await _context.SaveChangesAsync();
 
@@ -5580,24 +6566,7 @@ public async Task<IActionResult> Cart()
 
 
 
-    public class CustomerCartItem
-    {
-        public int ProductId { get; set; }
 
-        public string? ProductName { get; set; }
 
-        public decimal Price { get; set; }
-
-        public int Quantity { get; set; }
-
-        // Selected size for products that use ProductVariant
-        public string? Size { get; set; }
-
-        public string? CustomMeasurements { get; set; }
-
-        public string PurchaseType { get; set; } = "Buy";
-
-        public int? NegotiationId { get; set; }
-    }
 
 }
