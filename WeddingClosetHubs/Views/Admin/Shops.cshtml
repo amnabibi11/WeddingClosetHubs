@@ -1,13 +1,19 @@
-﻿
-@model IEnumerable<WeddingClosetHubs.Models.Shop>
+﻿@model IEnumerable<WeddingClosetHubs.Models.Shop>
 
 @{
     ViewData["Title"] = "Manage Shops";
-
     int pendingCount = Model?.Count(s =>
-        string.IsNullOrWhiteSpace(s.VerificationStatus) ||
-        s.VerificationStatus.Trim().Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
-        s.VerificationStatus.Trim().Equals("Under Review", StringComparison.OrdinalIgnoreCase)) ?? 0;
+        !s.IsApproved &&
+        (
+            string.IsNullOrWhiteSpace(s.VerificationStatus) ||
+            s.VerificationStatus.Trim().Equals(
+                "Pending",
+                StringComparison.OrdinalIgnoreCase) ||
+            s.VerificationStatus.Trim().Equals(
+                "Under Review",
+                StringComparison.OrdinalIgnoreCase)
+        )) ?? 0;
+
 
     int moreEvidenceCount = Model?.Count(s =>
         string.Equals(
@@ -145,24 +151,24 @@
                             @foreach (var shop in Model)
                             {
                                 string verificationStatus =
-                                    string.IsNullOrWhiteSpace(shop.VerificationStatus)
-                                        ? "Pending"
-                                        : shop.VerificationStatus.Trim();
+                                string.IsNullOrWhiteSpace(shop.VerificationStatus)
+                                ? "Pending"
+                                : shop.VerificationStatus.Trim();
 
                                 bool isVerified = string.Equals(
-                                    verificationStatus,
-                                    "Approved",
-                                    StringComparison.OrdinalIgnoreCase);
+                                verificationStatus,
+                                "Approved",
+                                StringComparison.OrdinalIgnoreCase);
 
                                 bool isActive =
-                                    isVerified &&
-                                    shop.IsApproved &&
-                                    shop.Status;
+                                isVerified &&
+                                shop.IsApproved &&
+                                shop.Status;
 
                                 bool isDisabled =
-                                    isVerified &&
-                                    shop.IsApproved &&
-                                    !shop.Status;
+                                isVerified &&
+                                shop.IsApproved &&
+                                !shop.Status;
 
                                 <tr>
 
@@ -237,26 +243,26 @@
                                             <span class="badge bg-success">Approved</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Rejected",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Rejected",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-danger">Rejected</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "More Evidence Required",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "More Evidence Required",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-info text-dark">More Evidence Required</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Under Review",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Under Review",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-primary">Under Review</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Suspended",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Suspended",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-dark">Suspended</span>
                                         }
@@ -267,13 +273,19 @@
                                     </td>
 
                                     <td>
-                                        @if (shop.IsApproved && isVerified)
+                                        @if (verificationStatus.Equals(
+                                                                        "Rejected",
+                                                                        StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                        else if (shop.IsApproved && isVerified)
                                         {
                                             <span class="badge bg-success">Approved</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">Not Approved</span>
+                                            <span class="badge bg-warning text-dark">Pending</span>
                                         }
                                     </td>
 
@@ -287,14 +299,14 @@
                                             <span class="badge bg-danger">Disabled</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "More Evidence Required",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "More Evidence Required",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-info text-dark">Evidence Required</span>
                                         }
                                         else if (verificationStatus.Equals(
-                                            "Rejected",
-                                            StringComparison.OrdinalIgnoreCase))
+                                        "Rejected",
+                                        StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-danger">Rejected</span>
                                         }

@@ -8,14 +8,20 @@ using WeddingClosetHubs.Models;
 
 namespace WeddingClosetHubs.Controllers
 {
+
     public class AccountController : Controller
     {
         private readonly WeddingClosetHubsContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(WeddingClosetHubsContext context)
+        public AccountController(
+            WeddingClosetHubsContext context,
+            IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
+
 
         private const long MaxImageSize = 5 * 1024 * 1024;
 
@@ -1837,21 +1843,35 @@ namespace WeddingClosetHubs.Controllers
                 return View();
             }
 
+
+
             if (user.Role!.RoleName == "Shopkeeper")
             {
                 var shop = await _context.Shops
-                    .FirstOrDefaultAsync(s =>
-                        s.ShopkeeperId == user.UserId);
+                    .FirstOrDefaultAsync(s => s.ShopkeeperId == user.UserId);
 
-                if (shop != null &&
-                    string.Equals(
-                        shop.VerificationStatus?.Trim(),
-                        "More Evidence Required",
-                        StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(
+                    shop?.VerificationStatus?.Trim(),
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    var adminEmail = _configuration["AdminContact:Email"];
+
+                    ViewBag.Error =
+                        "Your shopkeeper application has been rejected. Please contact Admin for further information.";
+
+                    ViewBag.AdminEmail = adminEmail;
+                    ViewBag.ReturnUrl = returnUrl;
+                    return View();
+                }
+
+                if (string.Equals(
+                    shop?.VerificationStatus?.Trim(),
+                    "More Evidence Required",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     HttpContext.Session.SetInt32(
-                        "EvidenceUpdateUserId",
-                        user.UserId);
+                        "EvidenceUpdateUserId", user.UserId);
 
                     return RedirectToAction("Register");
                 }
@@ -1860,22 +1880,35 @@ namespace WeddingClosetHubs.Controllers
             if (user.Role.RoleName == "Delivery")
             {
                 var deliveryBoy = await _context.DeliveryBoys
-                    .FirstOrDefaultAsync(d =>
-                        d.UserId == user.UserId);
+                    .FirstOrDefaultAsync(d => d.UserId == user.UserId);
 
-                if (deliveryBoy != null &&
-                    string.Equals(
-                        deliveryBoy.VerificationStatus?.Trim(),
-                        "More Evidence Required",
-                        StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(
+                    deliveryBoy?.VerificationStatus?.Trim(),
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    var adminEmail = _configuration["AdminContact:Email"];
+
+                    ViewBag.Error =
+                        "Your delivery application has been rejected. Please contact Admin for further information.";
+
+                    ViewBag.AdminEmail = adminEmail;
+                    ViewBag.ReturnUrl = returnUrl;
+                    return View();
+                }
+
+                if (string.Equals(
+                    deliveryBoy?.VerificationStatus?.Trim(),
+                    "More Evidence Required",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     HttpContext.Session.SetInt32(
-                        "EvidenceUpdateUserId",
-                        user.UserId);
+                        "EvidenceUpdateUserId", user.UserId);
 
                     return RedirectToAction("Register");
                 }
             }
+
 
             if (!user.Status)
             {
@@ -1895,6 +1928,9 @@ namespace WeddingClosetHubs.Controllers
                 ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
+
+
+
 
             HttpContext.Session.SetInt32("UserId", user.UserId);
             HttpContext.Session.SetString("UserName", user.Name ?? "");

@@ -226,9 +226,11 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.TotalShops =
                 await _context.Shops.CountAsync();
 
-            ViewBag.PendingShops =
-                await _context.Shops
-                    .CountAsync(s => !s.IsApproved);
+            ViewBag.PendingShops = await _context.Shops
+     .CountAsync(s =>
+         !s.IsApproved &&
+         s.VerificationStatus != "Rejected");
+
 
             ViewBag.ActiveShops =
                 await _context.Shops
@@ -340,6 +342,7 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveShopkeeper(int id)
@@ -361,56 +364,30 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Shopkeepers");
             }
 
-            if (shopkeeper.Shop == null)
-            {
-                TempData["Error"] =
-                    "This shopkeeper does not have an associated shop.";
-
-                return RedirectToAction("ShopkeeperDetails", new { id });
-            }
-
-            var shop = await _context.Shops
-                .Include(s => s.Shopkeeper)
-                .FirstOrDefaultAsync(s => s.ShopId == shopkeeper.Shop.ShopId);
-
-            if (shop == null)
-            {
-                TempData["Error"] = "Associated shop not found.";
-                return RedirectToAction("ShopkeeperDetails", new { id });
-            }
-
-            var missingEvidence = GetMissingShopEvidence(shop);
-
-            if (missingEvidence.Count > 0)
-            {
-                TempData["Error"] =
-                    "Approval failed. Missing evidence: " +
-                    string.Join(", ", missingEvidence) + ".";
-
-                return RedirectToAction("ShopkeeperDetails", new { id });
-            }
-
-            DateTime now = DateTime.Now;
-
             shopkeeper.IsApproved = true;
             shopkeeper.Status = true;
-            shopkeeper.ApprovedDate ??= now;
+            shopkeeper.ApprovedDate = DateTime.Now;
 
-            shop.IsApproved = true;
-            shop.Status = true;
-            shop.VerificationStatus = "Approved";
-            shop.ApprovedDate ??= now;
-            shop.VerifiedDate = now;
-            shop.AdminNotes = null;
-            shop.RejectionReason = null;
+            if (shopkeeper.Shop != null)
+            {
+                shopkeeper.Shop.IsApproved = true;
+                shopkeeper.Shop.Status = true;
+                shopkeeper.Shop.VerificationStatus = "Approved";
+                shopkeeper.Shop.ApprovedDate = DateTime.Now;
+                shopkeeper.Shop.VerifiedDate = DateTime.Now;
+                shopkeeper.Shop.AdminNotes = null;
+                shopkeeper.Shop.RejectionReason = null;
+            }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Shopkeeper and shop approved and activated successfully.";
+            TempData["Success"] = "Shopkeeper approved successfully.";
 
             return RedirectToAction("Shopkeepers");
         }
+
+
+
 
 
         [HttpPost]
@@ -418,24 +395,19 @@ namespace WeddingClosetHubs.Controllers
         public async Task<IActionResult> RejectShopkeeper(int id)
         {
             if (!IsAdmin())
-            {
                 return AdminLoginRedirect();
-            }
 
-            var shopkeeper =
-                await _context.Users
-                    .Include(u => u.Role)
-                    .Include(u => u.Shop)
-                    .FirstOrDefaultAsync(u =>
-                        u.UserId == id &&
-                        u.Role != null &&
-                        u.Role.RoleName == ShopkeeperRole);
+            var shopkeeper = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Shop)
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == id &&
+                    u.Role != null &&
+                    u.Role.RoleName == ShopkeeperRole);
 
             if (shopkeeper == null)
             {
-                TempData["Error"] =
-                    "Shopkeeper not found.";
-
+                TempData["Error"] = "Shopkeeper not found.";
                 return RedirectToAction("Shopkeepers");
             }
 
@@ -448,15 +420,17 @@ namespace WeddingClosetHubs.Controllers
                 shopkeeper.Shop.IsApproved = false;
                 shopkeeper.Shop.Status = false;
                 shopkeeper.Shop.ApprovedDate = null;
+                shopkeeper.Shop.VerificationStatus = "Rejected";
             }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Shopkeeper application rejected.";
+            TempData["Success"] = "Shopkeeper application rejected.";
 
             return RedirectToAction("Shopkeepers");
         }
+
+
 
 
         [HttpPost]
@@ -594,32 +568,32 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Shops");
             }
 
-          var missingEvidence = new List<string>();
+            var missingEvidence = new List<string>();
 
-if (shop.Shopkeeper == null ||
-string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC))
-missingEvidence.Add("CNIC number");
+            if (shop.Shopkeeper == null ||
+            string.IsNullOrWhiteSpace(shop.Shopkeeper.CNIC))
+                missingEvidence.Add("CNIC number");
 
-if (string.IsNullOrWhiteSpace(shop.CNICFrontImage))
-missingEvidence.Add("CNIC front image");
+            if (string.IsNullOrWhiteSpace(shop.CNICFrontImage))
+                missingEvidence.Add("CNIC front image");
 
-if (string.IsNullOrWhiteSpace(shop.CNICBackImage))
-missingEvidence.Add("CNIC back image");
+            if (string.IsNullOrWhiteSpace(shop.CNICBackImage))
+                missingEvidence.Add("CNIC back image");
 
-if (string.IsNullOrWhiteSpace(shop.ShopFrontPhoto))
-missingEvidence.Add("Shop front photo");
+            if (string.IsNullOrWhiteSpace(shop.ShopFrontPhoto))
+                missingEvidence.Add("Shop front photo");
 
-if (string.IsNullOrWhiteSpace(shop.ShopInsidePhoto))
-missingEvidence.Add("Shop inside photo");
+            if (string.IsNullOrWhiteSpace(shop.ShopInsidePhoto))
+                missingEvidence.Add("Shop inside photo");
 
-if (string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto))
-missingEvidence.Add("Shop signboard photo");
+            if (string.IsNullOrWhiteSpace(shop.ShopSignboardPhoto))
+                missingEvidence.Add("Shop signboard photo");
 
-if (string.IsNullOrWhiteSpace(shop.ShopProofType))
-missingEvidence.Add("Shop proof type");
+            if (string.IsNullOrWhiteSpace(shop.ShopProofType))
+                missingEvidence.Add("Shop proof type");
 
-if (string.IsNullOrWhiteSpace(shop.ShopProofDocument))
-missingEvidence.Add("Shop proof document");
+            if (string.IsNullOrWhiteSpace(shop.ShopProofDocument))
+                missingEvidence.Add("Shop proof document");
 
             if (missingEvidence.Count > 0)
             {
