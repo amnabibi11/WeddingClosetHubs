@@ -89,6 +89,7 @@ namespace WeddingClosetHubs.Controllers
 
 
 
+
         private void SaveCartItems(List<CustomerCartItem> cartItems)
         {
             if (!IsCustomerLoggedIn())
@@ -102,29 +103,53 @@ namespace WeddingClosetHubs.Controllers
                 .Where(c => c.CustomerId == customerId)
                 .ToList();
 
-            if (existingItems.Any())
+            var incomingIds = cartItems
+                .Where(c => c.CartItemId > 0)
+                .Select(c => c.CartItemId)
+                .ToHashSet();
+
+            var itemsToRemove = existingItems
+                .Where(c => !incomingIds.Contains(c.CartItemId))
+                .ToList();
+
+            if (itemsToRemove.Any())
             {
-                _context.CustomerCartItems.RemoveRange(existingItems);
+                _context.CustomerCartItems.RemoveRange(itemsToRemove);
             }
 
-            if (cartItems.Any())
+            foreach (var item in cartItems)
             {
-                foreach (var item in cartItems)
+                item.CustomerId = customerId;
+
+                if (string.IsNullOrWhiteSpace(item.PurchaseType))
                 {
-                    item.CartItemId = 0;
-                    item.CustomerId = customerId;
-
-                    if (string.IsNullOrWhiteSpace(item.PurchaseType))
-                    {
-                        item.PurchaseType = "Buy";
-                    }
-
-                    _context.CustomerCartItems.Add(item);
+                    item.PurchaseType = "Buy";
                 }
+
+                if (item.CartItemId > 0)
+                {
+                    var existing = existingItems.FirstOrDefault(
+                        c => c.CartItemId == item.CartItemId);
+
+                    if (existing != null)
+                    {
+                        existing.ProductId = item.ProductId;
+                        existing.CustomizationRequestId = item.CustomizationRequestId;
+                        existing.Quantity = item.Quantity;
+                        existing.Size = item.Size;
+                        existing.PurchaseType = item.PurchaseType;
+                        existing.Price = item.Price;
+                        continue;
+                    }
+                }
+
+                item.CartItemId = 0;
+                _context.CustomerCartItems.Add(item);
             }
 
             _context.SaveChanges();
         }
+
 
         private List<CustomerCartItem> GetPendingCartItems()
         {
@@ -2252,10 +2277,11 @@ namespace WeddingClosetHubs.Controllers
 
             foreach (var item in itemsToRemove)
             {
-                cartItems.Remove(item);
+                _context.CustomerCartItems.Remove(item);
             }
 
-            SaveCartItems(cartItems);
+            await _context.SaveChangesAsync();
+
 
             ViewBag.CartItems =
                 cartItems;
