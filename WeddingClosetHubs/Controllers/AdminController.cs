@@ -1665,14 +1665,19 @@ namespace WeddingClosetHubs.Controllers
                         new { id });
                 }
 
+
                 order.PaymentReceived = true;
                 order.PaymentStatus = "Paid";
-                order.PaymentDate =
-                    order.DeliveryCashHandoverDate ?? DateTime.Now;
-                if (order.OrderStatus == "Delivered")
+                order.PaymentDate = DateTime.Now;
+
+                if (string.Equals(
+                        order.OrderStatus?.Trim(),
+                        "Delivered",
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     order.OrderStatus = "Completed";
                 }
+
 
                 await _context.SaveChangesAsync();
 

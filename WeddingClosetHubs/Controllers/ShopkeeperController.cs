@@ -1516,95 +1516,46 @@ namespace WeddingClosetHubs.Controllers
             }
         }
 
-        public async Task<IActionResult> Products()
+
+public async Task<IActionResult> Products()
+{
+    if (!IsShopkeeper())
+        return RedirectToAction("Login", "Account");
+
+    var shop = await GetMyShop();
+
+    if (shop == null)
+        return NotFound();
+
+    var products = await _context.Products
+        .Include(p => p.Shop)
+        .Include(p => p.ProductVariants)
+        .Include(p => p.ProductImages)
+        .Where(p => p.ShopId == shop.ShopId)
+        .OrderByDescending(p => p.CreatedDate)
+        .ToListAsync();
+
+    foreach (var product in products)
+    {
+        if (product.ProductVariants != null &&
+            product.ProductVariants.Any())
         {
-            if (!IsShopkeeper())
-                return RedirectToAction("Login", "Account");
-
-            int shopkeeperId = GetShopkeeperId()!.Value;
-
-            var shop = await GetMyShop();
-
-            if (shop == null)
-                return NotFound();
-
-            var products = await _context.Products
-                .Include(p => p.Shop)
-                .Include(p => p.ProductVariants)
-                .Include(p => p.ProductImages)
-                .Where(p => p.ShopId == shop.ShopId)
-                .OrderByDescending(p => p.CreatedDate)
-                .ToListAsync();
-
-            ViewBag.ShopkeeperName =
-                shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-            ViewBag.ShopName =
-                shop.ShopName;
-
-            ViewBag.ProfileImage =
-                shop.Shopkeeper?.ProfileImage;
-
-            ViewBag.ShopCategory =
-                shop.ShopCategory;
-
-            return View(products);
+            product.StockQuantity = product.ProductVariants
+                .Sum(v => v.StockQuantity);
         }
+    }
 
-        public async Task<IActionResult> Negotiations()
-        {
-            if (!IsShopkeeper())
-                return RedirectToAction("Login", "Account");
+    await _context.SaveChangesAsync();
 
-            int shopkeeperId = GetShopkeeperId()!.Value;
+    ViewBag.ShopkeeperName =
+        shop.Shopkeeper?.Name ?? "Shopkeeper";
 
-            var shop = await GetMyShop();
+    ViewBag.ShopName = shop.ShopName;
+    ViewBag.ProfileImage = shop.Shopkeeper?.ProfileImage;
+    ViewBag.ShopCategory = shop.ShopCategory;
 
-            if (shop == null)
-                return NotFound();
-
-            var negotiations = await _context.Negotiations
-                .Include(n => n.Product)
-                .Include(n => n.Customer)
-                .Where(n =>
-                    n.ShopkeeperId == shopkeeperId &&
-                    n.Product != null &&
-                    n.Product.ShopId == shop.ShopId)
-                .OrderByDescending(n => n.CreatedDate)
-                .ToListAsync();
-
-            ViewBag.ShopkeeperName =
-                shop.Shopkeeper?.Name ?? "Shopkeeper";
-
-            ViewBag.ShopName =
-                shop.ShopName;
-
-            ViewBag.ProfileImage =
-                shop.Shopkeeper?.ProfileImage;
-
-            ViewBag.PendingCount =
-                negotiations.Count(n =>
-                    string.Equals(
-                        n.Status,
-                        "Pending",
-                        StringComparison.OrdinalIgnoreCase));
-
-            ViewBag.CounterOfferCount =
-                negotiations.Count(n =>
-                    string.Equals(
-                        n.Status,
-                        "CounterOffer",
-                        StringComparison.OrdinalIgnoreCase));
-
-            ViewBag.AcceptedCount =
-                negotiations.Count(n =>
-                    string.Equals(
-                        n.Status,
-                        "Accepted",
-                        StringComparison.OrdinalIgnoreCase));
-
-            return View(negotiations);
-        }
+    return View(products);
+}
 
 
         [HttpPost]

@@ -128,14 +128,15 @@ namespace WeddingClosetHubs.Controllers
                         ));
 
             int deliveredOrders =
-                await _context.Orders
-                    .CountAsync(o =>
-                        o.DeliveryId == deliveryUserId &&
-                        o.OrderStatus != "Cancelled" &&
-                        (
-                            o.OrderStatus == "Delivered" ||
-                            o.OrderStatus == "Completed"
-                        ));
+     await _context.Orders
+         .CountAsync(o =>
+             o.DeliveryId == deliveryUserId &&
+             o.OrderStatus == "Delivered");
+            int completedOrders =
+    await _context.Orders
+        .CountAsync(o =>
+            o.DeliveryId == deliveryUserId &&
+            o.OrderStatus == "Completed");
 
             int codOrders =
                 await _context.Orders
@@ -700,8 +701,18 @@ namespace WeddingClosetHubs.Controllers
                         "OrderDetails",
                         new { id });
                 }
+                bool customerPaymentConfirmed =
+                    order.PaymentReceived &&
+                    string.Equals(
+                        order.PaymentStatus?.Trim(),
+                        "Paid",
+                        StringComparison.OrdinalIgnoreCase);
 
-                order.OrderStatus = "Delivered";
+                order.OrderStatus =
+                    !isCod && customerPaymentConfirmed
+                        ? "Completed"
+                        : "Delivered";
+
                 order.DeliveryPaymentStatus = "Pending";
 
                 await CreateNotification(

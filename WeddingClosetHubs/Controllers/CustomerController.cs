@@ -790,10 +790,13 @@ namespace WeddingClosetHubs.Controllers
             return View(products);
         }
 
+
+
         [HttpGet]
         public async Task<IActionResult> ProductDetails(int id)
         {
             var product = await _context.Products
+                .AsNoTracking()
                 .Include(p => p.Shop)
                     .ThenInclude(s => s!.Shopkeeper)
                 .Include(p => p.ProductVariants)
@@ -835,6 +838,8 @@ namespace WeddingClosetHubs.Controllers
 
             return View(product);
         }
+
+
 
 
 
@@ -1887,133 +1892,64 @@ namespace WeddingClosetHubs.Controllers
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            int customerId =
-                GetCustomerId()!.Value;
+            int customerId = GetCustomerId()!.Value;
 
-            var cartItems =
-                GetCartItems();
+            var cartItems = await _context.CustomerCartItems
+                .Where(c => c.CustomerId == customerId)
+                .OrderBy(c => c.CartItemId)
+                .ToListAsync();
 
-            if (!cartItems.Any())
-            {
-                ViewBag.CartItems =
-                    cartItems;
+            var productIds = cartItems
+                .Where(c => c.ProductId.HasValue)
+                .Select(c => c.ProductId!.Value)
+                .Distinct()
+                .ToList();
 
-                ViewBag.CustomizationRequests =
-                    new List<CustomizationRequest>();
+            var customizationIds = cartItems
+                .Where(c => c.CustomizationRequestId.HasValue)
+                .Select(c => c.CustomizationRequestId!.Value)
+                .Distinct()
+                .ToList();
 
-                return View(
-                    new List<Product>());
-            }
+            var products = await _context.Products
+                .Include(p => p.Shop)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.ProductImages)
+                .Where(p => productIds.Contains(p.ProductId))
+                .ToListAsync();
 
-            var productIds =
-                cartItems
-                    .Where(x => x.ProductId.HasValue)
-                    .Select(x => x.ProductId!.Value)
-                    .Distinct()
-                    .ToList();
-
-            var customizationRequestIds =
-                cartItems
-                    .Where(x => x.CustomizationRequestId.HasValue)
-                    .Select(x => x.CustomizationRequestId!.Value)
-                    .Distinct()
-                    .ToList();
-
-            var products =
-                await _context.Products
-                    .Include(p => p.Shop)
-                    .Include(p => p.ProductVariants)
-                    .Include(p => p.ProductImages)
-                    .Where(p =>
-                        productIds.Contains(p.ProductId) &&
-                        p.Status)
-                    .ToListAsync();
-
-            var customizationRequests =
-                await _context.CustomizationRequests
-                    .Include(r => r.Shop)
-                    .Where(r =>
-                        customizationRequestIds.Contains(
-                            r.CustomizationRequestId) &&
-                        r.CustomerId == customerId)
-                    .ToListAsync();
-
-            var validProductIds =
-                products
-                    .Select(p => p.ProductId)
-                    .ToHashSet();
-
-            var validCustomizationIds =
-                customizationRequests
-                    .Select(r => r.CustomizationRequestId)
-                    .ToHashSet();
-
-            var itemsToRemove =
-                new List<CustomerCartItem>();
+            var customizationRequests = await _context.CustomizationRequests
+                .Include(r => r.Shop)
+                .Where(r =>
+                    customizationIds.Contains(r.CustomizationRequestId) &&
+                    r.CustomerId == customerId)
+                .ToListAsync();
 
             foreach (var item in cartItems)
             {
                 if (item.CustomizationRequestId.HasValue)
                 {
-                    var customization =
-                        customizationRequests.FirstOrDefault(
-                            r =>
-                                r.CustomizationRequestId ==
-                                item.CustomizationRequestId.Value);
+                    var customization = customizationRequests.FirstOrDefault(
+                        r => r.CustomizationRequestId == item.CustomizationRequestId.Value);
 
                     if (customization == null)
-                    {
-                        itemsToRemove.Add(item);
                         continue;
-                    }
-
-                    if (!string.Equals(
-                            customization.Status,
-                            "Accepted",
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    if (!customization.Shop.Status ||
-                        !customization.Shop.IsApproved ||
-                        !customization.Shop.OffersCustomization)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    if (!customization.ShopkeeperPrice.HasValue ||
-                        customization.ShopkeeperPrice.Value <= 0)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
 
                     item.ProductId = null;
+                    item.ProductName = customization.ProductName;
+                    item.PurchaseType = "Customized";
+                    item.Quantity = 1;
+                    item.Size = null;
+                    item.NegotiationId = null;
 
-                    item.ProductName =
-                        customization.ProductName;
-
-                    item.Price =
-                        customization.ShopkeeperPrice.Value;
-
-                    item.Quantity =
-                        1;
-
-                    item.Size =
-                        null;
-
-                    item.PurchaseType =
-                        "Customized";
-
-                    item.NegotiationId =
-                        null;
+                    if (customization.ShopkeeperPrice.HasValue &&
+                        customization.ShopkeeperPrice.Value > 0)
+                    {
+                        item.Price = customization.ShopkeeperPrice.Value;
+                    }
 
                     item.CustomMeasurements =
-                        !string.IsNullOrWhiteSpace(
-                            customization.CustomerUpdatedMeasurements)
+                        !string.IsNullOrWhiteSpace(customization.CustomerUpdatedMeasurements)
                             ? customization.CustomerUpdatedMeasurements
                             : customization.Measurements;
 
@@ -2021,278 +1957,70 @@ namespace WeddingClosetHubs.Controllers
                 }
 
                 if (!item.ProductId.HasValue)
-                {
-                    itemsToRemove.Add(item);
                     continue;
-                }
 
-                var product =
-                    products.FirstOrDefault(
-                        p => p.ProductId == item.ProductId.Value);
+                var product = products.FirstOrDefault(
+                    p => p.ProductId == item.ProductId.Value);
 
                 if (product == null)
-                {
-                    itemsToRemove.Add(item);
                     continue;
-                }
 
-                if (product.Shop == null ||
-                    !product.Shop.Status ||
-                    !product.Shop.IsApproved)
+                item.ProductName = product.ProductName;
+
+                string purchaseType = string.IsNullOrWhiteSpace(item.PurchaseType)
+                    ? "Buy"
+                    : item.PurchaseType.Trim();
+
+                if (purchaseType.Equals("Rent", StringComparison.OrdinalIgnoreCase))
                 {
-                    itemsToRemove.Add(item);
-                    continue;
-                }
-
-                item.ProductName =
-                    product.ProductName;
-
-                string purchaseType =
-                    string.IsNullOrWhiteSpace(
-                        item.PurchaseType)
-                        ? "Buy"
-                        : item.PurchaseType.Trim();
-
-                if (purchaseType.Equals(
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!product.Shop.OffersRent ||
-                        !product.IsAvailableForRent)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-                }
-                else
-                {
-                    if (!product.Shop.OffersBuy ||
-                        !product.IsAvailableForBuy)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-                }
-
-                bool hasVariants =
-                    product.ProductVariants != null &&
-                    product.ProductVariants.Any();
-
-                ProductVariant? selectedVariant =
-                    null;
-
-                if (hasVariants)
-                {
-                    if (string.IsNullOrWhiteSpace(item.Size))
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    selectedVariant =
-                        product.ProductVariants
-                            .FirstOrDefault(v =>
-                                string.Equals(
-                                    v.Size,
-                                    item.Size,
-                                    StringComparison.OrdinalIgnoreCase));
-
-                    if (selectedVariant == null ||
-                        selectedVariant.StockQuantity <= 0)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    if (item.Quantity >
-                        selectedVariant.StockQuantity)
-                    {
-                        item.Quantity =
-                            selectedVariant.StockQuantity;
-                    }
-
-                    if (item.Quantity < 1)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    item.Size =
-                        selectedVariant.Size;
-                }
-                else
-                {
-                    if (product.StockQuantity <= 0)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    if (item.Quantity >
-                        product.StockQuantity)
-                    {
-                        item.Quantity =
-                            product.StockQuantity;
-                    }
-
-                    if (item.Quantity < 1)
-                    {
-                        itemsToRemove.Add(item);
-                        continue;
-                    }
-
-                    item.Size =
-                        null;
-                }
-
-                if (purchaseType.Equals(
-                        "Rent",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    if (product.Shop.OffersRent &&
-                        product.IsAvailableForRent &&
+                    if (product.IsAvailableForRent &&
                         product.RentPrice.HasValue &&
                         product.RentPrice.Value > 0)
                     {
-                        item.Price =
-                            product.RentPrice.Value;
-
-                        item.PurchaseType =
-                            "Rent";
-
-                        item.NegotiationId =
-                            null;
+                        item.Price = product.RentPrice.Value;
+                        item.PurchaseType = "Rent";
                     }
-                    else
-                    {
-                        itemsToRemove.Add(item);
-                    }
-
-                    continue;
                 }
-
-                if (purchaseType.Equals(
-                        "Negotiated",
-                        StringComparison.OrdinalIgnoreCase))
+                else if (purchaseType.Equals("Sale", StringComparison.OrdinalIgnoreCase))
                 {
-                    Negotiation? negotiation =
-                        null;
-
-                    if (item.NegotiationId.HasValue)
-                    {
-                        negotiation =
-                            await _context.Negotiations
-                                .FirstOrDefaultAsync(n =>
-                                    n.NegotiationId ==
-                                        item.NegotiationId.Value &&
-                                    n.ProductId ==
-                                        product.ProductId &&
-                                    n.CustomerId ==
-                                        customerId &&
-                                    n.Status ==
-                                        "Accepted" &&
-                                    n.AgreedPrice.HasValue &&
-                                    n.AgreedPrice.Value > 0);
-                    }
-
-                    if (negotiation == null)
-                    {
-                        negotiation =
-                            await _context.Negotiations
-                                .Where(n =>
-                                    n.ProductId ==
-                                        product.ProductId &&
-                                    n.CustomerId ==
-                                        customerId &&
-                                    n.Status ==
-                                        "Accepted" &&
-                                    n.AgreedPrice.HasValue &&
-                                    n.AgreedPrice.Value > 0)
-                                .OrderByDescending(n =>
-                                    n.RespondedDate ??
-                                    n.CreatedDate)
-                                .FirstOrDefaultAsync();
-                    }
-
-                    if (negotiation != null &&
-                        negotiation.AgreedPrice.HasValue)
-                    {
-                        item.Price =
-                            negotiation.AgreedPrice.Value;
-
-                        item.PurchaseType =
-                            "Negotiated";
-
-                        item.NegotiationId =
-                            negotiation.NegotiationId;
-
-                        item.Quantity =
-                            1;
-                    }
-                    else
-                    {
-                        itemsToRemove.Add(item);
-                    }
-
-                    continue;
-                }
-
-                if (purchaseType.Equals(
-                        "Sale",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    if (product.Shop.OffersBuy &&
-                        product.IsAvailableForBuy &&
-                        product.IsOnSale &&
+                    if (product.IsOnSale &&
                         product.SalePrice.HasValue &&
                         product.SalePrice.Value > 0 &&
                         product.SalePrice.Value < product.Price)
                     {
-                        item.Price =
-                            product.SalePrice.Value;
-
-                        item.PurchaseType =
-                            "Sale";
-
-                        item.NegotiationId =
-                            null;
+                        item.Price = product.SalePrice.Value;
+                        item.PurchaseType = "Sale";
                     }
-                    else
-                    {
-                        itemsToRemove.Add(item);
-                    }
-
-                    continue;
                 }
+                else if (purchaseType.Equals("Negotiated", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (item.NegotiationId.HasValue)
+                    {
+                        var negotiation = await _context.Negotiations
+                            .FirstOrDefaultAsync(n =>
+                                n.NegotiationId == item.NegotiationId.Value &&
+                                n.CustomerId == customerId &&
+                                n.ProductId == product.ProductId &&
+                                n.Status == "Accepted" &&
+                                n.AgreedPrice.HasValue &&
+                                n.AgreedPrice.Value > 0);
 
-                item.Price =
-                    product.Price;
-
-                item.PurchaseType =
-                    "Buy";
-
-                item.NegotiationId =
-                    null;
-            }
-
-            foreach (var item in itemsToRemove)
-            {
-                _context.CustomerCartItems.Remove(item);
+                        if (negotiation != null)
+                            item.Price = negotiation.AgreedPrice!.Value;
+                    }
+                }
+                else
+                {
+                    item.Price = product.Price;
+                    item.PurchaseType = "Buy";
+                    item.NegotiationId = null;
+                }
             }
 
             await _context.SaveChangesAsync();
 
-
-            ViewBag.CartItems =
-                cartItems;
-
-            ViewBag.CustomizationRequests =
-                customizationRequests
-                    .Where(r =>
-                        cartItems.Any(c =>
-                            c.CustomizationRequestId ==
-                            r.CustomizationRequestId))
-                    .ToList();
+            ViewBag.CartItems = cartItems;
+            ViewBag.CustomizationRequests = customizationRequests;
 
             return View(products);
         }
@@ -3510,6 +3238,7 @@ namespace WeddingClosetHubs.Controllers
 
             int customerId = GetCustomerId()!.Value;
 
+
             var customer =
                 await _context.Users
                     .FirstOrDefaultAsync(
@@ -3536,15 +3265,29 @@ namespace WeddingClosetHubs.Controllers
                     "Account");
             }
 
-            var cartItems = GetCartItems();
+            var sessionCustomerId = GetCustomerId();
+
+            var cartItems = await _context.CustomerCartItems
+                .AsNoTracking()
+                .Where(c => c.CustomerId == customerId)
+                .ToListAsync();
 
             if (!cartItems.Any())
             {
+                var databaseCustomerIds = await _context.CustomerCartItems
+                    .AsNoTracking()
+                    .Select(c => c.CustomerId)
+                    .Distinct()
+                    .ToListAsync();
+
                 TempData["Error"] =
-                    "Your cart is empty.";
+                    $"Checkout found no cart items for CustomerId {customerId}. " +
+                    $"Session CustomerId: {sessionCustomerId}. " +
+                    $"Customer IDs with cart items: {string.Join(", ", databaseCustomerIds)}";
 
                 return RedirectToAction("Cart");
             }
+
 
             var productIds = cartItems
                 .Where(x => x.ProductId.HasValue)
@@ -3583,6 +3326,7 @@ namespace WeddingClosetHubs.Controllers
                         c.CustomerId == customerId &&
                         c.Status == "Accepted")
                     .ToListAsync();
+
 
             if (customizations.Count != customizationIds.Count)
             {
@@ -3697,14 +3441,51 @@ namespace WeddingClosetHubs.Controllers
                     return RedirectToAction("Cart");
                 }
 
-                if (item.Quantity >
-                    product.StockQuantity)
+               bool hasVariants =
+    product.ProductVariants != null &&
+    product.ProductVariants.Any();
+
+                if (hasVariants)
+                {
+                    if (string.IsNullOrWhiteSpace(item.Size))
+                    {
+                        TempData["Error"] =
+                            $"Please select a size for {product.ProductName}.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    var selectedVariant = product.ProductVariants
+                        .FirstOrDefault(v =>
+                            !string.IsNullOrWhiteSpace(v.Size) &&
+                            v.Size.Trim().Equals(
+                                item.Size.Trim(),
+                                StringComparison.OrdinalIgnoreCase));
+
+                    if (selectedVariant == null)
+                    {
+                        TempData["Error"] =
+                            $"The selected size for {product.ProductName} is unavailable.";
+
+                        return RedirectToAction("Cart");
+                    }
+
+                    if (item.Quantity > selectedVariant.StockQuantity)
+                    {
+                        TempData["Error"] =
+                            $"Only {selectedVariant.StockQuantity} unit(s) of size {selectedVariant.Size} are available for {product.ProductName}.";
+
+                        return RedirectToAction("Cart");
+                    }
+                }
+                else if (item.Quantity > product.StockQuantity)
                 {
                     TempData["Error"] =
                         $"Only {product.StockQuantity} unit(s) of {product.ProductName} are available.";
 
                     return RedirectToAction("Cart");
                 }
+
             }
 
             var shopIds =
@@ -3739,9 +3520,7 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "The selected shop is currently unavailable.";
 
-                return RedirectToAction("Shops");
             }
-
             decimal productTotal = 0m;
 
             var checkoutPrices =
@@ -3945,7 +3724,9 @@ namespace WeddingClosetHubs.Controllers
                     item.Quantity;
             }
 
-            SaveCartItems(cartItems);
+
+            await _context.SaveChangesAsync();
+
 
             if (productTotal <= 0)
             {
@@ -4066,7 +3847,9 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.CheckoutNegotiationIds =
                 checkoutNegotiationIds;
 
+
             return View(products);
+
         }
 
 
@@ -4218,7 +4001,11 @@ namespace WeddingClosetHubs.Controllers
 
             paymentMethod = normalizedPaymentMethod;
 
-            var cartItems = GetCartItems();
+
+            var cartItems = await _context.CustomerCartItems
+                .Where(c => c.CustomerId == customerId)
+                .ToListAsync();
+
 
             if (!cartItems.Any())
             {
@@ -4241,11 +4028,12 @@ namespace WeddingClosetHubs.Controllers
                 .ToList();
 
             var products = await _context.Products
-                .Include(p => p.Shop)
-                .Where(p =>
-                    productIds.Contains(p.ProductId) &&
-                    p.Status)
-                .ToListAsync();
+     .Include(p => p.Shop)
+     .Include(p => p.ProductVariants)
+     .Where(p =>
+         productIds.Contains(p.ProductId) &&
+         p.Status)
+     .ToListAsync();
 
             if (products.Count != productIds.Count)
             {
@@ -4950,32 +4738,66 @@ namespace WeddingClosetHubs.Controllers
                                 "A product could not be found while creating the order.");
                         }
 
-                        if (cartItem.Quantity >
-                            product.StockQuantity)
+
+                        if (cartItem.Quantity > product.StockQuantity)
                         {
                             throw new InvalidOperationException(
                                 $"The available stock for {product.ProductName} changed while placing the order.");
                         }
 
-                        unitPrice =
-                            finalPrices[
-                                product.ProductId];
+                        unitPrice = finalPrices[product.ProductId];
 
-                        subtotal =
-                            unitPrice *
-                            cartItem.Quantity;
+                        subtotal = unitPrice * cartItem.Quantity;
 
-                        purchaseType =
-                            finalPurchaseTypes[
-                                product.ProductId];
+                        purchaseType = finalPurchaseTypes[product.ProductId];
 
-                        isRental =
-                            purchaseType.Equals(
-                                "Rent",
-                                StringComparison.OrdinalIgnoreCase);
+                        isRental = purchaseType.Equals(
+                            "Rent",
+                            StringComparison.OrdinalIgnoreCase);
 
-                        product.StockQuantity -=
-                            cartItem.Quantity;
+                        if (product.ProductVariants != null &&
+    product.ProductVariants.Any())
+                        {
+                            if (string.IsNullOrWhiteSpace(cartItem.Size))
+                            {
+                                throw new InvalidOperationException(
+                                    $"Please select a size for {product.ProductName}.");
+                            }
+
+                            var variant = product.ProductVariants.FirstOrDefault(v =>
+                                !string.IsNullOrWhiteSpace(v.Size) &&
+                                v.Size.Trim().Equals(
+                                    cartItem.Size.Trim(),
+                                    StringComparison.OrdinalIgnoreCase));
+
+                            if (variant == null)
+                            {
+                                throw new InvalidOperationException(
+                                    $"The selected size for {product.ProductName} is unavailable.");
+                            }
+
+                            if (variant.StockQuantity < cartItem.Quantity)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Only {variant.StockQuantity} unit(s) of size {variant.Size} are available.");
+                            }
+
+                            variant.StockQuantity -= cartItem.Quantity;
+
+                            product.StockQuantity =
+                                product.ProductVariants.Sum(v => v.StockQuantity);
+                        }
+                        else
+                        {
+                            if (product.StockQuantity < cartItem.Quantity)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Only {product.StockQuantity} unit(s) of {product.ProductName} are available.");
+                            }
+
+                            product.StockQuantity -= cartItem.Quantity;
+                        }
+
                     }
 
                     var orderDetail =
@@ -5102,10 +4924,12 @@ namespace WeddingClosetHubs.Controllers
 
                 await transaction.CommitAsync();
 
-                ClearCart();
+                _context.CustomerCartItems.RemoveRange(cartItems);
+                await _context.SaveChangesAsync();
 
                 TempData["Success"] =
                     $"Order #{order.OrderId} placed successfully.";
+
 
                 return RedirectToAction(
                     "OrderDetails",

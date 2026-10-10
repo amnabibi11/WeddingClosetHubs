@@ -9,6 +9,7 @@
     int totalAssigned = ViewBag.TotalAssigned ?? 0;
     int pendingOrders = ViewBag.PendingOrders ?? 0;
     int deliveredOrders = ViewBag.DeliveredOrders ?? 0;
+    int completedOrders = ViewBag.CompletedOrders ?? 0;
     int codOrders = ViewBag.CodOrders ?? 0;
 
     decimal codCollected = ViewBag.CodCollected ?? 0m;
@@ -102,16 +103,16 @@
             font-size: 14px;
         }
 
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-        }
+            .nav-link i {
+                width: 20px;
+                text-align: center;
+            }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: #d4af37;
-            color: #800020;
-        }
+            .nav-link:hover,
+            .nav-link.active {
+                background: #d4af37;
+                color: #800020;
+            }
 
         .logout-link {
             margin-top: 20px;
@@ -192,28 +193,28 @@
             box-shadow: 0 8px 25px rgba(128,0,32,0.18);
         }
 
-        .welcome-card::after {
-            content: "";
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: rgba(212,175,55,0.12);
-            right: -50px;
-            top: -60px;
-        }
+            .welcome-card::after {
+                content: "";
+                position: absolute;
+                width: 180px;
+                height: 180px;
+                border-radius: 50%;
+                background: rgba(212,175,55,0.12);
+                right: -50px;
+                top: -60px;
+            }
 
-        .welcome-card h3 {
-            margin: 0 0 7px;
-            font-size: 24px;
-            font-weight: 700;
-        }
+            .welcome-card h3 {
+                margin: 0 0 7px;
+                font-size: 24px;
+                font-weight: 700;
+            }
 
-        .welcome-card p {
-            margin: 0;
-            color: #f4eacd;
-            font-size: 14px;
-        }
+            .welcome-card p {
+                margin: 0;
+                color: #f4eacd;
+                font-size: 14px;
+            }
 
         .zone-box {
             position: absolute;
@@ -223,15 +224,15 @@
             text-align: right;
         }
 
-        .zone-box small {
-            color: #e8dcb2;
-            display: block;
-        }
+            .zone-box small {
+                color: #e8dcb2;
+                display: block;
+            }
 
-        .zone-box strong {
-            color: #d4af37;
-            font-size: 16px;
-        }
+            .zone-box strong {
+                color: #d4af37;
+                font-size: 16px;
+            }
 
         .status-row {
             margin-bottom: 25px;
@@ -278,31 +279,31 @@
             overflow: hidden;
         }
 
-        .clickable-card::after {
-            content: "\f061";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 18px;
-            bottom: 15px;
-            color: #d4af37;
-            font-size: 13px;
-            opacity: 0;
-            transform: translateX(-5px);
-            transition: 0.25s;
-        }
+            .clickable-card::after {
+                content: "\f061";
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                position: absolute;
+                right: 18px;
+                bottom: 15px;
+                color: #d4af37;
+                font-size: 13px;
+                opacity: 0;
+                transform: translateX(-5px);
+                transition: 0.25s;
+            }
 
-        .clickable-card:hover {
-            transform: translateY(-5px);
-            border-color: #d4af37;
-            box-shadow: 0 10px 25px rgba(128,0,32,0.12);
-            color: inherit;
-        }
+            .clickable-card:hover {
+                transform: translateY(-5px);
+                border-color: #d4af37;
+                box-shadow: 0 10px 25px rgba(128,0,32,0.12);
+                color: inherit;
+            }
 
-        .clickable-card:hover::after {
-            opacity: 1;
-            transform: translateX(0);
-        }
+                .clickable-card:hover::after {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
 
         .stat-top {
             display: flex;
@@ -367,12 +368,12 @@
             height: 100%;
         }
 
-        .finance-card h5 {
-            font-size: 15px;
-            color: #800020;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
+            .finance-card h5 {
+                font-size: 15px;
+                color: #800020;
+                font-weight: 700;
+                margin-bottom: 20px;
+            }
 
         .amount-row {
             display: flex;
@@ -383,22 +384,22 @@
             font-size: 13px;
         }
 
-        .amount-row:last-child {
-            border-bottom: none;
-        }
+            .amount-row:last-child {
+                border-bottom: none;
+            }
 
-        .amount-row span {
-            color: #777;
-        }
+            .amount-row span {
+                color: #777;
+            }
 
-        .amount-row strong {
-            color: #333;
-        }
+            .amount-row strong {
+                color: #333;
+            }
 
-        .amount-row.total strong {
-            color: #800020;
-            font-size: 17px;
-        }
+            .amount-row.total strong {
+                color: #800020;
+                font-size: 17px;
+            }
 
         .section-title {
             margin: 30px 0 15px;
@@ -421,12 +422,12 @@
             transition: 0.25s;
         }
 
-        .quick-card:hover {
-            border-color: #d4af37;
-            transform: translateY(-2px);
-            color: #800020;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-        }
+            .quick-card:hover {
+                border-color: #d4af37;
+                transform: translateY(-2px);
+                color: #800020;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            }
 
         .quick-icon {
             width: 45px;
@@ -657,25 +658,25 @@
                 @{
                     string statusClass =
                     verificationStatus.Equals(
-                        "Approved",
-                        StringComparison.OrdinalIgnoreCase)
-                        ? "approved"
-                        : verificationStatus.Equals(
-                            "Rejected",
-                            StringComparison.OrdinalIgnoreCase)
-                            ? "rejected"
-                            : "pending";
+                    "Approved",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "approved"
+                    : verificationStatus.Equals(
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "rejected"
+                    : "pending";
 
                     string statusIcon =
                     verificationStatus.Equals(
-                        "Approved",
-                        StringComparison.OrdinalIgnoreCase)
-                        ? "fa-circle-check"
-                        : verificationStatus.Equals(
-                            "Rejected",
-                            StringComparison.OrdinalIgnoreCase)
-                            ? "fa-circle-xmark"
-                            : "fa-clock";
+                    "Approved",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-circle-check"
+                    : verificationStatus.Equals(
+                    "Rejected",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "fa-circle-xmark"
+                    : "fa-clock";
                 }
 
                 <span class="verification @statusClass">
@@ -739,30 +740,43 @@
 
                 </div>
 
+                ```cshtml
                 <div class="col-xl-3 col-md-6">
-
                     <a asp-controller="Delivery"
                        asp-action="Orders"
                        class="clickable-card stat-card">
 
                         <div class="stat-top">
-
                             <div class="stat-icon icon-green">
-                                <i class="fa-solid fa-circle-check"></i>
+                                <i class="fa-solid fa-truck-fast"></i>
                             </div>
-
                         </div>
 
                         <h6>Delivered Orders</h6>
-
                         <h3>@deliveredOrders</h3>
-
-                        <small>Successfully delivered</small>
+                        <small>Delivered, awaiting completion</small>
 
                     </a>
-
                 </div>
 
+                <div class="col-xl-3 col-md-6">
+                    <a asp-controller="Delivery"
+                       asp-action="Orders"
+                       class="clickable-card stat-card">
+
+                        <div class="stat-top">
+                            <div class="stat-icon icon-blue">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                        </div>
+
+                        <h6>Completed Orders</h6>
+                        <h3>@completedOrders</h3>
+                        <small>Orders whose process is completed</small>
+
+                    </a>
+                </div>
+                ```
                 <div class="col-xl-3 col-md-6">
 
                     <a asp-controller="Delivery"

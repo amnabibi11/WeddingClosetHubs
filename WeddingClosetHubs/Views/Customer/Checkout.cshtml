@@ -1,61 +1,61 @@
 ﻿@model IEnumerable<WeddingClosetHubs.Models.Product>
 
 @{
-ViewData["Title"] = "Checkout";
-Layout = null;
+    ViewData["Title"] = "Checkout";
+    Layout = null;
 
 
-decimal productTotal =
-    ViewBag.ProductTotal is decimal
-        ? (decimal)ViewBag.ProductTotal
-        : 0m;
+    decimal productTotal =
+        ViewBag.ProductTotal is decimal
+            ? (decimal)ViewBag.ProductTotal
+            : 0m;
 
-decimal deliveryCharges =
-    ViewBag.DeliveryCharges is decimal
-        ? (decimal)ViewBag.DeliveryCharges
-        : 0m;
+    decimal deliveryCharges =
+        ViewBag.DeliveryCharges is decimal
+            ? (decimal)ViewBag.DeliveryCharges
+            : 0m;
 
-decimal serviceFee =
-    ViewBag.ServiceFee is decimal
-        ? (decimal)ViewBag.ServiceFee
-        : 0m;
+    decimal serviceFee =
+        ViewBag.ServiceFee is decimal
+            ? (decimal)ViewBag.ServiceFee
+            : 0m;
 
-decimal refundableSecurity =
-    ViewBag.RefundableSecurity is decimal
-        ? (decimal)ViewBag.RefundableSecurity
-        : 0m;
+    decimal refundableSecurity =
+        ViewBag.RefundableSecurity is decimal
+            ? (decimal)ViewBag.RefundableSecurity
+            : 0m;
 
-decimal grandTotal =
-    ViewBag.TotalAmount is decimal
-        ? (decimal)ViewBag.TotalAmount
-        : 0m;
+    decimal grandTotal =
+        ViewBag.TotalAmount is decimal
+            ? (decimal)ViewBag.TotalAmount
+            : 0m;
 
-string easypaisaAccount =
-    ViewBag.EasypaisaAccount as string ?? "";
+    string easypaisaAccount =
+        ViewBag.EasypaisaAccount as string ?? "";
 
-string jazzCashAccount =
-    ViewBag.JazzCashAccount as string ?? "";
+    string jazzCashAccount =
+        ViewBag.JazzCashAccount as string ?? "";
 
-var checkoutPrices =
-    ViewBag.CheckoutPrices as Dictionary<int, decimal>
-    ?? new Dictionary<int, decimal>();
+    var checkoutPrices =
+        ViewBag.CheckoutPrices as Dictionary<int, decimal>
+        ?? new Dictionary<int, decimal>();
 
-var checkoutQuantities =
-    ViewBag.CheckoutQuantities as Dictionary<int, int>
-    ?? new Dictionary<int, int>();
+    var checkoutQuantities =
+        ViewBag.Quantities as Dictionary<int, int>
+        ?? new Dictionary<int, int>();
 
-var checkoutPurchaseTypes =
-    ViewBag.CheckoutPurchaseTypes as Dictionary<int, string>
-    ?? new Dictionary<int, string>();
+    var checkoutPurchaseTypes =
+        ViewBag.PurchaseTypes as Dictionary<int, string>
+        ?? new Dictionary<int, string>();
 
-var checkoutMeasurements =
-    ViewBag.CheckoutMeasurements as Dictionary<int, string>
-    ?? new Dictionary<int, string>();
+    var checkoutMeasurements =
+        ViewBag.Measurements as Dictionary<int, string>
+        ?? new Dictionary<int, string>();
 
-var customCheckoutItems =
-    ViewBag.CustomCheckoutItems
-        as IEnumerable<WeddingClosetHubs.Models.CustomizationRequest>
-    ?? Enumerable.Empty<WeddingClosetHubs.Models.CustomizationRequest>();
+    var customCheckoutItems =
+        ViewBag.Customizations
+            as IEnumerable<WeddingClosetHubs.Models.CustomizationRequest>
+        ?? Enumerable.Empty<WeddingClosetHubs.Models.CustomizationRequest>();
 
 
 }
@@ -67,548 +67,548 @@ var customCheckoutItems =
 <head>
 
 
-<meta charset="utf-8" />
+    <meta charset="utf-8" />
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-<title>Checkout - Wedding Closet Hubs</title>
+    <title>Checkout - Wedding Closet Hubs</title>
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-<style>
+    <style>
 
-    body {
-        background: #f8f6f4;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #333;
-    }
-
-    .navbar-custom {
-        background: #800020;
-        padding: 15px 30px;
-    }
-
-    .navbar-brand {
-        color: #d4af37 !important;
-        font-size: 24px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .navbar-custom a {
-        color: white;
-        text-decoration: none;
-        margin-left: 20px;
-    }
-
-    .navbar-custom a:hover {
-        color: #d4af37;
-    }
-
-    .page-wrapper {
-        padding: 35px;
-    }
-
-    .page-title {
-        color: #800020;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .page-subtitle {
-        color: #777;
-        margin-bottom: 30px;
-    }
-
-    .checkout-card {
-        background: white;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .card-header-custom {
-        background: #800020;
-        color: white;
-        padding: 16px 20px;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .card-body-custom {
-        padding: 25px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #555;
-    }
-
-    .form-control,
-    .form-select {
-        border-radius: 7px;
-        padding: 11px 13px;
-        border: 1px solid #ddd;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #800020;
-        box-shadow: 0 0 0 0.15rem rgba(128,0,32,0.15);
-    }
-
-    .required {
-        color: #dc3545;
-    }
-
-    .product-item {
-        border-bottom: 1px solid #eee;
-        padding: 20px 0;
-    }
-
-    .product-item:last-child {
-        border-bottom: none;
-    }
-
-    .product-image {
-        width: 90px;
-        height: 105px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
-    .product-name {
-        color: #800020;
-        font-weight: 700;
-        font-size: 17px;
-    }
-
-    .product-price {
-        font-weight: 700;
-        color: #800020;
-        font-size: 17px;
-    }
-
-    .original-price {
-        color: #777;
-        text-decoration: line-through;
-        font-size: 14px;
-        margin-bottom: 3px;
-    }
-
-    .sale-price {
-        color: #800020;
-        font-weight: 700;
-        font-size: 18px;
-    }
-
-    .purchase-type-badge {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #800020;
-        color: white;
-    }
-
-    .quantity-badge {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #f1f1f1;
-        color: #555;
-    }
-
-    .customized-badge {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 6px 11px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #d4af37;
-        color: #800020;
-    }
-
-    .custom-request-box {
-        background: #fffaf0;
-        border: 1px solid #d4af37;
-        border-radius: 10px;
-        padding: 18px;
-        margin-top: 15px;
-    }
-
-    .custom-request-title {
-        color: #800020;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .custom-request-detail {
-        color: #555;
-        font-size: 14px;
-        line-height: 1.7;
-    }
-
-    .measurement-box {
-        background: #fffaf0;
-        border: 1px solid #f0d98c;
-        border-radius: 10px;
-        padding: 18px;
-        margin-top: 18px;
-    }
-
-    .measurement-title {
-        color: #800020;
-        font-weight: 700;
-        margin-bottom: 12px;
-        font-size: 16px;
-    }
-
-    .measurement-help {
-        color: #666;
-        font-size: 13px;
-        margin-bottom: 15px;
-    }
-
-    .measurement-content {
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #eadfbf;
-        padding: 14px;
-        line-height: 1.8;
-        word-break: break-word;
-    }
-
-    .measurement-value {
-        color: #444;
-        font-size: 14px;
-    }
-
-    .rental-security-box {
-        background: #f7f1df;
-        border: 1px solid #d4af37;
-        border-radius: 10px;
-        padding: 15px;
-        margin-top: 15px;
-    }
-
-    .rental-security-title {
-        color: #800020;
-        font-weight: 700;
-        font-size: 15px;
-        margin-bottom: 8px;
-    }
-
-    .rental-security-amount {
-        color: #800020;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .rental-security-text {
-        color: #666;
-        font-size: 13px;
-        margin-top: 8px;
-        line-height: 1.5;
-    }
-
-    .payment-option {
-        border: 2px solid #e5e5e5;
-        border-radius: 10px;
-        padding: 18px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .payment-option:hover {
-        border-color: #800020;
-    }
-
-    .payment-option input {
-        margin-right: 10px;
-    }
-
-    .payment-option strong {
-        color: #800020;
-    }
-
-    .online-payment-box {
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 15px;
-    }
-
-    .payment-instruction {
-        background: #fff3cd;
-        border: 1px solid #ffe69c;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-
-    .payment-instruction strong {
-        color: #856404;
-    }
-
-    .payment-account-box {
-        background: white;
-        border: 2px solid #d4af37;
-        border-radius: 10px;
-        padding: 16px;
-        margin-top: 15px;
-        margin-bottom: 20px;
-    }
-
-    .payment-account-title {
-        color: #800020;
-        font-weight: 700;
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .payment-account-number {
-        color: #800020;
-        font-size: 21px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        word-break: break-word;
-    }
-
-    .payment-account-help {
-        color: #666;
-        font-size: 13px;
-        margin-top: 8px;
-        line-height: 1.5;
-    }
-
-    .payment-send-amount {
-        background: #f7f1df;
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 12px;
-        color: #800020;
-        font-weight: 700;
-    }
-
-    .payment-warning {
-        background: #fff8e1;
-        border: 1px solid #d4af37;
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 12px;
-        color: #6b5200;
-        font-size: 13px;
-        line-height: 1.5;
-    }
-
-    .summary-card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        position: sticky;
-        top: 20px;
-    }
-
-    .summary-title {
-        color: #800020;
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        padding: 12px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .summary-label {
-        color: #666;
-    }
-
-    .summary-value {
-        font-weight: 600;
-        text-align: right;
-    }
-
-    .security-summary {
-        color: #800020;
-        font-weight: 700;
-    }
-
-    .security-refund-note {
-        background: #fff8e1;
-        border: 1px solid #d4af37;
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 15px;
-        color: #6b5200;
-        font-size: 13px;
-        line-height: 1.5;
-    }
-
-    .grand-total {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        padding-top: 18px;
-        margin-top: 10px;
-        border-top: 2px solid #800020;
-        color: #800020;
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-    .place-order-btn {
-        width: 100%;
-        background: #800020;
-        color: white;
-        border: none;
-        padding: 14px;
-        border-radius: 8px;
-        font-size: 17px;
-        font-weight: 700;
-        margin-top: 20px;
-    }
-
-    .place-order-btn:hover {
-        background: #650018;
-        color: white;
-    }
-
-    .place-order-btn:disabled {
-        background: #999;
-        cursor: not-allowed;
-    }
-
-    .back-btn {
-        border: 1px solid #800020;
-        color: #800020;
-        background: white;
-        padding: 10px 18px;
-        border-radius: 7px;
-        text-decoration: none;
-    }
-
-    .back-btn:hover {
-        background: #800020;
-        color: white;
-    }
-
-    .rawalpindi-note {
-        background: #fff8e1;
-        border: 1px solid #d4af37;
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 20px;
-        color: #6b5200;
-        font-size: 14px;
-    }
-
-    .security-note {
-        text-align: center;
-        margin-top: 15px;
-        color: #777;
-        font-size: 13px;
-    }
-
-    .field-error {
-        color: #dc3545;
-        font-size: 13px;
-        margin-top: 5px;
-        display: none;
-    }
-
-    .custom-confirmation {
-        background: #f7f1df;
-        border-left: 4px solid #d4af37;
-        padding: 12px 15px;
-        border-radius: 7px;
-        margin-top: 15px;
-        font-size: 13px;
-        color: #665200;
-    }
-
-    .customized-price-box {
-        background: #fffaf0;
-        border: 1px solid #d4af37;
-        border-radius: 8px;
-        padding: 10px 12px;
-        margin-top: 10px;
-    }
-
-    .customized-price-title {
-        color: #800020;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .customized-price-value {
-        color: #800020;
-        font-size: 18px;
-        font-weight: 700;
-        margin-top: 3px;
-    }
-
-    .checkout-alert {
-        border-radius: 10px;
-        margin-bottom: 25px;
-        font-weight: 600;
-    }
-
-    @@media (max-width: 768px) {
-
-        .page-wrapper {
-            padding: 20px 15px;
-        }
-
-        .summary-card {
-            position: static;
-            margin-top: 20px;
+        body {
+            background: #f8f6f4;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
         }
 
         .navbar-custom {
-            padding: 15px;
+            background: #800020;
+            padding: 15px 30px;
+        }
+
+        .navbar-brand {
+            color: #d4af37 !important;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
         }
 
         .navbar-custom a {
-            margin-left: 8px;
-            font-size: 13px;
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
         }
+
+            .navbar-custom a:hover {
+                color: #d4af37;
+            }
+
+        .page-wrapper {
+            padding: 35px;
+        }
+
+        .page-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .checkout-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .card-header-custom {
+            background: #800020;
+            color: white;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-body-custom {
+            padding: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 7px;
+            padding: 11px 13px;
+            border: 1px solid #ddd;
+        }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #800020;
+                box-shadow: 0 0 0 0.15rem rgba(128,0,32,0.15);
+            }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .product-item {
+            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+        }
+
+            .product-item:last-child {
+                border-bottom: none;
+            }
 
         .product-image {
-            width: 80px;
-            height: 95px;
+            width: 90px;
+            height: 105px;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
-        .grand-total {
-            font-size: 19px;
+        .product-name {
+            color: #800020;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: #800020;
+            font-size: 17px;
+        }
+
+        .original-price {
+            color: #777;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .sale-price {
+            color: #800020;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .purchase-type-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #800020;
+            color: white;
+        }
+
+        .quantity-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .customized-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #d4af37;
+            color: #800020;
+        }
+
+        .custom-request-box {
+            background: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .custom-request-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .custom-request-detail {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .measurement-box {
+            background: #fffaf0;
+            border: 1px solid #f0d98c;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+
+        .measurement-title {
+            color: #800020;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .measurement-help {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .measurement-content {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #eadfbf;
+            padding: 14px;
+            line-height: 1.8;
+            word-break: break-word;
+        }
+
+        .measurement-value {
+            color: #444;
+            font-size: 14px;
+        }
+
+        .rental-security-box {
+            background: #f7f1df;
+            border: 1px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .rental-security-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .rental-security-amount {
+            color: #800020;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .rental-security-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .payment-option {
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .payment-option:hover {
+                border-color: #800020;
+            }
+
+            .payment-option input {
+                margin-right: 10px;
+            }
+
+            .payment-option strong {
+                color: #800020;
+            }
+
+        .online-payment-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .payment-instruction {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+            .payment-instruction strong {
+                color: #856404;
+            }
+
+        .payment-account-box {
+            background: white;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-account-title {
+            color: #800020;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
         }
 
         .payment-account-number {
-            font-size: 18px;
+            color: #800020;
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            word-break: break-word;
         }
-    }
 
-</style>
+        .payment-account-help {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .payment-send-amount {
+            background: #f7f1df;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .payment-warning {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #6b5200;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-title {
+            color: #800020;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .security-summary {
+            color: #800020;
+            font-weight: 700;
+        }
+
+        .security-refund-note {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            color: #6b5200;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .grand-total {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding-top: 18px;
+            margin-top: 10px;
+            border-top: 2px solid #800020;
+            color: #800020;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            background: #800020;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+            .place-order-btn:hover {
+                background: #650018;
+                color: white;
+            }
+
+            .place-order-btn:disabled {
+                background: #999;
+                cursor: not-allowed;
+            }
+
+        .back-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+            .back-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
+        .rawalpindi-note {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 20px;
+            color: #6b5200;
+            font-size: 14px;
+        }
+
+        .security-note {
+            text-align: center;
+            margin-top: 15px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .field-error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .custom-confirmation {
+            background: #f7f1df;
+            border-left: 4px solid #d4af37;
+            padding: 12px 15px;
+            border-radius: 7px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #665200;
+        }
+
+        .customized-price-box {
+            background: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+
+        .customized-price-title {
+            color: #800020;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .customized-price-value {
+            color: #800020;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .checkout-alert {
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        @@media (max-width: 768px) {
+
+            .page-wrapper {
+                padding: 20px 15px;
+            }
+
+            .summary-card {
+                position: static;
+                margin-top: 20px;
+            }
+
+            .navbar-custom {
+                padding: 15px;
+            }
+
+                .navbar-custom a {
+                    margin-left: 8px;
+                    font-size: 13px;
+                }
+
+            .product-image {
+                width: 80px;
+                height: 95px;
+            }
+
+            .grand-total {
+                font-size: 19px;
+            }
+
+            .payment-account-number {
+                font-size: 18px;
+            }
+        }
+
+    </style>
 
 
 </head>
@@ -616,200 +616,200 @@ var customCheckoutItems =
 <body>
 
 
-<nav class="navbar-custom">
+    <nav class="navbar-custom">
 
-    <div class="d-flex justify-content-between align-items-center">
-
-        <a asp-controller="Customer"
-           asp-action="Dashboard"
-           class="navbar-brand">
-
-            Wedding Closet Hubs
-
-        </a>
-
-        <div>
+        <div class="d-flex justify-content-between align-items-center">
 
             <a asp-controller="Customer"
-               asp-action="Dashboard">
+               asp-action="Dashboard"
+               class="navbar-brand">
 
-                <i class="bi bi-house"></i>
-                Home
-
-            </a>
-
-            <a asp-controller="Customer"
-               asp-action="Shops">
-
-                <i class="bi bi-shop"></i>
-                Shops
+                Wedding Closet Hubs
 
             </a>
 
-            <a asp-controller="Customer"
-               asp-action="Cart">
-
-                <i class="bi bi-cart"></i>
-                Cart
-
-            </a>
-
-            <a asp-controller="Account"
-               asp-action="Logout">
-
-                <i class="bi bi-box-arrow-right"></i>
-                Logout
-
-            </a>
-
-        </div>
-
-    </div>
-
-</nav>
-
-<div class="page-wrapper">
-
-    <h2 class="page-title">
-
-        <i class="bi bi-credit-card"></i>
-
-        Checkout
-
-    </h2>
-
-    <p class="page-subtitle">
-
-        Confirm your delivery information, saved measurements and payment method.
-
-    </p>
-
-    @if ((Model == null || !Model.Any()) &&
-         !customCheckoutItems.Any())
-    {
-        <div class="checkout-card">
-
-            <div class="card-body-custom text-center py-5">
-
-                <i class="bi bi-cart-x"
-                   style="font-size:60px;color:#800020;">
-                </i>
-
-                <h3 class="mt-3"
-                    style="color:#800020;">
-
-                    Your cart is empty.
-
-                </h3>
-
-                <p class="text-muted">
-
-                    Please add a product to your cart before checkout.
-
-                </p>
+            <div>
 
                 <a asp-controller="Customer"
-                   asp-action="Shops"
-                   class="btn"
-                   style="background:#800020;color:white;">
+                   asp-action="Dashboard">
+
+                    <i class="bi bi-house"></i>
+                    Home
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Shops">
 
                     <i class="bi bi-shop"></i>
+                    Shops
 
-                    Browse Shops
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Cart">
+
+                    <i class="bi bi-cart"></i>
+                    Cart
+
+                </a>
+
+                <a asp-controller="Account"
+                   asp-action="Logout">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
 
                 </a>
 
             </div>
 
         </div>
-    }
-    else
-    {
 
-        <form asp-controller="Customer"
-              asp-action="PlaceOrder"
-              method="post"
-              enctype="multipart/form-data"
-              id="checkoutForm">
+    </nav>
 
-            @Html.AntiForgeryToken()
+    <div class="page-wrapper">
 
-            <div class="row">
+        <h2 class="page-title">
 
-                <div class="col-lg-8">
+            <i class="bi bi-credit-card"></i>
 
-                    <div class="checkout-card">
+            Checkout
 
-                        <div class="card-header-custom">
+        </h2>
 
-                            <i class="bi bi-geo-alt"></i>
+        <p class="page-subtitle">
 
-                            Delivery Information
+            Confirm your delivery information, saved measurements and payment method.
 
-                        </div>
+        </p>
 
-                        <div class="card-body-custom">
+        @if ((Model == null || !Model.Any()) &&
+                !customCheckoutItems.Any())
+        {
+            <div class="checkout-card">
 
-                            <div class="rawalpindi-note">
+                <div class="card-body-custom text-center py-5">
 
-                                <i class="bi bi-info-circle-fill"></i>
+                    <i class="bi bi-cart-x"
+                       style="font-size:60px;color:#800020;">
+                    </i>
 
-                                <strong>Delivery Area:</strong>
+                    <h3 class="mt-3"
+                        style="color:#800020;">
 
-                                Wedding Closet Hubs currently accepts
-                                orders for delivery within
-                                <strong>Rawalpindi only</strong>.
+                        Your cart is empty.
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Please add a product to your cart before checkout.
+
+                    </p>
+
+                    <a asp-controller="Customer"
+                       asp-action="Shops"
+                       class="btn"
+                       style="background:#800020;color:white;">
+
+                        <i class="bi bi-shop"></i>
+
+                        Browse Shops
+
+                    </a>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+
+            <form asp-controller="Customer"
+                  asp-action="PlaceOrder"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="checkoutForm">
+
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+
+                    <div class="col-lg-8">
+
+                        <div class="checkout-card">
+
+                            <div class="card-header-custom">
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                Delivery Information
 
                             </div>
 
-                            <div class="mb-3">
+                            <div class="card-body-custom">
 
-                                <label for="deliveryCity"
-                                       class="form-label">
+                                <div class="rawalpindi-note">
 
-                                    Delivery City
+                                    <i class="bi bi-info-circle-fill"></i>
 
-                                    <span class="required">*</span>
+                                    <strong>Delivery Area:</strong>
 
-                                </label>
-
-                                <select name="DeliveryCity"
-                                        id="deliveryCity"
-                                        class="form-select"
-                                        required>
-
-                                    <option value="">
-                                        -- Select Delivery City --
-                                    </option>
-
-                                    <option value="Rawalpindi">
-                                        Rawalpindi
-                                    </option>
-
-                                </select>
-
-                                <div id="cityError"
-                                     class="field-error">
-
-                                    Please select Rawalpindi as the
-                                    delivery city.
+                                    Wedding Closet Hubs currently accepts
+                                    orders for delivery within
+                                    <strong>Rawalpindi only</strong>.
 
                                 </div>
 
-                            </div>
+                                <div class="mb-3">
 
-                            <div class="mb-3">
+                                    <label for="deliveryCity"
+                                           class="form-label">
 
-                                <label for="deliveryAddress"
-                                       class="form-label">
+                                        Delivery City
 
-                                    Complete Delivery Address
+                                        <span class="required">*</span>
 
-                                    <span class="required">*</span>
+                                    </label>
 
-                                </label>
+                                    <select name="DeliveryCity"
+                                            id="deliveryCity"
+                                            class="form-select"
+                                            required>
 
-                                <textarea name="DeliveryAddress"
+                                        <option value="">
+                                            -- Select Delivery City --
+                                        </option>
+
+                                        <option value="Rawalpindi">
+                                            Rawalpindi
+                                        </option>
+
+                                    </select>
+
+                                    <div id="cityError"
+                                         class="field-error">
+
+                                        Please select Rawalpindi as the
+                                        delivery city.
+
+                                    </div>
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <label for="deliveryAddress"
+                                           class="form-label">
+
+                                        Complete Delivery Address
+
+                                        <span class="required">*</span>
+
+                                    </label>
+
+                                    <textarea name="DeliveryAddress"
                                           id="deliveryAddress"
                                           class="form-control"
                                           rows="4"
@@ -817,111 +817,492 @@ var customCheckoutItems =
                                           required
                                           placeholder="Example: House 123, Street 5, Saddar, Rawalpindi"></textarea>
 
-                                <div id="addressError"
-                                     class="field-error">
+                                    <div id="addressError"
+                                         class="field-error">
 
-                                    Please enter a complete delivery
-                                    address located in Rawalpindi.
+                                        Please enter a complete delivery
+                                        address located in Rawalpindi.
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        Please include "Rawalpindi" in the
+                                        delivery address.
+
+                                    </small>
 
                                 </div>
 
-                                <small class="text-muted">
+                                <div class="mb-3">
 
-                                    Please include "Rawalpindi" in the
-                                    delivery address.
+                                    <label for="notes"
+                                           class="form-label">
 
-                                </small>
+                                        Additional Notes
 
-                            </div>
+                                    </label>
 
-                            <div class="mb-3">
-
-                                <label for="notes"
-                                       class="form-label">
-
-                                    Additional Notes
-
-                                </label>
-
-                                <textarea name="Notes"
+                                    <textarea name="Notes"
                                           id="notes"
                                           class="form-control"
                                           rows="3"
                                           maxlength="500"
                                           placeholder="Any additional instructions for the shopkeeper or delivery boy"></textarea>
 
+                                </div>
+
                             </div>
 
                         </div>
 
-                    </div>
+                        <div class="checkout-card">
 
-                    <div class="checkout-card">
+                            <div class="card-header-custom">
 
-                        <div class="card-header-custom">
+                                <i class="bi bi-bag-check"></i>
 
-                            <i class="bi bi-bag-check"></i>
+                                Your Order
 
-                            Your Order
+                            </div>
 
-                        </div>
+                            <div class="card-body-custom">
 
-                        <div class="card-body-custom">
-
-                            @if (Model != null)
-                            {
-                                foreach (var product in Model)
+                                @if (Model != null)
                                 {
-                                    decimal checkoutPrice =
+                                    foreach (var product in Model)
+                                    {
+                                        decimal checkoutPrice =
                                         checkoutPrices.ContainsKey(product.ProductId)
-                                            ? checkoutPrices[product.ProductId]
-                                            : product.Price;
+                                        ? checkoutPrices[product.ProductId]
+                                        : product.Price;
 
-                                    int quantity =
+                                        int quantity =
                                         checkoutQuantities.ContainsKey(product.ProductId)
-                                            ? checkoutQuantities[product.ProductId]
-                                            : 1;
+                                        ? checkoutQuantities[product.ProductId]
+                                        : 1;
 
-                                    string purchaseType =
+                                        string purchaseType =
                                         checkoutPurchaseTypes.ContainsKey(product.ProductId)
-                                            ? checkoutPurchaseTypes[product.ProductId]
-                                            : "Buy";
+                                        ? checkoutPurchaseTypes[product.ProductId]
+                                        : "Buy";
 
-                                    string measurement =
+                                        string measurement =
                                         checkoutMeasurements.ContainsKey(product.ProductId)
-                                            ? checkoutMeasurements[product.ProductId]
-                                            : "";
+                                        ? checkoutMeasurements[product.ProductId]
+                                        : "";
 
-                                    bool isSalePurchase =
+                                        bool isSalePurchase =
                                         purchaseType.Equals(
-                                            "Sale",
-                                            StringComparison.OrdinalIgnoreCase);
+                                        "Sale",
+                                        StringComparison.OrdinalIgnoreCase);
 
-                                    bool isRentPurchase =
+                                        bool isRentPurchase =
                                         purchaseType.Equals(
-                                            "Rent",
-                                            StringComparison.OrdinalIgnoreCase);
+                                        "Rent",
+                                        StringComparison.OrdinalIgnoreCase);
 
-                                    bool isNegotiatedPurchase =
+                                        bool isNegotiatedPurchase =
                                         purchaseType.Equals(
-                                            "Negotiated",
-                                            StringComparison.OrdinalIgnoreCase);
+                                        "Negotiated",
+                                        StringComparison.OrdinalIgnoreCase);
 
-                                    bool isCustomizedPurchase =
+                                        bool isCustomizedPurchase =
                                         purchaseType.Equals(
-                                            "Customized",
-                                            StringComparison.OrdinalIgnoreCase);
+                                        "Customized",
+                                        StringComparison.OrdinalIgnoreCase);
 
-                                    bool hasMeasurements =
+                                        bool hasMeasurements =
                                         !string.IsNullOrWhiteSpace(measurement);
 
-                                    decimal rentalSecurity =
+                                        decimal rentalSecurity =
                                         isRentPurchase
-                                            ? product.RentalSecurity ?? 0m
-                                            : 0m;
+                                        ? product.RentalSecurity ?? 0m
+                                        : 0m;
 
-                                    decimal rentalSecurityTotal =
+                                        decimal rentalSecurityTotal =
                                         rentalSecurity * quantity;
+
+                                        <div class="product-item">
+
+                                            <div class="row align-items-start">
+
+                                                <div class="col-md-2 text-center">
+
+                                                    @if (!string.IsNullOrEmpty(product.Image))
+                                                    {
+                                                        <img src="@Url.Content(product.Image)"
+                                                             class="product-image"
+                                                             alt="@product.ProductName" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="product-image bg-light d-flex align-items-center justify-content-center">
+
+                                                            <i class="bi bi-image fs-2 text-muted"></i>
+
+                                                        </div>
+                                                    }
+
+                                                </div>
+
+                                                <div class="col-md-7">
+
+                                                    <div class="product-name">
+
+                                                        @product.ProductName
+
+                                                    </div>
+
+                                                    <div class="text-muted small mt-1">
+
+                                                        Category:
+                                                        @(product.Category ?? "N/A")
+
+                                                    </div>
+
+                                                    <div class="text-muted small">
+
+                                                        Subcategory:
+                                                        @(product.Subcategory ?? "N/A")
+
+                                                    </div>
+
+                                                    <div>
+
+                                                        <span class="purchase-type-badge">
+
+                                                            @if (isCustomizedPurchase)
+                                                            {
+                                                                <i class="bi bi-scissors"></i>
+                                                            }
+                                                            else if (isNegotiatedPurchase)
+                                                            {
+                                                                <i class="bi bi-hand-thumbs-up"></i>
+                                                            }
+                                                            else if (isRentPurchase)
+                                                            {
+                                                                <i class="bi bi-calendar-check"></i>
+                                                            }
+                                                            else if (isSalePurchase)
+                                                            {
+                                                                <i class="bi bi-tag"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="bi bi-bag"></i>
+                                                            }
+
+                                                            @purchaseType
+
+                                                        </span>
+
+                                                        <span class="quantity-badge">
+
+                                                            <i class="bi bi-box-seam"></i>
+
+                                                            Quantity: @quantity
+
+                                                        </span>
+
+                                                    </div>
+
+                                                    @if (isCustomizedPurchase)
+                                                    {
+                                                        <div>
+
+                                                            <span class="customized-badge">
+
+                                                                <i class="bi bi-scissors"></i>
+
+                                                                Customized Product
+
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="customized-price-box">
+
+                                                            <div class="customized-price-title">
+
+                                                                <i class="bi bi-check-circle-fill"></i>
+
+                                                                Accepted Customized Price
+
+                                                            </div>
+
+                                                            <div class="customized-price-value">
+
+                                                                Rs. @checkoutPrice.ToString("N2")
+
+                                                            </div>
+
+                                                            <div class="small text-muted mt-1">
+
+                                                                This price was accepted after
+                                                                discussion with the shopkeeper.
+
+                                                            </div>
+
+                                                        </div>
+                                                    }
+
+                                                    @if (isSalePurchase)
+                                                    {
+                                                        <div class="mt-2">
+
+                                                            <span class="badge bg-danger">
+
+                                                                <i class="bi bi-tag-fill"></i>
+
+                                                                Sale Price
+
+                                                            </span>
+
+                                                        </div>
+                                                    }
+
+                                                    @if (isRentPurchase)
+                                                    {
+                                                        <div class="mt-2">
+
+                                                            <span class="badge bg-info text-dark">
+
+                                                                <i class="bi bi-calendar-check"></i>
+
+                                                                Rental Order
+
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="rental-security-box">
+
+                                                            <div class="rental-security-title">
+
+                                                                <i class="bi bi-shield-check"></i>
+
+                                                                Refundable Security
+
+                                                            </div>
+
+                                                            @if (rentalSecurity > 0)
+                                                            {
+                                                                <div class="rental-security-amount">
+
+                                                                    Rs. @rentalSecurityTotal.ToString("N2")
+
+                                                                </div>
+
+                                                                @if (quantity > 1)
+                                                                {
+                                                                    <div class="rental-security-text">
+
+                                                                        Rs. @rentalSecurity.ToString("N2")
+                                                                        security per rented item
+                                                                        × @quantity item(s).
+
+                                                                    </div>
+                                                                }
+
+                                                                <div class="rental-security-text">
+
+                                                                    This amount is refundable after
+                                                                    the rented dress is returned
+                                                                    according to the shop's rental
+                                                                    conditions.
+
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="rental-security-text">
+
+                                                                    No refundable security has been
+                                                                    set for this rental product.
+
+                                                                </div>
+                                                            }
+
+                                                        </div>
+                                                    }
+
+                                                    @if (isNegotiatedPurchase)
+                                                    {
+                                                        <div class="mt-2">
+
+                                                            <span class="badge bg-success">
+
+                                                                <i class="bi bi-hand-thumbs-up"></i>
+
+                                                                Negotiated Price
+
+                                                            </span>
+
+                                                        </div>
+                                                    }
+
+                                                    @if (product.HasCustomMeasurement ||
+                                                                                            isCustomizedPurchase)
+                                                    {
+                                                        <div class="measurement-box">
+
+                                                            <div class="measurement-title">
+
+                                                                <i class="bi bi-rulers"></i>
+
+                                                                Custom Measurements
+
+                                                            </div>
+
+                                                            <div class="measurement-help">
+
+                                                                These measurements will be
+                                                                sent to the shopkeeper with
+                                                                this order.
+
+                                                            </div>
+
+                                                            @if (hasMeasurements)
+                                                            {
+                                                                <div class="measurement-content">
+
+                                                                    <div class="measurement-value">
+
+                                                                        @foreach (var part in measurement.Split(
+                                                                                                                            new[] { " | " },
+                                                                                                                            StringSplitOptions.RemoveEmptyEntries))
+                                                                        {
+                                                                            <div>
+
+                                                                                <i class="bi bi-check2"
+                                                                                   style="color:#800020;">
+                                                                                </i>
+
+                                                                                @part
+
+                                                                            </div>
+                                                                        }
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="custom-confirmation">
+
+                                                                    <i class="bi bi-check-circle-fill"></i>
+
+                                                                    Your custom measurements have
+                                                                    been saved and will be included
+                                                                    with this order.
+
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="alert alert-warning mb-0">
+
+                                                                    <i class="bi bi-exclamation-triangle"></i>
+
+                                                                    Custom measurements were not
+                                                                    found for this item.
+
+                                                                </div>
+                                                            }
+
+                                                        </div>
+                                                    }
+
+                                                </div>
+
+                                                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                                                    @if (isCustomizedPurchase)
+                                                    {
+                                                        <div class="customized-price-title">
+
+                                                            Customized Price
+
+                                                        </div>
+
+                                                        <div class="product-price">
+
+                                                            Rs. @checkoutPrice.ToString("N2")
+
+                                                        </div>
+                                                    }
+                                                    else if (isSalePurchase &&
+                                                    product.SalePrice.HasValue &&
+                                                    product.SalePrice.Value > checkoutPrice)
+                                                    {
+                                                        <div class="original-price">
+
+                                                            Rs. @product.Price.ToString("N2")
+
+                                                        </div>
+
+                                                        <div class="sale-price">
+
+                                                            Rs. @checkoutPrice.ToString("N2")
+
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="product-price">
+
+                                                            Rs. @checkoutPrice.ToString("N2")
+
+                                                        </div>
+                                                    }
+
+                                                    <div class="text-muted small mt-1">
+
+                                                        Per item
+
+                                                    </div>
+
+                                                    <div class="fw-bold mt-2">
+
+                                                        Subtotal:
+                                                        Rs. @((checkoutPrice * quantity).ToString("N2"))
+
+                                                    </div>
+
+                                                    @if (isRentPurchase &&
+                                                                                            rentalSecurityTotal > 0)
+                                                    {
+                                                        <div class="mt-2"
+                                                             style="font-size:13px;color:#800020;">
+
+                                                            <strong>
+
+                                                                Security:
+                                                                Rs. @rentalSecurityTotal.ToString("N2")
+
+                                                            </strong>
+
+                                                        </div>
+                                                    }
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+
+                                @foreach (var customItem in customCheckoutItems)
+                                {
+                                    decimal customPrice =
+                                    customItem.ShopkeeperPrice ?? 0m;
+
+                                    string customMeasurements =
+                                    !string.IsNullOrWhiteSpace(
+                                    customItem.CustomerUpdatedMeasurements)
+                                    ? customItem.CustomerUpdatedMeasurements
+                                    : customItem.Measurements;
 
                                     <div class="product-item">
 
@@ -929,396 +1310,23 @@ var customCheckoutItems =
 
                                             <div class="col-md-2 text-center">
 
-                                                @if (!string.IsNullOrEmpty(product.Image))
+                                                @if (!string.IsNullOrWhiteSpace(customItem.ReferenceImages))
                                                 {
-                                                    <img src="@Url.Content(product.Image)"
+                                                    <img src="@Url.Content(customItem.ReferenceImages)"
                                                          class="product-image"
-                                                         alt="@product.ProductName" />
+                                                         alt="@customItem.ProductName" />
                                                 }
                                                 else
                                                 {
-                                                    <div class="product-image bg-light d-flex align-items-center justify-content-center">
+                                                    <div class="product-image d-flex align-items-center justify-content-center"
+                                                         style="background:#fffaf0;border:1px solid #d4af37;">
 
-                                                        <i class="bi bi-image fs-2 text-muted"></i>
-
-                                                    </div>
-                                                }
-
-                                            </div>
-
-                                            <div class="col-md-7">
-
-                                                <div class="product-name">
-
-                                                    @product.ProductName
-
-                                                </div>
-
-                                                <div class="text-muted small mt-1">
-
-                                                    Category:
-                                                    @(product.Category ?? "N/A")
-
-                                                </div>
-
-                                                <div class="text-muted small">
-
-                                                    Subcategory:
-                                                    @(product.Subcategory ?? "N/A")
-
-                                                </div>
-
-                                                <div>
-
-                                                    <span class="purchase-type-badge">
-
-                                                        @if (isCustomizedPurchase)
-                                                        {
-                                                            <i class="bi bi-scissors"></i>
-                                                        }
-                                                        else if (isNegotiatedPurchase)
-                                                        {
-                                                            <i class="bi bi-hand-thumbs-up"></i>
-                                                        }
-                                                        else if (isRentPurchase)
-                                                        {
-                                                            <i class="bi bi-calendar-check"></i>
-                                                        }
-                                                        else if (isSalePurchase)
-                                                        {
-                                                            <i class="bi bi-tag"></i>
-                                                        }
-                                                        else
-                                                        {
-                                                            <i class="bi bi-bag"></i>
-                                                        }
-
-                                                        @purchaseType
-
-                                                    </span>
-
-                                                    <span class="quantity-badge">
-
-                                                        <i class="bi bi-box-seam"></i>
-
-                                                        Quantity: @quantity
-
-                                                    </span>
-
-                                                </div>
-
-                                                @if (isCustomizedPurchase)
-                                                {
-                                                    <div>
-
-                                                        <span class="customized-badge">
-
-                                                            <i class="bi bi-scissors"></i>
-
-                                                            Customized Product
-
-                                                        </span>
-
-                                                    </div>
-
-                                                    <div class="customized-price-box">
-
-                                                        <div class="customized-price-title">
-
-                                                            <i class="bi bi-check-circle-fill"></i>
-
-                                                            Accepted Customized Price
-
-                                                        </div>
-
-                                                        <div class="customized-price-value">
-
-                                                            Rs. @checkoutPrice.ToString("N2")
-
-                                                        </div>
-
-                                                        <div class="small text-muted mt-1">
-
-                                                            This price was accepted after
-                                                            discussion with the shopkeeper.
-
-                                                        </div>
+                                                        <i class="bi bi-scissors"
+                                                           style="font-size:36px;color:#800020;">
+                                                        </i>
 
                                                     </div>
                                                 }
-
-                                                @if (isSalePurchase)
-                                                {
-                                                    <div class="mt-2">
-
-                                                        <span class="badge bg-danger">
-
-                                                            <i class="bi bi-tag-fill"></i>
-
-                                                            Sale Price
-
-                                                        </span>
-
-                                                    </div>
-                                                }
-
-                                                @if (isRentPurchase)
-                                                {
-                                                    <div class="mt-2">
-
-                                                        <span class="badge bg-info text-dark">
-
-                                                            <i class="bi bi-calendar-check"></i>
-
-                                                            Rental Order
-
-                                                        </span>
-
-                                                    </div>
-
-                                                    <div class="rental-security-box">
-
-                                                        <div class="rental-security-title">
-
-                                                            <i class="bi bi-shield-check"></i>
-
-                                                            Refundable Security
-
-                                                        </div>
-
-                                                        @if (rentalSecurity > 0)
-                                                        {
-                                                            <div class="rental-security-amount">
-
-                                                                Rs. @rentalSecurityTotal.ToString("N2")
-
-                                                            </div>
-
-                                                            @if (quantity > 1)
-                                                            {
-                                                                <div class="rental-security-text">
-
-                                                                    Rs. @rentalSecurity.ToString("N2")
-                                                                    security per rented item
-                                                                    × @quantity item(s).
-
-                                                                </div>
-                                                            }
-
-                                                            <div class="rental-security-text">
-
-                                                                This amount is refundable after
-                                                                the rented dress is returned
-                                                                according to the shop's rental
-                                                                conditions.
-
-                                                            </div>
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="rental-security-text">
-
-                                                                No refundable security has been
-                                                                set for this rental product.
-
-                                                            </div>
-                                                        }
-
-                                                    </div>
-                                                }
-
-                                                @if (isNegotiatedPurchase)
-                                                {
-                                                    <div class="mt-2">
-
-                                                        <span class="badge bg-success">
-
-                                                            <i class="bi bi-hand-thumbs-up"></i>
-
-                                                            Negotiated Price
-
-                                                        </span>
-
-                                                    </div>
-                                                }
-
-                                                @if (product.HasCustomMeasurement ||
-                                                     isCustomizedPurchase)
-                                                {
-                                                    <div class="measurement-box">
-
-                                                        <div class="measurement-title">
-
-                                                            <i class="bi bi-rulers"></i>
-
-                                                            Custom Measurements
-
-                                                        </div>
-
-                                                        <div class="measurement-help">
-
-                                                            These measurements will be
-                                                            sent to the shopkeeper with
-                                                            this order.
-
-                                                        </div>
-
-                                                        @if (hasMeasurements)
-                                                        {
-                                                            <div class="measurement-content">
-
-                                                                <div class="measurement-value">
-
-                                                                    @foreach (var part in measurement.Split(
-                                                                        new[] { " | " },
-                                                                        StringSplitOptions.RemoveEmptyEntries))
-                                                                    {
-                                                                        <div>
-
-                                                                            <i class="bi bi-check2"
-                                                                               style="color:#800020;">
-                                                                            </i>
-
-                                                                            @part
-
-                                                                        </div>
-                                                                    }
-
-                                                                </div>
-
-                                                            </div>
-
-                                                            <div class="custom-confirmation">
-
-                                                                <i class="bi bi-check-circle-fill"></i>
-
-                                                                Your custom measurements have
-                                                                been saved and will be included
-                                                                with this order.
-
-                                                            </div>
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="alert alert-warning mb-0">
-
-                                                                <i class="bi bi-exclamation-triangle"></i>
-
-                                                                Custom measurements were not
-                                                                found for this item.
-
-                                                            </div>
-                                                        }
-
-                                                    </div>
-                                                }
-
-                                            </div>
-
-                                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
-
-                                                @if (isCustomizedPurchase)
-                                                {
-                                                    <div class="customized-price-title">
-
-                                                        Customized Price
-
-                                                    </div>
-
-                                                    <div class="product-price">
-
-                                                        Rs. @checkoutPrice.ToString("N2")
-
-                                                    </div>
-                                                }
-                                                else if (isSalePurchase &&
-                                                         product.SalePrice.HasValue &&
-                                                         product.SalePrice.Value > checkoutPrice)
-                                                {
-                                                    <div class="original-price">
-
-                                                        Rs. @product.Price.ToString("N2")
-
-                                                    </div>
-
-                                                    <div class="sale-price">
-
-                                                        Rs. @checkoutPrice.ToString("N2")
-
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="product-price">
-
-                                                        Rs. @checkoutPrice.ToString("N2")
-
-                                                    </div>
-                                                }
-
-                                                <div class="text-muted small mt-1">
-
-                                                    Per item
-
-                                                </div>
-
-                                                <div class="fw-bold mt-2">
-
-                                                    Subtotal:
-                                                    Rs. @((checkoutPrice * quantity).ToString("N2"))
-
-                                                </div>
-
-                                                @if (isRentPurchase &&
-                                                     rentalSecurityTotal > 0)
-                                                {
-                                                    <div class="mt-2"
-                                                         style="font-size:13px;color:#800020;">
-
-                                                        <strong>
-
-                                                            Security:
-                                                            Rs. @rentalSecurityTotal.ToString("N2")
-
-                                                        </strong>
-
-                                                    </div>
-                                                }
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                }
-                            }
-
-                            @foreach (var customItem in customCheckoutItems)
-                            {
-                                decimal customPrice =
-                                    customItem.ShopkeeperPrice ?? 0m;
-
-                                string customMeasurements =
-                                    !string.IsNullOrWhiteSpace(
-                                        customItem.CustomerUpdatedMeasurements)
-                                        ? customItem.CustomerUpdatedMeasurements
-                                        : customItem.Measurements;
-
-                                <div class="product-item">
-
-                                    <div class="row align-items-start">
-
-                                        <div class="col-md-2 text-center">
-
-                                            <div class="product-image d-flex align-items-center justify-content-center"
-                                                 style="background:#fffaf0;
-                                                        border:1px solid #d4af37;">
-
-                                                <i class="bi bi-scissors"
-                                                   style="font-size:36px;color:#800020;">
-                                                </i>
-
-                                            </div>
 
                                         </div>
 
@@ -1341,804 +1349,806 @@ var customCheckoutItems =
 
                                                 Color:
                                                 @(string.IsNullOrWhiteSpace(customItem.Color)
-                                                    ? "Not specified"
-                                                    : customItem.Color)
+                                                                                            ? "Not specified"
+                                                                                            : customItem.Color)
 
-                                            </div>
+                                        </div>
 
-                                            <div>
+                                                <div>
 
-                                                <span class="purchase-type-badge">
+                                                    <span class="purchase-type-badge">
 
-                                                    <i class="bi bi-scissors"></i>
+                                                        <i class="bi bi-scissors"></i>
 
-                                                    Customized
+                                                        Customized
 
-                                                </span>
+                                                    </span>
 
-                                                <span class="quantity-badge">
+                                                    <span class="quantity-badge">
 
-                                                    <i class="bi bi-box-seam"></i>
+                                                        <i class="bi bi-box-seam"></i>
 
-                                                    Quantity: 1
+                                                        Quantity: 1
 
-                                                </span>
-
-                                            </div>
-
-                                            <span class="customized-badge">
-
-                                                <i class="bi bi-check-circle"></i>
-
-                                                Accepted Custom Design
-
-                                            </span>
-
-                                            <div class="custom-request-box">
-
-                                                <div class="custom-request-title">
-
-                                                    <i class="bi bi-scissors me-1"></i>
-
-                                                    Custom Design
+                                                    </span>
 
                                                 </div>
 
-                                                <div class="custom-request-detail">
+                                                <span class="customized-badge">
 
-                                                    <strong>Shop:</strong>
+                                                    <i class="bi bi-check-circle"></i>
 
-                                                    @(customItem.Shop?.ShopName ?? "Shop")
+                                                    Accepted Custom Design
+
+                                                </span>
+
+                                                <div class="custom-request-box">
+
+                                                    <div class="custom-request-title">
+
+                                                        <i class="bi bi-scissors me-1"></i>
+
+                                                        Custom Design
+
+                                                    </div>
+
+                                                    <div class="custom-request-detail">
+
+                                                        <strong>Shop:</strong>
+
+                                                        @(customItem.Shop?.ShopName ?? "Shop")
+
+                                                    </div>
+
+                                                    <div class="custom-request-detail">
+
+                                                        <strong>Price:</strong>
+
+                                                        Rs. @customPrice.ToString("N2")
+
+                                                    </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(customItem.ShopkeeperNotes))
+                                                    {
+                                                        <div class="custom-request-detail mt-2">
+
+                                                            <strong>Shopkeeper Notes:</strong>
+
+                                                            @customItem.ShopkeeperNotes
+
+                                                        </div>
+                                                    }
 
                                                 </div>
 
-                                                <div class="custom-request-detail">
+                                                <div class="measurement-box">
 
-                                                    <strong>Price:</strong>
+                                                    <div class="measurement-title">
+
+                                                        <i class="bi bi-rulers"></i>
+
+                                                        Custom Measurements
+
+                                                    </div>
+
+                                                    <div class="measurement-help">
+
+                                                        These are the measurements
+                                                        accepted for your customized
+                                                        design.
+
+                                                    </div>
+
+                                                    <div class="measurement-content">
+
+                                                        @if (!string.IsNullOrWhiteSpace(customMeasurements))
+                                                        {
+                                                            <div class="measurement-value">
+
+                                                                @foreach (var part in customMeasurements.Split(
+                                                                                                                    new[] { " | " },
+                                                                                                                    StringSplitOptions.RemoveEmptyEntries))
+                                                                {
+                                                                    <div>
+
+                                                                        <i class="bi bi-check2"
+                                                                           style="color:#800020;">
+                                                                        </i>
+
+                                                                        @part
+
+                                                                    </div>
+                                                                }
+
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">
+
+                                                                No measurements provided.
+
+                                                            </span>
+                                                        }
+
+                                                    </div>
+
+                                                    <div class="custom-confirmation">
+
+                                                        <i class="bi bi-check-circle-fill"></i>
+
+                                                        This customized item has been
+                                                        accepted by you and its agreed
+                                                        price will be included in the order.
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                                                <div class="customized-price-title">
+
+                                                    Customized Price
+
+                                                </div>
+
+                                                <div class="product-price">
 
                                                     Rs. @customPrice.ToString("N2")
 
                                                 </div>
 
-                                                @if (!string.IsNullOrWhiteSpace(customItem.ShopkeeperNotes))
-                                                {
-                                                    <div class="custom-request-detail mt-2">
+                                                <div class="text-muted small mt-1">
 
-                                                        <strong>Shopkeeper Notes:</strong>
-
-                                                        @customItem.ShopkeeperNotes
-
-                                                    </div>
-                                                }
-
-                                            </div>
-
-                                            <div class="measurement-box">
-
-                                                <div class="measurement-title">
-
-                                                    <i class="bi bi-rulers"></i>
-
-                                                    Custom Measurements
+                                                    Per item
 
                                                 </div>
 
-                                                <div class="measurement-help">
+                                                <div class="fw-bold mt-2">
 
-                                                    These are the measurements
-                                                    accepted for your customized
-                                                    design.
-
-                                                </div>
-
-                                                <div class="measurement-content">
-
-                                                    @if (!string.IsNullOrWhiteSpace(customMeasurements))
-                                                    {
-                                                        <div class="measurement-value">
-
-                                                            @foreach (var part in customMeasurements.Split(
-                                                                new[] { " | " },
-                                                                StringSplitOptions.RemoveEmptyEntries))
-                                                            {
-                                                                <div>
-
-                                                                    <i class="bi bi-check2"
-                                                                       style="color:#800020;">
-                                                                    </i>
-
-                                                                    @part
-
-                                                                </div>
-                                                            }
-
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">
-
-                                                            No measurements provided.
-
-                                                        </span>
-                                                    }
+                                                    Subtotal:
+                                                    Rs. @customPrice.ToString("N2")
 
                                                 </div>
-
-                                                <div class="custom-confirmation">
-
-                                                    <i class="bi bi-check-circle-fill"></i>
-
-                                                    This customized item has been
-                                                    accepted by you and its agreed
-                                                    price will be included in the order.
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div class="col-md-3 text-md-end mt-3 mt-md-0">
-
-                                            <div class="customized-price-title">
-
-                                                Customized Price
-
-                                            </div>
-
-                                            <div class="product-price">
-
-                                                Rs. @customPrice.ToString("N2")
-
-                                            </div>
-
-                                            <div class="text-muted small mt-1">
-
-                                                Per item
-
-                                            </div>
-
-                                            <div class="fw-bold mt-2">
-
-                                                Subtotal:
-                                                Rs. @customPrice.ToString("N2")
 
                                             </div>
 
                                         </div>
 
                                     </div>
-
-                                </div>
-                            }
-
-                        </div>
-
-                    </div>
-
-                    <div class="checkout-card">
-
-                        <div class="card-header-custom">
-
-                            <i class="bi bi-wallet2"></i>
-
-                            Payment Method
-
-                        </div>
-
-                        <div class="card-body-custom">
-
-                            <label class="payment-option d-block">
-
-                                <input type="radio"
-                                       name="PaymentMethod"
-                                       value="Cash on Delivery"
-                                       checked
-                                       onchange="showPaymentDetails('cod')" />
-
-                                <strong>
-
-                                    <i class="bi bi-cash-coin"></i>
-
-                                    Cash on Delivery
-
-                                </strong>
-
-                                <div class="small text-muted ms-4 mt-1">
-
-                                    Pay the complete order amount when
-                                    your order is delivered.
-
-                                </div>
-
-                            </label>
-
-                            <label class="payment-option d-block">
-
-                                <input type="radio"
-                                       name="PaymentMethod"
-                                       value="Easypaisa"
-                                       onchange="showPaymentDetails('easypaisa')" />
-
-                                <strong>
-
-                                    <i class="bi bi-phone"></i>
-
-                                    Easypaisa
-
-                                </strong>
-
-                                <div class="small text-muted ms-4 mt-1">
-
-                                    Send the payment to the Admin Easypaisa
-                                    account and upload your transaction proof.
-
-                                </div>
-
-                            </label>
-
-                            <label class="payment-option d-block">
-
-                                <input type="radio"
-                                       name="PaymentMethod"
-                                       value="JazzCash"
-                                       onchange="showPaymentDetails('jazzcash')" />
-
-                                <strong>
-
-                                    <i class="bi bi-phone"></i>
-
-                                    JazzCash
-
-                                </strong>
-
-                                <div class="small text-muted ms-4 mt-1">
-
-                                    Send the payment to the Admin JazzCash
-                                    account and upload your transaction proof.
-
-                                </div>
-
-                            </label>
-
-                            <div id="codDetails"
-                                 class="online-payment-box">
-
-                                <div class="payment-instruction">
-
-                                    <strong>
-
-                                        <i class="bi bi-info-circle"></i>
-
-                                        Cash on Delivery
-
-                                    </strong>
-
-                                    <p class="mb-0 mt-2">
-
-                                        You will pay
-
-                                        <strong>
-                                            Rs. @grandTotal.ToString("N2")
-                                        </strong>
-
-                                        to the delivery boy when your
-                                        order arrives.
-
-                                    </p>
-
-                                    @if (refundableSecurity > 0)
-                                    {
-                                        <p class="mb-0 mt-2">
-
-                                            This amount includes
-
-                                            <strong>
-                                                Rs. @refundableSecurity.ToString("N2")
-                                            </strong>
-
-                                            refundable rental security.
-
-                                        </p>
-                                    }
-
-                                </div>
-
-                            </div>
-
-                            <div id="onlinePaymentDetails"
-                                 class="online-payment-box"
-                                 style="display:none;">
-
-                                <div class="payment-instruction">
-
-                                    <strong>
-
-                                        <i class="bi bi-exclamation-circle"></i>
-
-                                        Online Payment Instructions
-
-                                    </strong>
-
-                                    <p class="mb-2 mt-2">
-
-                                        Transfer
-
-                                        <strong>
-                                            Rs. @grandTotal.ToString("N2")
-                                        </strong>
-
-                                        to the Admin account using the
-                                        selected payment method.
-
-                                    </p>
-
-                                    @if (refundableSecurity > 0)
-                                    {
-                                        <p class="mb-2">
-
-                                            This payment includes
-
-                                            <strong>
-                                                Rs. @refundableSecurity.ToString("N2")
-                                            </strong>
-
-                                            refundable rental security.
-
-                                        </p>
-                                    }
-
-                                    <p class="mb-0">
-
-                                        After payment, enter your
-                                        transaction ID and upload a clear
-                                        screenshot of the payment.
-
-                                    </p>
-
-                                </div>
-
-                                <div id="easypaisaAccountBox"
-                                     class="payment-account-box"
-                                     style="display:none;">
-
-                                    <div class="payment-account-title">
-
-                                        <i class="bi bi-phone-fill"></i>
-
-                                        Admin Easypaisa Account
-
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(easypaisaAccount))
-                                    {
-                                        <div class="payment-account-number">
-
-                                            @easypaisaAccount
-
-                                        </div>
-
-                                        <div class="payment-send-amount">
-
-                                            <i class="bi bi-cash-stack"></i>
-
-                                            Send Amount:
-                                            Rs. @grandTotal.ToString("N2")
-
-                                        </div>
-
-                                        <div class="payment-account-help">
-
-                                            Please send the complete payment
-                                            amount to this Admin Easypaisa
-                                            account before entering your
-                                            transaction details.
-
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="alert alert-warning mb-0">
-
-                                            <i class="bi bi-exclamation-triangle"></i>
-
-                                            Admin Easypaisa payment account
-                                            is currently not configured.
-
-                                        </div>
-                                    }
-
-                                </div>
-
-                                <div id="jazzcashAccountBox"
-                                     class="payment-account-box"
-                                     style="display:none;">
-
-                                    <div class="payment-account-title">
-
-                                        <i class="bi bi-phone-fill"></i>
-
-                                        Admin JazzCash Account
-
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(jazzCashAccount))
-                                    {
-                                        <div class="payment-account-number">
-
-                                            @jazzCashAccount
-
-                                        </div>
-
-                                        <div class="payment-send-amount">
-
-                                            <i class="bi bi-cash-stack"></i>
-
-                                            Send Amount:
-                                            Rs. @grandTotal.ToString("N2")
-
-                                        </div>
-
-                                        <div class="payment-account-help">
-
-                                            Please send the complete payment
-                                            amount to this Admin JazzCash
-                                            account before entering your
-                                            transaction details.
-
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="alert alert-warning mb-0">
-
-                                            <i class="bi bi-exclamation-triangle"></i>
-
-                                            Admin JazzCash payment account
-                                            is currently not configured.
-
-                                        </div>
-                                    }
-
-                                </div>
-
-                                <div class="payment-warning">
-
-                                    <i class="bi bi-shield-exclamation"></i>
-
-                                    <strong>Important:</strong>
-
-                                    Your order will remain
-                                    <strong>Pending</strong>
-                                    until the Admin verifies your payment
-                                    transaction.
-
-                                </div>
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-
-                                        Transaction ID
-
-                                        <span class="required">*</span>
-
-                                    </label>
-
-                                    <input type="text"
-                                           name="TransactionId"
-                                           id="transactionId"
-                                           class="form-control"
-                                           maxlength="100"
-                                           placeholder="Enter transaction ID" />
-
-                                </div>
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-
-                                        Payment Screenshot
-
-                                        <span class="required">*</span>
-
-                                    </label>
-
-                                    <input type="file"
-                                           name="TransactionImage"
-                                           id="transactionImage"
-                                           class="form-control"
-                                           accept="image/png,image/jpeg,image/jpg,image/webp" />
-
-                                    <small class="text-muted">
-
-                                        JPG, JPEG, PNG or WEBP, maximum 5 MB.
-
-                                    </small>
-
-                                </div>
+                                }
 
                             </div>
 
                         </div>
 
-                    </div>
-
-                    @if (refundableSecurity > 0)
-                    {
                         <div class="checkout-card">
 
                             <div class="card-header-custom">
 
-                                <i class="bi bi-arrow-repeat"></i>
+                                <i class="bi bi-wallet2"></i>
 
-                                Rental Security Refund
+                                Payment Method
 
                             </div>
 
                             <div class="card-body-custom">
 
-                                <div class="mb-3">
+                                <label class="payment-option d-block">
 
-                                    <label for="refundPreferenceMethod"
-                                           class="form-label">
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="Cash on Delivery"
+                                           checked
+                                           onchange="showPaymentDetails('cod')" />
 
-                                        Refund Method
+                                    <strong>
 
-                                        <span class="required">*</span>
+                                        <i class="bi bi-cash-coin"></i>
 
-                                    </label>
+                                        Cash on Delivery
 
-                                    <select name="RefundPreferenceMethod"
-                                            id="refundPreferenceMethod"
-                                            class="form-select">
+                                    </strong>
 
-                                        <option value="">
-                                            -- Select Refund Method --
-                                        </option>
+                                    <div class="small text-muted ms-4 mt-1">
 
-                                        <option value="Easypaisa">
-                                            Easypaisa
-                                        </option>
+                                        Pay the complete order amount when
+                                        your order is delivered.
 
-                                        <option value="JazzCash">
-                                            JazzCash
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                                <div class="mb-3">
-
-                                    <label for="refundPreferenceAccount"
-                                           class="form-label">
-
-                                        Refund Account Number
-
-                                        <span class="required">*</span>
-
-                                    </label>
-
-                                    <input type="text"
-                                           name="RefundPreferenceAccount"
-                                           id="refundPreferenceAccount"
-                                           class="form-control"
-                                           maxlength="20"
-                                           placeholder="Enter Easypaisa or JazzCash account number" />
-
-                                    <small class="text-muted">
-
-                                        This account will be used for
-                                        refundable rental security.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                    }
-
-                    <div class="checkout-card">
-
-                        <div class="card-body-custom">
-
-                            <div class="form-check">
-
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       id="terms"
-                                       required />
-
-                                <label class="form-check-label"
-                                       for="terms">
-
-                                    I confirm that the delivery address,
-                                    saved measurements and payment
-                                    information provided above are correct.
-
-                                    <span class="required">*</span>
+                                    </div>
 
                                 </label>
 
+                                <label class="payment-option d-block">
+
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="Easypaisa"
+                                           onchange="showPaymentDetails('easypaisa')" />
+
+                                    <strong>
+
+                                        <i class="bi bi-phone"></i>
+
+                                        Easypaisa
+
+                                    </strong>
+
+                                    <div class="small text-muted ms-4 mt-1">
+
+                                        Send the payment to the Admin Easypaisa
+                                        account and upload your transaction proof.
+
+                                    </div>
+
+                                </label>
+
+                                <label class="payment-option d-block">
+
+                                    <input type="radio"
+                                           name="PaymentMethod"
+                                           value="JazzCash"
+                                           onchange="showPaymentDetails('jazzcash')" />
+
+                                    <strong>
+
+                                        <i class="bi bi-phone"></i>
+
+                                        JazzCash
+
+                                    </strong>
+
+                                    <div class="small text-muted ms-4 mt-1">
+
+                                        Send the payment to the Admin JazzCash
+                                        account and upload your transaction proof.
+
+                                    </div>
+
+                                </label>
+
+                                <div id="codDetails"
+                                     class="online-payment-box">
+
+                                    <div class="payment-instruction">
+
+                                        <strong>
+
+                                            <i class="bi bi-info-circle"></i>
+
+                                            Cash on Delivery
+
+                                        </strong>
+
+                                        <p class="mb-0 mt-2">
+
+                                            You will pay
+
+                                            <strong>
+                                                Rs. @grandTotal.ToString("N2")
+                                            </strong>
+
+                                            to the delivery boy when your
+                                            order arrives.
+
+                                        </p>
+
+                                        @if (refundableSecurity > 0)
+                                        {
+                                            <p class="mb-0 mt-2">
+
+                                                This amount includes
+
+                                                <strong>
+                                                    Rs. @refundableSecurity.ToString("N2")
+                                                </strong>
+
+                                                refundable rental security.
+
+                                            </p>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                                <div id="onlinePaymentDetails"
+                                     class="online-payment-box"
+                                     style="display:none;">
+
+                                    <div class="payment-instruction">
+
+                                        <strong>
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            Online Payment Instructions
+
+                                        </strong>
+
+                                        <p class="mb-2 mt-2">
+
+                                            Transfer
+
+                                            <strong>
+                                                Rs. @grandTotal.ToString("N2")
+                                            </strong>
+
+                                            to the Admin account using the
+                                            selected payment method.
+
+                                        </p>
+
+                                        @if (refundableSecurity > 0)
+                                        {
+                                            <p class="mb-2">
+
+                                                This payment includes
+
+                                                <strong>
+                                                    Rs. @refundableSecurity.ToString("N2")
+                                                </strong>
+
+                                                refundable rental security.
+
+                                            </p>
+                                        }
+
+                                        <p class="mb-0">
+
+                                            After payment, enter your
+                                            transaction ID and upload a clear
+                                            screenshot of the payment.
+
+                                        </p>
+
+                                    </div>
+
+                                    <div id="easypaisaAccountBox"
+                                         class="payment-account-box"
+                                         style="display:none;">
+
+                                        <div class="payment-account-title">
+
+                                            <i class="bi bi-phone-fill"></i>
+
+                                            Admin Easypaisa Account
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(easypaisaAccount))
+                                        {
+                                            <div class="payment-account-number">
+
+                                                @easypaisaAccount
+
+                                            </div>
+
+                                            <div class="payment-send-amount">
+
+                                                <i class="bi bi-cash-stack"></i>
+
+                                                Send Amount:
+                                                Rs. @grandTotal.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payment-account-help">
+
+                                                Please send the complete payment
+                                                amount to this Admin Easypaisa
+                                                account before entering your
+                                                transaction details.
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-warning mb-0">
+
+                                                <i class="bi bi-exclamation-triangle"></i>
+
+                                                Admin Easypaisa payment account
+                                                is currently not configured.
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                    <div id="jazzcashAccountBox"
+                                         class="payment-account-box"
+                                         style="display:none;">
+
+                                        <div class="payment-account-title">
+
+                                            <i class="bi bi-phone-fill"></i>
+
+                                            Admin JazzCash Account
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(jazzCashAccount))
+                                        {
+                                            <div class="payment-account-number">
+
+                                                @jazzCashAccount
+
+                                            </div>
+
+                                            <div class="payment-send-amount">
+
+                                                <i class="bi bi-cash-stack"></i>
+
+                                                Send Amount:
+                                                Rs. @grandTotal.ToString("N2")
+
+                                            </div>
+
+                                            <div class="payment-account-help">
+
+                                                Please send the complete payment
+                                                amount to this Admin JazzCash
+                                                account before entering your
+                                                transaction details.
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-warning mb-0">
+
+                                                <i class="bi bi-exclamation-triangle"></i>
+
+                                                Admin JazzCash payment account
+                                                is currently not configured.
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                    <div class="payment-warning">
+
+                                        <i class="bi bi-shield-exclamation"></i>
+
+                                        <strong>Important:</strong>
+
+                                        Your order will remain
+                                        <strong>Pending</strong>
+                                        until the Admin verifies your payment
+                                        transaction.
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Transaction ID
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="TransactionId"
+                                               id="transactionId"
+                                               class="form-control"
+                                               maxlength="100"
+                                               placeholder="Enter transaction ID" />
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+
+                                            Payment Screenshot
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="file"
+                                               name="TransactionImage"
+                                               id="transactionImage"
+                                               class="form-control"
+                                               accept="image/png,image/jpeg,image/jpg,image/webp" />
+
+                                        <small class="text-muted">
+
+                                            JPG, JPEG, PNG or WEBP, maximum 5 MB.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
                             </div>
-
-                            <div id="termsError"
-                                 class="field-error">
-
-                                Please accept the confirmation before
-                                placing the order.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <a asp-controller="Customer"
-                           asp-action="Cart"
-                           class="back-btn">
-
-                            <i class="bi bi-arrow-left"></i>
-
-                            Back to Cart
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <div class="col-lg-4">
-
-                    <div class="summary-card">
-
-                        <div class="summary-title">
-
-                            <i class="bi bi-receipt"></i>
-
-                            Order Summary
-
-                        </div>
-
-                        <div class="summary-row">
-
-                            <span class="summary-label">
-
-                                Dress/Product Total
-
-                            </span>
-
-                            <span class="summary-value">
-
-                                Rs. @productTotal.ToString("N2")
-
-                            </span>
-
-                        </div>
-
-                        <div class="summary-row">
-
-                            <span class="summary-label">
-
-                                Delivery Charges
-
-                            </span>
-
-                            <span class="summary-value">
-
-                                Rs. @deliveryCharges.ToString("N2")
-
-                            </span>
-
-                        </div>
-
-                        <div class="summary-row">
-
-                            <span class="summary-label">
-
-                                Platform Service Fee (10%)
-
-                            </span>
-
-                            <span class="summary-value">
-
-                                Rs. @serviceFee.ToString("N2")
-
-                            </span>
 
                         </div>
 
                         @if (refundableSecurity > 0)
                         {
-                            <div class="summary-row">
+                            <div class="checkout-card">
 
-                                <span class="summary-label">
+                                <div class="card-header-custom">
 
-                                    <i class="bi bi-shield-check"
-                                       style="color:#800020;"></i>
+                                    <i class="bi bi-arrow-repeat"></i>
 
-                                    Refundable Security
+                                    Rental Security Refund
 
-                                </span>
+                                </div>
 
-                                <span class="summary-value security-summary">
+                                <div class="card-body-custom">
 
-                                    Rs. @refundableSecurity.ToString("N2")
+                                    <div class="mb-3">
 
-                                </span>
+                                        <label for="refundPreferenceMethod"
+                                               class="form-label">
 
-                            </div>
+                                            Refund Method
 
-                            <div class="security-refund-note">
+                                            <span class="required">*</span>
 
-                                <i class="bi bi-info-circle"></i>
+                                        </label>
 
-                                <strong>Refundable Rental Security:</strong>
+                                        <select name="RefundPreferenceMethod"
+                                                id="refundPreferenceMethod"
+                                                class="form-select">
 
-                                This amount is collected with the rental
-                                order and is refundable after the rented
-                                dress is returned according to the
-                                shop's rental conditions.
+                                            <option value="">
+                                                -- Select Refund Method --
+                                            </option>
+
+                                            <option value="Easypaisa">
+                                                Easypaisa
+                                            </option>
+
+                                            <option value="JazzCash">
+                                                JazzCash
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label for="refundPreferenceAccount"
+                                               class="form-label">
+
+                                            Refund Account Number
+
+                                            <span class="required">*</span>
+
+                                        </label>
+
+                                        <input type="text"
+                                               name="RefundPreferenceAccount"
+                                               id="refundPreferenceAccount"
+                                               class="form-control"
+                                               maxlength="20"
+                                               placeholder="Enter Easypaisa or JazzCash account number" />
+
+                                        <small class="text-muted">
+
+                                            This account will be used for
+                                            refundable rental security.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
 
                             </div>
                         }
 
-                        <div class="grand-total">
+                        <div class="checkout-card">
 
-                            <span>
-                                Final Total
-                            </span>
+                            <div class="card-body-custom">
 
-                            <span>
-                                Rs. @grandTotal.ToString("N2")
-                            </span>
+                                <div class="form-check">
 
-                        </div>
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="terms"
+                                           required />
 
-                        <div class="mt-3">
+                                    <label class="form-check-label"
+                                           for="terms">
 
-                            <div class="small text-muted">
+                                        I confirm that the delivery address,
+                                        saved measurements and payment
+                                        information provided above are correct.
 
-                                Selected Payment Method
+                                        <span class="required">*</span>
+
+                                    </label>
+
+                                </div>
+
+                                <div id="termsError"
+                                     class="field-error">
+
+                                    Please accept the confirmation before
+                                    placing the order.
+
+                                </div>
 
                             </div>
 
-                            <div id="selectedPaymentMethod"
-                                 class="fw-bold mt-1">
+                        </div>
 
-                                <span class="badge bg-warning text-dark">
+                        <div class="mb-4">
 
-                                    <i class="bi bi-cash"></i>
+                            <a asp-controller="Customer"
+                               asp-action="Cart"
+                               class="back-btn">
 
-                                    Cash on Delivery
+                                <i class="bi bi-arrow-left"></i>
+
+                                Back to Cart
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="summary-card">
+
+                            <div class="summary-title">
+
+                                <i class="bi bi-receipt"></i>
+
+                                Order Summary
+
+                            </div>
+
+                            <div class="summary-row">
+
+                                <span class="summary-label">
+
+                                    Dress/Product Total
+
+                                </span>
+
+                                <span class="summary-value">
+
+                                    Rs. @productTotal.ToString("N2")
 
                                 </span>
 
                             </div>
 
-                        </div>
+                            <div class="summary-row">
 
-                        <button type="submit"
-                                id="placeOrderButton"
-                                class="place-order-btn">
+                                <span class="summary-label">
 
-                            <i class="bi bi-check-circle"></i>
+                                    Delivery Charges
 
-                            Place Order
+                                </span>
 
-                        </button>
+                                <span class="summary-value">
 
-                        <div class="security-note">
+                                    Rs. @deliveryCharges.ToString("N2")
 
-                            <i class="bi bi-shield-check"></i>
+                                </span>
 
-                            Your payment information is handled securely.
+                            </div>
+
+                            <div class="summary-row">
+
+                                <span class="summary-label">
+
+                                    Platform Service Fee (10%)
+
+                                </span>
+
+                                <span class="summary-value">
+
+                                    Rs. @serviceFee.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                            @if (refundableSecurity > 0)
+                            {
+                                <div class="summary-row">
+
+                                    <span class="summary-label">
+
+                                        <i class="bi bi-shield-check"
+                                           style="color:#800020;"></i>
+
+                                        Refundable Security
+
+                                    </span>
+
+                                    <span class="summary-value security-summary">
+
+                                        Rs. @refundableSecurity.ToString("N2")
+
+                                    </span>
+
+                                </div>
+
+                                <div class="security-refund-note">
+
+                                    <i class="bi bi-info-circle"></i>
+
+                                    <strong>Refundable Rental Security:</strong>
+
+                                    This amount is collected with the rental
+                                    order and is refundable after the rented
+                                    dress is returned according to the
+                                    shop's rental conditions.
+
+                                </div>
+                            }
+
+                            <div class="grand-total">
+
+                                <span>
+                                    Final Total
+                                </span>
+
+                                <span>
+                                    Rs. @grandTotal.ToString("N2")
+                                </span>
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <div class="small text-muted">
+
+                                    Selected Payment Method
+
+                                </div>
+
+                                <div id="selectedPaymentMethod"
+                                     class="fw-bold mt-1">
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        <i class="bi bi-cash"></i>
+
+                                        Cash on Delivery
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <button type="submit"
+                                    id="placeOrderButton"
+                                    class="place-order-btn">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Place Order
+
+                            </button>
+
+                            <div class="security-note">
+
+                                <i class="bi bi-shield-check"></i>
+
+                                Your payment information is handled securely.
+
+                            </div>
 
                         </div>
 
@@ -2146,333 +2156,331 @@ var customCheckoutItems =
 
                 </div>
 
-            </div>
-
-        </form>
-
-    }
-
-</div>
-
-<script>
-
-    function showPaymentDetails(method) {
-
-        var onlineBox =
-            document.getElementById("onlinePaymentDetails");
-
-        var codBox =
-            document.getElementById("codDetails");
-
-        var transactionId =
-            document.getElementById("transactionId");
-
-        var transactionImage =
-            document.getElementById("transactionImage");
-
-        var selectedMethod =
-            document.getElementById("selectedPaymentMethod");
-
-        var easypaisaAccountBox =
-            document.getElementById("easypaisaAccountBox");
-
-        var jazzcashAccountBox =
-            document.getElementById("jazzcashAccountBox");
-
-        if (method === "cod") {
-
-            codBox.style.display = "block";
-
-            onlineBox.style.display = "none";
-
-            easypaisaAccountBox.style.display = "none";
-
-            jazzcashAccountBox.style.display = "none";
-
-            transactionId.required = false;
-
-            transactionImage.required = false;
-
-            selectedMethod.innerHTML =
-                '<span class="badge bg-warning text-dark">' +
-                '<i class="bi bi-cash"></i> Cash on Delivery' +
-                '</span>';
+            </form>
 
         }
-        else if (method === "easypaisa") {
 
-            codBox.style.display = "none";
+    </div>
 
-            onlineBox.style.display = "block";
+    <script>
 
-            easypaisaAccountBox.style.display = "block";
+        function showPaymentDetails(method) {
 
-            jazzcashAccountBox.style.display = "none";
+            var onlineBox =
+                document.getElementById("onlinePaymentDetails");
 
-            transactionId.required = true;
+            var codBox =
+                document.getElementById("codDetails");
 
-            transactionImage.required = true;
+            var transactionId =
+                document.getElementById("transactionId");
 
-            selectedMethod.innerHTML =
-                '<span class="badge bg-success">' +
-                '<i class="bi bi-phone"></i> Easypaisa' +
-                '</span>';
+            var transactionImage =
+                document.getElementById("transactionImage");
 
+            var selectedMethod =
+                document.getElementById("selectedPaymentMethod");
+
+            var easypaisaAccountBox =
+                document.getElementById("easypaisaAccountBox");
+
+            var jazzcashAccountBox =
+                document.getElementById("jazzcashAccountBox");
+
+            if (method === "cod") {
+
+                codBox.style.display = "block";
+
+                onlineBox.style.display = "none";
+
+                easypaisaAccountBox.style.display = "none";
+
+                jazzcashAccountBox.style.display = "none";
+
+                transactionId.required = false;
+
+                transactionImage.required = false;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-warning text-dark">' +
+                    '<i class="bi bi-cash"></i> Cash on Delivery' +
+                    '</span>';
+
+            }
+            else if (method === "easypaisa") {
+
+                codBox.style.display = "none";
+
+                onlineBox.style.display = "block";
+
+                easypaisaAccountBox.style.display = "block";
+
+                jazzcashAccountBox.style.display = "none";
+
+                transactionId.required = true;
+
+                transactionImage.required = true;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-success">' +
+                    '<i class="bi bi-phone"></i> Easypaisa' +
+                    '</span>';
+
+            }
+            else if (method === "jazzcash") {
+
+                codBox.style.display = "none";
+
+                onlineBox.style.display = "block";
+
+                easypaisaAccountBox.style.display = "none";
+
+                jazzcashAccountBox.style.display = "block";
+
+                transactionId.required = true;
+
+                transactionImage.required = true;
+
+                selectedMethod.innerHTML =
+                    '<span class="badge bg-danger">' +
+                    '<i class="bi bi-phone"></i> JazzCash' +
+                    '</span>';
+
+            }
         }
-        else if (method === "jazzcash") {
 
-            codBox.style.display = "none";
+        document.getElementById("checkoutForm")
+            ?.addEventListener("submit", function (event) {
 
-            onlineBox.style.display = "block";
+                var valid = true;
 
-            easypaisaAccountBox.style.display = "none";
+                var deliveryCity =
+                    document.getElementById("deliveryCity");
 
-            jazzcashAccountBox.style.display = "block";
+                var cityError =
+                    document.getElementById("cityError");
 
-            transactionId.required = true;
+                cityError.style.display = "none";
 
-            transactionImage.required = true;
+                deliveryCity.classList.remove("is-invalid");
 
-            selectedMethod.innerHTML =
-                '<span class="badge bg-danger">' +
-                '<i class="bi bi-phone"></i> JazzCash' +
-                '</span>';
-
-        }
-    }
-
-    document.getElementById("checkoutForm")
-        ?.addEventListener("submit", function (event) {
-
-            var valid = true;
-
-            var deliveryCity =
-                document.getElementById("deliveryCity");
-
-            var cityError =
-                document.getElementById("cityError");
-
-            cityError.style.display = "none";
-
-            deliveryCity.classList.remove("is-invalid");
-
-            if (deliveryCity.value !== "Rawalpindi") {
-
-                valid = false;
-
-                cityError.style.display = "block";
-
-                deliveryCity.classList.add("is-invalid");
-
-                deliveryCity.focus();
-            }
-
-            var deliveryAddress =
-                document.getElementById("deliveryAddress");
-
-            var addressError =
-                document.getElementById("addressError");
-
-            var address =
-                deliveryAddress.value.trim();
-
-            addressError.style.display = "none";
-
-            deliveryAddress.classList.remove("is-invalid");
-
-            if (address.length < 10) {
-
-                valid = false;
-
-                addressError.textContent =
-                    "Please enter a complete delivery address.";
-
-                addressError.style.display = "block";
-
-                deliveryAddress.classList.add("is-invalid");
-
-                if (deliveryCity.value === "Rawalpindi") {
-                    deliveryAddress.focus();
-                }
-
-            }
-            else if (!address.toLowerCase().includes("rawalpindi")) {
-
-                valid = false;
-
-                addressError.textContent =
-                    "Please include Rawalpindi in your delivery address.";
-
-                addressError.style.display = "block";
-
-                deliveryAddress.classList.add("is-invalid");
-
-                if (deliveryCity.value === "Rawalpindi") {
-                    deliveryAddress.focus();
-                }
-            }
-
-            var paymentMethod =
-                document.querySelector(
-                    'input[name="PaymentMethod"]:checked'
-                );
-
-            if (!paymentMethod) {
-
-                valid = false;
-
-                alert("Please select a payment method.");
-            }
-
-            if (paymentMethod &&
-                (paymentMethod.value === "Easypaisa" ||
-                 paymentMethod.value === "JazzCash")) {
-
-                var transactionId =
-                    document.getElementById("transactionId");
-
-                var transactionImage =
-                    document.getElementById("transactionImage");
-
-                if (transactionId.value.trim() === "") {
+                if (deliveryCity.value !== "Rawalpindi") {
 
                     valid = false;
 
-                    alert(
-                        "Please enter the transaction ID."
-                    );
+                    cityError.style.display = "block";
 
-                    transactionId.focus();
+                    deliveryCity.classList.add("is-invalid");
+
+                    deliveryCity.focus();
                 }
 
-                if (transactionImage.files.length === 0) {
+                var deliveryAddress =
+                    document.getElementById("deliveryAddress");
+
+                var addressError =
+                    document.getElementById("addressError");
+
+                var address =
+                    deliveryAddress.value.trim();
+
+                addressError.style.display = "none";
+
+                deliveryAddress.classList.remove("is-invalid");
+
+                if (address.length < 10) {
 
                     valid = false;
 
-                    alert(
-                        "Please upload the payment screenshot."
-                    );
+                    addressError.textContent =
+                        "Please enter a complete delivery address.";
 
-                    transactionImage.focus();
+                    addressError.style.display = "block";
+
+                    deliveryAddress.classList.add("is-invalid");
+
+                    if (deliveryCity.value === "Rawalpindi") {
+                        deliveryAddress.focus();
+                    }
+
                 }
-                else if (transactionImage.files[0].size >
-                         5 * 1024 * 1024) {
+                else if (!address.toLowerCase().includes("rawalpindi")) {
 
                     valid = false;
 
-                    alert(
-                        "Payment screenshot must be 5 MB or smaller."
+                    addressError.textContent =
+                        "Please include Rawalpindi in your delivery address.";
+
+                    addressError.style.display = "block";
+
+                    deliveryAddress.classList.add("is-invalid");
+
+                    if (deliveryCity.value === "Rawalpindi") {
+                        deliveryAddress.focus();
+                    }
+                }
+
+                var paymentMethod =
+                    document.querySelector(
+                        'input[name="PaymentMethod"]:checked'
                     );
 
-                    transactionImage.focus();
-                }
-            }
-
-            var refundMethod =
-                document.getElementById(
-                    "refundPreferenceMethod"
-                );
-
-            var refundAccount =
-                document.getElementById(
-                    "refundPreferenceAccount"
-                );
-
-            if (refundMethod && refundAccount) {
-
-                if (refundMethod.value === "") {
+                if (!paymentMethod) {
 
                     valid = false;
 
-                    alert(
-                        "Please select the rental security refund method."
-                    );
-
-                    refundMethod.focus();
+                    alert("Please select a payment method.");
                 }
 
-                if (refundAccount.value.trim() === "") {
+                if (paymentMethod &&
+                    (paymentMethod.value === "Easypaisa" ||
+                     paymentMethod.value === "JazzCash")) {
+
+                    var transactionId =
+                        document.getElementById("transactionId");
+
+                    var transactionImage =
+                        document.getElementById("transactionImage");
+
+                    if (transactionId.value.trim() === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please enter the transaction ID."
+                        );
+
+                        transactionId.focus();
+                    }
+
+                    if (transactionImage.files.length === 0) {
+
+                        valid = false;
+
+                        alert(
+                            "Please upload the payment screenshot."
+                        );
+
+                        transactionImage.focus();
+                    }
+                    else if (transactionImage.files[0].size >
+                             5 * 1024 * 1024) {
+
+                        valid = false;
+
+                        alert(
+                            "Payment screenshot must be 5 MB or smaller."
+                        );
+
+                        transactionImage.focus();
+                    }
+                }
+
+                var refundMethod =
+                    document.getElementById(
+                        "refundPreferenceMethod"
+                    );
+
+                var refundAccount =
+                    document.getElementById(
+                        "refundPreferenceAccount"
+                    );
+
+                if (refundMethod && refundAccount) {
+
+                    if (refundMethod.value === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please select the rental security refund method."
+                        );
+
+                        refundMethod.focus();
+                    }
+
+                    if (refundAccount.value.trim() === "") {
+
+                        valid = false;
+
+                        alert(
+                            "Please enter the rental security refund account number."
+                        );
+
+                        refundAccount.focus();
+                    }
+                }
+
+                var terms =
+                    document.getElementById("terms");
+
+                var termsError =
+                    document.getElementById("termsError");
+
+                termsError.style.display = "none";
+
+                if (!terms.checked) {
 
                     valid = false;
 
-                    alert(
-                        "Please enter the rental security refund account number."
+                    termsError.style.display = "block";
+
+                    terms.focus();
+                }
+
+                if (!valid) {
+
+                    event.preventDefault();
+
+                    return false;
+                }
+
+                var confirmation =
+                    confirm(
+                        "Are you sure you want to place this order?"
                     );
 
-                    refundAccount.focus();
+                if (!confirmation) {
+
+                    event.preventDefault();
+
+                    return false;
                 }
-            }
 
-            var terms =
-                document.getElementById("terms");
+                var button =
+                    document.getElementById(
+                        "placeOrderButton"
+                    );
 
-            var termsError =
-                document.getElementById("termsError");
+                button.disabled = true;
 
-            termsError.style.display = "none";
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                    'Placing Order...';
 
-            if (!terms.checked) {
+                return true;
 
-                valid = false;
+            });
 
-                termsError.style.display = "block";
+        document.getElementById("deliveryAddress")
+            ?.addEventListener("input", function () {
 
-                terms.focus();
-            }
+                var address = this.value.trim();
 
-            if (!valid) {
+                if (address.toLowerCase().includes("rawalpindi")) {
 
-                event.preventDefault();
+                    this.classList.remove("is-invalid");
 
-                return false;
-            }
+                    document.getElementById(
+                        "addressError"
+                    ).style.display = "none";
+                }
 
-            var confirmation =
-                confirm(
-                    "Are you sure you want to place this order?"
-                );
+            });
 
-            if (!confirmation) {
+    </script>
 
-                event.preventDefault();
-
-                return false;
-            }
-
-            var button =
-                document.getElementById(
-                    "placeOrderButton"
-                );
-
-            button.disabled = true;
-
-            button.innerHTML =
-                '<span class="spinner-border spinner-border-sm me-2"></span>' +
-                'Placing Order...';
-
-            return true;
-
-        });
-
-    document.getElementById("deliveryAddress")
-        ?.addEventListener("input", function () {
-
-            var address = this.value.trim();
-
-            if (address.toLowerCase().includes("rawalpindi")) {
-
-                this.classList.remove("is-invalid");
-
-                document.getElementById(
-                    "addressError"
-                ).style.display = "none";
-            }
-
-        });
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
 </body>
