@@ -1,129 +1,129 @@
 ﻿@model WeddingClosetHubs.Models.Product
 
 @{
-ViewData["Title"] = "Product Details";
-Layout = null;
+    ViewData["Title"] = "Product Details";
+    Layout = null;
 
 
-bool offersBuy =
-    Model.Shop != null &&
-    Model.Shop.Status &&
-    Model.Shop.IsApproved &&
-    Model.Shop.OffersBuy;
+    bool offersBuy =
+        Model.Shop != null &&
+        Model.Shop.Status &&
+        Model.Shop.IsApproved &&
+        Model.Shop.OffersBuy;
 
-bool offersRent =
-    Model.Shop != null &&
-    Model.Shop.Status &&
-    Model.Shop.IsApproved &&
-    Model.Shop.OffersRent;
+    bool offersRent =
+        Model.Shop != null &&
+        Model.Shop.Status &&
+        Model.Shop.IsApproved &&
+        Model.Shop.OffersRent;
 
-bool isOnSale =
-    offersBuy &&
-    Model.IsAvailableForBuy &&
-    Model.IsOnSale &&
-    Model.SalePrice.HasValue &&
-    Model.SalePrice.Value > 0 &&
-    Model.SalePrice.Value < Model.Price;
+    bool isOnSale =
+        offersBuy &&
+        Model.IsAvailableForBuy &&
+        Model.IsOnSale &&
+        Model.SalePrice.HasValue &&
+        Model.SalePrice.Value > 0 &&
+        Model.SalePrice.Value < Model.Price;
 
-bool isAvailableForRent =
-    offersRent &&
-    Model.IsAvailableForRent &&
-    Model.RentPrice.HasValue &&
-    Model.RentPrice.Value > 0;
+    bool isAvailableForRent =
+        offersRent &&
+        Model.IsAvailableForRent &&
+        Model.RentPrice.HasValue &&
+        Model.RentPrice.Value > 0;
 
-bool canNegotiate =
-    offersBuy &&
-    Model.IsAvailableForBuy &&
-    Model.AllowNegotiation;
+    bool canNegotiate =
+        offersBuy &&
+        Model.IsAvailableForBuy &&
+        Model.AllowNegotiation;
 
-bool canBuy =
-    offersBuy &&
-    Model.IsAvailableForBuy;
+    bool canBuy =
+        offersBuy &&
+        Model.IsAvailableForBuy;
 
-decimal displayBuyPrice =
-    isOnSale ? Model.SalePrice!.Value : Model.Price;
+    decimal displayBuyPrice =
+        isOnSale ? Model.SalePrice!.Value : Model.Price;
 
-bool negotiatedAlreadyInCart =
-    ViewBag.NegotiatedAlreadyInCart ?? false;
+    bool negotiatedAlreadyInCart =
+        ViewBag.NegotiatedAlreadyInCart ?? false;
 
-bool hasAcceptedNegotiation =
-    offersBuy &&
-    (ViewBag.HasAcceptedNegotiation ?? false);
+    bool hasAcceptedNegotiation =
+        offersBuy &&
+        (ViewBag.HasAcceptedNegotiation ?? false);
 
-decimal? acceptedNegotiatedPrice =
-    ViewBag.AcceptedNegotiatedPrice as decimal?;
+    decimal? acceptedNegotiatedPrice =
+        ViewBag.AcceptedNegotiatedPrice as decimal?;
 
-if (!acceptedNegotiatedPrice.HasValue &&
-    ViewBag.AcceptedNegotiatedPrice != null)
-{
-    if (decimal.TryParse(
-        ViewBag.AcceptedNegotiatedPrice.ToString(),
-        out decimal parsedNegotiatedPrice))
+    if (!acceptedNegotiatedPrice.HasValue &&
+        ViewBag.AcceptedNegotiatedPrice != null)
     {
-        acceptedNegotiatedPrice = parsedNegotiatedPrice;
-    }
-}
-
-var variants =
-    Model.ProductVariants?
-        .OrderBy(v => v.Size)
-        .ToList()
-    ?? new List<WeddingClosetHubs.Models.ProductVariant>();
-
-bool hasSizeVariants = variants.Any();
-
-int totalVariantStock =
-    hasSizeVariants
-        ? variants.Sum(v => v.StockQuantity)
-        : Model.StockQuantity;
-
-bool productInStock = totalVariantStock > 0;
-
-var galleryImages = new List<string>();
-
-if (!string.IsNullOrWhiteSpace(Model.Image))
-{
-    galleryImages.Add(Model.Image);
-}
-
-if (Model.ProductImages != null)
-{
-    foreach (var productImage in Model.ProductImages)
-    {
-        if (!string.IsNullOrWhiteSpace(productImage.ImagePath) &&
-            !galleryImages.Any(x =>
-                string.Equals(
-                    x,
-                    productImage.ImagePath,
-                    StringComparison.OrdinalIgnoreCase)))
+        if (decimal.TryParse(
+            ViewBag.AcceptedNegotiatedPrice.ToString(),
+            out decimal parsedNegotiatedPrice))
         {
-            galleryImages.Add(productImage.ImagePath);
+            acceptedNegotiatedPrice = parsedNegotiatedPrice;
         }
     }
-}
 
-if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
-{
-    var additionalImages =
-        Model.AdditionalImages.Split(
-            '|',
-            StringSplitOptions.RemoveEmptyEntries);
+    var variants =
+        Model.ProductVariants?
+            .OrderBy(v => v.Size)
+            .ToList()
+        ?? new List<WeddingClosetHubs.Models.ProductVariant>();
 
-    foreach (var image in additionalImages)
+    bool hasSizeVariants = variants.Any();
+
+    int totalVariantStock =
+        hasSizeVariants
+            ? variants.Sum(v => v.StockQuantity)
+            : Model.StockQuantity;
+
+    bool productInStock = totalVariantStock > 0;
+
+    var galleryImages = new List<string>();
+
+    if (!string.IsNullOrWhiteSpace(Model.Image))
     {
-        string imagePath = image.Trim();
+        galleryImages.Add(Model.Image);
+    }
 
-        if (!string.IsNullOrWhiteSpace(imagePath) &&
-            !galleryImages.Any(x =>
-                string.Equals(
-                    x,
-                    imagePath,
-                    StringComparison.OrdinalIgnoreCase)))
+    if (Model.ProductImages != null)
+    {
+        foreach (var productImage in Model.ProductImages)
         {
-            galleryImages.Add(imagePath);
+            if (!string.IsNullOrWhiteSpace(productImage.ImagePath) &&
+                !galleryImages.Any(x =>
+                    string.Equals(
+                        x,
+                        productImage.ImagePath,
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                galleryImages.Add(productImage.ImagePath);
+            }
         }
     }
-}
+
+    if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
+    {
+        var additionalImages =
+            Model.AdditionalImages.Split(
+                '|',
+                StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var image in additionalImages)
+        {
+            string imagePath = image.Trim();
+
+            if (!string.IsNullOrWhiteSpace(imagePath) &&
+                !galleryImages.Any(x =>
+                    string.Equals(
+                        x,
+                        imagePath,
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                galleryImages.Add(imagePath);
+            }
+        }
+    }
 
 
 }
@@ -135,856 +135,856 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 <head>
 
 
-<meta charset="utf-8" />
+    <meta charset="utf-8" />
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-<title>
-    @Model.ProductName - Wedding Closet Hubs
-</title>
+    <title>
+        @Model.ProductName - Wedding Closet Hubs
+    </title>
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-<style>
+    <style>
 
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        background: #faf7f8;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #333;
-    }
-
-    .navbar-custom {
-        background: #800020;
-        padding: 15px 35px;
-        box-shadow: 0 4px 18px rgba(0,0,0,.12);
-    }
-
-    .brand {
-        color: white;
-        font-size: 25px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .brand span {
-        color: #d4af37;
-    }
-
-    .nav-link-custom {
-        color: white;
-        text-decoration: none;
-        margin-left: 22px;
-        font-weight: 500;
-        transition: .2s;
-    }
-
-    .nav-link-custom:hover {
-        color: #d4af37;
-    }
-
-    .logout-btn {
-        border: 1px solid #d4af37;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 7px;
-        text-decoration: none;
-        margin-left: 20px;
-        transition: .2s;
-    }
-
-    .logout-btn:hover {
-        background: #d4af37;
-        color: #800020;
-    }
-
-    .page-wrapper {
-        max-width: 1350px;
-        margin: auto;
-        padding: 30px 25px 60px;
-    }
-
-    .back-section {
-        margin-bottom: 22px;
-    }
-
-    .back-btn {
-        border: 1px solid #800020;
-        color: #800020;
-        background: white;
-        border-radius: 8px;
-        padding: 9px 17px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: .2s;
-    }
-
-    .back-btn:hover {
-        background: #800020;
-        color: white;
-    }
-
-    .product-container {
-        background: white;
-        border-radius: 22px;
-        padding: 30px;
-        box-shadow: 0 8px 30px rgba(72,24,38,.09);
-        border: 1px solid #eee5e8;
-    }
-
-    .gallery-area {
-        position: sticky;
-        top: 20px;
-    }
-
-    .main-image-wrapper {
-        width: 100%;
-        height: 560px;
-        background: #f5eff1;
-        border-radius: 18px;
-        overflow: hidden;
-        position: relative;
-        border: 1px solid #eadfe3;
-    }
-
-    .main-product-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: opacity .2s;
-    }
-
-    .gallery-count {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        background: rgba(128,0,32,.9);
-        color: white;
-        padding: 7px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .thumbnail-area {
-        display: flex;
-        gap: 10px;
-        margin-top: 14px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-    }
-
-    .thumbnail-btn {
-        flex: 0 0 78px;
-        width: 78px;
-        height: 88px;
-        padding: 3px;
-        border: 2px solid transparent;
-        border-radius: 10px;
-        background: #f7f3f4;
-        overflow: hidden;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    .thumbnail-btn:hover {
-        border-color: #d4af37;
-    }
-
-    .thumbnail-btn.active {
-        border-color: #800020;
-        box-shadow: 0 3px 10px rgba(128,0,32,.15);
-    }
-
-    .thumbnail-btn img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 7px;
-    }
-
-    .gallery-info {
-        margin-top: 15px;
-        background: #fffaf0;
-        border: 1px solid #ead9a4;
-        border-radius: 10px;
-        padding: 11px 13px;
-        color: #6d5a1d;
-        font-size: 13px;
-    }
-
-    .gallery-info i {
-        color: #d4af37;
-        margin-right: 5px;
-    }
-
-    .no-image {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        color: #aaa;
-    }
-
-    .no-image i {
-        font-size: 85px;
-        margin-bottom: 10px;
-    }
-
-    .product-name {
-        color: #800020;
-        font-size: 35px;
-        font-weight: 700;
-        line-height: 1.2;
-        margin-bottom: 8px;
-    }
-
-    .shop-name {
-        color: #777;
-        font-size: 15px;
-        margin-bottom: 20px;
-    }
-
-    .shop-name i {
-        color: #800020;
-    }
-
-    .price-area {
-        margin-bottom: 20px;
-        padding-bottom: 18px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .original-price-label {
-        color: #777;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    .original-price {
-        color: #888;
-        font-size: 18px;
-        text-decoration: line-through;
-        margin-right: 10px;
-    }
-
-    .sale-price,
-    .normal-price {
-        color: #800020;
-        font-size: 31px;
-        font-weight: 700;
-    }
-
-    .sale-badge {
-        display: inline-block;
-        background: #dc3545;
-        color: white;
-        padding: 5px 11px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        margin-left: 7px;
-        vertical-align: middle;
-    }
-
-    .sale-details {
-        margin-top: 8px;
-        color: #666;
-        font-size: 14px;
-    }
-
-    .description-title {
-        color: #800020;
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 7px;
-    }
-
-    .description {
-        color: #666;
-        line-height: 1.7;
-        margin-bottom: 22px;
-    }
-
-    .product-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 25px;
-    }
-
-    .info-badge {
-        background: #faf7f8;
-        border: 1px solid #e7dfe2;
-        color: #555;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-    }
-
-    .info-badge i {
-        color: #800020;
-        margin-right: 4px;
-    }
-
-    .available-badge,
-    .unavailable-badge,
-    .sale-feature-badge,
-    .rent-feature-badge,
-    .negotiation-feature-badge,
-    .negotiated-feature-badge {
-        padding: 8px 13px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .available-badge {
-        background: #e8f7ef;
-        color: #198754;
-    }
-
-    .unavailable-badge {
-        background: #fdeaea;
-        color: #dc3545;
-    }
-
-    .sale-feature-badge {
-        background: #fff0f1;
-        border: 1px solid #f1b0b7;
-        color: #b02a37;
-    }
-
-    .rent-feature-badge {
-        background: #f1edff;
-        border: 1px solid #c8b8ff;
-        color: #5936a3;
-    }
-
-    .negotiation-feature-badge {
-        background: #fff8e1;
-        border: 1px solid #d4af37;
-        color: #705900;
-    }
-
-    .negotiated-feature-badge {
-        background: #eaf4ff;
-        border: 1px solid #9ec5fe;
-        color: #084298;
-    }
-
-    .size-stock-section {
-        margin-top: 25px;
-        background: #fcfafb;
-        border: 1px solid #eadfe3;
-        border-radius: 14px;
-        padding: 20px;
-    }
-
-    .size-stock-title {
-        color: #800020;
-        font-size: 19px;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .size-stock-subtitle {
-        color: #777;
-        font-size: 13px;
-        margin-bottom: 17px;
-    }
-
-    .size-stock-table,
-    .multi-size-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        overflow: hidden;
-        border: 1px solid #e8dfe2;
-        border-radius: 10px;
-    }
-
-    .size-stock-table th,
-    .multi-size-table th {
-        background: #800020;
-        color: white;
-        padding: 11px 13px;
-        font-size: 13px;
-        text-align: left;
-    }
-
-    .size-stock-table td,
-    .multi-size-table td {
-        padding: 11px 13px;
-        border-bottom: 1px solid #eee;
-        font-size: 13px;
-    }
-
-    .size-stock-table tr:last-child td,
-    .multi-size-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    .size-badge {
-        display: inline-block;
-        min-width: 42px;
-        text-align: center;
-        background: #f8e9ed;
-        border: 1px solid #e3cbd3;
-        color: #800020;
-        padding: 6px 9px;
-        border-radius: 7px;
-        font-weight: 700;
-    }
-
-    .stock-available-text {
-        color: #198754;
-        font-weight: 700;
-    }
-
-    .stock-out-text {
-        color: #dc3545;
-        font-weight: 700;
-    }
-
-    .selected-size-row {
-        background: #fffaf0;
-    }
-
-    .size-quantity-input {
-        width: 110px;
-        text-align: center;
-        border: 1px solid #d9cdd1;
-        border-radius: 8px;
-        padding: 8px;
-    }
-
-    .size-quantity-input:focus {
-        border-color: #800020;
-        box-shadow: 0 0 0 .2rem rgba(128,0,32,.1);
-    }
-
-    .selected-count-box {
-        margin-top: 14px;
-        background: #f8e9ed;
-        border-radius: 9px;
-        padding: 11px 14px;
-        color: #800020;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .variant-total {
-        margin-top: 12px;
-        color: #555;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .details-section {
-        margin-top: 25px;
-    }
-
-    .details-title {
-        color: #800020;
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .detail-label {
-        color: #777;
-        font-weight: 600;
-    }
-
-    .detail-value {
-        font-weight: 600;
-        text-align: right;
-    }
-
-    .rental-box {
-        margin-top: 25px;
-        background: #f6f2ff;
-        border: 1px solid #d8ccff;
-        border-radius: 13px;
-        padding: 20px;
-    }
-
-    .rental-box h5 {
-        color: #5936a3;
-        font-weight: 700;
-        margin-bottom: 14px;
-    }
-
-    .rental-price {
-        color: #5936a3;
-        font-size: 25px;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .rental-detail {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        padding: 8px 0;
-        border-bottom: 1px solid #ddd5f5;
-    }
-
-    .rental-detail:last-child {
-        border-bottom: none;
-    }
-
-    .rental-label {
-        color: #6f6590;
-        font-weight: 600;
-    }
-
-    .rental-value {
-        color: #3f3560;
-        font-weight: 600;
-        text-align: right;
-    }
-
-    .rental-note {
-        margin: 12px 0 0;
-        color: #665c7a;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .measurement-box {
-        margin-top: 25px;
-        background: #fff8e1;
-        border: 1px solid #ffe69c;
-        border-radius: 12px;
-        padding: 18px;
-    }
-
-    .measurement-box h5 {
-        color: #806000;
-        font-weight: 700;
-    }
-
-    .measurement-box p {
-        color: #665c35;
-        margin: 0;
-        line-height: 1.6;
-        font-size: 14px;
-    }
-
-    .negotiation-box {
-        margin-top: 25px;
-        background: #fffaf0;
-        border: 1px solid #d4af37;
-        border-radius: 12px;
-        padding: 20px;
-    }
-
-    .negotiation-box h5 {
-        color: #705900;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .negotiation-box p {
-        color: #665c35;
-        margin-bottom: 15px;
-        line-height: 1.6;
-        font-size: 14px;
-    }
-
-    .negotiated-price-box {
-        background: #eaf4ff;
-        border: 1px solid #9ec5fe;
-        border-radius: 10px;
-        padding: 14px;
-        margin-bottom: 14px;
-    }
-
-    .negotiated-price-label {
-        color: #084298;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .negotiated-price {
-        color: #084298;
-        font-size: 26px;
-        font-weight: 700;
-    }
-
-    .negotiation-btn {
-        background: #d4af37;
-        color: #800020;
-        border: none;
-        padding: 11px 21px;
-        border-radius: 7px;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .negotiation-btn:hover {
-        background: #c19b2e;
-        color: #800020;
-    }
-
-    .action-area {
-        margin-top: 28px;
-        padding-top: 25px;
-        border-top: 1px solid #eee;
-    }
-
-    .purchase-option {
-        border: 1px solid #e5dfe1;
-        border-radius: 12px;
-        padding: 17px;
-        margin-bottom: 14px;
-        background: #faf8f9;
-    }
-
-    .purchase-option-title {
-        color: #800020;
-        font-size: 15px;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-
-    .purchase-option-price {
-        font-size: 24px;
-        font-weight: 700;
-        color: #800020;
-    }
-
-    .purchase-option-note {
-        color: #777;
-        font-size: 13px;
-        margin: 4px 0 12px;
-    }
-
-    .sale-option {
-        border-color: #f1b0b7;
-        background: #fff8f8;
-    }
-
-    .sale-option .purchase-option-title,
-    .sale-option .purchase-option-price {
-        color: #b02a37;
-    }
-
-    .rent-option {
-        border-color: #c8b8ff;
-        background: #f9f7ff;
-    }
-
-    .rent-option .purchase-option-title,
-    .rent-option .purchase-option-price {
-        color: #5936a3;
-    }
-
-    .add-cart-btn,
-    .rent-cart-btn,
-    .negotiated-cart-btn {
-        border: none;
-        padding: 11px 21px;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: .2s;
-    }
-
-    .add-cart-btn {
-        background: #800020;
-        color: white;
-    }
-
-    .add-cart-btn:hover {
-        background: #650018;
-        color: white;
-    }
-
-    .rent-cart-btn {
-        background: #5936a3;
-        color: white;
-    }
-
-    .rent-cart-btn:hover {
-        background: #472b82;
-        color: white;
-    }
-
-    .negotiated-cart-btn {
-        background: #084298;
-        color: white;
-    }
-
-    .negotiated-cart-btn:hover {
-        background: #06357a;
-        color: white;
-    }
-
-    .disabled-btn {
-        background: #999;
-        color: white;
-        border: none;
-        padding: 11px 21px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .cart-btn {
-        border: 1px solid #800020;
-        color: #800020;
-        padding: 11px 21px;
-        border-radius: 8px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .cart-btn:hover {
-        background: #800020;
-        color: white;
-    }
-
-    .option-divider {
-        margin: 20px 0;
-        border-top: 1px solid #eee;
-    }
-
-    .multi-size-error {
-        display: none;
-        margin-top: 12px;
-        color: #dc3545;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .standard-stock-box {
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 9px;
-        color: #198754;
-    }
-
-    @@media (max-width: 991px) {
-
-        .gallery-area {
-            position: static;
+        * {
+            box-sizing: border-box;
         }
 
-        .main-image-wrapper {
-            height: 500px;
+        body {
+            margin: 0;
+            background: #faf7f8;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
         }
-    }
-
-    @@media (max-width: 768px) {
 
         .navbar-custom {
-            padding: 14px 15px;
+            background: #800020;
+            padding: 15px 35px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.12);
         }
 
         .brand {
-            font-size: 20px;
+            color: white;
+            font-size: 25px;
+            font-weight: 700;
+            text-decoration: none;
         }
+
+            .brand span {
+                color: #d4af37;
+            }
 
         .nav-link-custom {
-            margin-left: 8px;
-            font-size: 13px;
+            color: white;
+            text-decoration: none;
+            margin-left: 22px;
+            font-weight: 500;
+            transition: .2s;
         }
+
+            .nav-link-custom:hover {
+                color: #d4af37;
+            }
 
         .logout-btn {
-            margin-left: 8px;
-            padding: 6px 10px;
-            font-size: 12px;
+            border: 1px solid #d4af37;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 7px;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: .2s;
         }
+
+            .logout-btn:hover {
+                background: #d4af37;
+                color: #800020;
+            }
 
         .page-wrapper {
-            padding: 18px 12px 40px;
+            max-width: 1350px;
+            margin: auto;
+            padding: 30px 25px 60px;
         }
 
+        .back-section {
+            margin-bottom: 22px;
+        }
+
+        .back-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            background: white;
+            border-radius: 8px;
+            padding: 9px 17px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+            .back-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
         .product-container {
-            padding: 18px;
-            border-radius: 15px;
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(72,24,38,.09);
+            border: 1px solid #eee5e8;
+        }
+
+        .gallery-area {
+            position: sticky;
+            top: 20px;
         }
 
         .main-image-wrapper {
-            height: 380px;
+            width: 100%;
+            height: 560px;
+            background: #f5eff1;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #eadfe3;
         }
 
+        .main-product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity .2s;
+        }
+
+        .gallery-count {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: rgba(128,0,32,.9);
+            color: white;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .thumbnail-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .thumbnail-btn {
+            flex: 0 0 78px;
+            width: 78px;
+            height: 88px;
+            padding: 3px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: #f7f3f4;
+            overflow: hidden;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+            .thumbnail-btn:hover {
+                border-color: #d4af37;
+            }
+
+            .thumbnail-btn.active {
+                border-color: #800020;
+                box-shadow: 0 3px 10px rgba(128,0,32,.15);
+            }
+
+            .thumbnail-btn img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 7px;
+            }
+
+        .gallery-info {
+            margin-top: 15px;
+            background: #fffaf0;
+            border: 1px solid #ead9a4;
+            border-radius: 10px;
+            padding: 11px 13px;
+            color: #6d5a1d;
+            font-size: 13px;
+        }
+
+            .gallery-info i {
+                color: #d4af37;
+                margin-right: 5px;
+            }
+
+        .no-image {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #aaa;
+        }
+
+            .no-image i {
+                font-size: 85px;
+                margin-bottom: 10px;
+            }
+
         .product-name {
-            font-size: 27px;
+            color: #800020;
+            font-size: 35px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .shop-name {
+            color: #777;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+            .shop-name i {
+                color: #800020;
+            }
+
+        .price-area {
+            margin-bottom: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .original-price-label {
+            color: #777;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .original-price {
+            color: #888;
+            font-size: 18px;
+            text-decoration: line-through;
+            margin-right: 10px;
         }
 
         .sale-price,
         .normal-price {
-            font-size: 27px;
+            color: #800020;
+            font-size: 31px;
+            font-weight: 700;
         }
 
-        .detail-row {
-            flex-direction: column;
-            gap: 4px;
+        .sale-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 5px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 7px;
+            vertical-align: middle;
         }
 
-        .detail-value {
-            text-align: left;
+        .sale-details {
+            margin-top: 8px;
+            color: #666;
+            font-size: 14px;
         }
 
-        .rental-detail {
-            flex-direction: column;
-            gap: 3px;
+        .description-title {
+            color: #800020;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 7px;
         }
 
-        .rental-value {
-            text-align: left;
+        .description {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 22px;
+        }
+
+        .product-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-badge {
+            background: #faf7f8;
+            border: 1px solid #e7dfe2;
+            color: #555;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+            .info-badge i {
+                color: #800020;
+                margin-right: 4px;
+            }
+
+        .available-badge,
+        .unavailable-badge,
+        .sale-feature-badge,
+        .rent-feature-badge,
+        .negotiation-feature-badge,
+        .negotiated-feature-badge {
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .available-badge {
+            background: #e8f7ef;
+            color: #198754;
+        }
+
+        .unavailable-badge {
+            background: #fdeaea;
+            color: #dc3545;
+        }
+
+        .sale-feature-badge {
+            background: #fff0f1;
+            border: 1px solid #f1b0b7;
+            color: #b02a37;
+        }
+
+        .rent-feature-badge {
+            background: #f1edff;
+            border: 1px solid #c8b8ff;
+            color: #5936a3;
+        }
+
+        .negotiation-feature-badge {
+            background: #fff8e1;
+            border: 1px solid #d4af37;
+            color: #705900;
+        }
+
+        .negotiated-feature-badge {
+            background: #eaf4ff;
+            border: 1px solid #9ec5fe;
+            color: #084298;
+        }
+
+        .size-stock-section {
+            margin-top: 25px;
+            background: #fcfafb;
+            border: 1px solid #eadfe3;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .size-stock-title {
+            color: #800020;
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .size-stock-subtitle {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 17px;
+        }
+
+        .size-stock-table,
+        .multi-size-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border: 1px solid #e8dfe2;
+            border-radius: 10px;
+        }
+
+            .size-stock-table th,
+            .multi-size-table th {
+                background: #800020;
+                color: white;
+                padding: 11px 13px;
+                font-size: 13px;
+                text-align: left;
+            }
+
+            .size-stock-table td,
+            .multi-size-table td {
+                padding: 11px 13px;
+                border-bottom: 1px solid #eee;
+                font-size: 13px;
+            }
+
+            .size-stock-table tr:last-child td,
+            .multi-size-table tr:last-child td {
+                border-bottom: none;
+            }
+
+        .size-badge {
+            display: inline-block;
+            min-width: 42px;
+            text-align: center;
+            background: #f8e9ed;
+            border: 1px solid #e3cbd3;
+            color: #800020;
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-weight: 700;
+        }
+
+        .stock-available-text {
+            color: #198754;
+            font-weight: 700;
+        }
+
+        .stock-out-text {
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .selected-size-row {
+            background: #fffaf0;
         }
 
         .size-quantity-input {
-            width: 80px;
+            width: 110px;
+            text-align: center;
+            border: 1px solid #d9cdd1;
+            border-radius: 8px;
+            padding: 8px;
         }
-    }
 
-    @@media (max-width: 500px) {
+            .size-quantity-input:focus {
+                border-color: #800020;
+                box-shadow: 0 0 0 .2rem rgba(128,0,32,.1);
+            }
 
-        .nav-link-custom {
+        .selected-count-box {
+            margin-top: 14px;
+            background: #f8e9ed;
+            border-radius: 9px;
+            padding: 11px 14px;
+            color: #800020;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .variant-total {
+            margin-top: 12px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .details-section {
+            margin-top: 25px;
+        }
+
+        .details-title {
+            color: #800020;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            color: #777;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .rental-box {
+            margin-top: 25px;
+            background: #f6f2ff;
+            border: 1px solid #d8ccff;
+            border-radius: 13px;
+            padding: 20px;
+        }
+
+            .rental-box h5 {
+                color: #5936a3;
+                font-weight: 700;
+                margin-bottom: 14px;
+            }
+
+        .rental-price {
+            color: #5936a3;
+            font-size: 25px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .rental-detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd5f5;
+        }
+
+            .rental-detail:last-child {
+                border-bottom: none;
+            }
+
+        .rental-label {
+            color: #6f6590;
+            font-weight: 600;
+        }
+
+        .rental-value {
+            color: #3f3560;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .rental-note {
+            margin: 12px 0 0;
+            color: #665c7a;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .measurement-box {
+            margin-top: 25px;
+            background: #fff8e1;
+            border: 1px solid #ffe69c;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+            .measurement-box h5 {
+                color: #806000;
+                font-weight: 700;
+            }
+
+            .measurement-box p {
+                color: #665c35;
+                margin: 0;
+                line-height: 1.6;
+                font-size: 14px;
+            }
+
+        .negotiation-box {
+            margin-top: 25px;
+            background: #fffaf0;
+            border: 1px solid #d4af37;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+            .negotiation-box h5 {
+                color: #705900;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .negotiation-box p {
+                color: #665c35;
+                margin-bottom: 15px;
+                line-height: 1.6;
+                font-size: 14px;
+            }
+
+        .negotiated-price-box {
+            background: #eaf4ff;
+            border: 1px solid #9ec5fe;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+
+        .negotiated-price-label {
+            color: #084298;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .negotiated-price {
+            color: #084298;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .negotiation-btn {
+            background: #d4af37;
+            color: #800020;
+            border: none;
+            padding: 11px 21px;
+            border-radius: 7px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .negotiation-btn:hover {
+                background: #c19b2e;
+                color: #800020;
+            }
+
+        .action-area {
+            margin-top: 28px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+
+        .purchase-option {
+            border: 1px solid #e5dfe1;
+            border-radius: 12px;
+            padding: 17px;
+            margin-bottom: 14px;
+            background: #faf8f9;
+        }
+
+        .purchase-option-title {
+            color: #800020;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .purchase-option-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #800020;
+        }
+
+        .purchase-option-note {
+            color: #777;
+            font-size: 13px;
+            margin: 4px 0 12px;
+        }
+
+        .sale-option {
+            border-color: #f1b0b7;
+            background: #fff8f8;
+        }
+
+            .sale-option .purchase-option-title,
+            .sale-option .purchase-option-price {
+                color: #b02a37;
+            }
+
+        .rent-option {
+            border-color: #c8b8ff;
+            background: #f9f7ff;
+        }
+
+            .rent-option .purchase-option-title,
+            .rent-option .purchase-option-price {
+                color: #5936a3;
+            }
+
+        .add-cart-btn,
+        .rent-cart-btn,
+        .negotiated-cart-btn {
+            border: none;
+            padding: 11px 21px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: .2s;
+        }
+
+        .add-cart-btn {
+            background: #800020;
+            color: white;
+        }
+
+            .add-cart-btn:hover {
+                background: #650018;
+                color: white;
+            }
+
+        .rent-cart-btn {
+            background: #5936a3;
+            color: white;
+        }
+
+            .rent-cart-btn:hover {
+                background: #472b82;
+                color: white;
+            }
+
+        .negotiated-cart-btn {
+            background: #084298;
+            color: white;
+        }
+
+            .negotiated-cart-btn:hover {
+                background: #06357a;
+                color: white;
+            }
+
+        .disabled-btn {
+            background: #999;
+            color: white;
+            border: none;
+            padding: 11px 21px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .cart-btn {
+            border: 1px solid #800020;
+            color: #800020;
+            padding: 11px 21px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .cart-btn:hover {
+                background: #800020;
+                color: white;
+            }
+
+        .option-divider {
+            margin: 20px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .multi-size-error {
             display: none;
+            margin-top: 12px;
+            color: #dc3545;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        .main-image-wrapper {
-            height: 330px;
+        .standard-stock-box {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 9px;
+            color: #198754;
         }
 
-        .thumbnail-btn {
-            flex-basis: 65px;
-            width: 65px;
-            height: 75px;
-        }
-    }
+        @@media (max-width: 991px) {
 
-</style>
+            .gallery-area {
+                position: static;
+            }
+
+            .main-image-wrapper {
+                height: 500px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+
+            .navbar-custom {
+                padding: 14px 15px;
+            }
+
+            .brand {
+                font-size: 20px;
+            }
+
+            .nav-link-custom {
+                margin-left: 8px;
+                font-size: 13px;
+            }
+
+            .logout-btn {
+                margin-left: 8px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .page-wrapper {
+                padding: 18px 12px 40px;
+            }
+
+            .product-container {
+                padding: 18px;
+                border-radius: 15px;
+            }
+
+            .main-image-wrapper {
+                height: 380px;
+            }
+
+            .product-name {
+                font-size: 27px;
+            }
+
+            .sale-price,
+            .normal-price {
+                font-size: 27px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .detail-value {
+                text-align: left;
+            }
+
+            .rental-detail {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .rental-value {
+                text-align: left;
+            }
+
+            .size-quantity-input {
+                width: 80px;
+            }
+        }
+
+        @@media (max-width: 500px) {
+
+            .nav-link-custom {
+                display: none;
+            }
+
+            .main-image-wrapper {
+                height: 330px;
+            }
+
+            .thumbnail-btn {
+                flex-basis: 65px;
+                width: 65px;
+                height: 75px;
+            }
+        }
+
+    </style>
 
 
 </head>
@@ -992,1079 +992,1218 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 <body>
 
 
-<nav class="navbar-custom">
+    <nav class="navbar-custom">
 
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-
-        <a asp-controller="Customer"
-           asp-action="Dashboard"
-           class="brand">
-
-            Wedding Closet <span>Hubs</span>
-
-        </a>
-
-        <div class="d-flex align-items-center">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
 
             <a asp-controller="Customer"
                asp-action="Dashboard"
-               class="nav-link-custom">
+               class="brand">
 
-                <i class="bi bi-house"></i>
-                Dashboard
+                Wedding Closet <span>Hubs</span>
 
             </a>
+
+            <div class="d-flex align-items-center">
+
+                <a asp-controller="Customer"
+                   asp-action="Dashboard"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-house"></i>
+                    Dashboard
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Shops"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-shop"></i>
+                    Shops
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Cart"
+                   class="nav-link-custom">
+
+                    <i class="bi bi-cart3"></i>
+                    Cart
+
+                </a>
+
+                <a asp-controller="Account"
+                   asp-action="Logout"
+                   class="logout-btn">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <div class="page-wrapper">
+
+        <div class="back-section">
 
             <a asp-controller="Customer"
-               asp-action="Shops"
-               class="nav-link-custom">
+               asp-action="ShopProducts"
+               asp-route-id="@Model.ShopId"
+               class="back-btn">
 
-                <i class="bi bi-shop"></i>
-                Shops
-
-            </a>
-
-            <a asp-controller="Customer"
-               asp-action="Cart"
-               class="nav-link-custom">
-
-                <i class="bi bi-cart3"></i>
-                Cart
-
-            </a>
-
-            <a asp-controller="Account"
-               asp-action="Logout"
-               class="logout-btn">
-
-                <i class="bi bi-box-arrow-right"></i>
-                Logout
+                <i class="bi bi-arrow-left"></i>
+                Back to Products
 
             </a>
 
         </div>
 
-    </div>
+        <div class="product-container">
 
-</nav>
+            <div class="row g-5">
 
-<div class="page-wrapper">
+                <div class="col-lg-6">
 
-    <div class="back-section">
+                    <div class="gallery-area">
 
-        <a asp-controller="Customer"
-           asp-action="ShopProducts"
-           asp-route-id="@Model.ShopId"
-           class="back-btn">
+                        <div class="main-image-wrapper">
 
-            <i class="bi bi-arrow-left"></i>
-            Back to Products
-
-        </a>
-
-    </div>
-
-    <div class="product-container">
-
-        <div class="row g-5">
-
-            <div class="col-lg-6">
-
-                <div class="gallery-area">
-
-                    <div class="main-image-wrapper">
-
-                        @if (galleryImages.Count > 0)
-                        {
-                            <img id="mainProductImage"
-                                 src="@galleryImages[0]"
-                                 alt="@Model.ProductName"
-                                 class="main-product-image" />
-
-                            @if (galleryImages.Count > 1)
+                            @if (galleryImages.Count > 0)
                             {
-                                <div class="gallery-count">
+                                <img id="mainProductImage"
+                                     src="@galleryImages[0]"
+                                     alt="@Model.ProductName"
+                                     class="main-product-image" />
 
-                                    <i class="bi bi-images"></i>
-                                    @galleryImages.Count Photos
+                                @if (galleryImages.Count > 1)
+                                {
+                                    <div class="gallery-count">
+
+                                        <i class="bi bi-images"></i>
+                                        @galleryImages.Count Photos
+
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="no-image">
+
+                                    <i class="bi bi-image"></i>
+
+                                    <div>
+                                        No Image Available
+                                    </div>
 
                                 </div>
                             }
+
+                        </div>
+
+                        @if (galleryImages.Count > 1)
+                        {
+                            <div class="thumbnail-area">
+
+                                @for (int i = 0; i < galleryImages.Count; i++)
+                                {
+                                    <button type="button"
+                                            class="thumbnail-btn @(i == 0 ? "active" : "")"
+                                            data-image="@galleryImages[i]"
+                                            onclick="changeProductImage(this.dataset.image, this)">
+
+                                        <img src="@galleryImages[i]"
+                                             alt="@Model.ProductName image @(i + 1)" />
+
+                                    </button>
+                                }
+
+                            </div>
+
+                            <div class="gallery-info">
+
+                                <i class="bi bi-images"></i>
+
+                                <strong>Product Gallery:</strong>
+
+                                Front, Back, Side and other pictures show
+                                the same product from different views.
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <h1 class="product-name">
+                        @Model.ProductName
+                    </h1>
+
+                    @if (Model.Shop != null)
+                    {
+                        <div class="shop-name">
+
+                            <i class="bi bi-shop"></i>
+
+                            Sold by:
+                            <strong>
+                                @Model.Shop.ShopName
+                            </strong>
+
+                        </div>
+                    }
+
+                    <div class="price-area">
+
+                        @if (isOnSale)
+                        {
+                            <div class="original-price-label">
+                                Sale Price
+                            </div>
+
+                            <div>
+
+                                <span class="original-price">
+                                    Rs. @Model.Price.ToString("N2")
+                                </span>
+
+                                <span class="sale-price">
+                                    Rs. @Model.SalePrice!.Value.ToString("N2")
+                                </span>
+
+                                <span class="sale-badge">
+                                    SALE
+                                </span>
+
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.SaleDetails))
+                            {
+                                <div class="sale-details">
+
+                                    <i class="bi bi-tag-fill"></i>
+                                    @Model.SaleDetails
+
+                                </div>
+                            }
+                        }
+                        else if (canBuy)
+                        {
+                            <div class="original-price-label">
+                                Price
+                            </div>
+
+                            <div class="normal-price">
+                                Rs. @Model.Price.ToString("N2")
+                            </div>
+                        }
+                        else if (isAvailableForRent)
+                        {
+                            <div class="original-price-label">
+                                Rental Price
+                            </div>
+
+                            <div class="normal-price">
+                                Rs. @Model.RentPrice!.Value.ToString("N2")
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="description-title">
+                        Description
+                    </div>
+
+                    <div class="description">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            @Model.Description
                         }
                         else
                         {
-                            <div class="no-image">
-
-                                <i class="bi bi-image"></i>
-
-                                <div>
-                                    No Image Available
-                                </div>
-
-                            </div>
+                            <span>
+                                No description available.
+                            </span>
                         }
 
                     </div>
 
-                    @if (galleryImages.Count > 1)
+                    <div class="product-badges">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Category))
+                        {
+                            <span class="info-badge">
+
+                                <i class="bi bi-tags"></i>
+                                @Model.Category
+
+                            </span>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Subcategory))
+                        {
+                            <span class="info-badge">
+
+                                <i class="bi bi-diagram-3"></i>
+                                @Model.Subcategory
+
+                            </span>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Occasion))
+                        {
+                            <span class="info-badge">
+
+                                <i class="bi bi-calendar-event"></i>
+                                @Model.Occasion
+
+                            </span>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Color))
+                        {
+                            <span class="info-badge">
+
+                                <i class="bi bi-palette"></i>
+                                Color: @Model.Color
+
+                            </span>
+                        }
+
+                        @if (Model.HasCustomMeasurement)
+                        {
+                            <span class="info-badge">
+
+                                <i class="bi bi-rulers"></i>
+                                Custom Measurement Available
+
+                            </span>
+                        }
+
+                        @if (isOnSale)
+                        {
+                            <span class="sale-feature-badge">
+
+                                <i class="bi bi-tag-fill"></i>
+                                Sale Available
+
+                            </span>
+                        }
+
+                        @if (isAvailableForRent)
+                        {
+                            <span class="rent-feature-badge">
+
+                                <i class="bi bi-arrow-repeat"></i>
+                                Available for Rent
+
+                            </span>
+                        }
+
+                        @if (canNegotiate)
+                        {
+                            <span class="negotiation-feature-badge">
+
+                                <i class="bi bi-handshake"></i>
+                                Price Negotiation Available
+
+                            </span>
+                        }
+
+                        @if (hasAcceptedNegotiation &&
+                                                acceptedNegotiatedPrice.HasValue)
+                        {
+                            <span class="negotiated-feature-badge">
+
+                                <i class="bi bi-check-circle"></i>
+                                Negotiated Price Available
+
+                            </span>
+                        }
+
+                    </div>
+
+                    @if (hasSizeVariants)
                     {
-                        <div class="thumbnail-area">
+                        <div class="size-stock-section">
 
-                            @for (int i = 0; i < galleryImages.Count; i++)
+                            <div class="size-stock-title">
+
+                                <i class="bi bi-rulers"></i>
+                                Available Sizes & Stock
+
+                            </div>
+
+                            <div class="size-stock-subtitle">
+
+                                Select the quantity you want for each size.
+                                You can add multiple sizes of this same dress
+                                to your cart with one click.
+
+                            </div>
+
+                            <table class="size-stock-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Size
+                                        </th>
+
+                                        <th>
+                                            Available Quantity
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    @foreach (var variant in variants)
+                                    {
+                                        <tr>
+
+                                            <td>
+
+                                                <span class="size-badge">
+                                                    @variant.Size
+                                                </span>
+
+                                            </td>
+
+                                            <td>
+
+                                                @if (variant.StockQuantity > 0)
+                                                {
+                                                    <span class="stock-available-text">
+
+                                                        <i class="bi bi-check-circle"></i>
+
+                                                        @variant.StockQuantity
+                                                        pieces available
+
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="stock-out-text">
+
+                                                        <i class="bi bi-x-circle"></i>
+
+                                                        Out of Stock
+
+                                                    </span>
+                                                }
+
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                            <div class="variant-total">
+
+                                <i class="bi bi-box-seam"></i>
+
+                                Total available stock:
+                                @totalVariantStock pieces
+
+                            </div>
+
+                            @if (offersBuy || offersRent)
                             {
-                                <button type="button"
-                                        class="thumbnail-btn @(i == 0 ? "active" : "")"
-                                        data-image="@galleryImages[i]"
-                                        onclick="changeProductImage(this.dataset.image, this)">
+                                <div class="mt-4">
 
-                                    <img src="@galleryImages[i]"
-                                         alt="@Model.ProductName image @(i + 1)" />
+                                    <div class="fw-bold text-dark mb-2">
 
-                                </button>
+                                        <i class="bi bi-cart-plus text-danger"></i>
+
+                                        Select Sizes and Quantities
+
+                                    </div>
+
+                                    <div class="text-muted small mb-3">
+
+                                        Enter the quantity for each size you want.
+                                        Leave unwanted sizes at 0.
+
+                                    </div>
+
+                                    <table class="multi-size-table">
+
+                                        <thead>
+
+                                            <tr>
+
+                                                <th>
+                                                    Size
+                                                </th>
+
+                                                <th>
+                                                    Available
+                                                </th>
+
+                                                <th>
+                                                    Quantity
+                                                </th>
+
+                                            </tr>
+
+                                        </thead>
+
+                                        <tbody>
+
+                                            @foreach (var variant in variants)
+                                            {
+                                                <tr class="size-selection-row">
+
+                                                    <td>
+
+                                                        <span class="size-badge">
+                                                            @variant.Size
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        @if (variant.StockQuantity > 0)
+                                                        {
+                                                            <span class="stock-available-text">
+                                                                @variant.StockQuantity
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="stock-out-text">
+                                                                Out of Stock
+                                                            </span>
+                                                        }
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        @if (variant.StockQuantity > 0)
+                                                        {
+                                                            @if (offersBuy)
+                                                            {
+                                                                <input type="hidden"
+                                                                       name="VariantSizes"
+                                                                       form="multiSizeBuyForm"
+                                                                       value="@variant.Size" />
+
+                                                                <input type="number"
+                                                                       name="VariantQuantities"
+                                                                       form="multiSizeBuyForm"
+                                                                       class="form-control size-quantity-input variant-quantity"
+                                                                       data-size="@variant.Size"
+                                                                       data-stock="@variant.StockQuantity"
+                                                                       value="0"
+                                                                       min="0"
+                                                                       max="@variant.StockQuantity" />
+                                                            }
+
+                                                            @if (offersRent)
+                                                            {
+                                                                <input type="hidden"
+                                                                       name="VariantSizes"
+                                                                       form="multiSizeRentForm"
+                                                                       value="@variant.Size" />
+
+                                                                <input type="hidden"
+                                                                       name="VariantQuantities"
+                                                                       form="multiSizeRentForm"
+                                                                       class="rent-hidden-quantity"
+                                                                       data-size="@variant.Size"
+                                                                       value="0" />
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="number"
+                                                                   class="form-control size-quantity-input"
+                                                                   value="0"
+                                                                   disabled />
+                                                        }
+
+                                                    </td>
+
+                                                </tr>
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                    <div id="selectedSizeSummary"
+                                         class="selected-count-box">
+
+                                        No sizes selected yet.
+
+                                    </div>
+
+                                    <div id="multiSizeError"
+                                         class="multi-size-error">
+
+                                        <i class="bi bi-exclamation-circle"></i>
+
+                                        Please select at least one size and quantity.
+
+                                    </div>
+
+                                </div>
                             }
 
                         </div>
-
-                        <div class="gallery-info">
-
-                            <i class="bi bi-images"></i>
-
-                            <strong>Product Gallery:</strong>
-
-                            Front, Back, Side and other pictures show
-                            the same product from different views.
-
-                        </div>
-                    }
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-6">
-
-                <h1 class="product-name">
-                    @Model.ProductName
-                </h1>
-
-                @if (Model.Shop != null)
-                {
-                    <div class="shop-name">
-
-                        <i class="bi bi-shop"></i>
-
-                        Sold by:
-                        <strong>
-                            @Model.Shop.ShopName
-                        </strong>
-
-                    </div>
-                }
-
-                <div class="price-area">
-
-                    @if (isOnSale)
-                    {
-                        <div class="original-price-label">
-                            Sale Price
-                        </div>
-
-                        <div>
-
-                            <span class="original-price">
-                                Rs. @Model.Price.ToString("N2")
-                            </span>
-
-                            <span class="sale-price">
-                                Rs. @Model.SalePrice!.Value.ToString("N2")
-                            </span>
-
-                            <span class="sale-badge">
-                                SALE
-                            </span>
-
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(Model.SaleDetails))
-                        {
-                            <div class="sale-details">
-
-                                <i class="bi bi-tag-fill"></i>
-                                @Model.SaleDetails
-
-                            </div>
-                        }
-                    }
-                    else if (canBuy)
-                    {
-                        <div class="original-price-label">
-                            Price
-                        </div>
-
-                        <div class="normal-price">
-                            Rs. @Model.Price.ToString("N2")
-                        </div>
-                    }
-                    else if (isAvailableForRent)
-                    {
-                        <div class="original-price-label">
-                            Rental Price
-                        </div>
-
-                        <div class="normal-price">
-                            Rs. @Model.RentPrice!.Value.ToString("N2")
-                        </div>
-                    }
-
-                </div>
-
-                <div class="description-title">
-                    Description
-                </div>
-
-                <div class="description">
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Description))
-                    {
-                        @Model.Description
                     }
                     else
                     {
-                        <span>
-                            No description available.
-                        </span>
-                    }
+                        <div class="size-stock-section">
 
-                </div>
+                            <div class="size-stock-title">
 
-                <div class="product-badges">
+                                <i class="bi bi-box-seam"></i>
+                                Availability
 
-                    @if (!string.IsNullOrWhiteSpace(Model.Category))
-                    {
-                        <span class="info-badge">
+                            </div>
 
-                            <i class="bi bi-tags"></i>
-                            @Model.Category
+                            <div class="standard-stock-box">
 
-                        </span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Subcategory))
-                    {
-                        <span class="info-badge">
-
-                            <i class="bi bi-diagram-3"></i>
-                            @Model.Subcategory
-
-                        </span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Occasion))
-                    {
-                        <span class="info-badge">
-
-                            <i class="bi bi-calendar-event"></i>
-                            @Model.Occasion
-
-                        </span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Color))
-                    {
-                        <span class="info-badge">
-
-                            <i class="bi bi-palette"></i>
-                            Color: @Model.Color
-
-                        </span>
-                    }
-
-                    @if (Model.HasCustomMeasurement)
-                    {
-                        <span class="info-badge">
-
-                            <i class="bi bi-rulers"></i>
-                            Custom Measurement Available
-
-                        </span>
-                    }
-
-                    @if (isOnSale)
-                    {
-                        <span class="sale-feature-badge">
-
-                            <i class="bi bi-tag-fill"></i>
-                            Sale Available
-
-                        </span>
-                    }
-
-                    @if (isAvailableForRent)
-                    {
-                        <span class="rent-feature-badge">
-
-                            <i class="bi bi-arrow-repeat"></i>
-                            Available for Rent
-
-                        </span>
-                    }
-
-                    @if (canNegotiate)
-                    {
-                        <span class="negotiation-feature-badge">
-
-                            <i class="bi bi-handshake"></i>
-                            Price Negotiation Available
-
-                        </span>
-                    }
-
-                    @if (hasAcceptedNegotiation &&
-                         acceptedNegotiatedPrice.HasValue)
-                    {
-                        <span class="negotiated-feature-badge">
-
-                            <i class="bi bi-check-circle"></i>
-                            Negotiated Price Available
-
-                        </span>
-                    }
-
-                </div>
-
-                @if (hasSizeVariants)
-                {
-                    <div class="size-stock-section">
-
-                        <div class="size-stock-title">
-
-                            <i class="bi bi-rulers"></i>
-                            Available Sizes & Stock
-
-                        </div>
-
-                        <div class="size-stock-subtitle">
-
-                            Select the quantity you want for each size.
-                            You can add multiple sizes of this same dress
-                            to your cart with one click.
-
-                        </div>
-
-                        <table class="size-stock-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Size
-                                    </th>
-
-                                    <th>
-                                        Available Quantity
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @foreach (var variant in variants)
+                                @if (Model.StockQuantity > 0)
                                 {
-                                    <tr>
+                                    <i class="bi bi-check-circle"></i>
 
-                                        <td>
+                                    <strong>
+                                        @Model.StockQuantity pieces available
+                                    </strong>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle"></i>
 
-                                            <span class="size-badge">
-                                                @variant.Size
-                                            </span>
-
-                                        </td>
-
-                                        <td>
-
-                                            @if (variant.StockQuantity > 0)
-                                            {
-                                                <span class="stock-available-text">
-
-                                                    <i class="bi bi-check-circle"></i>
-
-                                                    @variant.StockQuantity
-                                                    pieces available
-
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="stock-out-text">
-
-                                                    <i class="bi bi-x-circle"></i>
-
-                                                    Out of Stock
-
-                                                </span>
-                                            }
-
-                                        </td>
-
-                                    </tr>
+                                    <strong>
+                                        Out of Stock
+                                    </strong>
                                 }
 
-                            </tbody>
-
-                        </table>
-
-                        <div class="variant-total">
-
-                            <i class="bi bi-box-seam"></i>
-
-                            Total available stock:
-                            @totalVariantStock pieces
-
-                        </div>
-
-                        @if (offersBuy || offersRent)
-                        {
-                            <div class="mt-4">
-
-                                <div class="fw-bold text-dark mb-2">
-
-                                    <i class="bi bi-cart-plus text-danger"></i>
-
-                                    Select Sizes and Quantities
-
-                                </div>
-
-                                <div class="text-muted small mb-3">
-
-                                    Enter the quantity for each size you want.
-                                    Leave unwanted sizes at 0.
-
-                                </div>
-
-                                <table class="multi-size-table">
-
-                                    <thead>
-
-                                        <tr>
-
-                                            <th>
-                                                Size
-                                            </th>
-
-                                            <th>
-                                                Available
-                                            </th>
-
-                                            <th>
-                                                Quantity
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody>
-
-                                        @foreach (var variant in variants)
-                                        {
-                                            <tr class="size-selection-row">
-
-                                                <td>
-
-                                                    <span class="size-badge">
-                                                        @variant.Size
-                                                    </span>
-
-                                                </td>
-
-                                                <td>
-
-                                                    @if (variant.StockQuantity > 0)
-                                                    {
-                                                        <span class="stock-available-text">
-                                                            @variant.StockQuantity
-                                                        </span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="stock-out-text">
-                                                            Out of Stock
-                                                        </span>
-                                                    }
-
-                                                </td>
-
-                                                <td>
-
-                                                    @if (variant.StockQuantity > 0)
-                                                    {
-                                                        @if (offersBuy)
-                                                        {
-                                                            <input type="hidden"
-                                                                   name="VariantSizes"
-                                                                   form="multiSizeBuyForm"
-                                                                   value="@variant.Size" />
-
-                                                            <input type="number"
-                                                                   name="VariantQuantities"
-                                                                   form="multiSizeBuyForm"
-                                                                   class="form-control size-quantity-input variant-quantity"
-                                                                   data-size="@variant.Size"
-                                                                   data-stock="@variant.StockQuantity"
-                                                                   value="0"
-                                                                   min="0"
-                                                                   max="@variant.StockQuantity" />
-                                                        }
-
-                                                        @if (offersRent)
-                                                        {
-                                                            <input type="hidden"
-                                                                   name="VariantSizes"
-                                                                   form="multiSizeRentForm"
-                                                                   value="@variant.Size" />
-
-                                                            <input type="hidden"
-                                                                   name="VariantQuantities"
-                                                                   form="multiSizeRentForm"
-                                                                   class="rent-hidden-quantity"
-                                                                   data-size="@variant.Size"
-                                                                   value="0" />
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <input type="number"
-                                                               class="form-control size-quantity-input"
-                                                               value="0"
-                                                               disabled />
-                                                    }
-
-                                                </td>
-
-                                            </tr>
-                                        }
-
-                                    </tbody>
-
-                                </table>
-
-                                <div id="selectedSizeSummary"
-                                     class="selected-count-box">
-
-                                    No sizes selected yet.
-
-                                </div>
-
-                                <div id="multiSizeError"
-                                     class="multi-size-error">
-
-                                    <i class="bi bi-exclamation-circle"></i>
-
-                                    Please select at least one size and quantity.
-
-                                </div>
-
                             </div>
-                        }
-
-                    </div>
-                }
-                else
-                {
-                    <div class="size-stock-section">
-
-                        <div class="size-stock-title">
-
-                            <i class="bi bi-box-seam"></i>
-                            Availability
-
-                        </div>
-
-                        <div class="standard-stock-box">
-
-                            @if (Model.StockQuantity > 0)
-                            {
-                                <i class="bi bi-check-circle"></i>
-
-                                <strong>
-                                    @Model.StockQuantity pieces available
-                                </strong>
-                            }
-                            else
-                            {
-                                <i class="bi bi-x-circle"></i>
-
-                                <strong>
-                                    Out of Stock
-                                </strong>
-                            }
-
-                        </div>
-
-                    </div>
-                }
-
-                <div class="details-section">
-
-                    <div class="details-title">
-
-                        <i class="bi bi-info-circle"></i>
-                        Product Information
-
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Category))
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Category
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.Category
-                            </span>
 
                         </div>
                     }
 
-                    @if (!string.IsNullOrWhiteSpace(Model.Subcategory))
-                    {
-                        <div class="detail-row">
+                    <div class="details-section">
 
-                            <span class="detail-label">
-                                Subcategory
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.Subcategory
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Occasion))
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Occasion
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.Occasion
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Color))
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Color
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.Color
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (!hasSizeVariants &&
-                         !string.IsNullOrWhiteSpace(Model.Size))
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Standard Size
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.Size
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.SizeType))
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Size Type
-                            </span>
-
-                            <span class="detail-value">
-                                @Model.SizeType
-                            </span>
-
-                        </div>
-                    }
-
-                    <div class="detail-row">
-
-                        <span class="detail-label">
-                            Total Stock
-                        </span>
-
-                        <span class="detail-value">
-
-                            @if (productInStock)
-                            {
-                                <span class="available-badge">
-
-                                    <i class="bi bi-check-circle"></i>
-                                    @totalVariantStock Available
-
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="unavailable-badge">
-
-                                    <i class="bi bi-x-circle"></i>
-                                    Out of Stock
-
-                                </span>
-                            }
-
-                        </span>
-
-                    </div>
-
-                    @if (productInStock && canBuy)
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Current Buy Price
-                            </span>
-
-                            <span class="detail-value"
-                                  style="color:#800020;">
-
-                                Rs. @displayBuyPrice.ToString("N2")
-
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (isAvailableForRent)
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Rental Price
-                            </span>
-
-                            <span class="detail-value"
-                                  style="color:#5936a3;">
-
-                                Rs. @Model.RentPrice!.Value.ToString("N2")
-
-                            </span>
-
-                        </div>
-                    }
-
-                    @if (hasAcceptedNegotiation &&
-                         acceptedNegotiatedPrice.HasValue)
-                    {
-                        <div class="detail-row">
-
-                            <span class="detail-label">
-                                Accepted Negotiated Price
-                            </span>
-
-                            <span class="detail-value"
-                                  style="color:#084298;">
-
-                                Rs.
-                                @acceptedNegotiatedPrice.Value.ToString("N2")
-
-                            </span>
-
-                        </div>
-                    }
-
-                </div>
-
-                @if (isAvailableForRent)
-                {
-                    <div class="rental-box">
-
-                        <h5>
-
-                            <i class="bi bi-arrow-repeat"></i>
-                            Rental Option
-
-                        </h5>
-
-                        <div class="rental-price">
-
-                            Rs.
-                            @Model.RentPrice!.Value.ToString("N2")
-
-                        </div>
-
-                        <div class="rental-detail">
-
-                            <span class="rental-label">
-                                Rental Price
-                            </span>
-
-                            <span class="rental-value">
-
-                                Rs.
-                                @Model.RentPrice!.Value.ToString("N2")
-
-                            </span>
-
-                        </div>
-
-                        @if (Model.RentalSecurity.HasValue)
-                        {
-                            <div class="rental-detail">
-
-                                <span class="rental-label">
-                                    Refundable Security
-                                </span>
-
-                                <span class="rental-value">
-
-                                    Rs.
-                                    @Model.RentalSecurity.Value.ToString("N2")
-
-                                </span>
-
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.RentalDuration))
-                        {
-                            <div class="rental-detail">
-
-                                <span class="rental-label">
-                                    Rental Duration
-                                </span>
-
-                                <span class="rental-value">
-                                    @Model.RentalDuration
-                                </span>
-
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.RentalConditions))
-                        {
-                            <div class="rental-detail">
-
-                                <span class="rental-label">
-                                    Rental Conditions
-                                </span>
-
-                                <span class="rental-value">
-                                    @Model.RentalConditions
-                                </span>
-
-                            </div>
-                        }
-
-                        <p class="rental-note">
+                        <div class="details-title">
 
                             <i class="bi bi-info-circle"></i>
+                            Product Information
 
-                            The security amount is refundable according
-                            to the shopkeeper's rental conditions.
+                        </div>
 
-                        </p>
-
-                    </div>
-                }
-
-                @if (Model.HasCustomMeasurement)
-                {
-                    <div class="measurement-box">
-
-                        <h5>
-
-                            <i class="bi bi-rulers"></i>
-                            Custom Measurement Available
-
-                        </h5>
-
-                        <p>
-
-                            This existing product supports custom
-                            measurements. You can provide your measurements
-                            during checkout according to the requirements
-                            of this dress.
-
-                        </p>
-
-                    </div>
-                }
-
-                @if (canNegotiate)
-                {
-                    <div class="negotiation-box">
-
-                        <h5>
-
-                            <i class="bi bi-handshake"></i>
-                            Negotiate Price
-
-                        </h5>
-
-                        @if (negotiatedAlreadyInCart)
+                        @if (!string.IsNullOrWhiteSpace(Model.Category))
                         {
-                            <p>
+                            <div class="detail-row">
 
-                                <strong>
-                                    This negotiated product is already in your cart.
-                                </strong>
+                                <span class="detail-label">
+                                    Category
+                                </span>
 
-                                A negotiated product can only be added once.
+                                <span class="detail-value">
+                                    @Model.Category
+                                </span>
 
-                            </p>
-
-                            <button type="button"
-                                    class="disabled-btn"
-                                    disabled>
-
-                                <i class="bi bi-check-circle"></i>
-
-                                Already Added to Cart
-
-                            </button>
+                            </div>
                         }
-                        else if (hasAcceptedNegotiation &&
-                                 acceptedNegotiatedPrice.HasValue)
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Subcategory))
                         {
-                            <div class="negotiated-price-box">
+                            <div class="detail-row">
 
-                                <div class="negotiated-price-label">
+                                <span class="detail-label">
+                                    Subcategory
+                                </span>
 
+                                <span class="detail-value">
+                                    @Model.Subcategory
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Occasion))
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Occasion
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.Occasion
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Color))
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Color
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.Color
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (!hasSizeVariants &&
+                                                !string.IsNullOrWhiteSpace(Model.Size))
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Standard Size
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.Size
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.SizeType))
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Size Type
+                                </span>
+
+                                <span class="detail-value">
+                                    @Model.SizeType
+                                </span>
+
+                            </div>
+                        }
+
+                        <div class="detail-row">
+
+                            <span class="detail-label">
+                                Total Stock
+                            </span>
+
+                            <span class="detail-value">
+
+                                @if (productInStock)
+                                {
+                                    <span class="available-badge">
+
+                                        <i class="bi bi-check-circle"></i>
+                                        @totalVariantStock Available
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="unavailable-badge">
+
+                                        <i class="bi bi-x-circle"></i>
+                                        Out of Stock
+
+                                    </span>
+                                }
+
+                            </span>
+
+                        </div>
+
+                        @if (productInStock && canBuy)
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Current Buy Price
+                                </span>
+
+                                <span class="detail-value"
+                                      style="color:#800020;">
+
+                                    Rs. @displayBuyPrice.ToString("N2")
+
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (isAvailableForRent)
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
+                                    Rental Price
+                                </span>
+
+                                <span class="detail-value"
+                                      style="color:#5936a3;">
+
+                                    Rs. @Model.RentPrice!.Value.ToString("N2")
+
+                                </span>
+
+                            </div>
+                        }
+
+                        @if (hasAcceptedNegotiation &&
+                                                acceptedNegotiatedPrice.HasValue)
+                        {
+                            <div class="detail-row">
+
+                                <span class="detail-label">
                                     Accepted Negotiated Price
+                                </span>
 
-                                </div>
-
-                                <div class="negotiated-price">
+                                <span class="detail-value"
+                                      style="color:#084298;">
 
                                     Rs.
                                     @acceptedNegotiatedPrice.Value.ToString("N2")
 
-                                </div>
+                                </span>
 
                             </div>
-
-                            <p>
-
-                                Your negotiated price has been accepted.
-                                You can add this product to your cart at
-                                the agreed price.
-
-                            </p>
-
-                            @if (productInStock)
-                            {
-                                <form asp-controller="Customer"
-                                      asp-action="AddToCart"
-                                      method="post"
-                                      id="negotiatedForm">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="productId"
-                                           value="@Model.ProductId" />
-
-                                    <input type="hidden"
-                                           name="quantity"
-                                           value="1" />
-
-                                    <input type="hidden"
-                                           name="purchaseType"
-                                           value="Negotiated" />
-
-                                    <input type="hidden"
-                                           name="size"
-                                           id="negotiatedSelectedSize"
-                                           value="" />
-
-                                    <button type="submit"
-                                            class="negotiated-cart-btn">
-
-                                        <i class="bi bi-cart-plus"></i>
-
-                                        Add Negotiated Price to Cart
-
-                                    </button>
-
-                                </form>
-                            }
-                        }
-                        else
-                        {
-                            <p>
-
-                                You can send your own price offer directly
-                                to the shopkeeper. The shopkeeper may accept
-                                your offer, reject it, or send you a counter
-                                offer.
-
-                                <strong>
-                                    Price negotiation is separate from Chat.
-                                </strong>
-
-                            </p>
-
-                            <a asp-controller="Customer"
-                               asp-action="Negotiate"
-                               asp-route-productId="@Model.ProductId"
-                               class="negotiation-btn">
-
-                                <i class="bi bi-handshake"></i>
-
-                                Negotiate Price
-
-                            </a>
                         }
 
                     </div>
-                }
 
-                @if (productInStock &&
-                     (canBuy || isAvailableForRent))
-                {
-                    <div class="action-area">
+                    @if (isAvailableForRent)
+                    {
+                        <div class="rental-box">
 
-                        @if (hasSizeVariants)
-                        {
-                            @if (canBuy)
+                            <h5>
+
+                                <i class="bi bi-arrow-repeat"></i>
+                                Rental Option
+
+                            </h5>
+
+                            <div class="rental-price">
+
+                                Rs.
+                                @Model.RentPrice!.Value.ToString("N2")
+
+                            </div>
+
+                            <div class="rental-detail">
+
+                                <span class="rental-label">
+                                    Rental Price
+                                </span>
+
+                                <span class="rental-value">
+
+                                    Rs.
+                                    @Model.RentPrice!.Value.ToString("N2")
+
+                                </span>
+
+                            </div>
+
+                            @if (Model.RentalSecurity.HasValue)
                             {
-                                @if (isOnSale)
+                                <div class="rental-detail">
+
+                                    <span class="rental-label">
+                                        Refundable Security
+                                    </span>
+
+                                    <span class="rental-value">
+
+                                        Rs.
+                                        @Model.RentalSecurity.Value.ToString("N2")
+
+                                    </span>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.RentalDuration))
+                            {
+                                <div class="rental-detail">
+
+                                    <span class="rental-label">
+                                        Rental Duration
+                                    </span>
+
+                                    <span class="rental-value">
+                                        @Model.RentalDuration
+                                    </span>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.RentalConditions))
+                            {
+                                <div class="rental-detail">
+
+                                    <span class="rental-label">
+                                        Rental Conditions
+                                    </span>
+
+                                    <span class="rental-value">
+                                        @Model.RentalConditions
+                                    </span>
+
+                                </div>
+                            }
+
+                            <p class="rental-note">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                The security amount is refundable according
+                                to the shopkeeper's rental conditions.
+
+                            </p>
+
+                        </div>
+                    }
+
+                    @if (Model.HasCustomMeasurement)
+                    {
+                        <div class="measurement-box">
+
+                            <h5>
+
+                                <i class="bi bi-rulers"></i>
+                                Custom Measurement Available
+
+                            </h5>
+
+                            <p>
+
+                                This existing product supports custom
+                                measurements. You can provide your measurements
+                                during checkout according to the requirements
+                                of this dress.
+
+                            </p>
+
+                        </div>
+                    }
+
+                    @if (canNegotiate)
+                    {
+                        <div class="negotiation-box">
+
+                            <h5>
+
+                                <i class="bi bi-handshake"></i>
+                                Negotiate Price
+
+                            </h5>
+
+                            @if (negotiatedAlreadyInCart)
+                            {
+                                <p>
+
+                                    <strong>
+                                        This negotiated product is already in your cart.
+                                    </strong>
+
+                                    A negotiated product can only be added once.
+
+                                </p>
+
+                                <button type="button"
+                                        class="disabled-btn"
+                                        disabled>
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Already Added to Cart
+
+                                </button>
+                            }
+                            else if (hasAcceptedNegotiation &&
+                            acceptedNegotiatedPrice.HasValue)
+                            {
+                                <div class="negotiated-price-box">
+
+                                    <div class="negotiated-price-label">
+
+                                        Accepted Negotiated Price
+
+                                    </div>
+
+                                    <div class="negotiated-price">
+
+                                        Rs.
+                                        @acceptedNegotiatedPrice.Value.ToString("N2")
+
+                                    </div>
+
+                                </div>
+
+                                <p>
+
+                                    Your negotiated price has been accepted.
+                                    You can add this product to your cart at
+                                    the agreed price.
+
+                                </p>
+
+                                @if (productInStock)
                                 {
-                                    <div class="purchase-option sale-option">
+                                    <form asp-controller="Customer"
+                                          asp-action="AddToCart"
+                                          method="post"
+                                          id="negotiatedForm">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@Model.ProductId" />
+
+                                        <input type="hidden"
+                                               name="quantity"
+                                               value="1" />
+
+                                        <input type="hidden"
+                                               name="purchaseType"
+                                               value="Negotiated" />
+
+                                        <input type="hidden"
+                                               name="size"
+                                               id="negotiatedSelectedSize"
+                                               value="" />
+
+                                        <button type="submit"
+                                                class="negotiated-cart-btn">
+
+                                            <i class="bi bi-cart-plus"></i>
+
+                                            Add Negotiated Price to Cart
+
+                                        </button>
+
+                                    </form>
+                                }
+                            }
+                            else
+                            {
+                                <p>
+
+                                    You can send your own price offer directly
+                                    to the shopkeeper. The shopkeeper may accept
+                                    your offer, reject it, or send you a counter
+                                    offer.
+
+                                    <strong>
+                                        Price negotiation is separate from Chat.
+                                    </strong>
+
+                                </p>
+
+                                <a asp-controller="Customer"
+                                   asp-action="Negotiate"
+                                   asp-route-productId="@Model.ProductId"
+                                   class="negotiation-btn">
+
+                                    <i class="bi bi-handshake"></i>
+
+                                    Negotiate Price
+
+                                </a>
+                            }
+
+                        </div>
+                    }
+
+                    @if (productInStock &&
+                                        (canBuy || isAvailableForRent))
+                    {
+                        <div class="action-area">
+
+                            @if (hasSizeVariants)
+                            {
+                                @if (canBuy)
+                                {
+                                    @if (isOnSale)
+                                    {
+                                        <div class="purchase-option sale-option">
+
+                                            <div class="purchase-option-title">
+
+                                                <i class="bi bi-tag-fill"></i>
+                                                Buy Selected Sizes on Sale
+
+                                            </div>
+
+                                            <div class="purchase-option-price">
+
+                                                Rs.
+                                                @Model.SalePrice!.Value.ToString("N2")
+
+                                                <small class="fw-normal">
+                                                    per piece
+                                                </small>
+
+                                            </div>
+
+                                            <p class="purchase-option-note">
+
+                                                Select quantities for one or more
+                                                sizes above, then add them together.
+
+                                            </p>
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post"
+                                                  id="multiSizeSaleForm"
+                                                  class="multi-size-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
+
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       value="1" />
+
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Sale" />
+
+                                                @foreach (var variant in variants.Where(v => v.StockQuantity > 0))
+                                                {
+                                                    <input type="hidden"
+                                                           name="VariantSizes"
+                                                           value="@variant.Size" />
+
+                                                    <input type="hidden"
+                                                           name="VariantQuantities"
+                                                           class="sale-hidden-quantity"
+                                                           data-size="@variant.Size"
+                                                           value="0" />
+                                                }
+
+                                                <button type="submit"
+                                                        class="add-cart-btn">
+
+                                                    <i class="bi bi-cart-plus"></i>
+
+                                                    Add Selected Sizes to Cart
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="purchase-option">
+
+                                            <div class="purchase-option-title">
+
+                                                <i class="bi bi-cart-check"></i>
+                                                Buy Selected Sizes
+
+                                            </div>
+
+                                            <div class="purchase-option-price">
+
+                                                Rs.
+                                                @Model.Price.ToString("N2")
+
+                                                <small class="fw-normal">
+                                                    per piece
+                                                </small>
+
+                                            </div>
+
+                                            <p class="purchase-option-note">
+
+                                                Select quantities for one or more
+                                                sizes above, then add them together.
+
+                                            </p>
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post"
+                                                  id="multiSizeBuyForm"
+                                                  class="multi-size-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
+
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       value="1" />
+
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Buy" />
+
+                                                <button type="submit"
+                                                        class="add-cart-btn">
+
+                                                    <i class="bi bi-cart-plus"></i>
+
+                                                    Add Selected Sizes to Cart
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                }
+
+                                @if (isAvailableForRent)
+                                {
+                                    <div class="purchase-option rent-option">
 
                                         <div class="purchase-option-title">
 
-                                            <i class="bi bi-tag-fill"></i>
-                                            Buy Selected Sizes on Sale
+                                            <i class="bi bi-arrow-repeat"></i>
+                                            Rent Selected Sizes
 
                                         </div>
 
                                         <div class="purchase-option-price">
 
                                             Rs.
-                                            @Model.SalePrice!.Value.ToString("N2")
+                                            @Model.RentPrice!.Value.ToString("N2")
 
                                             <small class="fw-normal">
                                                 per piece
@@ -2075,14 +2214,24 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
                                         <p class="purchase-option-note">
 
                                             Select quantities for one or more
-                                            sizes above, then add them together.
+                                            sizes above.
+
+                                            @if (Model.RentalSecurity.HasValue)
+                                            {
+                                                <span>
+                                                    +
+                                                    Rs.
+                                                    @Model.RentalSecurity.Value.ToString("N2")
+                                                    refundable security per piece
+                                                </span>
+                                            }
 
                                         </p>
 
                                         <form asp-controller="Customer"
                                               asp-action="AddToCart"
                                               method="post"
-                                              id="multiSizeSaleForm"
+                                              id="multiSizeRentForm"
                                               class="multi-size-form">
 
                                             @Html.AntiForgeryToken()
@@ -2097,7 +2246,7 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 
                                             <input type="hidden"
                                                    name="purchaseType"
-                                                   value="Sale" />
+                                                   value="Rent" />
 
                                             @foreach (var variant in variants.Where(v => v.StockQuantity > 0))
                                             {
@@ -2107,75 +2256,13 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 
                                                 <input type="hidden"
                                                        name="VariantQuantities"
-                                                       class="sale-hidden-quantity"
+                                                       class="rent-hidden-quantity"
                                                        data-size="@variant.Size"
                                                        value="0" />
                                             }
 
                                             <button type="submit"
-                                                    class="add-cart-btn">
-
-                                                <i class="bi bi-cart-plus"></i>
-
-                                                Add Selected Sizes to Cart
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="purchase-option">
-
-                                        <div class="purchase-option-title">
-
-                                            <i class="bi bi-cart-check"></i>
-                                            Buy Selected Sizes
-
-                                        </div>
-
-                                        <div class="purchase-option-price">
-
-                                            Rs.
-                                            @Model.Price.ToString("N2")
-
-                                            <small class="fw-normal">
-                                                per piece
-                                            </small>
-
-                                        </div>
-
-                                        <p class="purchase-option-note">
-
-                                            Select quantities for one or more
-                                            sizes above, then add them together.
-
-                                        </p>
-
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post"
-                                              id="multiSizeBuyForm"
-                                              class="multi-size-form">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
-
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   value="1" />
-
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Buy" />
-
-                                            <button type="submit"
-                                                    class="add-cart-btn">
+                                                    class="rent-cart-btn">
 
                                                 <i class="bi bi-cart-plus"></i>
 
@@ -2188,127 +2275,143 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
                                     </div>
                                 }
                             }
-
-                            @if (isAvailableForRent)
+                            else
                             {
-                                <div class="purchase-option rent-option">
+                                <div class="mb-3">
 
-                                    <div class="purchase-option-title">
+                                    <label class="fw-bold">
+                                        Quantity
+                                    </label>
 
-                                        <i class="bi bi-arrow-repeat"></i>
-                                        Rent Selected Sizes
+                                    <input type="number"
+                                           id="normalQuantity"
+                                           class="form-control quantity-input"
+                                           value="1"
+                                           min="1"
+                                           max="@Model.StockQuantity"
+                                           oninput="syncNormalQuantity()"
+                                           onchange="syncNormalQuantity()" />
+                                </div>
 
-                                    </div>
+                                @if (canBuy)
+                                {
+                                    @if (isOnSale)
+                                    {
+                                        <div class="purchase-option sale-option">
 
-                                    <div class="purchase-option-price">
+                                            <div class="purchase-option-title">
 
-                                        Rs.
-                                        @Model.RentPrice!.Value.ToString("N2")
+                                                <i class="bi bi-tag-fill"></i>
+                                                Buy on Sale
 
-                                        <small class="fw-normal">
-                                            per piece
-                                        </small>
+                                            </div>
 
-                                    </div>
+                                            <div class="purchase-option-price">
 
-                                    <p class="purchase-option-note">
-
-                                        Select quantities for one or more
-                                        sizes above.
-
-                                        @if (Model.RentalSecurity.HasValue)
-                                        {
-                                            <span>
-                                                +
                                                 Rs.
-                                                @Model.RentalSecurity.Value.ToString("N2")
-                                                refundable security per piece
-                                            </span>
-                                        }
+                                                @Model.SalePrice!.Value.ToString("N2")
 
-                                    </p>
+                                            </div>
 
-                                    <form asp-controller="Customer"
-                                          asp-action="AddToCart"
-                                          method="post"
-                                          id="multiSizeRentForm"
-                                          class="multi-size-form">
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post">
 
-                                        @Html.AntiForgeryToken()
+                                                @Html.AntiForgeryToken()
 
-                                        <input type="hidden"
-                                               name="productId"
-                                               value="@Model.ProductId" />
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
 
-                                        <input type="hidden"
-                                               name="quantity"
-                                               value="1" />
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       id="normalSaleQuantity"
+                                                       value="1" />
 
-                                        <input type="hidden"
-                                               name="purchaseType"
-                                               value="Rent" />
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Sale" />
 
-                                        @foreach (var variant in variants.Where(v => v.StockQuantity > 0))
-                                        {
-                                            <input type="hidden"
-                                                   name="VariantSizes"
-                                                   value="@variant.Size" />
+                                                <button type="submit"
+                                                        class="add-cart-btn">
 
-                                            <input type="hidden"
-                                                   name="VariantQuantities"
-                                                   class="rent-hidden-quantity"
-                                                   data-size="@variant.Size"
-                                                   value="0" />
-                                        }
+                                                    <i class="bi bi-cart-plus"></i>
 
-                                        <button type="submit"
-                                                class="rent-cart-btn">
+                                                    Add to Cart
 
-                                            <i class="bi bi-cart-plus"></i>
+                                                </button>
 
-                                            Add Selected Sizes to Cart
+                                            </form>
 
-                                        </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="purchase-option">
 
-                                    </form>
+                                            <div class="purchase-option-title">
 
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="mb-3">
+                                                <i class="bi bi-cart-check"></i>
+                                                Buy Product
 
-                                <label class="fw-bold">
-                                    Quantity
-                                </label>
+                                            </div>
 
-                                <input type="number"
-                                       id="normalQuantity"
-                                       class="form-control quantity-input"
-                                       value="1"
-                                       min="1"
-                                       max="@Model.StockQuantity" />
+                                            <div class="purchase-option-price">
 
-                            </div>
+                                                Rs.
+                                                @Model.Price.ToString("N2")
 
-                            @if (canBuy)
-                            {
-                                @if (isOnSale)
+                                            </div>
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="AddToCart"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@Model.ProductId" />
+
+                                                <input type="hidden"
+                                                       name="quantity"
+                                                       id="normalBuyQuantity"
+                                                       value="1" />
+
+                                                <input type="hidden"
+                                                       name="purchaseType"
+                                                       value="Buy" />
+
+                                                <button type="submit"
+                                                        class="add-cart-btn">
+
+                                                    <i class="bi bi-cart-plus"></i>
+
+                                                    Add to Cart
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                }
+
+                                @if (isAvailableForRent)
                                 {
-                                    <div class="purchase-option sale-option">
+                                    <div class="purchase-option rent-option">
 
                                         <div class="purchase-option-title">
 
-                                            <i class="bi bi-tag-fill"></i>
-                                            Buy on Sale
+                                            <i class="bi bi-arrow-repeat"></i>
+                                            Rent Product
 
                                         </div>
 
                                         <div class="purchase-option-price">
 
                                             Rs.
-                                            @Model.SalePrice!.Value.ToString("N2")
+                                            @Model.RentPrice!.Value.ToString("N2")
 
                                         </div>
 
@@ -2324,69 +2427,19 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 
                                             <input type="hidden"
                                                    name="quantity"
-                                                   id="normalSaleQuantity"
+                                                   id="normalRentQuantity"
                                                    value="1" />
 
                                             <input type="hidden"
                                                    name="purchaseType"
-                                                   value="Sale" />
+                                                   value="Rent" />
 
                                             <button type="submit"
-                                                    class="add-cart-btn">
+                                                    class="rent-cart-btn">
 
                                                 <i class="bi bi-cart-plus"></i>
 
-                                                Add to Cart
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="purchase-option">
-
-                                        <div class="purchase-option-title">
-
-                                            <i class="bi bi-cart-check"></i>
-                                            Buy Product
-
-                                        </div>
-
-                                        <div class="purchase-option-price">
-
-                                            Rs.
-                                            @Model.Price.ToString("N2")
-
-                                        </div>
-
-                                        <form asp-controller="Customer"
-                                              asp-action="AddToCart"
-                                              method="post">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="productId"
-                                                   value="@Model.ProductId" />
-
-                                            <input type="hidden"
-                                                   name="quantity"
-                                                   id="normalBuyQuantity"
-                                                   value="1" />
-
-                                            <input type="hidden"
-                                                   name="purchaseType"
-                                                   value="Buy" />
-
-                                            <button type="submit"
-                                                    class="add-cart-btn">
-
-                                                <i class="bi bi-cart-plus"></i>
-
-                                                Add to Cart
+                                                Add Rental to Cart
 
                                             </button>
 
@@ -2396,88 +2449,38 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
                                 }
                             }
 
-                            @if (isAvailableForRent)
-                            {
-                                <div class="purchase-option rent-option">
+                            <div class="option-divider"></div>
 
-                                    <div class="purchase-option-title">
+                            <a asp-controller="Customer"
+                               asp-action="Cart"
+                               class="cart-btn">
 
-                                        <i class="bi bi-arrow-repeat"></i>
-                                        Rent Product
+                                <i class="bi bi-cart3"></i>
 
-                                    </div>
+                                View Cart
 
-                                    <div class="purchase-option-price">
+                            </a>
 
-                                        Rs.
-                                        @Model.RentPrice!.Value.ToString("N2")
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="action-area">
 
-                                    </div>
+                            <button type="button"
+                                    class="disabled-btn"
+                                    disabled>
 
-                                    <form asp-controller="Customer"
-                                          asp-action="AddToCart"
-                                          method="post">
+                                <i class="bi bi-x-circle"></i>
 
-                                        @Html.AntiForgeryToken()
+                                Product Not Available for Purchase or Rent
 
-                                        <input type="hidden"
-                                               name="productId"
-                                               value="@Model.ProductId" />
+                            </button>
 
-                                        <input type="hidden"
-                                               name="quantity"
-                                               id="normalRentQuantity"
-                                               value="1" />
+                        </div>
+                    }
 
-                                        <input type="hidden"
-                                               name="purchaseType"
-                                               value="Rent" />
-
-                                        <button type="submit"
-                                                class="rent-cart-btn">
-
-                                            <i class="bi bi-cart-plus"></i>
-
-                                            Add Rental to Cart
-
-                                        </button>
-
-                                    </form>
-
-                                </div>
-                            }
-                        }
-
-                        <div class="option-divider"></div>
-
-                        <a asp-controller="Customer"
-                           asp-action="Cart"
-                           class="cart-btn">
-
-                            <i class="bi bi-cart3"></i>
-
-                            View Cart
-
-                        </a>
-
-                    </div>
-                }
-                else
-                {
-                    <div class="action-area">
-
-                        <button type="button"
-                                class="disabled-btn"
-                                disabled>
-
-                            <i class="bi bi-x-circle"></i>
-
-                            Product Not Available for Purchase or Rent
-
-                        </button>
-
-                    </div>
-                }
+                </div>
 
             </div>
 
@@ -2485,455 +2488,274 @@ if (!string.IsNullOrWhiteSpace(Model.AdditionalImages))
 
     </div>
 
-</div>
+    <script>
+        function changeProductImage(imagePath, button) {
+            const mainImage = document.getElementById("mainProductImage");
 
-<script>
+            if (mainImage) {
+                mainImage.style.opacity = "0.3";
 
-    function changeProductImage(imagePath, button) {
+                setTimeout(function () {
+                    mainImage.src = imagePath;
+                    mainImage.style.opacity = "1";
+                }, 100);
+            }
 
-        const mainImage =
-            document.getElementById("mainProductImage");
-
-        if (mainImage) {
-
-            mainImage.style.opacity = "0.3";
-
-            setTimeout(function () {
-
-                mainImage.src = imagePath;
-                mainImage.style.opacity = "1";
-
-            }, 100);
-        }
-
-        document
-            .querySelectorAll(".thumbnail-btn")
-            .forEach(function (item) {
-
+            document.querySelectorAll(".thumbnail-btn").forEach(function (item) {
                 item.classList.remove("active");
-
             });
 
-        if (button) {
-            button.classList.add("active");
+            if (button) {
+                button.classList.add("active");
+            }
         }
-    }
 
-    const variantInputs =
-        document.querySelectorAll(".variant-quantity");
+        const variantInputs = document.querySelectorAll(".variant-quantity");
+        const selectedSizeSummary = document.getElementById("selectedSizeSummary");
+        const multiSizeError = document.getElementById("multiSizeError");
 
-    const selectedSizeSummary =
-        document.getElementById("selectedSizeSummary");
+        function updateSelectedSizeSummary() {
+            let totalQuantity = 0;
+            let selectedSizes = [];
 
-    const multiSizeError =
-        document.getElementById("multiSizeError");
+            variantInputs.forEach(function (input) {
+                let quantity = parseInt(input.value, 10);
 
-    function updateSelectedSizeSummary() {
+                if (isNaN(quantity) || quantity < 0) {
+                    quantity = 0;
+                }
 
-        let totalQuantity = 0;
-        let selectedSizes = [];
+                const max = parseInt(input.dataset.stock, 10);
 
-        variantInputs.forEach(function (input) {
+                if (!isNaN(max) && quantity > max) {
+                    quantity = max;
+                }
 
-            let quantity =
-                parseInt(input.value, 10);
-
-            if (isNaN(quantity) || quantity < 0) {
-                quantity = 0;
-                input.value = 0;
-            }
-
-            const max =
-                parseInt(
-                    input.dataset.stock,
-                    10);
-
-            if (!isNaN(max) &&
-                quantity > max) {
-
-                quantity = max;
-                input.value = max;
-            }
-
-            if (quantity > 0) {
-
-                const size =
-                    input.dataset.size;
-
-                totalQuantity += quantity;
-
-                selectedSizes.push(
-                    size + " × " + quantity);
-            }
-
-            const row =
-                input.closest(
-                    ".size-selection-row");
-
-            if (row) {
+                input.value = quantity;
 
                 if (quantity > 0) {
-                    row.classList.add(
-                        "selected-size-row");
+                    totalQuantity += quantity;
+                    selectedSizes.push(input.dataset.size + " × " + quantity);
                 }
-                else {
-                    row.classList.remove(
-                        "selected-size-row");
+
+                const row = input.closest(".size-selection-row");
+
+                if (row) {
+                    row.classList.toggle("selected-size-row", quantity > 0);
+                }
+            });
+
+            if (selectedSizeSummary) {
+                if (selectedSizes.length === 0) {
+                    selectedSizeSummary.textContent = "No sizes selected yet.";
+                } else {
+                    selectedSizeSummary.textContent =
+                        totalQuantity + " piece(s) selected: " +
+                        selectedSizes.join(", ");
                 }
             }
-        });
 
-        if (selectedSizeSummary) {
-
-            if (selectedSizes.length === 0) {
-
-                selectedSizeSummary.innerHTML =
-                    "No sizes selected yet.";
-
-            }
-            else {
-
-                selectedSizeSummary.innerHTML =
-                    "<strong>" +
-                    totalQuantity +
-                    " piece(s) selected:</strong> " +
-                    selectedSizes.join(", ");
-            }
+            syncAllPurchaseForms();
         }
 
-        syncAllPurchaseForms();
-    }
+        function syncAllPurchaseForms() {
+            const buyForm = document.getElementById("multiSizeBuyForm");
+            const saleForm = document.getElementById("multiSizeSaleForm");
+            const rentForm = document.getElementById("multiSizeRentForm");
 
-    function syncAllPurchaseForms() {
+            variantInputs.forEach(function (input) {
+                const size = (input.dataset.size || "").toLowerCase();
+                const quantity = input.value;
 
-        const buyHiddenInputs =
-            document.querySelectorAll(
-                ".multi-size-form input[name='VariantQuantities']");
-
-        const saleHiddenInputs =
-            document.querySelectorAll(
-                ".sale-hidden-quantity");
-
-        const rentHiddenInputs =
-            document.querySelectorAll(
-                ".rent-hidden-quantity");
-
-        variantInputs.forEach(function (input) {
-
-            const size =
-                input.dataset.size;
-
-            const quantity =
-                input.value;
-
-            buyHiddenInputs.forEach(
-                function (hidden) {
-
-                    const form =
-                        hidden.form;
-
-                    if (!form ||
-                        form.id !== "multiSizeBuyForm") {
+                [buyForm, saleForm, rentForm].forEach(function (form) {
+                    if (!form) {
                         return;
                     }
 
-                    const sizeInputs =
-                        form.querySelectorAll(
-                            "input[name='VariantSizes']");
+                    const sizeInputs = form.querySelectorAll(
+                        'input[name="VariantSizes"]'
+                    );
 
-                    const index =
-                        Array.from(sizeInputs)
-                            .findIndex(function (sizeInput) {
+                    const quantityInputs = form.querySelectorAll(
+                        'input[name="VariantQuantities"]'
+                    );
 
-                                return sizeInput.value
-                                    .toLowerCase() ===
-                                    size.toLowerCase();
-
-                            });
-
-                    const quantityInputs =
-                        form.querySelectorAll(
-                            "input[name='VariantQuantities']");
-
-                    if (index >= 0 &&
-                        quantityInputs[index]) {
-
-                        quantityInputs[index].value =
-                            quantity;
-                    }
-
+                    sizeInputs.forEach(function (sizeInput, index) {
+                        if (
+                            (sizeInput.value || "").toLowerCase() === size &&
+                            quantityInputs[index]
+                        ) {
+                            quantityInputs[index].value = quantity;
+                        }
+                    });
                 });
-
-            saleHiddenInputs.forEach(
-                function (hidden) {
-
-                    if (
-                        hidden.dataset.size.toLowerCase() ===
-                        size.toLowerCase()
-                    ) {
-
-                        hidden.value =
-                            quantity;
-                    }
-
-                });
-
-            rentHiddenInputs.forEach(
-                function (hidden) {
-
-                    if (
-                        hidden.dataset.size.toLowerCase() ===
-                        size.toLowerCase()
-                    ) {
-
-                        hidden.value =
-                            quantity;
-                    }
-
-                });
-
-        });
-    }
-
-    function validateMultiSizeForm(event) {
-
-        let totalQuantity = 0;
-
-        variantInputs.forEach(function (input) {
-
-            let quantity =
-                parseInt(input.value, 10);
-
-            if (isNaN(quantity) ||
-                quantity < 0) {
-
-                quantity = 0;
-                input.value = 0;
-            }
-
-            const stock =
-                parseInt(
-                    input.dataset.stock,
-                    10);
-
-            if (quantity > stock) {
-
-                quantity = stock;
-                input.value = stock;
-            }
-
-            totalQuantity += quantity;
-        });
-
-        if (totalQuantity <= 0) {
-
-            event.preventDefault();
-
-            if (multiSizeError) {
-
-                multiSizeError.style.display =
-                    "block";
-
-            }
-
-            if (selectedSizeSummary) {
-
-                selectedSizeSummary.innerHTML =
-                    "Please select at least one size and quantity.";
-
-            }
-
-            return false;
+            });
         }
 
-        if (multiSizeError) {
-            multiSizeError.style.display =
-                "none";
-        }
+        function validateMultiSizeForm(event) {
+            syncAllPurchaseForms();
 
-        syncAllPurchaseForms();
+            let totalQuantity = 0;
+            let valid = true;
 
-        return true;
-    }
+            variantInputs.forEach(function (input) {
+                let quantity = parseInt(input.value, 10);
 
-    variantInputs.forEach(function (input) {
-
-        input.addEventListener(
-            "input",
-            function () {
-
-                let value =
-                    parseInt(this.value, 10);
-
-                if (isNaN(value) ||
-                    value < 0) {
-
-                    value = 0;
+                if (isNaN(quantity) || quantity < 0) {
+                    quantity = 0;
                 }
 
-                const stock =
-                    parseInt(
-                        this.dataset.stock,
-                        10);
+                const stock = parseInt(input.dataset.stock, 10);
 
-                if (!isNaN(stock) &&
-                    value > stock) {
-
-                    value = stock;
+                if (!isNaN(stock) && quantity > stock) {
+                    quantity = stock;
+                    valid = false;
                 }
 
-                this.value =
-                    value;
-
-                updateSelectedSizeSummary();
-
+                input.value = quantity;
+                totalQuantity += quantity;
             });
 
-    });
+            syncAllPurchaseForms();
 
-    document
-        .querySelectorAll(".multi-size-form")
-        .forEach(function (form) {
+            if (totalQuantity <= 0 || !valid) {
+                event.preventDefault();
 
-            form.addEventListener(
-                "submit",
-                validateMultiSizeForm);
+                if (multiSizeError) {
+                    multiSizeError.style.display = "block";
+                    multiSizeError.textContent = totalQuantity <= 0
+                        ? "Please select at least one size and quantity."
+                        : "A selected quantity exceeds the available stock.";
+                }
 
+                return false;
+            }
+
+            if (multiSizeError) {
+                multiSizeError.style.display = "none";
+            }
+
+            return true;
+        }
+
+        variantInputs.forEach(function (input) {
+            input.addEventListener("input", function () {
+                let quantity = parseInt(this.value, 10);
+
+                if (isNaN(quantity) || quantity < 0) {
+                    quantity = 0;
+                }
+
+                const stock = parseInt(this.dataset.stock, 10);
+
+                if (!isNaN(stock) && quantity > stock) {
+                    quantity = stock;
+                }
+
+                this.value = quantity;
+                updateSelectedSizeSummary();
+            });
         });
 
-    const negotiatedForm =
-        document.getElementById(
-            "negotiatedForm");
+        document.querySelectorAll(".multi-size-form").forEach(function (form) {
+            form.addEventListener("submit", validateMultiSizeForm);
+        });
 
-    const negotiatedSelectedSize =
-        document.getElementById(
-            "negotiatedSelectedSize");
+        const negotiatedForm = document.getElementById("negotiatedForm");
+        const negotiatedSelectedSize = document.getElementById(
+            "negotiatedSelectedSize"
+        );
 
-    if (negotiatedForm) {
-
-        negotiatedForm.addEventListener(
-            "submit",
-            function (event) {
-
+        if (negotiatedForm) {
+            negotiatedForm.addEventListener("submit", function (event) {
                 if (variantInputs.length === 0) {
                     return;
                 }
 
                 let selectedSize = "";
 
-                variantInputs.forEach(
-                    function (input) {
+                variantInputs.forEach(function (input) {
+                    const quantity = parseInt(input.value, 10);
 
-                        const quantity =
-                            parseInt(
-                                input.value,
-                                10);
-
-                        if (quantity > 0 &&
-                            !selectedSize) {
-
-                            selectedSize =
-                                input.dataset.size;
-                        }
-
-                    });
+                    if (quantity > 0 && !selectedSize) {
+                        selectedSize = input.dataset.size;
+                    }
+                });
 
                 if (!selectedSize) {
-
                     event.preventDefault();
 
                     if (selectedSizeSummary) {
-
-                        selectedSizeSummary.innerHTML =
+                        selectedSizeSummary.textContent =
                             "Please select one size for the negotiated product.";
-
                     }
 
                     return;
                 }
 
                 if (negotiatedSelectedSize) {
-
-                    negotiatedSelectedSize.value =
-                        selectedSize;
-
+                    negotiatedSelectedSize.value = selectedSize;
                 }
-
             });
+        }
 
-    }
+        const normalQuantity = document.getElementById("normalQuantity");
+        const normalBuyQuantity = document.getElementById("normalBuyQuantity");
+        const normalSaleQuantity = document.getElementById("normalSaleQuantity");
+        const normalRentQuantity = document.getElementById("normalRentQuantity");
 
-    const normalQuantity =
-        document.getElementById(
-            "normalQuantity");
+        function syncNormalQuantity() {
+            if (!normalQuantity) {
+                return;
+            }
 
-    const normalBuyQuantity =
-        document.getElementById(
-            "normalBuyQuantity");
+            let quantity = parseInt(normalQuantity.value, 10);
+            const max = parseInt(normalQuantity.max, 10);
 
-    const normalSaleQuantity =
-        document.getElementById(
-            "normalSaleQuantity");
+            if (isNaN(quantity) || quantity < 1) {
+                quantity = 1;
+            }
 
-    const normalRentQuantity =
-        document.getElementById(
-            "normalRentQuantity");
+            if (!isNaN(max) && max >= 1 && quantity > max) {
+                quantity = max;
+            }
 
-    if (normalQuantity) {
+            normalQuantity.value = quantity;
 
-        normalQuantity.addEventListener(
-            "input",
-            function () {
+            if (normalBuyQuantity) {
+                normalBuyQuantity.value = quantity;
+            }
 
-                let value =
-                    parseInt(
-                        this.value,
-                        10);
+            if (normalSaleQuantity) {
+                normalSaleQuantity.value = quantity;
+            }
 
-                if (isNaN(value) ||
-                    value < 1) {
+            if (normalRentQuantity) {
+                normalRentQuantity.value = quantity;
+            }
+        }
 
-                    value = 1;
-                }
+        document.querySelectorAll('form[action*="AddToCart"]').forEach(
+            function (form) {
+                form.addEventListener("submit", function () {
+                    syncNormalQuantity();
+                    syncAllPurchaseForms();
+                });
+            }
+        );
 
-                const max =
-                    parseInt(
-                        this.max,
-                        10);
+        if (normalQuantity) {
+            normalQuantity.addEventListener("input", syncNormalQuantity);
+            normalQuantity.addEventListener("change", syncNormalQuantity);
+        }
 
-                if (!isNaN(max) &&
-                    value > max) {
+        syncNormalQuantity();
+        updateSelectedSizeSummary();
+    </script>
 
-                    value = max;
-                }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-                this.value =
-                    value;
-
-                if (normalBuyQuantity) {
-                    normalBuyQuantity.value =
-                        value;
-                }
-
-                if (normalSaleQuantity) {
-                    normalSaleQuantity.value =
-                        value;
-                }
-
-                if (normalRentQuantity) {
-                    normalRentQuantity.value =
-                        value;
-                }
-
-            });
-
-    }
-
-    updateSelectedSizeSummary();
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
 </body>

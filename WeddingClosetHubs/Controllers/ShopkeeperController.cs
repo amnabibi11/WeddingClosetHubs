@@ -1517,46 +1517,86 @@ namespace WeddingClosetHubs.Controllers
         }
 
 
-public async Task<IActionResult> Products()
-{
-    if (!IsShopkeeper())
-        return RedirectToAction("Login", "Account");
-
-    var shop = await GetMyShop();
-
-    if (shop == null)
-        return NotFound();
-
-    var products = await _context.Products
-        .Include(p => p.Shop)
-        .Include(p => p.ProductVariants)
-        .Include(p => p.ProductImages)
-        .Where(p => p.ShopId == shop.ShopId)
-        .OrderByDescending(p => p.CreatedDate)
-        .ToListAsync();
-
-    foreach (var product in products)
-    {
-        if (product.ProductVariants != null &&
-            product.ProductVariants.Any())
+        public async Task<IActionResult> Products()
         {
-            product.StockQuantity = product.ProductVariants
-                .Sum(v => v.StockQuantity);
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
+
+            var shop = await GetMyShop();
+
+            if (shop == null)
+                return NotFound();
+
+            var products = await _context.Products
+                .Include(p => p.Shop)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.ProductImages)
+                .Where(p => p.ShopId == shop.ShopId)
+                .OrderByDescending(p => p.CreatedDate)
+                .ToListAsync();
+
+            foreach (var product in products)
+            {
+                if (product.ProductVariants != null &&
+                    product.ProductVariants.Any())
+                {
+                    product.StockQuantity = product.ProductVariants
+                        .Sum(v => v.StockQuantity);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
+
+            ViewBag.ShopName = shop.ShopName;
+            ViewBag.ProfileImage = shop.Shopkeeper?.ProfileImage;
+            ViewBag.ShopCategory = shop.ShopCategory;
+
+            return View(products);
         }
-    }
+        [HttpGet]
+        public async Task<IActionResult> Negotiations()
+        {
+            if (!IsShopkeeper())
+                return RedirectToAction("Login", "Account");
 
-    await _context.SaveChangesAsync();
+            int shopkeeperId = GetShopkeeperId()!.Value;
 
-    ViewBag.ShopkeeperName =
-        shop.Shopkeeper?.Name ?? "Shopkeeper";
+            var shop = await GetMyShop();
 
-    ViewBag.ShopName = shop.ShopName;
-    ViewBag.ProfileImage = shop.Shopkeeper?.ProfileImage;
-    ViewBag.ShopCategory = shop.ShopCategory;
+            if (shop == null)
+                return NotFound();
 
-    return View(products);
-}
+            var negotiations = await _context.Negotiations
+                .Include(n => n.Product)
+                .Include(n => n.Customer)
+                .Where(n =>
+                    n.ShopkeeperId == shopkeeperId &&
+                    n.Product != null &&
+                    n.Product.ShopId == shop.ShopId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
 
+            ViewBag.ShopkeeperName =
+                shop.Shopkeeper?.Name ?? "Shopkeeper";
+
+            ViewBag.ShopName = shop.ShopName;
+            ViewBag.ProfileImage = shop.Shopkeeper?.ProfileImage;
+            ViewBag.ShopCategory = shop.ShopCategory;
+
+            ViewBag.PendingCount = negotiations.Count(n =>
+                n.Status == "Pending");
+
+            ViewBag.CounterOfferCount = negotiations.Count(n =>
+                n.Status == "CounterOffer");
+
+            ViewBag.AcceptedCount = negotiations.Count(n =>
+                n.Status == "Accepted");
+
+            return View(negotiations);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -36,21 +36,24 @@
     string jazzCashAccount =
         ViewBag.JazzCashAccount as string ?? "";
 
+
     var checkoutPrices =
-        ViewBag.CheckoutPrices as Dictionary<int, decimal>
-        ?? new Dictionary<int, decimal>();
+        ViewBag.CheckoutPrices as Dictionary<string, decimal>
+        ?? new Dictionary<string, decimal>();
 
     var checkoutQuantities =
-        ViewBag.Quantities as Dictionary<int, int>
-        ?? new Dictionary<int, int>();
+        ViewBag.CheckoutQuantities as Dictionary<string, int>
+        ?? new Dictionary<string, int>();
 
     var checkoutPurchaseTypes =
-        ViewBag.PurchaseTypes as Dictionary<int, string>
-        ?? new Dictionary<int, string>();
+        ViewBag.CheckoutPurchaseTypes as Dictionary<string, string>
+        ?? new Dictionary<string, string>();
 
     var checkoutMeasurements =
-        ViewBag.Measurements as Dictionary<int, string>
-        ?? new Dictionary<int, string>();
+        ViewBag.CheckoutMeasurements as Dictionary<string, string>
+        ?? new Dictionary<string, string>();
+
+
 
     var customCheckoutItems =
         ViewBag.Customizations
@@ -872,25 +875,30 @@
                                 {
                                     foreach (var product in Model)
                                     {
+
+                                        string itemKey = "P" + product.ProductId;
+
                                         decimal checkoutPrice =
-                                        checkoutPrices.ContainsKey(product.ProductId)
-                                        ? checkoutPrices[product.ProductId]
+                                        checkoutPrices.TryGetValue(itemKey, out var savedPrice)
+                                        ? savedPrice
                                         : product.Price;
 
                                         int quantity =
-                                        checkoutQuantities.ContainsKey(product.ProductId)
-                                        ? checkoutQuantities[product.ProductId]
+                                        checkoutQuantities.TryGetValue(itemKey, out var savedQuantity)
+                                        ? savedQuantity
                                         : 1;
 
                                         string purchaseType =
-                                        checkoutPurchaseTypes.ContainsKey(product.ProductId)
-                                        ? checkoutPurchaseTypes[product.ProductId]
+                                        checkoutPurchaseTypes.TryGetValue(itemKey, out var savedPurchaseType)
+                                        ? savedPurchaseType
                                         : "Buy";
 
                                         string measurement =
-                                        checkoutMeasurements.ContainsKey(product.ProductId)
-                                        ? checkoutMeasurements[product.ProductId]
+                                        checkoutMeasurements.TryGetValue(itemKey, out var savedMeasurement)
+                                        ? savedMeasurement
                                         : "";
+
+
 
                                         bool isSalePurchase =
                                         purchaseType.Equals(
