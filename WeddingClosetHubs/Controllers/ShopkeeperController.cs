@@ -701,6 +701,41 @@ namespace WeddingClosetHubs.Controllers
 
 
 
+        private async Task<bool> HasNegotiationStock(
+    Negotiation negotiation)
+        {
+            if (negotiation.Product == null ||
+                negotiation.Quantity < 1 ||
+                string.IsNullOrWhiteSpace(negotiation.Size))
+            {
+                return false;
+            }
+
+            var product = await _context.Products
+                .Include(p => p.ProductVariants)
+                .FirstOrDefaultAsync(
+                    p => p.ProductId == negotiation.ProductId);
+
+            if (product == null || !product.Status)
+                return false;
+
+            string size = negotiation.Size.Trim();
+
+            if (product.ProductVariants != null &&
+                product.ProductVariants.Any())
+            {
+                var variant = product.ProductVariants
+                    .FirstOrDefault(v =>
+                        v.Size == size);
+
+                return variant != null &&
+                       variant.StockQuantity >= negotiation.Quantity;
+            }
+
+            return !string.IsNullOrWhiteSpace(product.Size) &&
+                   product.Size.Trim() == size &&
+                   product.StockQuantity >= negotiation.Quantity;
+        }
 
         private void ValidateProductSizing(
             Product product)
@@ -1610,24 +1645,13 @@ namespace WeddingClosetHubs.Controllers
             var negotiation = await _context.Negotiations
                 .Include(n => n.Product)
                 .Include(n => n.Customer)
-                .FirstOrDefaultAsync(
-                    n => n.NegotiationId == id &&
-                         n.ShopkeeperId == shopkeeperId);
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == id &&
+                    n.ShopkeeperId == shopkeeperId);
 
-            if (negotiation == null ||
-                negotiation.Product == null)
+            if (negotiation == null || negotiation.Product == null)
             {
-                TempData["Error"] =
-                    "Negotiation not found.";
-
-                return RedirectToAction("Negotiations");
-            }
-
-            if (!negotiation.Product.AllowNegotiation)
-            {
-                TempData["Error"] =
-                    "Negotiation is disabled for this product.";
-
+                TempData["Error"] = "Negotiation not found.";
                 return RedirectToAction("Negotiations");
             }
 
@@ -1642,34 +1666,43 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Negotiations");
             }
 
-            if (negotiation.RequestedPrice <= 0)
+            if (!negotiation.Product.AllowNegotiation)
             {
                 TempData["Error"] =
-                    "Invalid requested price.";
+                    "Negotiation is disabled for this product.";
 
                 return RedirectToAction("Negotiations");
             }
 
+            if (negotiation.RequestedPrice <= 0 ||
+                negotiation.RequestedPrice >= negotiation.OriginalPrice)
+            {
+                TempData["Error"] = "The requested price is invalid.";
+                return RedirectToAction("Negotiations");
+            }
 
-            negotiation.AgreedPrice =
-                negotiation.RequestedPrice;
+            if (!await HasNegotiationStock(negotiation))
+            {
+                TempData["Error"] =
+                    "The selected size or quantity is no longer available.";
 
-            negotiation.Status =
-                "Accepted";
+                return RedirectToAction("Negotiations");
+            }
 
-            negotiation.RespondedDate =
-                DateTime.Now;
-
+            negotiation.AgreedPrice = negotiation.RequestedPrice;
+            negotiation.Status = "Accepted";
+            negotiation.RespondedDate = DateTime.Now;
             negotiation.ShopkeeperMessage =
                 "Your offer has been accepted.";
 
             await _context.SaveChangesAsync();
 
-
             await CreateNotification(
                 negotiation.CustomerId,
                 "Negotiation Accepted",
-                $"Your offer of Rs. {negotiation.AgreedPrice:N0} for {negotiation.Product.ProductName} has been accepted by the shopkeeper.",
+                $"Your offer of Rs. {negotiation.AgreedPrice:N2} per dress for " +
+                $"{negotiation.Product.ProductName}, size {negotiation.Size}, " +
+                $"quantity {negotiation.Quantity}, has been accepted.",
                 "Negotiation",
                 null);
 
@@ -1678,7 +1711,6 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Negotiations");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1693,15 +1725,13 @@ namespace WeddingClosetHubs.Controllers
 
             var negotiation = await _context.Negotiations
                 .Include(n => n.Product)
-                .FirstOrDefaultAsync(
-                    n => n.NegotiationId == id &&
-                         n.ShopkeeperId == shopkeeperId);
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == id &&
+                    n.ShopkeeperId == shopkeeperId);
 
             if (negotiation == null)
             {
-                TempData["Error"] =
-                    "Negotiation not found.";
-
+                TempData["Error"] = "Negotiation not found.";
                 return RedirectToAction("Negotiations");
             }
 
@@ -1711,17 +1741,13 @@ namespace WeddingClosetHubs.Controllers
                     StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "This negotiation is no longer pending.";
+                    "Only pending negotiations can be rejected.";
 
                 return RedirectToAction("Negotiations");
             }
 
-            negotiation.Status =
-                "Rejected";
-
-            negotiation.RespondedDate =
-                DateTime.Now;
-
+            negotiation.Status = "Rejected";
+            negotiation.RespondedDate = DateTime.Now;
             negotiation.ShopkeeperMessage =
                 string.IsNullOrWhiteSpace(shopkeeperMessage)
                     ? "Your offer has been rejected."
@@ -1729,20 +1755,16 @@ namespace WeddingClosetHubs.Controllers
 
             await _context.SaveChangesAsync();
 
-
-            string productName =
-                negotiation.Product?.ProductName
-                ?? "product";
-
             await CreateNotification(
                 negotiation.CustomerId,
                 "Negotiation Rejected",
-                $"Your offer for {productName} has been rejected by the shopkeeper.",
+                $"Your offer for {negotiation.Product?.ProductName ?? "product"} " +
+                $"(size {negotiation.Size}, quantity {negotiation.Quantity}) " +
+                "has been rejected by the shopkeeper.",
                 "Negotiation",
                 null);
 
-            TempData["Success"] =
-                "Negotiation rejected successfully.";
+            TempData["Success"] = "Negotiation rejected successfully.";
 
             return RedirectToAction("Negotiations");
         }
@@ -1752,9 +1774,9 @@ namespace WeddingClosetHubs.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CounterNegotiation(
-            int id,
-            decimal counterPrice,
-            string? shopkeeperMessage)
+      int id,
+      decimal counterPrice,
+      string? shopkeeperMessage)
         {
             if (!IsShopkeeper())
                 return RedirectToAction("Login", "Account");
@@ -1763,16 +1785,13 @@ namespace WeddingClosetHubs.Controllers
 
             var negotiation = await _context.Negotiations
                 .Include(n => n.Product)
-                .FirstOrDefaultAsync(
-                    n => n.NegotiationId == id &&
-                         n.ShopkeeperId == shopkeeperId);
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == id &&
+                    n.ShopkeeperId == shopkeeperId);
 
-            if (negotiation == null ||
-                negotiation.Product == null)
+            if (negotiation == null || negotiation.Product == null)
             {
-                TempData["Error"] =
-                    "Negotiation not found.";
-
+                TempData["Error"] = "Negotiation not found.";
                 return RedirectToAction("Negotiations");
             }
 
@@ -1782,54 +1801,57 @@ namespace WeddingClosetHubs.Controllers
                     StringComparison.OrdinalIgnoreCase))
             {
                 TempData["Error"] =
-                    "This negotiation is no longer pending.";
+                    "Only pending negotiations can receive a counter-offer.";
 
                 return RedirectToAction("Negotiations");
             }
 
-            if (counterPrice <= 0)
+            if (!negotiation.Product.AllowNegotiation)
             {
                 TempData["Error"] =
-                    "Counter offer must be greater than zero.";
+                    "Negotiation is disabled for this product.";
 
                 return RedirectToAction("Negotiations");
             }
 
-
-            if (counterPrice >= negotiation.OriginalPrice)
+            if (counterPrice <= 0 ||
+                counterPrice >= negotiation.OriginalPrice)
             {
                 TempData["Error"] =
-                    "Counter offer must be lower than the original product price.";
+                    "Counter price must be greater than zero and lower than the original product price.";
 
                 return RedirectToAction("Negotiations");
             }
 
-            negotiation.CounterPrice =
-                counterPrice;
+            if (negotiation.Quantity < 1 ||
+                string.IsNullOrWhiteSpace(negotiation.Size))
+            {
+                TempData["Error"] =
+                    "This negotiation is missing its size or quantity.";
 
-            negotiation.Status =
-                "CounterOffer";
+                return RedirectToAction("Negotiations");
+            }
 
-            negotiation.RespondedDate =
-                DateTime.Now;
-
+            negotiation.CounterPrice = counterPrice;
+            negotiation.Status = "CounterOffer";
+            negotiation.RespondedDate = DateTime.Now;
             negotiation.ShopkeeperMessage =
                 string.IsNullOrWhiteSpace(shopkeeperMessage)
-                    ? $"Shopkeeper offered Rs. {counterPrice:N0}."
+                    ? $"Your counter-offer is Rs. {counterPrice:N2} per dress."
                     : shopkeeperMessage.Trim();
 
             await _context.SaveChangesAsync();
 
-
             await CreateNotification(
                 negotiation.CustomerId,
                 "New Counter Offer",
-                $"The shopkeeper has made a counter offer of Rs. {counterPrice:N0} for {negotiation.Product.ProductName}.",
+                $"The shopkeeper offered Rs. {counterPrice:N2} per dress for " +
+                $"{negotiation.Product.ProductName}, size {negotiation.Size}, " +
+                $"quantity {negotiation.Quantity}.",
                 "Negotiation",
                 null);
 
-            TempData["Success"] =
-                "Counter offer sent successfully.";
+            TempData["Success"] = "Counter-offer sent successfully.";
 
             return RedirectToAction("Negotiations");
         }

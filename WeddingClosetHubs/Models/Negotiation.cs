@@ -22,6 +22,11 @@ namespace WeddingClosetHubs.Models
 
         public decimal? AgreedPrice { get; set; }
 
+        public string? Size { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int Quantity { get; set; } = 1;
+
         public string? CustomerMessage { get; set; }
 
         public string? ShopkeeperMessage { get; set; }
@@ -31,9 +36,6 @@ namespace WeddingClosetHubs.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime? RespondedDate { get; set; }
-
-
-        
 
         [ForeignKey(nameof(ProductId))]
         public virtual Product? Product { get; set; }

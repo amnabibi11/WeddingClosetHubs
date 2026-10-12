@@ -281,6 +281,9 @@ namespace WeddingClosetHubs.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("RequestedPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -292,6 +295,9 @@ namespace WeddingClosetHubs.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ShopkeeperMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Size")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")

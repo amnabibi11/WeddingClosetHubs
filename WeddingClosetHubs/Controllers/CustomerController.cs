@@ -842,7 +842,6 @@ namespace WeddingClosetHubs.Controllers
 
 
 
-
         [HttpGet]
         public async Task<IActionResult> Negotiate(int productId)
         {
@@ -853,15 +852,14 @@ namespace WeddingClosetHubs.Controllers
 
             var product = await _context.Products
                 .Include(p => p.Shop)
+                .Include(p => p.ProductVariants)
                 .FirstOrDefaultAsync(p =>
                     p.ProductId == productId &&
                     p.Status);
 
             if (product == null)
             {
-                TempData["Error"] =
-                    "Product not found.";
-
+                TempData["Error"] = "Product not found.";
                 return RedirectToAction("Shops");
             }
 
@@ -869,19 +867,16 @@ namespace WeddingClosetHubs.Controllers
                 !product.Shop.Status ||
                 !product.Shop.IsApproved)
             {
-                TempData["Error"] =
-                    "This shop is currently unavailable.";
-
+                TempData["Error"] = "This shop is currently unavailable.";
                 return RedirectToAction("Shops");
             }
+
             if (!product.Shop.OffersBuy)
             {
                 TempData["Error"] =
                     "Buying and negotiation are not available from this shop.";
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                return RedirectToAction("ProductDetails", new { id = productId });
             }
 
             if (!product.AllowNegotiation)
@@ -889,22 +884,14 @@ namespace WeddingClosetHubs.Controllers
                 TempData["Error"] =
                     "Negotiation is not available for this product.";
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId }
-                );
+                return RedirectToAction("ProductDetails", new { id = productId });
             }
 
-            var existingNegotiation =
-                await _context.Negotiations
-                    .Where(n =>
-                        n.ProductId == productId &&
-                        n.CustomerId == customerId &&
-                        (n.Status == "Pending" ||
-                         n.Status == "CounterOffer"))
-                    .OrderByDescending(
-                        n => n.CreatedDate)
-                    .FirstOrDefaultAsync();
+            var existingNegotiation = await _context.Negotiations
+                .FirstOrDefaultAsync(n =>
+                    n.ProductId == productId &&
+                    n.CustomerId == customerId &&
+                    (n.Status == "Pending" || n.Status == "CounterOffer"));
 
             if (existingNegotiation != null)
             {
@@ -914,27 +901,33 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("MyNegotiations");
             }
 
-            ViewBag.ShopName =
-                product.Shop.ShopName;
+            var customer = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == customerId);
+
+            ViewBag.CustomerName = customer?.Name ?? "Customer";
+            ViewBag.ShopName = product.Shop.ShopName;
 
             return View(product);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MakeNegotiation(
-            int productId,
-            decimal requestedPrice,
-            string? customerMessage)
+      int productId,
+      decimal requestedPrice,
+      string? size,
+      int quantity,
+      string? customerMessage)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
             int customerId = GetCustomerId()!.Value;
 
-
             var product = await _context.Products
                 .Include(p => p.Shop)
+                .Include(p => p.ProductVariants)
                 .FirstOrDefaultAsync(p =>
                     p.ProductId == productId &&
                     p.Status);
@@ -942,68 +935,87 @@ namespace WeddingClosetHubs.Controllers
             if (product == null)
             {
                 TempData["Error"] = "Product not found.";
-                return RedirectToAction("MyNegotiations");
+                return RedirectToAction("Shops");
             }
-
 
             if (product.Shop == null ||
                 !product.Shop.Status ||
                 !product.Shop.IsApproved)
             {
-                TempData["Error"] =
-                    "This shop is currently unavailable.";
-
-                return RedirectToAction("MyNegotiations");
+                TempData["Error"] = "This shop is currently unavailable.";
+                return RedirectToAction("ProductDetails", new { id = productId });
             }
 
-            if (!product.Shop.OffersBuy)
+            if (!product.Shop.OffersBuy || !product.AllowNegotiation)
+            {
+                TempData["Error"] = "Negotiation is not available for this product.";
+                return RedirectToAction("ProductDetails", new { id = productId });
+            }
+
+            if (requestedPrice <= 0 || requestedPrice >= product.Price)
             {
                 TempData["Error"] =
-                    "Buying and negotiation are not available from this shop.";
+                    "Your offer must be greater than zero and lower than the original price.";
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                return RedirectToAction("Negotiate", new { productId });
             }
 
-            if (!product.AllowNegotiation)
+            if (quantity < 1)
+            {
+                TempData["Error"] = "Please select a valid quantity.";
+                return RedirectToAction("Negotiate", new { productId });
+            }
+
+            if (string.IsNullOrWhiteSpace(size))
+            {
+                TempData["Error"] = "Please select a dress size.";
+                return RedirectToAction("Negotiate", new { productId });
+            }
+
+            int availableStock;
+
+            if (product.ProductVariants.Any())
+            {
+                var selectedVariant = product.ProductVariants
+                    .FirstOrDefault(v =>
+                        v.Size == size.Trim() &&
+                        v.StockQuantity > 0);
+
+                if (selectedVariant == null)
+                {
+                    TempData["Error"] = "The selected size is unavailable.";
+                    return RedirectToAction("Negotiate", new { productId });
+                }
+
+                availableStock = selectedVariant.StockQuantity;
+            }
+            else
+            {
+                if (!string.Equals(
+                    product.Size?.Trim(),
+                    size.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["Error"] = "The selected size is invalid.";
+                    return RedirectToAction("Negotiate", new { productId });
+                }
+
+                availableStock = product.StockQuantity;
+            }
+
+            if (quantity > availableStock)
             {
                 TempData["Error"] =
-                    "Negotiation is not available for this product.";
+                    $"Only {availableStock} item(s) are available in this size.";
 
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
+                return RedirectToAction("Negotiate", new { productId });
             }
 
-
-            if (requestedPrice <= 0)
-            {
-                TempData["Error"] =
-                    "Please enter a valid offer price.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            if (requestedPrice >= product.Price)
-            {
-                TempData["Error"] =
-                    "Your negotiation offer must be lower than the original price.";
-
-                return RedirectToAction(
-                    "ProductDetails",
-                    new { id = productId });
-            }
-
-            var existingNegotiation =
-                await _context.Negotiations
-                    .FirstOrDefaultAsync(n =>
-                        n.ProductId == productId &&
-                        n.CustomerId == customerId &&
-                        (n.Status == "Pending" ||
-                         n.Status == "CounterOffer"));
+            var existingNegotiation = await _context.Negotiations
+                .FirstOrDefaultAsync(n =>
+                    n.ProductId == productId &&
+                    n.CustomerId == customerId &&
+                    (n.Status == "Pending" || n.Status == "CounterOffer"));
 
             if (existingNegotiation != null)
             {
@@ -1017,42 +1029,38 @@ namespace WeddingClosetHubs.Controllers
             {
                 ProductId = product.ProductId,
                 CustomerId = customerId,
-                ShopkeeperId = product.Shop!.ShopkeeperId,
-
+                ShopkeeperId = product.Shop.ShopkeeperId,
                 OriginalPrice = product.Price,
                 RequestedPrice = requestedPrice,
-
+                Size = size.Trim(),
+                Quantity = quantity,
                 CounterPrice = null,
                 AgreedPrice = null,
-
-                CustomerMessage =
-                    string.IsNullOrWhiteSpace(customerMessage)
-                        ? null
-                        : customerMessage.Trim(),
-
+                CustomerMessage = string.IsNullOrWhiteSpace(customerMessage)
+                    ? null
+                    : customerMessage.Trim(),
                 ShopkeeperMessage = null,
-
                 Status = "Pending",
-
                 CreatedDate = DateTime.Now,
                 RespondedDate = null
             };
 
             _context.Negotiations.Add(negotiation);
-
             await _context.SaveChangesAsync();
+
             await CreateNotification(
                 product.Shop.ShopkeeperId,
-                 "New Negotiation Offer",
-                  $"Customer has submitted an offer of Rs. {requestedPrice:N0} for {product.ProductName}.",
-                 "Negotiation"
-            );
+                "New Negotiation Offer",
+                $"Customer offered Rs. {requestedPrice:N0} per dress for {product.ProductName}. Size: {size}, Quantity: {quantity}.",
+                "Negotiation");
 
             TempData["Success"] =
-                $"Your offer of Rs. {requestedPrice:N0} has been sent to the shopkeeper.";
+                $"Your offer of Rs. {requestedPrice:N0} per dress has been sent.";
 
             return RedirectToAction("MyNegotiations");
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcceptCounterOffer(int negotiationId)
@@ -1214,6 +1222,137 @@ namespace WeddingClosetHubs.Controllers
 
             return View(negotiations);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNegotiatedToCart(int negotiationId)
+        {
+            if (!IsCustomerLoggedIn())
+                return CustomerLogin();
+
+            int customerId = GetCustomerId()!.Value;
+
+            var negotiation = await _context.Negotiations
+                .FirstOrDefaultAsync(n =>
+                    n.NegotiationId == negotiationId &&
+                    n.CustomerId == customerId &&
+                    n.Status == "Accepted" &&
+                    n.AgreedPrice.HasValue &&
+                    n.AgreedPrice.Value > 0);
+
+            if (negotiation == null)
+            {
+                TempData["Error"] =
+                    "This accepted negotiation could not be found.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            if (negotiation.Quantity < 1 ||
+                string.IsNullOrWhiteSpace(negotiation.Size))
+            {
+                TempData["Error"] =
+                    "The accepted negotiation is missing its size or quantity.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            var product = await _context.Products
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == negotiation.ProductId &&
+                    p.Status);
+
+            if (product == null ||
+                product.Shop == null ||
+                !product.Shop.Status ||
+                !product.Shop.IsApproved ||
+                !product.Shop.OffersBuy ||
+                !product.IsAvailableForBuy)
+            {
+                TempData["Error"] =
+                    "This product or shop is no longer available.";
+
+                return RedirectToAction("MyNegotiations");
+            }
+
+            string selectedSize = negotiation.Size.Trim();
+
+            if (product.ProductVariants != null &&
+                product.ProductVariants.Any())
+            {
+                var variant = product.ProductVariants.FirstOrDefault(v =>
+                    string.Equals(
+                        v.Size?.Trim(),
+                        selectedSize,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (variant == null ||
+                    variant.StockQuantity < negotiation.Quantity)
+                {
+                    TempData["Error"] =
+                        "The selected size no longer has enough stock.";
+
+                    return RedirectToAction("MyNegotiations");
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(product.Size) ||
+                    !string.Equals(
+                        product.Size.Trim(),
+                        selectedSize,
+                        StringComparison.OrdinalIgnoreCase) ||
+                    product.StockQuantity < negotiation.Quantity)
+                {
+                    TempData["Error"] =
+                        "The selected size or quantity is no longer available.";
+
+                    return RedirectToAction("MyNegotiations");
+                }
+            }
+
+            var cartItems = GetCartItems();
+
+            var existingItem = cartItems.FirstOrDefault(c =>
+                c.ProductId == negotiation.ProductId &&
+                c.CustomerId == customerId &&
+                c.CustomizationRequestId == null &&
+                c.NegotiationId == negotiation.NegotiationId);
+
+            if (existingItem != null)
+            {
+                existingItem.Price = negotiation.AgreedPrice.Value;
+                existingItem.Quantity = negotiation.Quantity;
+                existingItem.Size = selectedSize;
+                existingItem.ProductName = product.ProductName;
+                existingItem.PurchaseType = "Negotiated";
+            }
+            else
+            {
+                cartItems.Add(new CustomerCartItem
+                {
+                    CustomerId = customerId,
+                    ProductId = product.ProductId,
+                    CustomizationRequestId = null,
+                    ProductName = product.ProductName,
+                    Price = negotiation.AgreedPrice.Value,
+                    Quantity = negotiation.Quantity,
+                    Size = selectedSize,
+                    PurchaseType = "Negotiated",
+                    NegotiationId = negotiation.NegotiationId
+                });
+            }
+
+            SaveCartItems(cartItems);
+
+            TempData["Success"] =
+                "Accepted negotiated product added to your cart.";
+
+            return RedirectToAction("Cart");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(
@@ -3137,14 +3276,15 @@ namespace WeddingClosetHubs.Controllers
                 .Select(x => x.CustomizationRequestId!.Value)
                 .Distinct()
                 .ToList();
-
             var products =
                 await _context.Products
                     .Include(p => p.Shop)
+                    .Include(p => p.ProductVariants)
                     .Where(p =>
                         productIds.Contains(p.ProductId) &&
                         p.Status)
                     .ToListAsync();
+
 
             if (products.Count != productIds.Count)
             {
@@ -3278,9 +3418,9 @@ namespace WeddingClosetHubs.Controllers
                     return RedirectToAction("Cart");
                 }
 
-               bool hasVariants =
-    product.ProductVariants != null &&
-    product.ProductVariants.Any();
+                bool hasVariants =
+     product.ProductVariants != null &&
+     product.ProductVariants.Any();
 
                 if (hasVariants)
                 {
@@ -3450,28 +3590,27 @@ namespace WeddingClosetHubs.Controllers
                             "Rent";
                     }
                     else if (purchaseType.Equals(
-                        "Negotiated",
-                        StringComparison.OrdinalIgnoreCase))
+        "Negotiated",
+        StringComparison.OrdinalIgnoreCase))
                     {
-                        var negotiation =
-                            await _context.Negotiations
-                                .Where(n =>
-                                    n.ProductId ==
-                                        product.ProductId &&
-                                    n.CustomerId ==
-                                        customerId &&
-                                    n.Status ==
-                                        "Accepted" &&
-                                    n.AgreedPrice.HasValue)
-                                .OrderByDescending(
-                                    n =>
-                                        n.RespondedDate ??
-                                        n.CreatedDate)
-                                .FirstOrDefaultAsync();
+                        if (!item.NegotiationId.HasValue)
+                        {
+                            TempData["Error"] =
+                                $"The accepted negotiation for {product.ProductName} is missing.";
 
-                        if (negotiation == null ||
-                            !negotiation.AgreedPrice.HasValue ||
-                            negotiation.AgreedPrice.Value <= 0)
+                            return RedirectToAction("Cart");
+                        }
+
+                        var negotiation = await _context.Negotiations
+                            .FirstOrDefaultAsync(n =>
+                                n.NegotiationId == item.NegotiationId.Value &&
+                                n.ProductId == product.ProductId &&
+                                n.CustomerId == customerId &&
+                                n.Status == "Accepted" &&
+                                n.AgreedPrice.HasValue &&
+                                n.AgreedPrice.Value > 0);
+
+                        if (negotiation == null)
                         {
                             TempData["Error"] =
                                 $"The negotiated price for {product.ProductName} is no longer valid.";
@@ -3479,15 +3618,28 @@ namespace WeddingClosetHubs.Controllers
                             return RedirectToAction("Cart");
                         }
 
-                        finalUnitPrice =
-                            negotiation.AgreedPrice.Value;
+                        if (string.IsNullOrWhiteSpace(negotiation.Size) ||
+                            !string.Equals(
+                                item.Size?.Trim(),
+                                negotiation.Size.Trim(),
+                                StringComparison.OrdinalIgnoreCase) ||
+                            item.Quantity != negotiation.Quantity)
+                        {
+                            TempData["Error"] =
+                                $"The size or quantity in your cart does not match the accepted negotiation for {product.ProductName}.";
 
-                        negotiationId =
-                            negotiation.NegotiationId;
+                            return RedirectToAction("Cart");
+                        }
 
-                        purchaseType =
-                            "Negotiated";
+                        finalUnitPrice = negotiation.AgreedPrice.Value;
+
+                        negotiationId = negotiation.NegotiationId;
+
+                        purchaseType = "Negotiated";
+
+                        item.Price = finalUnitPrice;
                     }
+
                     else if (purchaseType.Equals(
                         "Sale",
                         StringComparison.OrdinalIgnoreCase))
