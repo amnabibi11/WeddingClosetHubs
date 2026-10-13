@@ -15,7 +15,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="utf-8" />
 
     <meta name="viewport"
@@ -30,7 +29,6 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
-
         body {
             background: #f5f7fb;
             font-family: Arial, Helvetica, sans-serif;
@@ -161,8 +159,15 @@
             padding: 10px 18px;
         }
 
-        @@media (max-width: 768px) {
+        .validation-summary-valid {
+            display: none;
+        }
 
+        .validation-summary-errors {
+            margin-bottom: 20px;
+        }
+
+        @@media (max-width: 768px) {
             .page-wrapper {
                 padding: 15px;
             }
@@ -171,60 +176,48 @@
                 font-size: 23px;
             }
         }
-
     </style>
-
 </head>
 
 <body>
-
     <div class="page-wrapper">
 
         <div class="page-header">
-
             <div class="row align-items-center">
 
                 <div class="col-md-8">
-
                     <h2 class="page-title">
-
                         <i class="bi bi-pencil-square"></i>
-
                         Edit Shop
-
                     </h2>
 
                     <p class="page-subtitle">
-
                         Update your shop information, categories and services.
-
                     </p>
-
                 </div>
 
                 <div class="col-md-4 text-md-end">
-
                     <a asp-controller="Shopkeeper"
                        asp-action="MyShop"
                        class="btn btn-secondary">
-
                         <i class="bi bi-arrow-left"></i>
-
                         Back to My Shop
-
                     </a>
-
                 </div>
 
             </div>
-
         </div>
 
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
 
         <div asp-validation-summary="ModelOnly"
              class="alert alert-danger">
         </div>
-
 
         <form asp-controller="Shopkeeper"
               asp-action="EditShop"
@@ -233,34 +226,21 @@
 
             @Html.AntiForgeryToken()
 
-            <input type="hidden"
-                   asp-for="ShopId" />
-
-            <input type="hidden"
-                   asp-for="ShopkeeperId" />
-
+            <input type="hidden" asp-for="ShopId" />
+            <input type="hidden" asp-for="ShopkeeperId" />
 
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-shop"></i>
-
                     Shop Information
-
                 </div>
 
                 <div class="card-body-custom">
-
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="ShopName"
-                                   class="form-label">
-
+                            <label asp-for="ShopName" class="form-label">
                                 Shop Name
-
                             </label>
 
                             <input asp-for="ShopName"
@@ -268,80 +248,34 @@
                                    placeholder="Enter shop name" />
 
                             <span asp-validation-for="ShopName"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="ShopCategory"
-                                   class="form-label">
-
+                            <label asp-for="ShopCategory" class="form-label">
                                 Main Shop Category
-
                             </label>
 
-                            <select asp-for="ShopCategory"
-                                    class="form-select">
-
-                                <option value="">
-                                    Select Main Category
-                                </option>
-
-                                <option value="Bridal Wear">
-                                    Bridal Wear
-                                </option>
-
-                                <option value="Groom Wear">
-                                    Groom Wear
-                                </option>
-
-                                <option value="Formal Wear">
-                                    Formal Wear
-                                </option>
-
-                                <option value="Wedding Guest Wear">
-                                    Wedding Guest Wear
-                                </option>
-
-                                <option value="Footwear">
-                                    Footwear
-                                </option>
-
-                                <option value="Jewellery">
-                                    Jewellery
-                                </option>
-
-                                <option value="Accessories">
-                                    Accessories
-                                </option>
-
-                                <option value="Bridal Accessories">
-                                   Bridal Accessories
-                                </option>
-
-                                <option value="Bridal Jewellery">
-                                   Bridal Jewellery
-                                </option>
-
+                            <select asp-for="ShopCategory" class="form-select">
+                                <option value="">Select Main Category</option>
+                                <option value="Bridal Wear">Bridal Wear</option>
+                                <option value="Groom Wear">Groom Wear</option>
+                                <option value="Formal Wear">Formal Wear</option>
+                                <option value="Wedding Guest Wear">Wedding Guest Wear</option>
+                                <option value="Footwear">Footwear</option>
+                                <option value="Jewellery">Jewellery</option>
+                                <option value="Accessories">Accessories</option>
+                                <option value="Bridal Accessories">Bridal Accessories</option>
+                                <option value="Bridal Jewellery">Bridal Jewellery</option>
                             </select>
 
                             <span asp-validation-for="ShopCategory"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-12 mb-3">
-
-                            <label asp-for="ShopDescription"
-                                   class="form-label">
-
+                            <label asp-for="ShopDescription" class="form-label">
                                 Shop Description
-
                             </label>
 
                             <textarea asp-for="ShopDescription"
@@ -350,35 +284,23 @@
                                       placeholder="Describe your shop"></textarea>
 
                             <span asp-validation-for="ShopDescription"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-grid-3x3-gap"></i>
-
-                    Shop Collections & Services
-
+                    Shop Collections &amp; Services
                 </div>
 
                 <div class="card-body-custom">
 
                     <div class="mb-4">
-
-                        <label class="form-label">
-                            Shop Collections
-                        </label>
+                        <label class="form-label">Shop Collections</label>
 
                         <p class="text-muted small">
                             Select all categories and collections that your shop currently offers.
@@ -386,242 +308,71 @@
 
                         <div class="row">
 
-                            <div class="col-md-6 col-lg-4 mb-3">
+                            @foreach (var collection in new[]
+                            {
+                                "Bridal Wear",
+                                "Groom Wear",
+                                "Formal Wear",
+                                "Wedding Guest Wear",
+                                "Footwear",
+                                "Jewellery",
+                                "Accessories",
+                                "Bridal Accessories",
+                                "Bridal Jewellery"
+                            })
+                            {
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="collection-box">
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="selectedCategories"
+                                                   value="@collection"
+                                                   id="collection_@Array.IndexOf(new[]
+                                                   {
+                                                       "Bridal Wear",
+                                                       "Groom Wear",
+                                                       "Formal Wear",
+                                                       "Wedding Guest Wear",
+                                                       "Footwear",
+                                                       "Jewellery",
+                                                       "Accessories",
+                                                       "Bridal Accessories",
+                                                       "Bridal Jewellery"
+                                                   }, collection)"
+                                                   checked="@collections.Contains(collection)" />
 
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Bridal Wear"
-                                               @(collections.Contains("Bridal Wear")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Bridal Wear
-                                        </label>
-
+                                            <label class="form-check-label"
+                                                   for="collection_@Array.IndexOf(new[]
+                                                   {
+                                                       "Bridal Wear",
+                                                       "Groom Wear",
+                                                       "Formal Wear",
+                                                       "Wedding Guest Wear",
+                                                       "Footwear",
+                                                       "Jewellery",
+                                                       "Accessories",
+                                                       "Bridal Accessories",
+                                                       "Bridal Jewellery"
+                                                   }, collection)">
+                                                @collection
+                                            </label>
+                                        </div>
                                     </div>
-
                                 </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Groom Wear"
-                                               @(collections.Contains("Groom Wear")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Groom Wear
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Formal Wear"
-                                               @(collections.Contains("Formal Wear")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Formal Wear
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Wedding Guest Wear"
-                                               @(collections.Contains("Wedding Guest Wear")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Wedding Guest Wear
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Footwear"
-                                               @(collections.Contains("Footwear")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Footwear
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Jewellery"
-                                               @(collections.Contains("Jewellery")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Jewellery
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Accessories"
-                                               @(collections.Contains("Accessories")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                            Accessories
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Bridal Accessories"
-                                               @(collections.Contains("Bridal Accessories")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                           Bridal Accessories
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                             <div class="col-md-6 col-lg-4 mb-3">
-
-                                <div class="collection-box">
-
-                                    <div class="form-check">
-
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="selectedCategories"
-                                               value="Bridal Jewellery"
-                                               @(collections.Contains("Bridal Jewellery")
-                                                   ? "checked"
-                                                   : "") />
-
-                                        <label class="form-check-label">
-                                         Bridal Jewellery
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
+                            }
 
                         </div>
 
+                        <span class="text-danger">
+                            @Html.ValidationMessage("ShopCollections")
+                        </span>
                     </div>
-
 
                     <hr class="my-4" />
 
-
                     <div>
-
-                        <label class="form-label">
-                            Services Offered
-                        </label>
+                        <label class="form-label">Services Offered</label>
 
                         <p class="text-muted small">
                             You can change the services your shop offers at any time.
@@ -630,161 +381,118 @@
                         <div class="row">
 
                             <div class="col-md-4 mb-3">
-
                                 <div class="service-box">
-
                                     <div class="form-check">
-
                                         <input class="form-check-input"
                                                type="checkbox"
                                                name="OffersBuy"
                                                value="true"
-                                               @(Model.OffersBuy
-                                                   ? "checked"
-                                                   : "") />
+                                               id="OffersBuy"
+                                               checked="@Model.OffersBuy" />
 
-                                        <label class="form-check-label">
-
+                                        <label class="form-check-label" for="OffersBuy">
                                             <i class="bi bi-cart-check me-1"></i>
-
                                             Buy / Sale
-
                                         </label>
-
                                     </div>
 
                                     <small class="text-muted d-block mt-2">
                                         Customers can buy products from your shop.
                                     </small>
-
                                 </div>
-
                             </div>
 
-
                             <div class="col-md-4 mb-3">
-
                                 <div class="service-box">
-
                                     <div class="form-check">
-
                                         <input class="form-check-input"
                                                type="checkbox"
                                                name="OffersRent"
                                                value="true"
-                                               @(Model.OffersRent
-                                                   ? "checked"
-                                                   : "") />
+                                               id="OffersRent"
+                                               checked="@Model.OffersRent" />
 
-                                        <label class="form-check-label">
-
+                                        <label class="form-check-label" for="OffersRent">
                                             <i class="bi bi-arrow-repeat me-1"></i>
-
                                             Rent
-
                                         </label>
-
                                     </div>
 
                                     <small class="text-muted d-block mt-2">
                                         Customers can rent eligible products from your shop.
                                     </small>
-
                                 </div>
-
                             </div>
 
-
                             <div class="col-md-4 mb-3">
-
                                 <div class="service-box">
-
                                     <div class="form-check">
-
                                         <input class="form-check-input"
                                                type="checkbox"
                                                name="OffersCustomization"
                                                value="true"
-                                               @(Model.OffersCustomization
-                                                   ? "checked"
-                                                   : "") />
+                                               id="OffersCustomization"
+                                               checked="@Model.OffersCustomization" />
 
-                                        <label class="form-check-label">
-
+                                        <label class="form-check-label"
+                                               for="OffersCustomization">
                                             <i class="bi bi-scissors me-1"></i>
-
                                             Customize
-
                                         </label>
-
                                     </div>
 
                                     <small class="text-muted d-block mt-2">
                                         Customers can submit customization requests.
                                     </small>
-
                                 </div>
-
                             </div>
 
                         </div>
 
+                        <span asp-validation-for="OffersBuy"
+                              class="text-danger"></span>
                     </div>
 
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-telephone"></i>
-
                     Contact Information
-
                 </div>
 
                 <div class="card-body-custom">
-
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="ShopPhone"
-                                   class="form-label">
-
+                            <label asp-for="ShopPhone" class="form-label">
                                 Shop Phone
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <input asp-for="ShopPhone"
+                                   type="tel"
+                                   inputmode="tel"
+                                   maxlength="18"
                                    class="form-control"
-                                   placeholder="03XX-XXXXXXX" />
+                                   placeholder="03001234567 or +923001234567"
+                                   pattern="(?:03[0-9]{2}[- ]?[0-9]{7}|\+?92[- ]?3[0-9]{2}[- ]?[0-9]{7})"
+                                   title="Enter a valid Pakistani mobile number, e.g. 03001234567 or +923001234567." />
+
+                            <small class="text-muted">
+                                Pakistani mobile numbers only.
+                                Examples: 03001234567 or +923001234567.
+                            </small>
 
                             <span asp-validation-for="ShopPhone"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="Email"
-                                   class="form-label">
-
+                            <label asp-for="Email" class="form-label">
                                 Email
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <input asp-for="Email"
@@ -793,19 +501,12 @@
                                    placeholder="shop@example.com" />
 
                             <span asp-validation-for="Email"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-12 mb-3">
-
-                            <label asp-for="ShopAddress"
-                                   class="form-label">
-
+                            <label asp-for="ShopAddress" class="form-label">
                                 Shop Address
-
                             </label>
 
                             <textarea asp-for="ShopAddress"
@@ -814,233 +515,149 @@
                                       placeholder="Enter complete shop address"></textarea>
 
                             <span asp-validation-for="ShopAddress"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-share"></i>
-
-                    Social Media & Online Contact
-
+                    Social Media &amp; Online Contact
                 </div>
 
                 <div class="card-body-custom">
 
                     <div class="optional-note">
-
                         <i class="bi bi-info-circle"></i>
-
                         All fields in this section are optional.
-                        Customers will only see the contact or social
-                        links that you provide.
-
+                        Customers will only see the contact or social links
+                        that you provide.
                     </div>
 
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="WhatsAppNumber"
-                                   class="form-label">
-
+                            <label asp-for="WhatsAppNumber" class="form-label">
                                 WhatsApp Number
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <div class="input-group social-input-group">
-
                                 <span class="social-input-icon">
-
                                     <i class="bi bi-whatsapp"></i>
-
                                 </span>
 
                                 <input asp-for="WhatsAppNumber"
+                                       type="tel"
+                                       inputmode="tel"
+                                       maxlength="18"
                                        class="form-control"
-                                       placeholder="923XXXXXXXXX" />
-
+                                       placeholder="03001234567 or +923001234567"
+                                       pattern="(?:03[0-9]{2}[- ]?[0-9]{7}|\+?92[- ]?3[0-9]{2}[- ]?[0-9]{7})"
+                                       title="Enter a valid Pakistani WhatsApp number, e.g. 03001234567 or +923001234567." />
                             </div>
 
                             <small class="text-muted">
-
-                                Use country code, for example:
-                                923001234567
-
+                                Pakistani mobile numbers only.
+                                Examples: 03001234567, 0300-1234567,
+                                or +923001234567.
                             </small>
 
                             <span asp-validation-for="WhatsAppNumber"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="FacebookUrl"
-                                   class="form-label">
-
+                            <label asp-for="FacebookUrl" class="form-label">
                                 Facebook
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <div class="input-group social-input-group">
-
                                 <span class="social-input-icon">
-
                                     <i class="bi bi-facebook"></i>
-
                                 </span>
 
                                 <input asp-for="FacebookUrl"
                                        class="form-control"
                                        placeholder="https://facebook.com/yourshop" />
-
                             </div>
 
                             <span asp-validation-for="FacebookUrl"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="InstagramUrl"
-                                   class="form-label">
-
+                            <label asp-for="InstagramUrl" class="form-label">
                                 Instagram
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <div class="input-group social-input-group">
-
                                 <span class="social-input-icon">
-
                                     <i class="bi bi-instagram"></i>
-
                                 </span>
 
                                 <input asp-for="InstagramUrl"
                                        class="form-control"
                                        placeholder="https://instagram.com/yourshop" />
-
                             </div>
 
                             <span asp-validation-for="InstagramUrl"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-6 mb-3">
-
-                            <label asp-for="TikTokUrl"
-                                   class="form-label">
-
+                            <label asp-for="TikTokUrl" class="form-label">
                                 TikTok
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <div class="input-group social-input-group">
-
                                 <span class="social-input-icon">
-
                                     <i class="bi bi-tiktok"></i>
-
                                 </span>
 
                                 <input asp-for="TikTokUrl"
                                        class="form-control"
                                        placeholder="https://www.tiktok.com/@@yourshop" />
-
                             </div>
 
                             <span asp-validation-for="TikTokUrl"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
-
                         <div class="col-md-12 mb-3">
-
-                            <label asp-for="WebsiteUrl"
-                                   class="form-label">
-
+                            <label asp-for="WebsiteUrl" class="form-label">
                                 Website
-
-                                <span class="optional-label">
-                                    (Optional)
-                                </span>
-
+                                <span class="optional-label">(Optional)</span>
                             </label>
 
                             <div class="input-group social-input-group">
-
                                 <span class="social-input-icon">
-
                                     <i class="bi bi-globe"></i>
-
                                 </span>
 
                                 <input asp-for="WebsiteUrl"
                                        class="form-control"
                                        placeholder="https://www.example.com" />
-
                             </div>
 
                             <span asp-validation-for="WebsiteUrl"
-                                  class="text-danger">
-                            </span>
-
+                                  class="text-danger"></span>
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-image"></i>
-
                     Shop Logo
-
                 </div>
 
                 <div class="card-body-custom">
@@ -1048,57 +665,39 @@
                     @if (!string.IsNullOrEmpty(Model.Logo))
                     {
                         <div class="mb-3">
-
-                            <p class="fw-bold">
-                                Current Logo
-                            </p>
+                            <p class="fw-bold">Current Logo</p>
 
                             <img src="@Model.Logo"
                                  class="current-image"
                                  alt="Current Logo" />
-
                         </div>
                     }
 
-                    <label class="form-label">
-                        Change Logo
-                    </label>
+                    <label class="form-label">Change Logo</label>
 
                     <input type="file"
-                           name="LogoFile"
+                           name="logoFile"
                            class="form-control"
                            accept="image/*" />
 
                     <small class="text-muted">
-
                         Leave empty if you do not want to change the logo.
-
                     </small>
 
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-header-custom">
-
                     <i class="bi bi-images"></i>
-
                     Shop Photos
-
                 </div>
 
                 <div class="card-body-custom">
-
                     <div class="row">
 
                         <div class="col-md-4 mb-4">
-
-                            <label class="form-label">
-                                Shop Front Photo
-                            </label>
+                            <label class="form-label">Shop Front Photo</label>
 
                             @if (!string.IsNullOrEmpty(Model.ShopFrontPhoto))
                             {
@@ -1108,18 +707,13 @@
                             }
 
                             <input type="file"
-                                   name="ShopFrontPhoto"
+                                   name="shopFrontPhoto"
                                    class="form-control"
                                    accept="image/*" />
-
                         </div>
 
-
                         <div class="col-md-4 mb-4">
-
-                            <label class="form-label">
-                                Shop Inside Photo
-                            </label>
+                            <label class="form-label">Shop Inside Photo</label>
 
                             @if (!string.IsNullOrEmpty(Model.ShopInsidePhoto))
                             {
@@ -1129,78 +723,54 @@
                             }
 
                             <input type="file"
-                                   name="ShopInsidePhoto"
+                                   name="shopInsidePhoto"
                                    class="form-control"
                                    accept="image/*" />
-
                         </div>
 
-
                         <div class="col-md-4 mb-4">
-
-                            <label class="form-label">
-                                Shop Signboard Photo
-                            </label>
+                            <label class="form-label">Shop Signboard Photo</label>
 
                             @if (!string.IsNullOrEmpty(Model.ShopSignboardPhoto))
                             {
                                 <img src="@Model.ShopSignboardPhoto"
                                      class="photo-preview mb-2"
                                      alt="Shop Signboard" />
-
                             }
 
                             <input type="file"
-                                   name="ShopSignboardPhoto"
+                                   name="shopSignboardPhoto"
                                    class="form-control"
                                    accept="image/*" />
-
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
 
-
             <div class="custom-card">
-
                 <div class="card-body-custom">
-
                     <div class="d-flex flex-wrap gap-2">
 
-                        <button type="submit"
-                                class="btn btn-success">
-
+                        <button type="submit" class="btn btn-success">
                             <i class="bi bi-check-circle"></i>
-
                             Save Changes
-
                         </button>
 
                         <a asp-controller="Shopkeeper"
                            asp-action="MyShop"
                            class="btn btn-secondary">
-
                             <i class="bi bi-x-circle"></i>
-
                             Cancel
-
                         </a>
 
                     </div>
-
                 </div>
-
             </div>
 
         </form>
-
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

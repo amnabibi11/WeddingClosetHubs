@@ -1053,8 +1053,8 @@
 
                                 <option value="Easypaisa"
                                         selected="@(paymentMethod.Equals(
-                                                                                                                            "Easypaisa",
-                                                                                                                            StringComparison.OrdinalIgnoreCase))">
+                                                                                                                                                                    "Easypaisa",
+                                                                                                                                                                    StringComparison.OrdinalIgnoreCase))">
 
                                     Easypaisa
 
@@ -1062,8 +1062,8 @@
 
                                 <option value="JazzCash"
                                         selected="@(paymentMethod.Equals(
-                                                                                                                            "JazzCash",
-                                                                                                                            StringComparison.OrdinalIgnoreCase))">
+                                                                                                                                                                    "JazzCash",
+                                                                                                                                                                    StringComparison.OrdinalIgnoreCase))">
 
                                     JazzCash
 
@@ -1080,22 +1080,23 @@
                                 Account / Mobile Number
                             </label>
 
-                            <input type="text"
+
+                            <input type="tel"
                                    name="paymentAccount"
                                    class="custom-input"
                                    value="@paymentAccount"
-                                   placeholder="03XXXXXXXXX"
-                                   maxlength="20"
+                                   maxlength="18"
+                                   inputmode="tel"
+                                   pattern="(?:03[0-9]{2}[- ]?[0-9]{7}|\+?92[- ]?3[0-9]{2}[- ]?[0-9]{7})"
+                                   title="Enter a valid Pakistani mobile number.
                                    autocomplete="off"
                                    required />
 
                             <span class="account-help">
-
-                                Enter the Easypaisa or JazzCash
-                                mobile/account number where Admin
-                                should send your payment.
-
+                                Enter a Pakistani mobile number registered with Easypaisa or JazzCash.
                             </span>
+
+
 
                         </div>
 

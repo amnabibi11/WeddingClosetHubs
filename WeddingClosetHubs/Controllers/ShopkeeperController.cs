@@ -1428,6 +1428,58 @@ namespace WeddingClosetHubs.Controllers
                     "Please select at least one service.");
             }
 
+            if (!string.IsNullOrWhiteSpace(model.ShopPhone))
+            {
+                string phone = model.ShopPhone.Trim();
+
+                if (!Regex.IsMatch(phone, @"^[0-9+\s()\-]+$"))
+                {
+                    ModelState.AddModelError(
+                        "ShopPhone",
+                        "Enter a valid Pakistani mobile number.");
+                }
+                else
+                {
+                    string normalizedPhone =
+                        Regex.Replace(phone, @"[\s()\-]", "");
+
+                    if (!Regex.IsMatch(
+                        normalizedPhone,
+                        @"^(?:03\d{9}|\+?923\d{9})$"))
+                    {
+                        ModelState.AddModelError(
+                            "ShopPhone",
+                            "Enter a valid Pakistani mobile number, e.g. 03001234567 or +923001234567.");
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.WhatsAppNumber))
+            {
+                string whatsapp = model.WhatsAppNumber.Trim();
+
+                if (!Regex.IsMatch(whatsapp, @"^[0-9+\s()\-]+$"))
+                {
+                    ModelState.AddModelError(
+                        "WhatsAppNumber",
+                        "Enter a valid Pakistani WhatsApp number.");
+                }
+                else
+                {
+                    string normalizedWhatsApp =
+                        Regex.Replace(whatsapp, @"[\s()\-]", "");
+
+                    if (!Regex.IsMatch(
+                        normalizedWhatsApp,
+                        @"^(?:03\d{9}|\+?923\d{9})$"))
+                    {
+                        ModelState.AddModelError(
+                            "WhatsAppNumber",
+                            "Enter a valid Pakistani WhatsApp number, e.g. 03001234567 or +923001234567.");
+                    }
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -1497,8 +1549,7 @@ namespace WeddingClosetHubs.Controllers
                     ? null
                     : model.WebsiteUrl.Trim();
 
-            if (logoFile != null &&
-                logoFile.Length > 0)
+            if (logoFile != null && logoFile.Length > 0)
             {
                 shop.Logo =
                     await SaveFile(
@@ -1550,6 +1601,7 @@ namespace WeddingClosetHubs.Controllers
                 return View(model);
             }
         }
+
 
 
         public async Task<IActionResult> Products()

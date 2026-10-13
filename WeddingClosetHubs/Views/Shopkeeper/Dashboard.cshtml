@@ -27,6 +27,9 @@
     string? whatsappNumber =
         ViewBag.ShopWhatsApp as string;
 
+    string? shopPhone =
+   ViewBag.ShopPhone as string;
+
     string? facebookLink =
         ViewBag.ShopFacebook as string;
 
@@ -2253,20 +2256,22 @@
 
                     <div class="contact-links">
 
-                        @if (!string.IsNullOrWhiteSpace(shopkeeperPhone) &&
-                                                shopkeeperPhone != "Phone not available")
+
+                        @if (!string.IsNullOrWhiteSpace(shopPhone))
                         {
-                            <a href="tel:@shopkeeperPhone"
+                            <a href="tel:@shopPhone"
                                class="contact-link">
 
                                 <i class="bi bi-telephone-fill"></i>
 
                                 <span>
-                                    @shopkeeperPhone
+                                    @shopPhone
                                 </span>
 
                             </a>
                         }
+
+
 
                         @if (!string.IsNullOrWhiteSpace(whatsappNumber))
                         {
@@ -2357,8 +2362,7 @@
                         }
 
                         @if (
-                                                (string.IsNullOrWhiteSpace(shopkeeperPhone) ||
-                                                shopkeeperPhone == "Phone not available") &&
+                                                string.IsNullOrWhiteSpace(shopPhone)&&
                                                 string.IsNullOrWhiteSpace(whatsappNumber) &&
                                                 string.IsNullOrWhiteSpace(facebookLink) &&
                                                 string.IsNullOrWhiteSpace(instagramLink) &&

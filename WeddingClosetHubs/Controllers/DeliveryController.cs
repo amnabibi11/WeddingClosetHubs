@@ -82,6 +82,22 @@ namespace WeddingClosetHubs.Controllers
             return true;
         }
 
+        private bool IsValidPakistaniMobileNumber(string? account)
+        {
+            if (string.IsNullOrWhiteSpace(account))
+                return false;
+
+            string normalized = System.Text.RegularExpressions.Regex.Replace(
+                account.Trim(),
+                @"[\s()\-]",
+                "");
+
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                normalized,
+                @"^(?:03\d{9}|\+?923\d{9})$");
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
@@ -1420,14 +1436,14 @@ namespace WeddingClosetHubs.Controllers
                 return RedirectToAction("Payments");
             }
 
-            if (account.Length < 10 ||
-                account.Length > 15)
+            if (!IsValidPakistaniMobileNumber(account))
             {
                 TempData["Error"] =
-                    "Please enter a valid Easypaisa/JazzCash account number.";
+                    "Enter a valid Pakistani mobile number, e.g. 03001234567 or +923001234567.";
 
                 return RedirectToAction("Payments");
             }
+
 
             var deliveryBoy =
                 await _context.DeliveryBoys
@@ -1556,16 +1572,16 @@ namespace WeddingClosetHubs.Controllers
                     new { id });
             }
 
-            if (account.Length < 10 ||
-                account.Length > 15)
+            if (!IsValidPakistaniMobileNumber(account))
             {
                 TempData["Error"] =
-                    "Please enter a valid Easypaisa/JazzCash account number.";
+                    "Enter a valid Pakistani mobile number, e.g. 03001234567 or +923001234567.";
 
                 return RedirectToAction(
                     "PaymentDetails",
                     new { id });
             }
+
 
             var deliveryBoy =
                 await _context.DeliveryBoys
@@ -1715,6 +1731,9 @@ namespace WeddingClosetHubs.Controllers
 
             return RedirectToAction("Notifications");
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> Chat(int? userId)
