@@ -3679,6 +3679,7 @@ namespace WeddingClosetHubs.Controllers
 
 
 
+
         public async Task<IActionResult> OrderDetails(int id)
         {
             if (!IsShopkeeper())
@@ -3695,6 +3696,8 @@ namespace WeddingClosetHubs.Controllers
                 .Include(o => o.Shop)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.CustomizationRequest)
                 .FirstOrDefaultAsync(
                     o => o.OrderId == id &&
                          o.ShopId == shop.ShopId &&
@@ -3711,14 +3714,12 @@ namespace WeddingClosetHubs.Controllers
             ViewBag.ShopkeeperName =
                 shop.Shopkeeper?.Name ?? "Shopkeeper";
 
-            ViewBag.ShopName =
-                shop.ShopName;
-
-            ViewBag.ProfileImage =
-                shop.Shopkeeper?.ProfileImage;
+            ViewBag.ShopName = shop.ShopName;
+            ViewBag.ProfileImage = shop.Shopkeeper?.ProfileImage;
 
             return View(order);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> CustomizationRequests()

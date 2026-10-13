@@ -111,9 +111,9 @@
             margin-bottom: 15px;
         }
 
-        .product-card:last-child {
-            margin-bottom: 0;
-        }
+            .product-card:last-child {
+                margin-bottom: 0;
+            }
 
         .product-image {
             width: 100px;
@@ -329,11 +329,11 @@
             padding: 10px 12px;
         }
 
-        .form-control-custom:focus,
-        .form-select-custom:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 0.15rem rgba(128, 0, 32, 0.12);
-        }
+            .form-control-custom:focus,
+            .form-select-custom:focus {
+                border-color: #800020;
+                box-shadow: 0 0 0 0.15rem rgba(128, 0, 32, 0.12);
+            }
 
         .btn-return {
             background: #800020;
@@ -344,10 +344,10 @@
             border-radius: 7px;
         }
 
-        .btn-return:hover {
-            background: #650019;
-            color: white;
-        }
+            .btn-return:hover {
+                background: #650019;
+                color: white;
+            }
 
         .damage-box {
             background: #fff3cd;
@@ -370,9 +370,9 @@
             border-bottom: 1px solid #eee;
         }
 
-        .price-row:last-child {
-            border-bottom: none;
-        }
+            .price-row:last-child {
+                border-bottom: none;
+            }
 
         .price-label {
             color: #666;
@@ -450,10 +450,10 @@
             border: none;
         }
 
-        .btn-maroon:hover {
-            background: #650019;
-            color: white;
-        }
+            .btn-maroon:hover {
+                background: #650019;
+                color: white;
+            }
 
         .empty-text {
             color: #888;
@@ -474,7 +474,6 @@
                 width: 80px;
                 height: 100px;
             }
-
         }
 
     </style>
@@ -483,1223 +482,41 @@
 
 <body>
 
-<div class="page-wrapper">
+    <div class="page-wrapper">
 
-    <div class="page-header">
+        <div class="page-header">
 
-        <div class="row align-items-center">
+            <div class="row align-items-center">
 
-            <div class="col-md-8">
+                <div class="col-md-8">
 
-                <h2 class="page-title">
+                    <h2 class="page-title">
 
-                    <i class="bi bi-receipt"></i>
+                        <i class="bi bi-receipt"></i>
 
-                    Order Details
+                        Order Details
 
-                </h2>
+                    </h2>
 
-                <p class="page-subtitle">
+                    <p class="page-subtitle">
 
-                    View complete information about your order.
-
-                </p>
-
-            </div>
-
-            <div class="col-md-4 text-md-end">
-
-                <a asp-controller="Customer"
-                   asp-action="MyOrders"
-                   class="btn btn-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-
-                    Back to My Orders
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-   
-    <div class="custom-card">
-
-        <div class="card-header-custom">
-
-            <i class="bi bi-receipt-cutoff"></i>
-
-            Order Summary
-
-        </div>
-
-        <div class="card-body-custom">
-
-            <div class="row">
-
-                <div class="col-md-4">
-
-                    <div class="info-box">
-
-                        <span class="info-label">
-                            Order ID
-                        </span>
-
-                        <span class="info-value">
-                            #@Model.OrderId
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="info-box">
-
-                        <span class="info-label">
-                            Order Date
-                        </span>
-
-                        <span class="info-value">
-
-                            @Model.CreatedDate.ToString("dd MMMM yyyy")
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="info-box">
-
-                        <span class="info-label">
-                            Order Status
-                        </span>
-
-                        <span class="info-value">
-
-                            @if (Model.OrderStatus == "Pending")
-                            {
-                                <span class="status-badge bg-warning text-dark">
-
-                                    <i class="bi bi-clock"></i>
-
-                                    Pending
-
-                                </span>
-                            }
-                            else if (Model.OrderStatus == "Confirmed")
-                            {
-                                <span class="status-badge bg-primary text-white">
-
-                                    <i class="bi bi-check-circle"></i>
-
-                                    Confirmed
-
-                                </span>
-                            }
-                            else if (Model.OrderStatus == "Processing")
-                            {
-                                <span class="status-badge bg-info text-dark">
-
-                                    <i class="bi bi-box-seam"></i>
-
-                                    Processing
-
-                                </span>
-                            }
-                            else if (Model.OrderStatus == "Shipped")
-                            {
-                                <span class="status-badge bg-primary text-white">
-
-                                    <i class="bi bi-truck"></i>
-
-                                    Shipped
-
-                                </span>
-                            }
-                            else if (Model.OrderStatus == "Delivered")
-                            {
-                                <span class="status-badge bg-success text-white">
-
-                                    <i class="bi bi-check-circle-fill"></i>
-
-                                    Delivered
-
-                                </span>
-                            }
-                            else if (Model.OrderStatus == "Cancelled")
-                            {
-                                <span class="status-badge bg-danger text-white">
-
-                                    <i class="bi bi-x-circle"></i>
-
-                                    Cancelled
-
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="status-badge bg-secondary text-white">
-
-                                    @Model.OrderStatus
-
-                                </span>
-                            }
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="custom-card">
-
-        <div class="card-header-custom">
-
-            <i class="bi bi-shop"></i>
-
-            Shop Information
-
-        </div>
-
-        <div class="card-body-custom">
-
-            <div class="shop-box">
-
-                <div class="shop-name">
-
-                    @(Model.Shop?.ShopName ?? "Shop Not Available")
-
-                </div>
-
-                @if (Model.Shop != null)
-                {
-                    <div class="mt-2">
-
-                        @if (!string.IsNullOrEmpty(Model.Shop.ShopCategory))
-                        {
-                            <p class="mb-1">
-
-                                <strong>Category:</strong>
-
-                                @Model.Shop.ShopCategory
-
-                            </p>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.Shop.ShopAddress))
-                        {
-                            <p class="mb-1">
-
-                                <strong>Address:</strong>
-
-                                @Model.Shop.ShopAddress
-
-                            </p>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.Shop.ShopPhone))
-                        {
-                            <p class="mb-0">
-
-                                <strong>Phone:</strong>
-
-                                @Model.Shop.ShopPhone
-
-                            </p>
-                        }
-
-                    </div>
-                }
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="custom-card">
-
-        <div class="card-header-custom">
-
-            <i class="bi bi-bag-check"></i>
-
-            Ordered Products
-
-        </div>
-
-        <div class="card-body-custom">
-
-            @if (Model.OrderDetails != null &&
-                 Model.OrderDetails.Any())
-            {
-                foreach (var item in Model.OrderDetails)
-                {
-                    <div class="product-card">
-
-                        <div class="row align-items-start">
-
-                            <div class="col-md-2 col-4 text-center">
-
-                                @if (!string.IsNullOrEmpty(item.Product?.Image))
-                                {
-                                    <img src="@item.Product.Image"
-                                         class="product-image"
-                                         alt="@item.Product.ProductName" />
-                                }
-                                else
-                                {
-                                    <div class="product-image d-flex align-items-center justify-content-center bg-light">
-
-                                        <i class="bi bi-image fs-2 text-secondary"></i>
-
-                                    </div>
-                                }
-
-                            </div>
-
-                            <div class="col-md-7 col-8">
-
-                                <div class="product-name">
-
-                                    @(item.Product?.ProductName ?? "Product")
-
-                                </div>
-
-                                @if (!string.IsNullOrEmpty(item.Product?.Category))
-                                {
-                                    <div class="product-detail">
-
-                                        <strong>Category:</strong>
-
-                                        @item.Product.Category
-
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrEmpty(item.Product?.Subcategory))
-                                {
-                                    <div class="product-detail">
-
-                                        <strong>Subcategory:</strong>
-
-                                        @item.Product.Subcategory
-
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrEmpty(item.Product?.Color))
-                                {
-                                    <div class="product-detail">
-
-                                        <strong>Color:</strong>
-
-                                        @item.Product.Color
-
-                                    </div>
-                                }
-
-                                <div class="product-detail">
-
-                                    <strong>Purchase Type:</strong>
-
-                                    @item.PurchaseType
-
-                                </div>
-
-                                <div class="product-detail">
-
-                                    <strong>Quantity:</strong>
-
-                                    @item.Quantity
-
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
-
-                                <div class="product-detail">
-                                    Price
-                                </div>
-
-                                <strong>
-
-                                    Rs. @item.UnitPrice.ToString("N2")
-
-                                </strong>
-
-                                <div class="mt-2">
-
-                                    <small class="text-muted">
-                                        Total:
-                                    </small>
-
-                                    <strong class="text-dark">
-
-                                        Rs. @item.SubTotal.ToString("N2")
-
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        @if (string.Equals(
-                            item.PurchaseType,
-                            "Rent",
-                            StringComparison.OrdinalIgnoreCase))
-                        {
-                            <div class="rental-box">
-
-                                <div class="rental-title">
-
-                                    <i class="bi bi-arrow-return-left"></i>
-
-                                    Rental & Security Information
-
-                                </div>
-
-                                <div class="row g-3">
-
-                                    <div class="col-md-3">
-
-                                        <div class="rental-info">
-
-                                            <span class="rental-label">
-                                                Rental Security
-                                            </span>
-
-                                            <span class="rental-value">
-
-                                                Rs.
-                                                @((item.RentalSecurity * item.Quantity).ToString("N2"))
-
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-3">
-
-                                        <div class="rental-info">
-
-                                            <span class="rental-label">
-                                                Rental Duration
-                                            </span>
-
-                                            <span class="rental-value">
-
-                                                @(item.RentalDuration ?? "Not specified")
-
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-3">
-
-                                        <div class="rental-info">
-
-                                            <span class="rental-label">
-                                                Return Status
-                                            </span>
-
-                                            @if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Return Requested",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-requested">
-
-                                                    <i class="bi bi-send-check"></i>
-
-                                                    Return Requested
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Return Picked Up",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-requested">
-
-                                                    <i class="bi bi-truck"></i>
-
-                                                    Return Picked Up
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Returned",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-returned">
-
-                                                    <i class="bi bi-box-arrow-in-left"></i>
-
-                                                    Returned
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Inspected",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-inspected">
-
-                                                    <i class="bi bi-search"></i>
-
-                                                    Inspected
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Refunded",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-refunded">
-
-                                                    <i class="bi bi-check-circle-fill"></i>
-
-                                                    Refunded
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Security Forfeited",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="rental-status rental-forfeited">
-
-                                                    <i class="bi bi-exclamation-triangle"></i>
-
-                                                    Security Forfeited
-
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="rental-status rental-awaiting">
-
-                                                    <i class="bi bi-clock"></i>
-
-                                                    @(item.RentalReturnStatus ?? "Awaiting Return")
-
-                                                </span>
-                                            }
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-3">
-
-                                        <div class="rental-info">
-
-                                            <span class="rental-label">
-                                                Security Status
-                                            </span>
-
-                                            @if (item.SecurityRefunded)
-                                            {
-                                                <span class="text-success fw-semibold">
-
-                                                    <i class="bi bi-check-circle-fill"></i>
-
-                                                    Refund Completed
-
-                                                </span>
-                                            }
-                                            else if (string.Equals(
-                                                item.RentalReturnStatus,
-                                                "Security Forfeited",
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                <span class="text-danger fw-semibold">
-
-                                                    <i class="bi bi-x-circle-fill"></i>
-
-                                                    Security Withheld
-
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-warning fw-semibold">
-
-                                                    <i class="bi bi-hourglass-split"></i>
-
-                                                    Refund Pending
-
-                                                </span>
-                                            }
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                @{
-                                    string rentalReturnStatus =
-                                        item.RentalReturnStatus?.Trim() ?? "";
-
-                                    bool returnAlreadyRequested =
-                                        rentalReturnStatus.Equals(
-                                            "Return Requested",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        rentalReturnStatus.Equals(
-                                            "Return Picked Up",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        rentalReturnStatus.Equals(
-                                            "Returned",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        rentalReturnStatus.Equals(
-                                            "Inspected",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        rentalReturnStatus.Equals(
-                                            "Refunded",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        rentalReturnStatus.Equals(
-                                            "Security Forfeited",
-                                            StringComparison.OrdinalIgnoreCase);
-
-                                    bool orderCanBeReturned =
-                                        string.Equals(
-                                            Model.OrderStatus,
-                                            "Delivered",
-                                            StringComparison.OrdinalIgnoreCase) ||
-                                        string.Equals(
-                                            Model.OrderStatus,
-                                            "Completed",
-                                            StringComparison.OrdinalIgnoreCase);
-                                }
-
-                                @if (!returnAlreadyRequested &&
-                                     orderCanBeReturned)
-                                {
-                                    <div class="return-action-box">
-
-                                        <div class="return-action-title">
-
-                                            <i class="bi bi-arrow-return-left me-1"></i>
-
-                                            Return Rental Product
-
-                                        </div>
-
-                                        <p class="text-muted mb-3">
-
-                                            Select where you want your refundable rental security to be sent after the returned dress is inspected and approved.
-
-                                        </p>
-
-                                        <form asp-controller="Customer"
-                                              asp-action="RequestRentalReturn"
-                                              method="post">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="orderDetailId"
-                                                   value="@item.OrderDetailId" />
-
-                                            <div class="refund-method-box">
-
-                                                <div class="refund-method-title">
-
-                                                    <i class="bi bi-wallet2 me-1"></i>
-
-                                                    Security Refund Details
-
-                                                </div>
-
-                                                <div class="row g-3">
-
-                                                    <div class="col-md-6">
-
-                                                        <label class="form-label-custom">
-                                                            Refund Method
-                                                        </label>
-
-                                                        <select name="refundPreferenceMethod"
-                                                                class="form-select form-select-custom"
-                                                                required>
-
-                                                            <option value="">
-                                                                -- Select Refund Method --
-                                                            </option>
-
-                                                            <option value="Easypaisa">
-                                                                Easypaisa
-                                                            </option>
-
-                                                            <option value="JazzCash">
-                                                                JazzCash
-                                                            </option>
-
-                                                        </select>
-
-                                                    </div>
-
-                                                    <div class="col-md-6">
-
-                                                        <label class="form-label-custom">
-                                                            Easypaisa / JazzCash Account Number
-                                                        </label>
-
-                                                        <input type="tel"
-                                                               name="refundPreferenceAccount"
-                                                               class="form-control form-control-custom"
-                                                               placeholder="03XXXXXXXXX"
-                                                               maxlength="11"
-                                                               minlength="11"
-                                                               pattern="03[0-9]{9}"
-                                                               inputmode="numeric"
-                                                               required />
-
-                                                        <div class="small text-muted mt-1">
-
-                                                            Enter the 11-digit mobile number linked to your Easypaisa or JazzCash account.
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="mt-3">
-
-                                                <button type="submit"
-                                                        class="btn btn-return"
-                                                        onclick="return confirm('Are you sure you want to submit the rental return request?');">
-
-                                                    <i class="bi bi-arrow-return-left me-1"></i>
-
-                                                    Return Dress
-
-                                                </button>
-
-                                            </div>
-
-                                        </form>
-
-                                    </div>
-                                }
-                                else if (returnAlreadyRequested)
-                                {
-                                    <div class="return-action-box">
-
-                                        <div class="return-action-title">
-
-                                            <i class="bi bi-check-circle me-1"></i>
-
-                                            Rental Return Request Submitted
-
-                                        </div>
-
-                                        <p class="text-muted mb-0">
-
-                                            Your rental return request has already been submitted. The selected refund information is shown below. You cannot submit another return request for this rental product.
-
-                                        </p>
-
-                                    </div>
-                                }
-                                else if (!orderCanBeReturned)
-                                {
-                                    <div class="return-action-box">
-
-                                        <div class="return-action-title">
-
-                                            <i class="bi bi-info-circle me-1"></i>
-
-                                            Return Not Available Yet
-
-                                        </div>
-
-                                        <p class="text-muted mb-0">
-
-                                            You can request the return after the rental order has been delivered.
-
-                                        </p>
-
-                                    </div>
-                                }
-
-                                @if (item.DressReturnedDate.HasValue)
-                                {
-                                    <div class="row g-3 mt-1">
-
-                                        <div class="col-md-4">
-
-                                            <div class="rental-info">
-
-                                                <span class="rental-label">
-                                                    Dress Received Date
-                                                </span>
-
-                                                <span class="rental-value">
-
-                                                    @item.DressReturnedDate.Value.ToString("dd MMM yyyy hh:mm tt")
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                }
-
-                                <div class="return-process-box">
-
-                                    <div class="return-process-title">
-
-                                        <i class="bi bi-info-circle"></i>
-
-                                        Rental Return Process
-
-                                    </div>
-
-                                    <ol>
-
-                                        <li>
-                                            Submit your rental return request.
-                                        </li>
-
-                                        <li>
-                                            Select Easypaisa or JazzCash and provide the mobile number linked to your account.
-                                        </li>
-
-                                        <li>
-                                            The delivery boy collects the rented dress from your delivery address.
-                                        </li>
-
-                                        <li>
-                                            The returned dress is received and inspected.
-                                        </li>
-
-                                        <li>
-                                            If approved, Admin refunds the refundable security through your selected Easypaisa or JazzCash account.
-                                        </li>
-
-                                    </ol>
-
-                                </div>
-
-                                @if (!string.IsNullOrWhiteSpace(item.RefundPreferenceMethod))
-                                {
-                                    <div class="refund-preference-box">
-
-                                        <div class="refund-preference-title">
-
-                                            <i class="bi bi-wallet2"></i>
-
-                                            Selected Security Refund Method
-
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-6">
-
-                                                <span class="rental-label">
-                                                    Refund Method
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @item.RefundPreferenceMethod
-
-                                                </span>
-
-                                            </div>
-
-                                            <div class="col-md-6">
-
-                                                <span class="rental-label">
-                                                    Refund Account
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @(item.RefundPreferenceAccount ?? "N/A")
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div class="small text-muted mt-3">
-
-                                            <i class="bi bi-info-circle"></i>
-
-                                            Your security will be refunded through this Easypaisa or JazzCash account after the returned dress has been inspected and approved by Admin.
-
-                                        </div>
-
-                                    </div>
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(item.InspectionResult))
-                                {
-                                    <div class="row g-3 mt-1">
-
-                                        <div class="col-md-6">
-
-                                            <div class="rental-info">
-
-                                                <span class="rental-label">
-                                                    Inspection Result
-                                                </span>
-
-                                                <span class="rental-value">
-
-                                                    @item.InspectionResult
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                        @if (!string.IsNullOrWhiteSpace(item.InspectionNotes))
-                                        {
-                                            <div class="col-md-6">
-
-                                                <div class="rental-info">
-
-                                                    <span class="rental-label">
-                                                        Inspection Notes
-                                                    </span>
-
-                                                    <span class="rental-value">
-
-                                                        @item.InspectionNotes
-
-                                                    </span>
-
-                                                </div>
-
-                                            </div>
-                                        }
-
-                                    </div>
-                                }
-
-                                @if (item.DamageDeduction > 0)
-                                {
-                                    <div class="damage-box">
-
-                                        <div class="damage-title">
-
-                                            <i class="bi bi-exclamation-triangle"></i>
-
-                                            Damage Deduction
-
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-6">
-
-                                                <span class="rental-label">
-                                                    Deduction
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    Rs. @item.DamageDeduction.ToString("N2")
-
-                                                </span>
-
-                                            </div>
-
-                                            <div class="col-md-6">
-
-                                                <span class="rental-label">
-                                                    Refundable Amount
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    Rs. @item.RefundAmount.ToString("N2")
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                }
-
-                                @if (item.SecurityRefunded)
-                                {
-                                    <div class="refund-box">
-
-                                        <div class="refund-title">
-
-                                            <i class="bi bi-wallet2"></i>
-
-                                            Security Refund Completed
-
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-md-3">
-
-                                                <span class="rental-label">
-                                                    Refund Amount
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    Rs. @item.RefundAmount.ToString("N2")
-
-                                                </span>
-
-                                            </div>
-
-                                            <div class="col-md-3">
-
-                                                <span class="rental-label">
-                                                    Refund Method
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @(item.SecurityRefundMethod ?? "N/A")
-
-                                                </span>
-
-                                            </div>
-
-                                            <div class="col-md-3">
-
-                                                <span class="rental-label">
-                                                    Refund Date
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @(item.SecurityRefundDate?.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
-
-                                                </span>
-
-                                            </div>
-
-                                            <div class="col-md-3">
-
-                                                <span class="rental-label">
-                                                    Transaction ID
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @(item.SecurityRefundTransactionId ?? "N/A")
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                        @if (!string.IsNullOrWhiteSpace(item.SecurityRefundAccount))
-                                        {
-                                            <div class="mt-3">
-
-                                                <span class="rental-label">
-                                                    Refund Account
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @item.SecurityRefundAccount
-
-                                                </span>
-
-                                            </div>
-                                        }
-
-                                        @if (!string.IsNullOrWhiteSpace(item.SecurityRefundNotes))
-                                        {
-                                            <div class="mt-3">
-
-                                                <span class="rental-label">
-                                                    Refund Notes
-                                                </span>
-
-                                                <span class="refund-value">
-
-                                                    @item.SecurityRefundNotes
-
-                                                </span>
-
-                                            </div>
-                                        }
-
-                                    </div>
-                                }
-
-                                @if (string.Equals(
-                                    item.RentalReturnStatus,
-                                    "Security Forfeited",
-                                    StringComparison.OrdinalIgnoreCase))
-                                {
-                                    <div class="damage-box">
-
-                                        <div class="damage-title">
-
-                                            <i class="bi bi-shield-x"></i>
-
-                                            Security Refund Not Available
-
-                                        </div>
-
-                                        <p class="mb-0">
-
-                                            The rental security has been withheld according to the Admin's inspection decision.
-
-                                        </p>
-
-                                    </div>
-                                }
-
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(item.CustomMeasurements))
-                        {
-                            <div class="measurement-box">
-
-                                <div class="measurement-title">
-
-                                    <i class="bi bi-rulers"></i>
-
-                                    Custom Measurements
-
-                                </div>
-
-                                <div class="measurement-text">
-
-                                    @item.CustomMeasurements
-
-                                </div>
-
-                            </div>
-                        }
-
-                    </div>
-                }
-
-            }
-            else
-            {
-                <div class="text-center py-4">
-
-                    <i class="bi bi-bag-x fs-1 text-secondary"></i>
-
-                    <p class="empty-text mt-2">
-
-                        No product details found for this order.
+                        View complete information about your order.
 
                     </p>
 
                 </div>
-            }
 
-        </div>
+                <div class="col-md-4 text-md-end">
 
-    </div>
+                    <a asp-controller="Customer"
+                       asp-action="MyOrders"
+                       class="btn btn-secondary">
 
-    <div class="custom-card">
+                        <i class="bi bi-arrow-left"></i>
 
-        <div class="card-header-custom">
+                        Back to My Orders
 
-            <i class="bi bi-truck"></i>
-
-            Delivery Information
-
-        </div>
-
-        <div class="card-body-custom">
-
-            <div class="row">
-
-                <div class="col-md-8">
-
-                    <label class="info-label">
-                        Delivery Address
-                    </label>
-
-                    <div class="address-box">
-
-                        <i class="bi bi-geo-alt-fill text-danger"></i>
-
-                        @Model.DeliveryAddress
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="info-box mt-3 mt-md-0">
-
-                        <span class="info-label">
-                            Delivery Charges
-                        </span>
-
-                        <span class="info-value">
-
-                            Rs. @Model.DeliveryCharges.ToString("N2")
-
-                        </span>
-
-                    </div>
-
-                    <div class="info-box">
-
-                        <span class="info-label">
-                            Delivery Boy
-                        </span>
-
-                        <span class="info-value">
-
-                            @(Model.Delivery?.Name ?? "Not Assigned Yet")
-
-                        </span>
-
-                    </div>
+                    </a>
 
                 </div>
 
@@ -1707,21 +524,18 @@
 
         </div>
 
-    </div>
 
-    <div class="custom-card">
+        <div class="custom-card">
 
-        <div class="card-header-custom">
+            <div class="card-header-custom">
 
-            <i class="bi bi-credit-card"></i>
+                <i class="bi bi-receipt-cutoff"></i>
 
-            Payment Information
+                Order Summary
 
-        </div>
+            </div>
 
-        <div class="card-body-custom">
-
-            <div class="payment-box">
+            <div class="card-body-custom">
 
                 <div class="row">
 
@@ -1730,45 +544,28 @@
                         <div class="info-box">
 
                             <span class="info-label">
-                                Payment Method
+                                Order ID
+                            </span>
+
+                            <span class="info-value">
+                                #@Model.OrderId
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="info-box">
+
+                            <span class="info-label">
+                                Order Date
                             </span>
 
                             <span class="info-value">
 
-                                @if (Model.PaymentMethod == "Cash on Delivery")
-                                {
-                                    <span class="status-badge bg-warning text-dark">
-
-                                        <i class="bi bi-cash"></i>
-
-                                        Cash on Delivery
-
-                                    </span>
-                                }
-                                else if (Model.PaymentMethod == "Easypaisa")
-                                {
-                                    <span class="status-badge bg-success text-white">
-
-                                        <i class="bi bi-phone"></i>
-
-                                        Easypaisa
-
-                                    </span>
-                                }
-                                else if (Model.PaymentMethod == "JazzCash")
-                                {
-                                    <span class="status-badge bg-danger text-white">
-
-                                        <i class="bi bi-phone"></i>
-
-                                        JazzCash
-
-                                    </span>
-                                }
-                                else
-                                {
-                                    @Model.PaymentMethod
-                                }
+                                @Model.CreatedDate.ToString("dd MMMM yyyy")
 
                             </span>
 
@@ -1781,28 +578,76 @@
                         <div class="info-box">
 
                             <span class="info-label">
-                                Payment Status
+                                Order Status
                             </span>
 
                             <span class="info-value">
 
-                                @if (Model.PaymentReceived)
-                                {
-                                    <span class="status-badge bg-success text-white">
-
-                                        <i class="bi bi-check-circle-fill"></i>
-
-                                        Payment Received
-
-                                    </span>
-                                }
-                                else
+                                @if (Model.OrderStatus == "Pending")
                                 {
                                     <span class="status-badge bg-warning text-dark">
 
                                         <i class="bi bi-clock"></i>
 
-                                        Payment Pending
+                                        Pending
+
+                                    </span>
+                                }
+                                else if (Model.OrderStatus == "Confirmed")
+                                {
+                                    <span class="status-badge bg-primary text-white">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Confirmed
+
+                                    </span>
+                                }
+                                else if (Model.OrderStatus == "Processing")
+                                {
+                                    <span class="status-badge bg-info text-dark">
+
+                                        <i class="bi bi-box-seam"></i>
+
+                                        Processing
+
+                                    </span>
+                                }
+                                else if (Model.OrderStatus == "Shipped")
+                                {
+                                    <span class="status-badge bg-primary text-white">
+
+                                        <i class="bi bi-truck"></i>
+
+                                        Shipped
+
+                                    </span>
+                                }
+                                else if (Model.OrderStatus == "Delivered")
+                                {
+                                    <span class="status-badge bg-success text-white">
+
+                                        <i class="bi bi-check-circle-fill"></i>
+
+                                        Delivered
+
+                                    </span>
+                                }
+                                else if (Model.OrderStatus == "Cancelled")
+                                {
+                                    <span class="status-badge bg-danger text-white">
+
+                                        <i class="bi bi-x-circle"></i>
+
+                                        Cancelled
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge bg-secondary text-white">
+
+                                        @Model.OrderStatus
 
                                     </span>
                                 }
@@ -1813,19 +658,1070 @@
 
                     </div>
 
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="custom-card">
+
+            <div class="card-header-custom">
+
+                <i class="bi bi-shop"></i>
+
+                Shop Information
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <div class="shop-box">
+
+                    <div class="shop-name">
+
+                        @(Model.Shop?.ShopName ?? "Shop Not Available")
+
+                    </div>
+
+                    @if (Model.Shop != null)
+                    {
+                        <div class="mt-2">
+
+                            @if (!string.IsNullOrEmpty(Model.Shop.ShopCategory))
+                            {
+                                <p class="mb-1">
+
+                                    <strong>Category:</strong>
+
+                                    @Model.Shop.ShopCategory
+
+                                </p>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Shop.ShopAddress))
+                            {
+                                <p class="mb-1">
+
+                                    <strong>Address:</strong>
+
+                                    @Model.Shop.ShopAddress
+
+                                </p>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Shop.ShopPhone))
+                            {
+                                <p class="mb-0">
+
+                                    <strong>Phone:</strong>
+
+                                    @Model.Shop.ShopPhone
+
+                                </p>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="custom-card">
+
+            <div class="card-header-custom">
+
+                <i class="bi bi-bag-check"></i>
+
+                Ordered Products
+
+            </div>
+
+            <div class="card-body-custom">
+
+                @if (Model.OrderDetails != null &&
+                                Model.OrderDetails.Any())
+                {
+                    foreach (var item in Model.OrderDetails)
+                    {
+                        <div class="product-card">
+
+                            <div class="row align-items-start">
+
+
+                                <div class="col-md-2 col-4 text-center">
+
+                                    @{
+                                        bool isCustomized = string.Equals(
+                                        item.PurchaseType,
+                                        "Customized",
+                                        StringComparison.OrdinalIgnoreCase);
+
+                                        string? displayImage = isCustomized
+                                        ? item.CustomizationRequest?.ReferenceImages
+                                        : item.Product?.Image;
+
+                                        string imageAlt = isCustomized
+                                        ? (item.CustomizationRequest?.ProductName ?? "Customized product")
+                                        : (item.Product?.ProductName ?? "Ordered product");
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(displayImage))
+                                    {
+                                        <img src="@displayImage"
+                                             class="product-image"
+                                             alt="@imageAlt"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+
+                                        <div class="product-image d-none align-items-center justify-content-center bg-light">
+                                            <i class="bi bi-image fs-2 text-secondary"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="product-image d-flex align-items-center justify-content-center bg-light">
+                                            <i class="bi bi-image fs-2 text-secondary"></i>
+                                        </div>
+                                    }
+
+                        </div>
+
+
+
+                        <div class="col-md-7 col-8">
+
+                            <div class="product-name">
+                                @(
+                                                                string.Equals(
+                                                                item.PurchaseType,
+                                                                "Customized",
+                                                                StringComparison.OrdinalIgnoreCase)
+                                                                ? (item.CustomizationRequest?.ProductName ?? "Customized Product")
+                                                                : (item.Product?.ProductName ?? "Product")
+                                                                )
+                            </div>
+
+
+                            @if (!string.IsNullOrEmpty(item.Product?.Category))
+                                    {
+                                        <div class="product-detail">
+
+                                            <strong>Category:</strong>
+
+                                            @item.Product.Category
+
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(item.Product?.Subcategory))
+                                    {
+                                        <div class="product-detail">
+
+                                            <strong>Subcategory:</strong>
+
+                                            @item.Product.Subcategory
+
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(item.Product?.Color))
+                                    {
+                                        <div class="product-detail">
+
+                                            <strong>Color:</strong>
+
+                                            @item.Product.Color
+
+                                        </div>
+                                    }
+
+                                    <div class="product-detail">
+
+                                        <strong>Purchase Type:</strong>
+
+                                        @item.PurchaseType
+
+                                    </div>
+
+                                    <div class="product-detail">
+
+                                        <strong>Quantity:</strong>
+
+                                        @item.Quantity
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+
+                                    <div class="product-detail">
+                                        Price
+                                    </div>
+
+                                    <strong>
+
+                                        Rs. @item.UnitPrice.ToString("N2")
+
+                                    </strong>
+
+                                    <div class="mt-2">
+
+                                        <small class="text-muted">
+                                            Total:
+                                        </small>
+
+                                        <strong class="text-dark">
+
+                                            Rs. @item.SubTotal.ToString("N2")
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            @if (string.Equals(
+                                                item.PurchaseType,
+                                                "Rent",
+                                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <div class="rental-box">
+
+                                    <div class="rental-title">
+
+                                        <i class="bi bi-arrow-return-left"></i>
+
+                                        Rental & Security Information
+
+                                    </div>
+
+                                    <div class="row g-3">
+
+                                        <div class="col-md-3">
+
+                                            <div class="rental-info">
+
+                                                <span class="rental-label">
+                                                    Rental Security
+                                                </span>
+
+                                                <span class="rental-value">
+
+                                                    Rs.
+                                                    @((item.RentalSecurity * item.Quantity).ToString("N2"))
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <div class="rental-info">
+
+                                                <span class="rental-label">
+                                                    Rental Duration
+                                                </span>
+
+                                                <span class="rental-value">
+
+                                                    @(item.RentalDuration ?? "Not specified")
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <div class="rental-info">
+
+                                                <span class="rental-label">
+                                                    Return Status
+                                                </span>
+
+                                                @if (string.Equals(
+                                                                                    item.RentalReturnStatus,
+                                                                                    "Return Requested",
+                                                                                    StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-requested">
+
+                                                        <i class="bi bi-send-check"></i>
+
+                                                        Return Requested
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Return Picked Up",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-requested">
+
+                                                        <i class="bi bi-truck"></i>
+
+                                                        Return Picked Up
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Returned",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-returned">
+
+                                                        <i class="bi bi-box-arrow-in-left"></i>
+
+                                                        Returned
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Inspected",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-inspected">
+
+                                                        <i class="bi bi-search"></i>
+
+                                                        Inspected
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Refunded",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-refunded">
+
+                                                        <i class="bi bi-check-circle-fill"></i>
+
+                                                        Refunded
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Security Forfeited",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="rental-status rental-forfeited">
+
+                                                        <i class="bi bi-exclamation-triangle"></i>
+
+                                                        Security Forfeited
+
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="rental-status rental-awaiting">
+
+                                                        <i class="bi bi-clock"></i>
+
+                                                        @(item.RentalReturnStatus ?? "Awaiting Return")
+
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+
+                                            <div class="rental-info">
+
+                                                <span class="rental-label">
+                                                    Security Status
+                                                </span>
+
+                                                @if (item.SecurityRefunded)
+                                                {
+                                                    <span class="text-success fw-semibold">
+
+                                                        <i class="bi bi-check-circle-fill"></i>
+
+                                                        Refund Completed
+
+                                                    </span>
+                                                }
+                                                else if (string.Equals(
+                                                item.RentalReturnStatus,
+                                                "Security Forfeited",
+                                                StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <span class="text-danger fw-semibold">
+
+                                                        <i class="bi bi-x-circle-fill"></i>
+
+                                                        Security Withheld
+
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-warning fw-semibold">
+
+                                                        <i class="bi bi-hourglass-split"></i>
+
+                                                        Refund Pending
+
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    @{
+                                        string rentalReturnStatus =
+                                        item.RentalReturnStatus?.Trim() ?? "";
+
+                                        bool returnAlreadyRequested =
+                                        rentalReturnStatus.Equals(
+                                        "Return Requested",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        rentalReturnStatus.Equals(
+                                        "Return Picked Up",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        rentalReturnStatus.Equals(
+                                        "Returned",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        rentalReturnStatus.Equals(
+                                        "Inspected",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        rentalReturnStatus.Equals(
+                                        "Refunded",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        rentalReturnStatus.Equals(
+                                        "Security Forfeited",
+                                        StringComparison.OrdinalIgnoreCase);
+
+                                        bool orderCanBeReturned =
+                                        string.Equals(
+                                        Model.OrderStatus,
+                                        "Delivered",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(
+                                        Model.OrderStatus,
+                                        "Completed",
+                                        StringComparison.OrdinalIgnoreCase);
+                                    }
+
+                                    @if (!returnAlreadyRequested &&
+                                                            orderCanBeReturned)
+                                    {
+                                        <div class="return-action-box">
+
+                                            <div class="return-action-title">
+
+                                                <i class="bi bi-arrow-return-left me-1"></i>
+
+                                                Return Rental Product
+
+                                            </div>
+
+                                            <p class="text-muted mb-3">
+
+                                                Select where you want your refundable rental security to be sent after the returned dress is inspected and approved.
+
+                                            </p>
+
+                                            <form asp-controller="Customer"
+                                                  asp-action="RequestRentalReturn"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="orderDetailId"
+                                                       value="@item.OrderDetailId" />
+
+                                                <div class="refund-method-box">
+
+                                                    <div class="refund-method-title">
+
+                                                        <i class="bi bi-wallet2 me-1"></i>
+
+                                                        Security Refund Details
+
+                                                    </div>
+
+                                                    <div class="row g-3">
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label-custom">
+                                                                Refund Method
+                                                            </label>
+
+                                                            <select name="refundPreferenceMethod"
+                                                                    class="form-select form-select-custom"
+                                                                    required>
+
+                                                                <option value="">
+                                                                    -- Select Refund Method --
+                                                                </option>
+
+                                                                <option value="Easypaisa">
+                                                                    Easypaisa
+                                                                </option>
+
+                                                                <option value="JazzCash">
+                                                                    JazzCash
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label-custom">
+                                                                Easypaisa / JazzCash Account Number
+                                                            </label>
+
+                                                            <input type="tel"
+                                                                   name="refundPreferenceAccount"
+                                                                   class="form-control form-control-custom"
+                                                                   placeholder="03XXXXXXXXX"
+                                                                   maxlength="11"
+                                                                   minlength="11"
+                                                                   pattern="03[0-9]{9}"
+                                                                   inputmode="numeric"
+                                                                   required />
+
+                                                            <div class="small text-muted mt-1">
+
+                                                                Enter the 11-digit mobile number linked to your Easypaisa or JazzCash account.
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="mt-3">
+
+                                                    <button type="submit"
+                                                            class="btn btn-return"
+                                                            onclick="return confirm('Are you sure you want to submit the rental return request?');">
+
+                                                        <i class="bi bi-arrow-return-left me-1"></i>
+
+                                                        Return Dress
+
+                                                    </button>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                    else if (returnAlreadyRequested)
+                                    {
+                                        <div class="return-action-box">
+
+                                            <div class="return-action-title">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+
+                                                Rental Return Request Submitted
+
+                                            </div>
+
+                                            <p class="text-muted mb-0">
+
+                                                Your rental return request has already been submitted. The selected refund information is shown below. You cannot submit another return request for this rental product.
+
+                                            </p>
+
+                                        </div>
+                                    }
+                                    else if (!orderCanBeReturned)
+                                    {
+                                        <div class="return-action-box">
+
+                                            <div class="return-action-title">
+
+                                                <i class="bi bi-info-circle me-1"></i>
+
+                                                Return Not Available Yet
+
+                                            </div>
+
+                                            <p class="text-muted mb-0">
+
+                                                You can request the return after the rental order has been delivered.
+
+                                            </p>
+
+                                        </div>
+                                    }
+
+                                    @if (item.DressReturnedDate.HasValue)
+                                    {
+                                        <div class="row g-3 mt-1">
+
+                                            <div class="col-md-4">
+
+                                                <div class="rental-info">
+
+                                                    <span class="rental-label">
+                                                        Dress Received Date
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        @item.DressReturnedDate.Value.ToString("dd MMM yyyy hh:mm tt")
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                    <div class="return-process-box">
+
+                                        <div class="return-process-title">
+
+                                            <i class="bi bi-info-circle"></i>
+
+                                            Rental Return Process
+
+                                        </div>
+
+                                        <ol>
+
+                                            <li>
+                                                Submit your rental return request.
+                                            </li>
+
+                                            <li>
+                                                Select Easypaisa or JazzCash and provide the mobile number linked to your account.
+                                            </li>
+
+                                            <li>
+                                                The delivery boy collects the rented dress from your delivery address.
+                                            </li>
+
+                                            <li>
+                                                The returned dress is received and inspected.
+                                            </li>
+
+                                            <li>
+                                                If approved, Admin refunds the refundable security through your selected Easypaisa or JazzCash account.
+                                            </li>
+
+                                        </ol>
+
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.RefundPreferenceMethod))
+                                    {
+                                        <div class="refund-preference-box">
+
+                                            <div class="refund-preference-title">
+
+                                                <i class="bi bi-wallet2"></i>
+
+                                                Selected Security Refund Method
+
+                                            </div>
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-6">
+
+                                                    <span class="rental-label">
+                                                        Refund Method
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @item.RefundPreferenceMethod
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-6">
+
+                                                    <span class="rental-label">
+                                                        Refund Account
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @(item.RefundPreferenceAccount ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="small text-muted mt-3">
+
+                                                <i class="bi bi-info-circle"></i>
+
+                                                Your security will be refunded through this Easypaisa or JazzCash account after the returned dress has been inspected and approved by Admin.
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(item.InspectionResult))
+                                    {
+                                        <div class="row g-3 mt-1">
+
+                                            <div class="col-md-6">
+
+                                                <div class="rental-info">
+
+                                                    <span class="rental-label">
+                                                        Inspection Result
+                                                    </span>
+
+                                                    <span class="rental-value">
+
+                                                        @item.InspectionResult
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(item.InspectionNotes))
+                                            {
+                                                <div class="col-md-6">
+
+                                                    <div class="rental-info">
+
+                                                        <span class="rental-label">
+                                                            Inspection Notes
+                                                        </span>
+
+                                                        <span class="rental-value">
+
+                                                            @item.InspectionNotes
+
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+                                            }
+
+                                        </div>
+                                    }
+
+                                    @if (item.DamageDeduction > 0)
+                                    {
+                                        <div class="damage-box">
+
+                                            <div class="damage-title">
+
+                                                <i class="bi bi-exclamation-triangle"></i>
+
+                                                Damage Deduction
+
+                                            </div>
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-6">
+
+                                                    <span class="rental-label">
+                                                        Deduction
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        Rs. @item.DamageDeduction.ToString("N2")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-6">
+
+                                                    <span class="rental-label">
+                                                        Refundable Amount
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        Rs. @item.RefundAmount.ToString("N2")
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                    @if (item.SecurityRefunded)
+                                    {
+                                        <div class="refund-box">
+
+                                            <div class="refund-title">
+
+                                                <i class="bi bi-wallet2"></i>
+
+                                                Security Refund Completed
+
+                                            </div>
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+                                                        Refund Amount
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        Rs. @item.RefundAmount.ToString("N2")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+                                                        Refund Method
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @(item.SecurityRefundMethod ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+                                                        Refund Date
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @(item.SecurityRefundDate?.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                                <div class="col-md-3">
+
+                                                    <span class="rental-label">
+                                                        Transaction ID
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @(item.SecurityRefundTransactionId ?? "N/A")
+
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(item.SecurityRefundAccount))
+                                            {
+                                                <div class="mt-3">
+
+                                                    <span class="rental-label">
+                                                        Refund Account
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @item.SecurityRefundAccount
+
+                                                    </span>
+
+                                                </div>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(item.SecurityRefundNotes))
+                                            {
+                                                <div class="mt-3">
+
+                                                    <span class="rental-label">
+                                                        Refund Notes
+                                                    </span>
+
+                                                    <span class="refund-value">
+
+                                                        @item.SecurityRefundNotes
+
+                                                    </span>
+
+                                                </div>
+                                            }
+
+                                        </div>
+                                    }
+
+                                    @if (string.Equals(
+                                                            item.RentalReturnStatus,
+                                                            "Security Forfeited",
+                                                            StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div class="damage-box">
+
+                                            <div class="damage-title">
+
+                                                <i class="bi bi-shield-x"></i>
+
+                                                Security Refund Not Available
+
+                                            </div>
+
+                                            <p class="mb-0">
+
+                                                The rental security has been withheld according to the Admin's inspection decision.
+
+                                            </p>
+
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.CustomMeasurements))
+                            {
+                                <div class="measurement-box">
+
+                                    <div class="measurement-title">
+
+                                        <i class="bi bi-rulers"></i>
+
+                                        Custom Measurements
+
+                                    </div>
+
+                                    <div class="measurement-text">
+
+                                        @item.CustomMeasurements
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+                }
+                else
+                {
+                    <div class="text-center py-4">
+
+                        <i class="bi bi-bag-x fs-1 text-secondary"></i>
+
+                        <p class="empty-text mt-2">
+
+                            No product details found for this order.
+
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <div class="custom-card">
+
+            <div class="card-header-custom">
+
+                <i class="bi bi-truck"></i>
+
+                Delivery Information
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <div class="row">
+
+                    <div class="col-md-8">
+
+                        <label class="info-label">
+                            Delivery Address
+                        </label>
+
+                        <div class="address-box">
+
+                            <i class="bi bi-geo-alt-fill text-danger"></i>
+
+                            @Model.DeliveryAddress
+
+                        </div>
+
+                    </div>
+
                     <div class="col-md-4">
 
-                        <div class="info-box">
+                        <div class="info-box mt-3 mt-md-0">
 
                             <span class="info-label">
-                                Payment Date
+                                Delivery Charges
                             </span>
 
                             <span class="info-value">
 
-                                @(Model.PaymentDate.HasValue
-                                    ? Model.PaymentDate.Value.ToString("dd MMM yyyy hh:mm tt")
-                                    : "Not Received Yet")
+                                Rs. @Model.DeliveryCharges.ToString("N2")
+
+                            </span>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <span class="info-label">
+                                Delivery Boy
+                            </span>
+
+                            <span class="info-value">
+
+                                @(Model.Delivery?.Name ?? "Not Assigned Yet")
 
                             </span>
 
@@ -1835,245 +1731,377 @@
 
                 </div>
 
-                @if (Model.PaymentMethod == "Easypaisa" ||
-                     Model.PaymentMethod == "JazzCash")
-                {
-                    <div class="row mt-2">
-
-                        @if (!string.IsNullOrEmpty(Model.TransactionId))
-                        {
-                            <div class="col-md-6">
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Transaction ID
-                                    </span>
-
-                                    <span class="info-value">
-
-                                        @Model.TransactionId
-
-                                    </span>
-
-                                </div>
-
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.TransactionImage))
-                        {
-                            <div class="col-md-6">
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Payment Proof
-                                    </span>
-
-                                    <span class="info-value">
-
-                                        <a href="@Model.TransactionImage"
-                                           target="_blank"
-                                           class="btn btn-sm btn-outline-primary">
-
-                                            <i class="bi bi-image"></i>
-
-                                            View Payment Screenshot
-
-                                        </a>
-
-                                    </span>
-
-                                </div>
-
-                            </div>
-                        }
-
-                    </div>
-                }
-
             </div>
 
         </div>
 
-    </div>
-
-    <div class="custom-card">
-
-        <div class="card-header-custom">
-
-            <i class="bi bi-calculator"></i>
-
-            Price Breakdown
-
-        </div>
-
-        <div class="card-body-custom">
-
-            <div class="price-row">
-
-                <span class="price-label">
-                    Product Total
-                </span>
-
-                <span class="price-value">
-
-                    Rs. @Model.ProductTotal.ToString("N2")
-
-                </span>
-
-            </div>
-
-            <div class="price-row">
-
-                <span class="price-label">
-                    Delivery Charges
-                </span>
-
-                <span class="price-value">
-
-                    Rs. @Model.DeliveryCharges.ToString("N2")
-
-                </span>
-
-            </div>
-
-            <div class="price-row">
-
-                <span class="price-label">
-                    Platform Service Fee (10%)
-                </span>
-
-                <span class="price-value">
-
-                    Rs. @Model.ServiceFee.ToString("N2")
-
-                </span>
-
-            </div>
-
-            @if (Model.RefundableSecurity > 0)
-            {
-                <div class="price-row security-row">
-
-                    <span class="security-label">
-
-                        <i class="bi bi-shield-check"></i>
-
-                        Refundable Rental Security
-
-                    </span>
-
-                    <span class="security-value">
-
-                        Rs. @Model.RefundableSecurity.ToString("N2")
-
-                    </span>
-
-                </div>
-
-                <div class="small text-muted mt-2">
-
-                    <i class="bi bi-info-circle"></i>
-
-                    This security amount is separate from the rental price and is refundable after the rented dress is returned and inspected.
-
-                </div>
-            }
-
-            <div class="total-box">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <span class="total-label">
-
-                        Final Total Paid / Payable
-
-                    </span>
-
-                    <span class="total-value">
-
-                        Rs. @Model.TotalAmount.ToString("N2")
-
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(Model.Notes))
-    {
         <div class="custom-card">
 
             <div class="card-header-custom">
 
-                <i class="bi bi-chat-left-text"></i>
+                <i class="bi bi-credit-card"></i>
 
-                Order Notes
+                Payment Information
 
             </div>
 
             <div class="card-body-custom">
 
-                <div class="info-box mb-0">
+                <div class="payment-box">
 
-                    @Model.Notes
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <div class="info-box">
+
+                                <span class="info-label">
+                                    Payment Method
+                                </span>
+
+                                <span class="info-value">
+
+                                    @if (Model.PaymentMethod == "Cash on Delivery")
+                                    {
+                                        <span class="status-badge bg-warning text-dark">
+
+                                            <i class="bi bi-cash"></i>
+
+                                            Cash on Delivery
+
+                                        </span>
+                                    }
+                                    else if (Model.PaymentMethod == "Easypaisa")
+                                    {
+                                        <span class="status-badge bg-success text-white">
+
+                                            <i class="bi bi-phone"></i>
+
+                                            Easypaisa
+
+                                        </span>
+                                    }
+                                    else if (Model.PaymentMethod == "JazzCash")
+                                    {
+                                        <span class="status-badge bg-danger text-white">
+
+                                            <i class="bi bi-phone"></i>
+
+                                            JazzCash
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @Model.PaymentMethod
+                                    }
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-box">
+
+                                <span class="info-label">
+                                    Payment Status
+                                </span>
+
+                                <span class="info-value">
+
+                                    @if (Model.PaymentReceived)
+                                    {
+                                        <span class="status-badge bg-success text-white">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Payment Received
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge bg-warning text-dark">
+
+                                            <i class="bi bi-clock"></i>
+
+                                            Payment Pending
+
+                                        </span>
+                                    }
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-box">
+
+                                <span class="info-label">
+                                    Payment Date
+                                </span>
+
+                                <span class="info-value">
+
+                                    @(Model.PaymentDate.HasValue
+                                                                        ? Model.PaymentDate.Value.ToString("dd MMM yyyy hh:mm tt")
+                                                                        : "Not Received Yet")
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    @if (Model.PaymentMethod == "Easypaisa" ||
+                                        Model.PaymentMethod == "JazzCash")
+                    {
+                        <div class="row mt-2">
+
+                            @if (!string.IsNullOrEmpty(Model.TransactionId))
+                            {
+                                <div class="col-md-6">
+
+                                    <div class="info-box">
+
+                                        <span class="info-label">
+                                            Transaction ID
+                                        </span>
+
+                                        <span class="info-value">
+
+                                            @Model.TransactionId
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.TransactionImage))
+                            {
+                                <div class="col-md-6">
+
+                                    <div class="info-box">
+
+                                        <span class="info-label">
+                                            Payment Proof
+                                        </span>
+
+                                        <span class="info-value">
+
+                                            <a href="@Model.TransactionImage"
+                                               target="_blank"
+                                               class="btn btn-sm btn-outline-primary">
+
+                                                <i class="bi bi-image"></i>
+
+                                                View Payment Screenshot
+
+                                            </a>
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
 
                 </div>
 
             </div>
 
         </div>
-    }
 
-    <div class="custom-card">
+        <div class="custom-card">
 
-        <div class="card-body-custom">
+            <div class="card-header-custom">
 
-            <div class="d-flex flex-wrap gap-2">
+                <i class="bi bi-calculator"></i>
 
-                <a asp-controller="Customer"
-                   asp-action="MyOrders"
-                   class="btn btn-secondary">
+                Price Breakdown
 
-                    <i class="bi bi-arrow-left"></i>
+            </div>
 
-                    My Orders
+            <div class="card-body-custom">
 
-                </a>
+                <div class="price-row">
 
-                @if (Model.OrderStatus == "Delivered")
+                    <span class="price-label">
+                        Product Total
+                    </span>
+
+                    <span class="price-value">
+
+                        Rs. @Model.ProductTotal.ToString("N2")
+
+                    </span>
+
+                </div>
+
+                <div class="price-row">
+
+                    <span class="price-label">
+                        Delivery Charges
+                    </span>
+
+                    <span class="price-value">
+
+                        Rs. @Model.DeliveryCharges.ToString("N2")
+
+                    </span>
+
+                </div>
+
+                <div class="price-row">
+
+                    <span class="price-label">
+                        Platform Service Fee (10%)
+                    </span>
+
+                    <span class="price-value">
+
+                        Rs. @Model.ServiceFee.ToString("N2")
+
+                    </span>
+
+                </div>
+
+                @if (Model.RefundableSecurity > 0)
                 {
-                    <a asp-controller="Customer"
-                       asp-action="Reviews"
-                       asp-route-orderId="@Model.OrderId"
-                       class="btn btn-maroon">
+                    <div class="price-row security-row">
 
-                        <i class="bi bi-star"></i>
+                        <span class="security-label">
 
-                        Give Feedback
+                            <i class="bi bi-shield-check"></i>
 
-                    </a>
+                            Refundable Rental Security
+
+                        </span>
+
+                        <span class="security-value">
+
+                            Rs. @Model.RefundableSecurity.ToString("N2")
+
+                        </span>
+
+                    </div>
+
+                    <div class="small text-muted mt-2">
+
+                        <i class="bi bi-info-circle"></i>
+
+                        This security amount is separate from the rental price and is refundable after the rented dress is returned and inspected.
+
+                    </div>
                 }
 
-                @if (Model.Shop != null)
-                {
+                <div class="total-box">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <span class="total-label">
+
+                            Final Total Paid / Payable
+
+                        </span>
+
+                        <span class="total-value">
+
+                            Rs. @Model.TotalAmount.ToString("N2")
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="custom-card">
+
+                <div class="card-header-custom">
+
+                    <i class="bi bi-chat-left-text"></i>
+
+                    Order Notes
+
+                </div>
+
+                <div class="card-body-custom">
+
+                    <div class="info-box mb-0">
+
+                        @Model.Notes
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        <div class="custom-card">
+
+            <div class="card-body-custom">
+
+                <div class="d-flex flex-wrap gap-2">
+
                     <a asp-controller="Customer"
-                       asp-action="Chat"
-                       asp-route-shopId="@Model.Shop.ShopId"
-                       class="btn btn-outline-primary">
+                       asp-action="MyOrders"
+                       class="btn btn-secondary">
 
-                        <i class="bi bi-chat-dots"></i>
+                        <i class="bi bi-arrow-left"></i>
 
-                        Chat with Shop
+                        My Orders
 
                     </a>
-                }
+
+                    @if (Model.OrderStatus == "Delivered")
+                    {
+                        <a asp-controller="Customer"
+                           asp-action="Reviews"
+                           asp-route-orderId="@Model.OrderId"
+                           class="btn btn-maroon">
+
+                            <i class="bi bi-star"></i>
+
+                            Give Feedback
+
+                        </a>
+                    }
+
+                    @if (Model.Shop != null)
+                    {
+                        <a asp-controller="Customer"
+                           asp-action="Chat"
+                           asp-route-shopId="@Model.Shop.ShopId"
+                           class="btn btn-outline-primary">
+
+                            <i class="bi bi-chat-dots"></i>
+
+                            Chat with Shop
+
+                        </a>
+                    }
+
+                </div>
 
             </div>
 
@@ -2081,9 +2109,7 @@
 
     </div>
 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

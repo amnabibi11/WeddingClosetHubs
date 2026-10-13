@@ -686,13 +686,21 @@ namespace WeddingClosetHubs.Controllers
                         "OrderDetails",
                         new { id });
                 }
-
                 bool isCod =
                     IsCashOnDelivery(order.PaymentMethod);
 
+                bool isOnlinePayment =
+                    string.Equals(
+                        order.PaymentMethod?.Trim(),
+                        "Easypaisa",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        order.PaymentMethod?.Trim(),
+                        "JazzCash",
+                        StringComparison.OrdinalIgnoreCase);
+
                 if (isCod &&
-                    order.DeliveryCollectedAmount <
-                    order.TotalAmount)
+                    order.DeliveryCollectedAmount < order.TotalAmount)
                 {
                     TempData["Error"] =
                         $"Please collect the full COD amount of Rs. {order.TotalAmount:N2} before completing this delivery.";
@@ -701,6 +709,8 @@ namespace WeddingClosetHubs.Controllers
                         "OrderDetails",
                         new { id });
                 }
+
+               
                 bool customerPaymentConfirmed =
                     order.PaymentReceived &&
                     string.Equals(
@@ -708,8 +718,20 @@ namespace WeddingClosetHubs.Controllers
                         "Paid",
                         StringComparison.OrdinalIgnoreCase);
 
+           
+                if (isOnlinePayment && !customerPaymentConfirmed)
+                {
+                    TempData["Error"] =
+                        $"The {order.PaymentMethod} payment for Order #{order.OrderId} has not been confirmed by Admin yet.";
+
+                    return RedirectToAction(
+                        "OrderDetails",
+                        new { id });
+                }
+
+                
                 order.OrderStatus =
-                    !isCod && customerPaymentConfirmed
+                    isOnlinePayment && customerPaymentConfirmed
                         ? "Completed"
                         : "Delivered";
 
@@ -2315,6 +2337,7 @@ namespace WeddingClosetHubs.Controllers
             return user?.Name ?? "Delivery Boy";
         }
 
+
         private bool IsCashOnDelivery(string? paymentMethod)
         {
             if (string.IsNullOrWhiteSpace(paymentMethod))
@@ -2328,12 +2351,9 @@ namespace WeddingClosetHubs.Controllers
                    ||
                    method.Equals(
                        "Cash on Delivery",
-                       StringComparison.OrdinalIgnoreCase)
-                   ||
-                   method.Contains(
-                       "Cash",
                        StringComparison.OrdinalIgnoreCase);
         }
+
 
         private async Task CreateNotification(
             int userId,

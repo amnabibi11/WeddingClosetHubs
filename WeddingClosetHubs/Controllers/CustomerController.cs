@@ -5008,42 +5008,37 @@ namespace WeddingClosetHubs.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> OrderDetails(
-            int id)
+        public async Task<IActionResult> OrderDetails(int id)
         {
             if (!IsCustomerLoggedIn())
                 return CustomerLogin();
 
-            int customerId =
-                GetCustomerId()!.Value;
+            int customerId = GetCustomerId()!.Value;
 
-            var order =
-                await _context.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Shop)
-                        .ThenInclude(s => s!.Shopkeeper)
-                    .Include(o => o.Delivery)
-                    .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Product)
-                    .FirstOrDefaultAsync(
-                        o =>
-                            o.OrderId == id &&
-                            o.CustomerId ==
-                                customerId
-                    );
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Shop)
+                    .ThenInclude(s => s!.Shopkeeper)
+                .Include(o => o.Delivery)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.CustomizationRequest)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderId == id &&
+                    o.CustomerId == customerId);
 
             if (order == null)
             {
-                TempData["Error"] =
-                    "Order not found.";
+                TempData["Error"] = "Order not found.";
 
-                return RedirectToAction(
-                    "MyOrders"
-                );
+                return RedirectToAction("MyOrders");
             }
 
             return View(order);
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

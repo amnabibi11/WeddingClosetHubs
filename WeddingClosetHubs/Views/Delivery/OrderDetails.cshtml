@@ -46,13 +46,21 @@
         currentUserId > 0 &&
         Model!.DeliveryId!.Value != currentUserId;
 
+
+    string paymentMethod = Model?.PaymentMethod?.Trim() ?? "";
+
     bool isCod =
-        !string.IsNullOrWhiteSpace(Model?.PaymentMethod) &&
-        (
-            Model.PaymentMethod.Equals("COD", StringComparison.OrdinalIgnoreCase) ||
-            Model.PaymentMethod.Equals("Cash on Delivery", StringComparison.OrdinalIgnoreCase) ||
-            Model.PaymentMethod.Contains("Cash", StringComparison.OrdinalIgnoreCase)
-        );
+        paymentMethod.Equals("COD", StringComparison.OrdinalIgnoreCase) ||
+        paymentMethod.Equals("Cash on Delivery", StringComparison.OrdinalIgnoreCase);
+
+    bool isEasypaisa =
+        paymentMethod.Equals("Easypaisa", StringComparison.OrdinalIgnoreCase);
+
+    bool isJazzCash =
+        paymentMethod.Equals("JazzCash", StringComparison.OrdinalIgnoreCase);
+
+    bool isOnlinePayment = isEasypaisa || isJazzCash;
+
 
     decimal productTotal = Model?.ProductTotal ?? 0;
     decimal deliveryCharges = Model?.DeliveryCharges ?? 0;
@@ -1257,7 +1265,13 @@
                         <strong>
                             @(isCod
                                                         ? "Cash on Delivery"
-                                                        : (Model.PaymentMethod ?? "Online Payment"))
+                                                        : isEasypaisa
+                                                        ? "Easypaisa"
+                                                        : isJazzCash
+                                                        ? "JazzCash"
+                                                        : (paymentMethod.Length > 0
+                                                        ? paymentMethod
+                                                        : "Payment Method Not Specified"))
                         </strong>
 
                     </div>
@@ -2010,8 +2024,8 @@
                             <div class="payment-icon">
 
                                 <i class="fa-solid @(isCod
-                                                                   ? "fa-money-bill-wave"
-                                                                   : "fa-credit-card")"></i>
+                                                                                                                                         ? "fa-money-bill-wave"
+                                                                                                                                         : "fa-credit-card")"></i>
 
                             </div>
 

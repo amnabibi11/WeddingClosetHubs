@@ -809,7 +809,7 @@
 
             </div>
 
-           
+
 
             @if (orders.Any())
             {
@@ -925,20 +925,34 @@
                     order.DeliveryId.HasValue &&
                     order.DeliveryId.Value == currentUserId;
 
+
+                    string paymentMethod = order.PaymentMethod?.Trim() ?? "";
+
                     bool isCod =
-                    !string.IsNullOrWhiteSpace(order.PaymentMethod) &&
-                    (
-                    order.PaymentMethod.Equals(
+                    paymentMethod.Equals(
                     "COD",
-                    StringComparison.OrdinalIgnoreCase)
-                    ||
-                    order.PaymentMethod.Contains(
-                    "Cash",
-                    StringComparison.OrdinalIgnoreCase)
-                    );
+                    StringComparison.OrdinalIgnoreCase) ||
+                    paymentMethod.Equals(
+                    "Cash on Delivery",
+                    StringComparison.OrdinalIgnoreCase);
+
+                    bool isEasypaisa =
+                    paymentMethod.Equals(
+                    "Easypaisa",
+                    StringComparison.OrdinalIgnoreCase);
+
+                    bool isJazzCash =
+                    paymentMethod.Equals(
+                    "JazzCash",
+                    StringComparison.OrdinalIgnoreCase);
+
+                    bool isOnlinePayment = isEasypaisa || isJazzCash;
 
                     bool codCollected =
-                    order.DeliveryCollectedAmount > 0;
+                    isCod &&
+                    order.DeliveryCollectedAmount >= order.TotalAmount;
+
+
 
                     <div class="order-card @(isRentalReturn ? "rental-card" : "")">
 
@@ -1673,18 +1687,11 @@
                                         </form>
 
                                     }
-
                                     @if (status.Equals(
                                                         "Out for Delivery",
-                                                        StringComparison.OrdinalIgnoreCase)
-                                                        ||
-                                                        status.Equals(
-                                                        "Picked Up",
                                                         StringComparison.OrdinalIgnoreCase))
                                     {
-
-                                        bool canDeliver =
-                                        !isCod || codCollected;
+                                        bool canDeliver = !isCod || codCollected;
 
                                         @if (canDeliver)
                                         {
