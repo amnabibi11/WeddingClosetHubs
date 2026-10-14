@@ -1858,12 +1858,19 @@
                                                             Account / Mobile Number
                                                         </label>
 
-                                                        <input type="text"
-                                                               name="refundAccount"
-                                                               id="issueRefundAccount_@item.OrderDetailId"
-                                                               class="form-control"
-                                                               placeholder="Easypaisa/JazzCash number"
-                                                               disabled />
+                                                        
+                                                        <input type="tel"
+                                                          name="refundAccount"
+                                                          id="issueRefundAccount_@item.OrderDetailId"
+                                                          class="form-control"
+                                                          placeholder="03XXXXXXXXX"
+                                                          maxlength="11"
+                                                          minlength="11"
+                                                          pattern="03[0-9]{9}"
+                                                          inputmode="numeric"
+                                                          title="Enter an 11-digit Pakistani mobile number starting with 03."
+                                                          disabled />
+
 
                                                     </div>
 
@@ -2067,12 +2074,20 @@
                                             Account / Mobile Number
                                         </label>
 
-                                        <input type="text"
-                                               name="refundAccount"
-                                               id="refundAccount_@item.OrderDetailId"
-                                               class="form-control"
-                                               placeholder="Easypaisa/JazzCash number"
-                                               disabled />
+                                       
+                                        <input type="tel"
+                                           name="refundAccount"
+                                           id="refundAccount_@item.OrderDetailId"
+                                           class="form-control"
+                                           placeholder="03XXXXXXXXX"
+                                           maxlength="11"
+                                           minlength="11"
+                                           pattern="03[0-9]{9}"
+                                           inputmode="numeric"
+                                           title="Enter an 11-digit number starting with 03."
+                                           disabled />
+
+
 
                                     </div>
 

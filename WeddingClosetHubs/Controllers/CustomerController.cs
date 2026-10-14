@@ -5168,11 +5168,23 @@ namespace WeddingClosetHubs.Controllers
             refundPreferenceAccount =
                 refundPreferenceAccount.Trim();
 
-            string accountNumber =
-                new string(
-                    refundPreferenceAccount
-                        .Where(char.IsDigit)
-                        .ToArray());
+
+            refundPreferenceAccount = refundPreferenceAccount.Trim();
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    refundPreferenceAccount,
+                    @"^03[0-9]{9}$"))
+            {
+                TempData["Error"] =
+                    "Please enter a valid Pakistani mobile number in the format 03XXXXXXXXX.";
+
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderDetail.OrderId });
+            }
+
+            string accountNumber = refundPreferenceAccount;
+
 
             if (accountNumber.Length != 11 ||
                 !accountNumber.StartsWith("03"))

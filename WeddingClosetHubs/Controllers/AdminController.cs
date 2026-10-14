@@ -3806,10 +3806,23 @@ namespace WeddingClosetHubs.Controllers
             if (string.IsNullOrWhiteSpace(refundAccount))
             {
                 TempData["Error"] =
-                    "Account number is required for Easypaisa or JazzCash refund.";
+                "Account number is required for Easypaisa or JazzCash refund.";
 
                 return RedirectToAction("RentalOrders");
             }
+
+            refundAccount = refundAccount.Trim();
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    refundAccount,
+                    @"^03[0-9]{9}$"))
+            {
+                TempData["Error"] =
+                    "Enter a valid 11-digit Pakistani mobile number in the format 03XXXXXXXXX.";
+
+                return RedirectToAction("RentalOrders");
+            }
+
 
             if (string.IsNullOrWhiteSpace(transactionId))
             {
@@ -3941,11 +3954,22 @@ namespace WeddingClosetHubs.Controllers
 
                     return RedirectToAction("RentalOrders");
                 }
-
                 if (string.IsNullOrWhiteSpace(refundAccount))
                 {
                     TempData["Error"] =
-                        "Account number is required for the refund.";
+                        "Account number is required for the partial refund.";
+
+                    return RedirectToAction("RentalOrders");
+                }
+
+                refundAccount = refundAccount.Trim();
+
+                if (!System.Text.RegularExpressions.Regex.IsMatch(
+                        refundAccount,
+                        @"^03[0-9]{9}$"))
+                {
+                    TempData["Error"] =
+                        "Enter a valid 11-digit Pakistani mobile number in the format 03XXXXXXXXX.";
 
                     return RedirectToAction("RentalOrders");
                 }
